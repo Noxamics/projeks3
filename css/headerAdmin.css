@@ -1,0 +1,214 @@
+/* ====== Struktur utama header ====== */
+.admin-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background-color: transparent;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  position: relative;
+  z-index: 10;
+}
+
+/* ====== Logo kiri ====== */
+.header-left .logo {
+  height: 40px;
+  width: auto;
+  padding-top: 5px;
+  cursor: pointer;
+}
+
+/* ====== NAVIGATION TENGAH ====== */
+.admin-nav {
+  background-color: #004d9d;
+  padding: 8px 60px;
+  border-radius: 0 0 40px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.admin-nav ul {
+  display: flex;
+  list-style: none;
+  gap: 80px;
+  margin: 0;
+  padding: 0;
+}
+
+/* ====== Container tiap icon ====== */
+.nav-item-container {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s ease;
+  position: relative;
+}
+
+.icon-wrapper {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.icon-wrapper img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.icon-default {
+  width: 34px;
+  height: 28px;
+  opacity: 1;
+}
+
+.icon-active {
+  width: 60px;
+  height: 60px;
+  opacity: 0;
+}
+
+/* Hover efek */
+.nav-item-container:hover .icon-default {
+  transform: translate(-50%, -50%) scale(1.1);
+  opacity: 0.8;
+}
+
+/* Saat aktif */
+.nav-item-container.active {
+  transform: translateY(50%);
+  box-shadow: 0 6px 15px rgba(0, 77, 157, 0.5);
+}
+
+.nav-item-container.active .icon-default {
+  opacity: 0;
+}
+
+.nav-item-container.active .icon-active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* ====== Bagian kanan ====== */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ====== Dropdown Setting ====== */
+.setting-dropdown {
+  position: relative;
+}
+
+.icon-setting {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.icon-setting:hover {
+  transform: rotate(20deg);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 38px;
+  right: 0;
+  margin: 10px 130px;
+  background: #ffffff;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-width: 150px;
+  z-index: 100;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #004d9d;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f2f2f2;
+}
+
+.dropdown-menu .logout {
+  color: #c62828;
+  font-weight: 600;
+}
+
+/* ====== Switch Dark Mode ====== */
+.dark-label {
+  font-size: 0.9rem;
+  color: #1f73c9;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #004d9d;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* ====== Mode Gelap ====== */
+body.dark {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}

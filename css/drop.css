@@ -1,0 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+
+/* Semua style dibatasi hanya di dalam .drop-page */
+.drop-page {
+  font-family: "Inter", sans-serif;
+  background-color: #f8fbfd;
+  color: #004d9d;
+  padding: 20px 30px;
+}
+
+/* Judul halaman */
+.drop-page .title {
+  font-weight: 800;
+  font-size: 26px;
+  margin-bottom: 15px;
+}
+
+/* Top bar (button + search) */
+.drop-page .top-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* Tombol Tambah Barang */
+.drop-page .add-btn {
+  background-color: #004d9d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.drop-page .add-btn:hover {
+  background-color: #143c99;
+}
+
+/* Pencarian */
+.drop-page .search-box {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1.5px solid #004d9d;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 250px;
+}
+
+.drop-page .search-box input {
+  flex: 1;
+  border: none;
+  padding: 8px 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.drop-page .search-btn {
+  background-color: #004d9d;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.drop-page .search-btn:hover {
+  background-color: #143c99;
+}
+
+/* Tabel */
+.drop-page .table-container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.drop-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.drop-page thead {
+  background-color: #004d9d;
+  color: #fff;
+}
+
+.drop-page th,
+.drop-page td {
+  padding: 12px 16px;
+  font-size: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e8eef5;
+}
+
+.drop-page tbody tr:nth-child(even) {
+  background-color: #f5f8fc;
+}
+
+.drop-page tbody tr:hover {
+  background-color: #edf3fb;
+}
