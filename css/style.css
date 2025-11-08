@@ -21,14 +21,10 @@ header {
   height: 80px;
   position: fixed;
   width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: transparent;
+  display: flex;
+  transition: all 0.6s ease;
+  z-index: 1000;
 }
 
 header.scrolled {
@@ -43,12 +39,11 @@ header.scrolled {
    CONTAINER
 ============================= */
 .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 10px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 50px;
 }
 
 /* =============================
@@ -88,12 +83,14 @@ header.scrolled .logo img {
 }
 
 .nav-right a {
+  color: #fff;
   text-decoration: none;
   font-size: 12px;
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
   padding-bottom: 4px;
+  transition: color 0.4s ease;
 }
 
 /* Warna saat di-scroll */
@@ -183,13 +180,13 @@ header.scrolled .login-btn a:hover {
 }
 
 .hero-logo {
-  width: 350px;
+  width: 450px;
   max-width: 80%;
   margin-bottom: 5px;
 }
 
 .hero p {
-  font-size: 18px;
+  font-size: 24px;
   margin: 5px 0 10px;
 }
 
@@ -250,7 +247,7 @@ header.scrolled .login-btn a:hover {
 
 .desc {
   line-height: 1.6;
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 40px;
   color: #1d56a7;
 }
@@ -267,15 +264,12 @@ header.scrolled .login-btn a:hover {
 }
 
 .about-section h2 {
-  font-size: 28px;
+  font-size: 36px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
   text-align: center;
 }
-
-/* (dst...) — seluruh isi di bawah ini sudah benar dan tidak perlu diubah */
-
 
 /* =============================
    KARYAWAN SECT
@@ -292,7 +286,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .karyawan-section h2 {
-  font-size: 28px;
+  font-size: 36px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
@@ -389,7 +383,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .journey-section h2 {
-  font-size: 28px;
+  font-size: 36px;
   margin-bottom: 10px;
   color: #fff;
   font-weight: 700;
@@ -437,7 +431,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .catalog-section h2 {
-  font-size: 28px;
+  font-size: 36px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
@@ -543,7 +537,7 @@ header.scrolled .login-btn a:hover {
 /* TEXT BELOW IMAGE       */
 /* ====================== */
 .title {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   margin-top: 12px;
   text-transform: uppercase;
@@ -560,7 +554,7 @@ header.scrolled .login-btn a:hover {
 ============================= */
 
 .take-care-wrapper {
-  max-width: 1080px;
+  max-width: 1200px;
   margin: 40px auto;
   border-radius: 30px;
   overflow: hidden;
@@ -570,7 +564,7 @@ header.scrolled .login-btn a:hover {
 .tc-wrapper {
   background-color: #fff;
   color: white;
-  padding: 15px 20px;
+  padding: 20px 20px;
   text-align: center;
   box-shadow: 0 50px 100px rgba(0, 0, 0, 0.15);
 }
@@ -578,17 +572,17 @@ header.scrolled .login-btn a:hover {
 .take-care {
   background-color: #1d56a7;
   color: white;
-  padding: 15px 20px;
+  padding: 40px 20px;
   text-align: center;
   border-radius: 30px;
 }
 
 .take-care .utama {
-  font-size: 28px;
+  font-size: 36px;
+  margin-bottom: 10px;
   color: #ffffff;
   font-weight: 700;
   text-align: center;
-  margin-top: 20px;
 }
 
 .divider-care {
@@ -624,7 +618,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .catalog-scroll-track img {
-  height: 150px; /* atau ukuran sesuai */
+  height: 200px; /* atau ukuran sesuai */
   border-radius: 12px;
   object-fit: cover;
 }
@@ -640,14 +634,14 @@ header.scrolled .login-btn a:hover {
 }
 
 .gallery img {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
   object-fit: cover;
   border-radius: 20px;
 }
 
 .take-care .kedua {
-  font-size: 20px;
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
@@ -669,7 +663,7 @@ header.scrolled .login-btn a:hover {
   background-color: white;
   color: black;
   border-radius: 20px;
-  width: 200px;
+  width: 220px;
   padding: 20px;
   text-align: left;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -690,7 +684,6 @@ header.scrolled .login-btn a:hover {
 .card h4 {
   margin: 0;
   font-weight: bold;
-  font-size: 16px;
   color: #1d56a7;
 }
 
@@ -908,96 +901,6 @@ header.scrolled .login-btn a:hover {
 }
 
 
-
-/* =============================
-   SECTION: FORM
-============================= */
-.form-section {
-  background-color: #ffffff;
-  padding: 60px 20px;
-  text-align: center;
-  margin: 0;
-  box-sizing: border-box;
-  height: 85vh;
-}
-
-.form-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.form-title {
-  font-size: 26px;
-  margin-bottom: 10px;
-  color: #1d56a7;
-}
-
-.divider {
-  width: 60px;
-  height: 4px;
-  background-color: #1d56a7;
-  margin: 0 auto 30px;
-}
-
-.send-wrapper {
-  background-color: white;
-  padding: 50px;
-  border-radius: 16px;
-  box-shadow: 10px 15px 100px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  max-width: 800px;
-  margin: 20px auto 0;
-}
-
-.send-wrapper form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.send-wrapper input,
-.send-wrapper textarea {
-  padding: 12px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #333;
-}
-
-.send-wrapper input:focus,
-.send-wrapper textarea:focus {
-  border-color: #4a90e2; /* biru lembut */
-  outline: none;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.4);
-  color: #1d56a7;
-}
-
-.send-wrapper input::placeholder,
-.send-wrapper textarea::placeholder {
-  color: #999;
-}
-
-.send-wrapper textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.send-wrapper button {
-  background-color: #1d56a7;
-  color: white;
-  padding: 12px;
-  font-size: 15px;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.send-wrapper button:hover {
-  background-color: #154283;
-}
-
 /* =============================
    CONTACT SECTION
 ============================= */
@@ -1010,7 +913,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .contact-section h2 {
-  font-size: 28px;
+  font-size: 36px;
   margin-bottom: 10px;
   color: #fff;
   font-weight: 700;
