@@ -26,7 +26,7 @@
         <a href="#karyawan">EMPLOYEE</a>
         <a href="#catalog">SERVICE</a>
         <a href="#care">CARE</a>
-        <a href="#testimony">TESTIMONY</a>
+        <a href="#member">MEMBER</a>
         <a href="#contact">CONTACT</a>
         <a href="status.php">CLEANING STATUS</a>
         <a href="catalog.php">CATALOG</a>

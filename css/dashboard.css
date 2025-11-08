@@ -1,0 +1,162 @@
+.dashboard-container {
+    padding: 30px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dashboard-header h1 {
+    color: #104A8E;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.dashboard-content {
+    display: flex;
+    gap: 30px;
+}
+
+/* TIMELINE SECTION */
+.timeline-card {
+    flex: 2;
+    background: #fff;
+    border: 2px solid #0E4A8E;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.timeline-card h2 {
+    color: #104A8E;
+}
+
+.filter-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.filter-row select,
+.search-box input {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.search-box {
+    display: flex;
+}
+
+.search-box button {
+    background: #104A8E;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.filter-type {
+    margin: 15px 0;
+}
+
+.filter-type button {
+    border: none;
+    background: none;
+    color: #0E4A8E;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.filter-type .active {
+    background: #0E4A8E;
+    color: #fff;
+}
+
+.timeline-body {
+    margin-top: 10px;
+    min-height: 250px;
+    border-top: 2px solid #0E4A8E;
+    padding-top: 20px;
+    text-align: center;
+    color: #777;
+}
+
+/* CALENDAR SECTION */
+.calendar-card {
+    flex: 1;
+    background: #0E4A8E;
+    color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar-nav button {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.calendar-grid .day {
+    font-weight: bold;
+    color: #fff;
+}
+
+.calendar-grid .date {
+    background: #1E63C4;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.calendar-grid .date.active {
+    background: #fff;
+    color: #0E4A8E;
+    font-weight: bold;
+}
+
+/* DEADLINE SECTION */
+.deadline-section {
+    margin-top: 20px;
+}
+
+.deadline-item {
+    background: #fff;
+    color: #000;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.deadline-item.red { border-bottom: 6px solid red; }
+.deadline-item.yellow { border-bottom: 6px solid gold; }
+.deadline-item.green { border-bottom: 6px solid limegreen; }
+.deadline-item.blue { border-bottom: 6px solid deepskyblue; }
+
+.deadline-item h4 {
+    margin: 0;
+    color: #0E4A8E;
+}
+
+.deadline-item p {
+    font-size: 13px;
+    margin: 2px 0 0 0;
+}

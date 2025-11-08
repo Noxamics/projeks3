@@ -18,13 +18,15 @@ body {
    HEADER & NAVIGATION
 ============================= */
 header {
-  height: 100px;
-  position: fixed;
   width: 100%;
-  background: transparent;
-  display: flex;
-  transition: all 0.6s ease;
-  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 header.scrolled {
@@ -39,11 +41,12 @@ header.scrolled {
    CONTAINER
 ============================= */
 .container {
-  margin: 0 auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 50px;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 30px;
 }
 
 /* =============================
@@ -58,8 +61,9 @@ header.scrolled {
 }
 
 .logo img {
-  height: 100px;
-  transition: all 0.6s ease, opacity 0.6s ease;
+  height: 60px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Mengecil saat scroll */
@@ -78,19 +82,20 @@ header.scrolled .logo img {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 30px;
-  margin-left: auto; /* pastikan menu di kanan */
+  gap: 25px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-right a {
-  color: #fff;
   text-decoration: none;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
+  font-weight: 600;
+  color: #222;
+  font-size: 14.5px;
+  letter-spacing: 0.8px;
+  transition: color 0.2s ease, border-bottom 0.2s ease;
   padding-bottom: 4px;
-  transition: color 0.4s ease;
 }
 
 /* Warna saat di-scroll */
@@ -694,112 +699,213 @@ header.scrolled .login-btn a:hover {
 }
 
 /* =============================
-   SECTION: TESTIMONI
+   MEMBER SECTION
 ============================= */
-
-.testimoni-section {
-  width: 100%;
-  background-color: #1d56a7;
-  color: white;
+.member-section {
+  padding: 80px 20px;
+  max-width: 1200px;
+  margin: auto;
   text-align: center;
-  padding: 40px 20px;
-  margin: 0;
-  box-sizing: border-box;
-  margin-top: 100px;
+  margin-top: 80px;
+  margin-bottom: 80px;
 }
 
-.testimoni-wrapper {
-  max-width: 800px;
+.member-section .container {
+  max-width: 1000px;
   margin: 0 auto;
 }
 
-.testimoni-title {
+.member-header {
+  margin-bottom: 60px;
+}
+
+.member-section h2 {
   font-size: 36px;
   margin-bottom: 10px;
-  color: #fff;
+  color: #1d56a7;
   font-weight: 700;
   text-align: center;
 }
 
-.garis-bawah {
-  width: 60px;
-  height: 4px;
-  background-color: #fff;
-  margin: 0 auto 30px;
-}
-
-.testimoni-container {
-  position: relative; /* penting agar navigasi absolut mengacu ke sini */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 0;
-  min-height: 150px; /* agar tombol tidak tumpang tindih */
-}
-
-.testimoni-isi {
-  max-width: 600px;
-  padding: 0 20px;
-}
-
-.kutipan {
+.member-section h3 {
   font-size: 20px;
-  font-weight: 500;
-  color: white;
+  margin-bottom: 25px;
+  color: #1d56a7;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 1px;
 }
 
-.pengirim {
-  margin-top: 10px;
-  color: #c5b487;
-  font-weight: 500;
-}
-
-.navigasi-kiri,
-.navigasi-kanan {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.3);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+.member-section .desc {
+  line-height: 1.6;
   font-size: 18px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #1d56a7;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.navigasi-kiri {
-  left: -200px;
+.member-tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 40px;
 }
 
-.navigasi-kanan {
-  right: -200px;
+.member-tier {
+  background: white;
+  padding: 35px 25px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eaeaea;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.navigasi-kiri:hover,
-.navigasi-kanan:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+.member-tier:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-.titik-indikator {
-  margin-top: 30px;
+.member-tier h4 {
+  font-size: 22px;
+  color: #1d56a7;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
-.titik-indikator span {
-  height: 10px;
-  width: 10px;
-  margin: 0 4px;
-  background-color: #888;
-  border-radius: 50%;
+.member-tier p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  flex-grow: 0;
+}
+
+.member-tier ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 25px 0;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.member-tier li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: #555;
+  position: relative;
+  padding-left: 25px;
+}
+
+.member-tier li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #1d56a7;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.member-btn {
   display: inline-block;
-  cursor: pointer;
+  background: #1d56a7;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  margin-top: auto;
+  width: 100%;
 }
 
-.titik-indikator span.aktif {
-  background-color: #fff;
+.member-btn:hover {
+  background: #164280;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .member-tiers {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .member-section {
+    padding: 60px 20px;
+    margin-top: 60px;
+    margin-bottom: 60px;
+  }
+  
+  .member-header {
+    margin-bottom: 40px;
+  }
+  
+  .member-section h2 {
+    font-size: 32px;
+  }
+  
+  .member-section h3 {
+    font-size: 18px;
+  }
+  
+  .member-tiers {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 20px;
+  }
+  
+  .member-tier {
+    padding: 30px 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .member-section {
+    padding: 50px 15px;
+  }
+  
+  .member-section h2 {
+    font-size: 28px;
+  }
+  
+  .member-section h3 {
+    font-size: 16px;
+  }
+  
+  .member-section .desc {
+    font-size: 16px;
+  }
+  
+  .member-tier {
+    padding: 25px 20px;
+  }
+  
+  .member-tier h4 {
+    font-size: 20px;
+  }
+  
+  .member-tier p {
+    font-size: 14px;
+  }
+  
+  .member-tier li {
+    font-size: 13px;
+  }
+}
+
+
 
 /* =============================
    SECTION: FORM
