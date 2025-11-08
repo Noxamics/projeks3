@@ -2,9 +2,9 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "sengkuweb";
+$dbname = "projek_s3";
 
-$conn = new mysqli($host, $user, $pass, $db);
+$conn = new mysqli($host, $user, $pass, $dbname);
 
 if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
