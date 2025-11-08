@@ -1,37 +1,49 @@
-/* ====== Struktur utama header ====== */
+/* =========================================================
+   ADMIN HEADER – soft gradient + blur + flowing surface
+========================================================= */
 .admin-header-wrapper {
+  background: linear-gradient(145deg, #f3f7fb, #ffffff);
+  padding: 18px 40px;
+  border-radius: 22px 22px 22px 22px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0px 10px 15px rgba(0, 40, 120, 0.08);
+  font-family: "Inter", sans-serif;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
-  background-color: transparent;
-  color: #fff;
-  font-family: "Inter", sans-serif;
-  position: relative;
-  z-index: 10;
 }
 
 /* ====== Logo kiri ====== */
 .header-left .logo {
-  height: 40px;
+  height: 23px;
   width: auto;
   padding-top: 5px;
   cursor: pointer;
 }
 
-/* ====== NAVIGATION TENGAH ====== */
+/* ====== NAVIGATION TENGAH (Modern + Tetap Tengah) ====== */
 .admin-nav {
-  background-color: #004d9d;
-  padding: 8px 60px;
-  border-radius: 0 0 40px 40px;
+  background: linear-gradient(135deg, #005dbb, #004a94);
+  padding: 12px 70px;
+  border-radius: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
+
+  /* POSISI TETAP */
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+
+  /* Modern look */
+  box-shadow: 0 8px 25px rgba(0, 77, 157, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
 }
 
+/* Menu UL */
 .admin-nav ul {
   display: flex;
   list-style: none;
@@ -40,55 +52,58 @@
   padding: 0;
 }
 
-/* ====== Container tiap icon ====== */
+/* ====== Container Icon ====== */
 .nav-item-container {
-  width: 52px;
-  height: 52px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: transparent;
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: 0.3s ease;
+  transition: 0.25s ease;
   position: relative;
+  cursor: pointer;
 }
 
+/* Hover efek */
+.nav-item-container:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Icon Wrapper */
 .icon-wrapper {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
 }
 
+/* Default icon */
 .icon-wrapper img {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.25s ease, transform 0.2s ease;
 }
 
 .icon-default {
-  width: 34px;
-  height: 28px;
+  width: 26px;
   opacity: 1;
 }
 
+/* Active icon (besar) */
 .icon-active {
-  width: 60px;
-  height: 60px;
+  width: 50px;
   opacity: 0;
 }
 
-/* Hover efek */
-.nav-item-container:hover .icon-default {
-  transform: translate(-50%, -50%) scale(1.1);
-  opacity: 0.8;
-}
-
-/* Saat aktif */
+/* ====== Saat Aktif ====== */
 .nav-item-container.active {
   transform: translateY(50%);
-  box-shadow: 0 6px 15px rgba(0, 77, 157, 0.5);
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(0, 50, 150, 0.3);
 }
 
 .nav-item-container.active .icon-default {
@@ -97,7 +112,7 @@
 
 .nav-item-container.active .icon-active {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1.1);
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
 /* ====== Bagian kanan ====== */

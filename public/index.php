@@ -1,6 +1,7 @@
 <?php
 include_once "../partials/header-lp.php";
 ?>
+<link rel="stylesheet" href="../css/style.css">
 
 <!-- Hero Section -->
 <section class="hero" id="heroSection">
@@ -259,7 +260,7 @@ include_once "../partials/header-lp.php";
       <div class="cards">
         <div class="card">
           <div class="icon">🛡️</div>
-          <h4>Ditangani oleh Ahli</h4>
+          <h4>Ditangani oleh Para Ahli</h4>
           <p>
             Berpengalaman lebih dari 10 tahun di industri jasa cuci sepatu.
           </p>

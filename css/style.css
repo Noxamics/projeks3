@@ -18,7 +18,7 @@ body {
    HEADER & NAVIGATION
 ============================= */
 header {
-  height: 100px;
+  height: 80px;
   position: fixed;
   width: 100%;
   background: transparent;
@@ -28,7 +28,7 @@ header {
 }
 
 header.scrolled {
-  height: 60px;
+  height: 55px;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transform: translateY(0);
@@ -54,17 +54,17 @@ header.scrolled {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-right: 100px;
+  margin-right: 25px;
 }
 
 .logo img {
-  height: 100px;
+  height: 80px;
   transition: all 0.6s ease, opacity 0.6s ease;
 }
 
 /* Mengecil saat scroll */
 header.scrolled .logo img {
-  height: 45px;
+  height: 40px;
 }
 
 /* Efek fade agar pergantian logo halus */
@@ -78,14 +78,14 @@ header.scrolled .logo img {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 50px;
   margin-left: auto; /* pastikan menu di kanan */
 }
 
 .nav-right a {
   color: #fff;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
@@ -132,7 +132,7 @@ header.scrolled .nav-right a::after {
    LOGIN BUTTON
 ============================= */
 .login-btn {
-  margin-left: 100px;
+  margin-left: 20px;
   margin-bottom: 5px;
 }
 
@@ -142,7 +142,7 @@ header.scrolled .nav-right a::after {
   border-radius: 25px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   transition: all 0.3s ease;
 }
 
@@ -180,13 +180,13 @@ header.scrolled .login-btn a:hover {
 }
 
 .hero-logo {
-  width: 450px;
+  width: 350px;
   max-width: 80%;
   margin-bottom: 5px;
 }
 
 .hero p {
-  font-size: 24px;
+  font-size: 18px;
   margin: 5px 0 10px;
 }
 
@@ -247,7 +247,7 @@ header.scrolled .login-btn a:hover {
 
 .desc {
   line-height: 1.6;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 40px;
   color: #1d56a7;
 }
@@ -264,7 +264,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .about-section h2 {
-  font-size: 36px;
+  font-size: 28px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
@@ -286,7 +286,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .karyawan-section h2 {
-  font-size: 36px;
+  font-size: 28px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
@@ -383,7 +383,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .journey-section h2 {
-  font-size: 36px;
+  font-size: 28px;
   margin-bottom: 10px;
   color: #fff;
   font-weight: 700;
@@ -431,7 +431,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .catalog-section h2 {
-  font-size: 36px;
+  font-size: 28px;
   margin-bottom: 10px;
   color: #1d56a7;
   font-weight: 700;
@@ -537,7 +537,7 @@ header.scrolled .login-btn a:hover {
 /* TEXT BELOW IMAGE       */
 /* ====================== */
 .title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   margin-top: 12px;
   text-transform: uppercase;
@@ -554,7 +554,7 @@ header.scrolled .login-btn a:hover {
 ============================= */
 
 .take-care-wrapper {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 40px auto;
   border-radius: 30px;
   overflow: hidden;
@@ -564,7 +564,7 @@ header.scrolled .login-btn a:hover {
 .tc-wrapper {
   background-color: #fff;
   color: white;
-  padding: 20px 20px;
+  padding: 15px 20px;
   text-align: center;
   box-shadow: 0 50px 100px rgba(0, 0, 0, 0.15);
 }
@@ -572,17 +572,17 @@ header.scrolled .login-btn a:hover {
 .take-care {
   background-color: #1d56a7;
   color: white;
-  padding: 40px 20px;
+  padding: 15px 20px;
   text-align: center;
   border-radius: 30px;
 }
 
 .take-care .utama {
-  font-size: 36px;
-  margin-bottom: 10px;
+  font-size: 28px;
   color: #ffffff;
   font-weight: 700;
   text-align: center;
+  margin-top: 20px;
 }
 
 .divider-care {
@@ -618,7 +618,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .catalog-scroll-track img {
-  height: 200px; /* atau ukuran sesuai */
+  height: 150px; /* atau ukuran sesuai */
   border-radius: 12px;
   object-fit: cover;
 }
@@ -634,14 +634,14 @@ header.scrolled .login-btn a:hover {
 }
 
 .gallery img {
-  width: 240px;
-  height: 240px;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 20px;
 }
 
 .take-care .kedua {
-  font-size: 24px;
+  font-size: 20px;
   margin-bottom: 10px;
 }
 
@@ -663,7 +663,7 @@ header.scrolled .login-btn a:hover {
   background-color: white;
   color: black;
   border-radius: 20px;
-  width: 220px;
+  width: 200px;
   padding: 20px;
   text-align: left;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -684,6 +684,7 @@ header.scrolled .login-btn a:hover {
 .card h4 {
   margin: 0;
   font-weight: bold;
+  font-size: 16px;
   color: #1d56a7;
 }
 
@@ -902,7 +903,7 @@ header.scrolled .login-btn a:hover {
 }
 
 .contact-section h2 {
-  font-size: 36px;
+  font-size: 28px;
   margin-bottom: 10px;
   color: #fff;
   font-weight: 700;
