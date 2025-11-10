@@ -152,9 +152,12 @@ include('../db.php'); // koneksi database
                             placeholder="Masukkan nominal pembayaran">
                     </div>
 
-                    <div class="full-width">
-                        <button type="submit" class="save-btn">Simpan</button>
+                    <div class="full-width" style="display: flex; gap: 10px; justify-content: center;">
+                        <button type="submit" class="save-btn" id="saveOnlyBtn">Simpan</button>
+                        <button type="button" class="print-btn" id="saveAndPrintBtn">Cetak Struk</button>
                     </div>
+
+
                 </form>
             </div>
         </div>
