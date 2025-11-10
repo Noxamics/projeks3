@@ -1,0 +1,421 @@
+/* Analisis Dashboard Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.analisis-container {
+    padding: 30px;
+    /* background-color: #f5f7fa; */
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0066CC;
+    margin-bottom: 30px;
+}
+
+/* Sales Section */
+.sales-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.pink {
+    background: linear-gradient(135deg, #FFE5F0 0%, #FFD6E8 100%);
+}
+
+.stat-card.yellow {
+    background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+}
+
+.stat-card.green {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+.stat-card.purple {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+}
+
+/* Stat Icon */
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.stat-card.pink .stat-icon {
+    background: #FF4081;
+    color: white;
+}
+
+.stat-card.yellow .stat-icon {
+    background: #FF9800;
+    color: white;
+}
+
+.stat-card.green .stat-icon {
+    background: #4CAF50;
+    color: white;
+}
+
+.stat-card.purple .stat-icon {
+    background: #9C27B0;
+    color: white;
+}
+
+/* Stat Values */
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.stat-change {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.stat-change.positive {
+    color: #4CAF50;
+}
+
+.stat-change.negative {
+    color: #F44336;
+}
+
+/* Dashboard Grid for Charts */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+/* Chart Cards */
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.chart-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+/* Chart Legend */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.legend-label {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Chart Legends (Multiple) */
+.chart-legends {
+    display: flex;
+    gap: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-color.green {
+    background: #4CAF50;
+}
+
+.legend-color.yellow {
+    background: #FFC107;
+}
+
+.legend-text {
+    color: #666;
+}
+
+.legend-value {
+    color: #1a1a1a;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* Top Services Table */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.services-table thead {
+    background: #f8f9fa;
+}
+
+.services-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 2px solid #eee;
+}
+
+.services-table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.services-table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.services-table td {
+    padding: 15px;
+    font-size: 14px;
+    color: #1a1a1a;
+    border-bottom: 1px solid #eee;
+}
+
+.services-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.services-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.services-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Service Type Label */
+.service-type {
+    font-weight: 600;
+    margin-left: 3px;
+}
+
+/* Popularity Bar */
+.popularity-bar {
+    width: 100%;
+    max-width: 200px;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.red {
+    background: linear-gradient(90deg, #FF5252 0%, #F44336 100%);
+}
+
+.progress-fill.orange {
+    background: linear-gradient(90deg, #FFB74D 0%, #FF9800 100%);
+}
+
+.progress-fill.green {
+    background: linear-gradient(90deg, #66BB6A 0%, #4CAF50 100%);
+}
+
+.progress-fill.purple {
+    background: linear-gradient(90deg, #BA68C8 0%, #9C27B0 100%);
+}
+
+/* Badges */
+.badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    display: inline-block;
+}
+
+.badge.red {
+    background: #F44336;
+}
+
+.badge.orange {
+    background: #FF9800;
+}
+
+.badge.green {
+    background: #4CAF50;
+}
+
+.badge.purple {
+    background: #9C27B0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .analisis-container {
+        padding: 15px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .chart-legends {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .services-table {
+        font-size: 12px;
+    }
+    
+    .services-table th,
+    .services-table td {
+        padding: 10px 8px;
+    }
+    
+    .popularity-bar {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header h2 {
+        font-size: 18px;
+    }
+    
+    .chart-card {
+        padding: 15px;
+    }
+    
+    .table-card {
+        padding: 15px;
+        overflow-x: auto;
+    }
+    
+    .services-table {
+        min-width: 500px;
+    }
+}
