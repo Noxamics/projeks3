@@ -1,6 +1,7 @@
 <?php
 include_once "../partials/header-lp.php";
 ?>
+<link rel="stylesheet" href="../css/style.css">
 
 <!-- Hero Section -->
 <section class="hero" id="heroSection">
@@ -259,7 +260,7 @@ include_once "../partials/header-lp.php";
       <div class="cards">
         <div class="card">
           <div class="icon">🛡️</div>
-          <h4>Ditangani oleh Ahli</h4>
+          <h4>Ditangani oleh Para Ahli</h4>
           <p>
             Berpengalaman lebih dari 10 tahun di industri jasa cuci sepatu.
           </p>
@@ -284,36 +285,55 @@ include_once "../partials/header-lp.php";
   </div>
 </div>
 
-<section class="testimoni-section" id="testimony">
-  <div class="testimoni-wrapper">
-    <h2 class="testimoni-title">Testimony</h2>
-    <div class="garis-bawah"></div>
-
-    <div class="testimoni-container">
-      <button class="navigasi-kiri">&#10094;</button>
-
-      <div class="testimoni-isi" id="isiTestimoni"></div>
-
-      <button class="navigasi-kanan">&#10095;</button>
+<!-- ====== MEMBER SECTION ====== -->
+<section class="member-section" id="member">
+  <div class="container">
+    <div class="member-header">
+      <h2>Member Card</h2>
+      <div class="divider"></div>
+      <h3>SENGKUCLEAN MEMBER</h3>
+      <p class="desc">
+        Jadi bagian dari keluarga <strong>Sengkuclean</strong>. Nikmati berbagai keuntungan eksklusif seperti diskon layanan, prioritas pengerjaan, dan poin loyalitas setiap kali transaksi.
+      </p>
     </div>
 
-    <div class="titik-indikator" id="titikIndikator"></div>
+    <div class="member-tiers">
+      <div class="member-tier">
+        <h4>Basic Member</h4>
+        <p>Gratis daftar! Dapatkan potongan 5% untuk layanan pertama dan notifikasi status pengerjaan langsung ke email.</p>
+        <ul>
+          <li>Potongan 5% layanan pertama</li>
+          <li>Notifikasi status via email</li>
+          <li>Update progress real-time</li>
+        </ul>
+      </div>
+      
+      <div class="member-tier">
+        <h4>Premium Member</h4>
+        <p>Nikmati potongan 10% setiap transaksi dan prioritas antrian layanan. Gratis upgrade bila sudah 10 kali transaksi.</p>
+        <ul>
+          <li>Potongan 10% setiap transaksi</li>
+          <li>Prioritas antrian pengerjaan</li>
+          <li>Free upgrade setelah 10x transaksi</li>
+          <li>Layanan customer service khusus</li>
+        </ul>
+        <a href="#" class="member-btn">Gabung Sekarang</a>
+      </div>
+      
+      <div class="member-tier">
+        <h4>VIP Member</h4>
+        <p>Keistimewaan eksklusif! Diskon 15%, free pickup & delivery, dan bonus perawatan setiap bulan.</p>
+        <ul>
+          <li>Diskon 15% semua layanan</li>
+          <li>Free pickup & delivery</li>
+          <li>Bonus perawatan bulanan</li>
+          <li>Priority customer service 24/7</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="form-section">
-  <h2 class="form-title">Send Your Testimony</h2>
-  <div class="divider"></div>
-
-  <div class="send-wrapper">
-    <form id="formTestimoni">
-      <input type="text" name="name" placeholder="Username Instagram" required />
-      <input type="email" name="email" placeholder="Email" required />
-      <textarea name="message" placeholder="Comment or message" required></textarea>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-</section>
 
 <section class="contact-section" id="contact">
   <h2>Contact Us</h2>

@@ -282,5 +282,5 @@ new Chart(targetCtx, {
 </script>
 
 <?php
-include_once "../partials/footer.php";
+include_once('../partials/footer.php');
 ?>
