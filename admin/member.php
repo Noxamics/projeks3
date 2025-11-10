@@ -6,5 +6,5 @@
 </main>
 
 <?php
-include_once "../partials/footer.php";
+include_once('../partials/footer.php');
 ?>

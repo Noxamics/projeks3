@@ -31,7 +31,8 @@ include('../db.php'); // koneksi database
                 <form method="GET" id="filterForm">
                     <select id="sort" name="sort" class="filter-select"
                         onchange="document.getElementById('filterForm').submit()">
-                        <option value="">-- Pilih --</option>
+                        <!-- Placeholder -->
+                        <option value="" disabled selected hidden>-- Pilih --</option>
                         <option value="nama_asc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_asc') ? 'selected' : '' ?>>Nama (A-Z)</option>
                         <option value="nama_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_desc') ? 'selected' : '' ?>>Nama (Z-A)</option>
                         <option value="tanggal_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'tanggal_desc') ? 'selected' : '' ?>>Tanggal Terlama</option>
@@ -39,8 +40,9 @@ include('../db.php'); // koneksi database
                     </select>
                 </form>
 
-                <button id="deleteSelected" class="delete-selected">
-                    Hapus Terpilih
+
+                <button class="delete-btn" data-id="<?= $row['id_drop'] ?>" title="Hapus">
+                    <img src="../a/svg/trash.svg" alt="Hapus" class="delete-icon">
                 </button>
             </div>
         </div>
@@ -84,11 +86,6 @@ include('../db.php'); // koneksi database
                         </select>
                     </div>
 
-                    <!-- Baris 3 -->
-                    <div>
-                        <label>Tgl. Transaksi</label>
-                        <input type="date" id="tanggal_masuk" name="tanggal_masuk">
-                    </div>
                     <div>
                         <label>Harga</label>
                         <input type="text" id="price_display" name="price_display" style="background:#f9f9f9;">
@@ -96,11 +93,17 @@ include('../db.php'); // koneksi database
                         <input type="hidden" name="price_max" id="price_max">
                     </div>
 
-                    <!-- Baris 4 -->
                     <div>
                         <label>Estimasi Selesai</label>
                         <input type="text" id="estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari">
                     </div>
+
+                    <!-- Baris 3 -->
+                    <div>
+                        <label>Tgl. Transaksi</label>
+                        <input type="date" id="tanggal_masuk" name="tanggal_masuk">
+                    </div>
+
                     <div>
                         <label for="tanggal_selesai">Tanggal Estimasi Selesai</label>
                         <input type="date" id="tanggal_selesai" name="tanggal_selesai" readonly
@@ -134,11 +137,20 @@ include('../db.php'); // koneksi database
                         <input type="date" name="payment_date">
                     </div>
 
-                    <select name="payment_method">
-                        <option value="">-- Pilih Metode --</option>
-                        <option value="Tunai">Tunai</option>
-                        <option value="Transfer">Transfer</option>
-                    </select>
+                    <div>
+                        <label>Metode Pembayaran</label>
+                        <select name="payment_method" id="edit_payment_method">
+                            <option value="">-- Pilih Metode --</option>
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Nominal Pembayaran</label>
+                        <input type="number" name="amount_paid" id="amount_paid"
+                            placeholder="Masukkan nominal pembayaran">
+                    </div>
 
                     <div class="full-width">
                         <button type="submit" class="save-btn">Simpan</button>
@@ -212,19 +224,19 @@ WHERE
 
                     $result = $conn->query($sql);
                     while ($row = $result->fetch_assoc()) {
-                        echo "<tr class='data-row' 
-            data-id='{$row['id_drop']}'
-            data-customer_id='{$row['customer_id']}'
-            data-name=\"" . htmlspecialchars($row['name'], ENT_QUOTES) . "\" 
-            data-phone=\"" . htmlspecialchars($row['phone'], ENT_QUOTES) . "\" 
-            data-brand=\"" . htmlspecialchars($row['brand'], ENT_QUOTES) . "\" 
-            data-service_id='{$row['service_id']}'
-            data-trans_date='{$row['trans_date']}'
-            data-est_finish='{$row['est_finish_date']}'
-            data-status_id='{$row['status_id']}'
-            data-payment_status='" . htmlspecialchars($row['pay_status'] ?? '-', ENT_QUOTES) . "'
-            data-payment_date='" . htmlspecialchars($row['payment_date'] ?? '', ENT_QUOTES) . "'
-            data-payment_method='" . htmlspecialchars($row['payment_method'] ?? '', ENT_QUOTES) . "'>";
+                        echo "<tr class='data-row'
+    data-id_drop='{$row['id_drop']}'
+    data-customer_name=\"" . htmlspecialchars($row['name'], ENT_QUOTES) . "\"
+    data-phone_number=\"" . htmlspecialchars($row['phone'], ENT_QUOTES) . "\"
+    data-brand=\"" . htmlspecialchars($row['brand'], ENT_QUOTES) . "\"
+    data-service_id='{$row['service_id']}'
+    data-tanggal_masuk='{$row['trans_date']}'
+    data-tanggal_selesai='{$row['est_finish_date']}'
+    data-status_id='{$row['status_id']}'
+    data-payment_status='" . htmlspecialchars($row['pay_status'] ?? '', ENT_QUOTES) . "'
+    data-payment_date='" . htmlspecialchars($row['payment_date'] ?? '', ENT_QUOTES) . "'
+    data-payment_method='" . htmlspecialchars($row['payment_method'] ?? '', ENT_QUOTES) . "'
+    data-amount_paid='" . htmlspecialchars($row['amount_paid'] ?? '', ENT_QUOTES) . "'>";
 
                         echo "<td><input type='checkbox' class='row-checkbox' value='{$row['id_drop']}'></td>";
                         echo "<td>" . htmlspecialchars($row['order_code']) . "</td>";
@@ -278,7 +290,133 @@ WHERE
             <button id="saveCustomer" class="save-btn" disabled>Simpan</button>
         </div>
     </div>
+
+    <!-- POPUP FORM EDIT BARANG - Perbaikan -->
+    <div class="modal" id="editModal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <h2>Edit Barang</h2>
+
+            <form method="POST" action="drop_edit.php" class="grid-form" id="editForm">
+                <input type="hidden" name="id_drop" id="edit_id_drop">
+
+                <!-- Baris 1 -->
+                <div>
+                    <label>Nama Pelanggan</label>
+                    <input type="text" id="edit_customer_name" name="customer_name" required>
+                </div>
+                <div>
+                    <label>No. Handphone</label>
+                    <input type="text" id="edit_customer_phone" name="phone_number" required>
+                </div>
+
+                <!-- Baris 2 -->
+                <div>
+                    <label>Brand / Merk</label>
+                    <input type="text" id="edit_brand" name="brand" required>
+                </div>
+
+                <div>
+                    <label for="edit_service_id">Layanan</label>
+                    <select name="service_id" id="edit_service_id" required>
+                        <option value="">-- Pilih Layanan --</option>
+                        <?php
+                        $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
+                        $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
+                        $result = mysqli_query($conn, $query);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
+                            echo "<option value='{$row['id_service']}'>{$displayName}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Harga</label>
+                    <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;"
+                        readonly>
+                    <input type="hidden" name="price_min" id="edit_price_min">
+                    <input type="hidden" name="price_max" id="edit_price_max">
+                </div>
+
+                <div>
+                    <label>Estimasi Selesai</label>
+                    <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari"
+                        readonly style="background:#f9f9f9;">
+                </div>
+
+                <!-- Baris 3 -->
+                <div>
+                    <label>Tgl. Transaksi</label>
+                    <input type="date" id="edit_tanggal_masuk" name="tanggal_masuk">
+                </div>
+                <div>
+                    <label>Estimasi Selesai</label>
+                    <input type="date" id="edit_tanggal_selesai" name="tanggal_selesai" style="background:#f9f9f9;">
+                </div>
+
+                <!-- Baris 4 -->
+                <div>
+                    <label>Status</label>
+                    <select name="status_id" id="edit_statusSelect" required>
+                        <option value="">Pilih Status</option>
+                        <?php
+                        $st = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
+                        while ($s = $st->fetch_assoc()) {
+                            echo "<option value='{$s['id_status']}'>{$s['status_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Status Pembayaran</label>
+                    <select name="payment_status" id="edit_payment_status">
+                        <option value="Belum Lunas">Belum Lunas</option>
+                        <option value="Lunas">Lunas</option>
+                    </select>
+                </div>
+
+                <!-- Baris 5 -->
+                <div>
+                    <label>Tanggal Pembayaran</label>
+                    <input type="date" id="edit_payment_date" name="payment_date">
+                </div>
+
+                <div>
+                    <label>Metode Pembayaran</label>
+                    <select name="payment_method" id="edit_payment_method">
+                        <option value="">-- Pilih Metode --</option>
+                        <option value="Tunai">Tunai</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Nominal Pembayaran</label>
+                    <input type="number" name="amount_paid" id="edit_amount_paid"
+                        placeholder="Masukkan nominal pembayaran">
+                </div>
+
+                <div class="full-width">
+                    <button type="submit" class="save-btn">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </main>
+<!-- Modal Konfirmasi Hapus -->
+<div id="confirmDeleteModal" class="confirm-modal">
+    <div class="confirm-content">
+        <h3>Yakin ingin menghapus data ini?</h3>
+        <p class="warning-text">Data yang dihapus tidak dapat dikembalikan!</p>
+        <div class="confirm-actions">
+            <button id="confirmOk" class="btn-ok">OK</button>
+            <button id="confirmCancel" class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
 
 <?php include_once "../partials/footer.php"; ?>
 <script src="../js/drop.js"></script>

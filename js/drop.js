@@ -1,6 +1,335 @@
 /* ============================================================
-   ELEMENT SELEKTOR UTAMA
+   HELPER FUNCTION: Load Service Info
 ============================================================ */
+function loadServiceInfo(serviceId, isEditMode = false) {
+  const prefix = isEditMode ? "edit_" : "";
+  const priceDisplayEl = document.getElementById(prefix + "price_display");
+  const priceMinEl = document.getElementById(prefix + "price_min");
+  const estimateEl = document.getElementById(prefix + "estimate_desc");
+
+  if (!serviceId) {
+    if (priceDisplayEl) priceDisplayEl.value = "";
+    if (priceMinEl) priceMinEl.value = "";
+    if (estimateEl) estimateEl.value = "";
+    return;
+  }
+
+  console.log(
+    `[loadServiceInfo] Loading service ${serviceId} (Edit: ${isEditMode})`
+  );
+
+  // Set loading state
+  if (priceDisplayEl) priceDisplayEl.value = "Memuat...";
+
+  fetch("get_service_info.php?id_service=" + encodeURIComponent(serviceId))
+    .then((response) => {
+      console.log(`[loadServiceInfo] Response status: ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      console.log("[loadServiceInfo] Data received:", data);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Format harga
+      const formatRupiah = (n) => {
+        const num = parseInt(n) || 0;
+        return "Rp" + num.toLocaleString("id-ID");
+      };
+
+      // Update fields
+      if (priceDisplayEl) priceDisplayEl.value = formatRupiah(data.price_min);
+      if (priceMinEl) priceMinEl.value = data.price_min;
+      if (estimateEl) estimateEl.value = (data.duration || 0) + " Hari";
+
+      console.log("[loadServiceInfo] Fields updated successfully");
+
+      // Auto-calculate finish date jika edit mode
+      if (isEditMode) {
+        const tanggalMasukEl = document.getElementById("edit_tanggal_masuk");
+        const tanggalSelesaiEl = document.getElementById(
+          "edit_tanggal_selesai"
+        );
+
+        if (tanggalMasukEl && tanggalMasukEl.value && data.duration) {
+          const d = new Date(tanggalMasukEl.value);
+          d.setDate(d.getDate() + parseInt(data.duration));
+
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+
+          if (tanggalSelesaiEl) {
+            tanggalSelesaiEl.value = `${yyyy}-${mm}-${dd}`;
+          }
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("[loadServiceInfo] Error:", error);
+
+      if (priceDisplayEl) {
+        priceDisplayEl.value = "Gagal memuat data: " + error.message;
+      }
+
+      // Show user-friendly error
+      alert(
+        "Gagal memuat data layanan: " +
+          error.message +
+          "\n\nCek console untuk detail."
+      );
+    });
+}
+
+/* ============================================================
+   DOUBLE CLICK ROW TO EDIT (IMPROVED)
+============================================================ */
+document.querySelectorAll(".data-row").forEach((row) => {
+  row.addEventListener("dblclick", () => {
+    console.log("[Edit Modal] Opening edit modal...");
+
+    // Ambil semua dataset dari baris
+    const data = {
+      id_drop: row.dataset.id_drop || "",
+      customer_name: row.dataset.customer_name || "",
+      phone_number: row.dataset.phone_number || "",
+      brand: row.dataset.brand || "",
+      service_id: row.dataset.service_id || "",
+      tanggal_masuk: row.dataset.tanggal_masuk || "",
+      tanggal_selesai: row.dataset.tanggal_selesai || "",
+      status_id: row.dataset.status_id || "",
+      payment_status: row.dataset.payment_status || "",
+      payment_method: row.dataset.payment_method || "",
+      payment_date: row.dataset.payment_date || "",
+      amount_paid: row.dataset.amount_paid || "",
+    };
+
+    console.log("[Edit Modal] Data:", data);
+
+    // Isi form dengan data
+    const fields = {
+      edit_id_drop: data.id_drop,
+      edit_customer_name: data.customer_name,
+      edit_customer_phone: data.phone_number,
+      edit_brand: data.brand,
+      edit_service_id: data.service_id,
+      edit_tanggal_masuk: data.tanggal_masuk,
+      edit_tanggal_selesai: data.tanggal_selesai,
+      edit_statusSelect: data.status_id,
+      edit_payment_status: data.payment_status || "Belum Lunas",
+      edit_payment_method: data.payment_method || "",
+      edit_payment_date: data.payment_date
+        ? data.payment_date.split(" ")[0]
+        : "",
+      edit_amount_paid: data.amount_paid || "",
+    };
+
+    // Isi semua field
+    for (const [id, value] of Object.entries(fields)) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = value;
+      } else {
+        console.warn(`[Edit Modal] Element #${id} not found`);
+      }
+    }
+
+    // Load service info
+    if (data.service_id) {
+      loadServiceInfo(data.service_id, true);
+    } else {
+      console.warn("[Edit Modal] No service_id found");
+    }
+
+    // Tampilkan modal
+    const modal = document.getElementById("editModal");
+    if (modal) {
+      modal.style.display = "block";
+    } else {
+      console.error("[Edit Modal] Modal element not found");
+    }
+  });
+});
+
+/* ============================================================
+   SELECT ALL + SHIFT-CLICK + DELETE (SATUAN / MULTI)
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  const selectAll = document.getElementById("selectAll");
+  const checkboxes = Array.from(document.querySelectorAll(".row-checkbox"));
+  const deleteButtons = document.querySelectorAll(".delete-btn");
+
+  // Elemen modal konfirmasi custom
+  const confirmModal = document.getElementById("confirmDeleteModal");
+  const btnOk = document.getElementById("confirmOk");
+  const btnCancel = document.getElementById("confirmCancel");
+
+  let idsToDelete = []; // bisa untuk satuan / multi
+  let lastChecked = null;
+
+  /* ====== PILIH SEMUA ====== */
+  if (selectAll) {
+    selectAll.addEventListener("change", () => {
+      checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
+    });
+  }
+
+  /* ====== SHIFT + CLICK UNTUK PILIH BEBERAPA ====== */
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("click", (e) => {
+      if (!lastChecked) {
+        lastChecked = checkbox;
+        return;
+      }
+
+      if (e.shiftKey) {
+        const start = checkboxes.indexOf(lastChecked);
+        const end = checkboxes.indexOf(checkbox);
+        const [min, max] = [Math.min(start, end), Math.max(start, end)];
+        const shouldCheck = checkbox.checked;
+
+        for (let i = min; i <= max; i++) {
+          checkboxes[i].checked = shouldCheck;
+        }
+      }
+
+      lastChecked = checkbox;
+      selectAll.checked = checkboxes.every((cb) => cb.checked);
+    });
+  });
+
+  /* ====== FUNGSI TAMPILKAN MODAL KONFIRMASI ====== */
+  function showConfirmModal(callback) {
+    confirmModal.style.display = "flex"; // tampilkan modal
+    const handleOk = () => {
+      confirmModal.style.display = "none";
+      btnOk.removeEventListener("click", handleOk);
+      btnCancel.removeEventListener("click", handleCancel);
+      callback(true);
+    };
+    const handleCancel = () => {
+      confirmModal.style.display = "none";
+      btnOk.removeEventListener("click", handleOk);
+      btnCancel.removeEventListener("click", handleCancel);
+      callback(false);
+    };
+    btnOk.addEventListener("click", handleOk);
+    btnCancel.addEventListener("click", handleCancel);
+  }
+
+  /* ====== DELETE (SATUAN / MULTI) ====== */
+  deleteButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Kumpulkan semua checkbox yang dicentang
+      const selectedIds = checkboxes
+        .filter((cb) => cb.checked)
+        .map((cb) => cb.value);
+
+      // Jika ada yang terpilih → hapus banyak
+      // Jika tidak, hapus ID dari tombol itu sendiri
+      idsToDelete = selectedIds.length > 0 ? selectedIds : [btn.dataset.id];
+
+      if (!idsToDelete || idsToDelete.length === 0) {
+        alert("Tidak ada data yang dipilih!");
+        return;
+      }
+
+      // Gunakan modal custom (bukan confirm bawaan browser)
+      showConfirmModal((confirmed) => {
+        if (!confirmed) return;
+
+        // Lanjut hapus via fetch
+        fetch("drop_delete_multi.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: idsToDelete }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              // Hapus baris tanpa reload
+              checkboxes.forEach((cb) => {
+                if (idsToDelete.includes(cb.value)) {
+                  const row = cb.closest("tr");
+                  if (row) {
+                    row.style.transition = "opacity 0.3s";
+                    row.style.opacity = 0;
+                    setTimeout(() => row.remove(), 300);
+                  }
+                }
+              });
+
+              // Opsional: tampilkan modal sukses
+              if (typeof showSuccessModal === "function") {
+                showSuccessModal(data.message || "Data berhasil dihapus!");
+              }
+            } else {
+              alert(
+                "Gagal menghapus data: " + (data.message || "Unknown error")
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Delete error:", error);
+            alert("Kesalahan koneksi!");
+          });
+      });
+    });
+  });
+
+  /* ====== Klik di luar modal menutup ====== */
+  window.addEventListener("click", function (e) {
+    if (e.target === confirmModal) {
+      confirmModal.style.display = "none";
+    }
+  });
+});
+
+/* ============================================================
+   EDIT MODAL - SERVICE CHANGE HANDLER
+============================================================ */
+const editServiceSelect = document.getElementById("edit_service_id");
+
+if (editServiceSelect) {
+  editServiceSelect.addEventListener("change", function () {
+    console.log("[Edit Service] Service changed to:", this.value);
+    loadServiceInfo(this.value, true);
+  });
+}
+
+/* ============================================================
+   ADD MODAL - SERVICE CHANGE HANDLER
+============================================================ */
+const addServiceSelect = document.getElementById("service_id");
+
+if (addServiceSelect) {
+  addServiceSelect.addEventListener("change", function () {
+    console.log("[Add Service] Service changed to:", this.value);
+    loadServiceInfo(this.value, false);
+  });
+}
+
+/* ============================================================
+   CLOSE MODALS
+============================================================ */
+document.querySelectorAll(".modal .close").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    btn.closest(".modal").style.display = "none";
+  });
+});
+
+window.addEventListener("click", (e) => {
+  document.querySelectorAll(".modal").forEach((modal) => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+});
 
 const addModal = document.getElementById("addModal");
 const editModal = document.getElementById("editModal");
@@ -11,28 +340,6 @@ const closeAdd = document.querySelector(".close");
 const dropChoiceModal = document.getElementById("dropChoiceModal");
 const btnDropBaru = document.getElementById("btnDropBaru");
 const btnDropLama = document.getElementById("btnDropLama");
-
-/* Modal search customer */
-const searchCustomerModal = document.getElementById("searchCustomerModal");
-const closeSearch = document.querySelector(".close-search");
-const searchInput = document.getElementById("searchCustomerInput");
-const resultsDiv = document.getElementById("customerResults");
-const saveCustomerBtn = document.getElementById("saveCustomer");
-
-/* Form tambah barang */
-const serviceSelect = document.getElementById("service_id");
-const priceDisplay = document.getElementById("price_display");
-const priceMinInput = document.getElementById("price_min");
-const priceMaxInput = document.getElementById("price_max");
-const estimateInput = document.getElementById("estimate_desc");
-
-/* Untuk delete single dan multi */
-let selectedCustomer = null;
-let deleteId = null;
-
-/* ============================================================
-   MODAL HANDLING
-============================================================ */
 
 if (addBtn && dropChoiceModal) {
   addBtn.onclick = () => {
@@ -67,341 +374,5 @@ window.addEventListener("click", (e) => {
 
   modals.forEach((m) => {
     if (e.target === m) m.style.display = "none";
-  });
-});
-/* ============================================================
-   DROPDOWN AKSI (⋮)
-============================================================ */
-
-document.addEventListener("click", (e) => {
-  const isBtn = e.target.matches(".dropdown-toggle");
-  const dropdowns = document.querySelectorAll(".dropdown");
-
-  dropdowns.forEach((dropdown) => {
-    const menu = dropdown.querySelector(".dropdown-menu");
-
-    if (isBtn && dropdown.contains(e.target)) {
-      dropdown.classList.toggle("active");
-    } else {
-      dropdown.classList.remove("active");
-    }
-  });
-});
-
-/* ============================================================
-   SEARCH CUSTOMER (Drop Lama)
-============================================================ */
-
-if (searchInput) {
-  searchInput.addEventListener("input", function () {
-    const keyword = this.value.trim();
-
-    resultsDiv.innerHTML = "<p style='color:gray'>Mencari...</p>";
-
-    if (keyword.length < 2) {
-      resultsDiv.innerHTML = "";
-      return;
-    }
-
-    fetch("search_customer.php?keyword=" + encodeURIComponent(keyword))
-      .then((res) => res.json())
-      .then((data) => {
-        resultsDiv.innerHTML = "";
-
-        if (data.length === 0) {
-          resultsDiv.innerHTML =
-            "<p style='color:red'>Customer tidak ditemukan.</p>";
-          return;
-        }
-
-        data.forEach((cust) => {
-          const div = document.createElement("div");
-          div.classList.add("customer-item");
-          div.textContent = `${cust.nama} - ${cust.no_hp}`;
-
-          div.onclick = () => {
-            document
-              .querySelectorAll(".customer-item")
-              .forEach((el) => el.classList.remove("selected"));
-            div.classList.add("selected");
-
-            selectedCustomer = cust;
-            saveCustomerBtn.disabled = false;
-          };
-
-          resultsDiv.appendChild(div);
-        });
-      })
-      .catch(() => {
-        resultsDiv.innerHTML = "<p style='color:red'>Gagal memuat data.</p>";
-      });
-  });
-}
-
-if (saveCustomerBtn) {
-  saveCustomerBtn.onclick = () => {
-    if (!selectedCustomer) return;
-
-    searchCustomerModal.style.display = "none";
-    addModal.style.display = "block";
-
-    document.querySelector('input[name="customer_name"]').value =
-      selectedCustomer.nama;
-    document.querySelector('input[name="phone_number"]').value =
-      selectedCustomer.no_hp;
-
-    let hidden = document.querySelector('input[name="customer_id"]');
-    if (!hidden) {
-      hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = "customer_id";
-      document.querySelector("#addModal form").appendChild(hidden);
-    }
-    hidden.value = selectedCustomer.id_customer;
-  };
-}
-
-/* ============================================================
-   DELETE SATUAN
-============================================================ */
-
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("delete-btn")) {
-    deleteId = e.target.getAttribute("data-id");
-    document.getElementById("deleteConfirm").style.display = "block";
-  }
-});
-
-const cancelDelete = document.getElementById("cancelDelete");
-if (cancelDelete) {
-  cancelDelete.onclick = () => {
-    document.getElementById("deleteConfirm").style.display = "none";
-    deleteId = null;
-  };
-}
-
-const confirmDelete = document.getElementById("confirmDelete");
-if (confirmDelete) {
-  confirmDelete.onclick = () => {
-    if (!deleteId) return;
-
-    fetch("drop_delete.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "id_drop=" + encodeURIComponent(deleteId),
-    })
-      .then((res) => res.text())
-      .then((data) => {
-        document.getElementById("deleteConfirm").style.display = "none";
-        if (data.includes("berhasil")) {
-          showSuccessModal("Data berhasil dihapus!");
-          setTimeout(() => location.reload(), 1000);
-        } else {
-          alert("Gagal menghapus data.");
-        }
-      })
-      .catch(() => alert("Kesalahan koneksi!"));
-  };
-}
-
-/* ============================================================
-   AMBIL DATA SERVICE (harga & estimasi)
-============================================================ */
-
-if (serviceSelect) {
-  serviceSelect.addEventListener("change", () => {
-    const id = serviceSelect.value;
-
-    if (!id) {
-      priceDisplay.value = "";
-      priceMinInput.value = "";
-      priceMaxInput.value = "";
-      estimateInput.value = "";
-      return;
-    }
-
-    fetch("get_service_info.php?id_service=" + encodeURIComponent(id))
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.error) {
-          priceDisplay.value = "Data tidak ditemukan";
-          return;
-        }
-
-        const formatRupiah = (n) => "Rp" + parseInt(n).toLocaleString("id-ID");
-
-        priceDisplay.value = formatRupiah(data.price_min);
-        priceMinInput.value = data.price_min;
-
-        priceDisplay.disabled = false;
-        priceDisplay.removeAttribute("readonly");
-
-        estimateInput.value = `${data.duration} Hari`;
-      })
-      .catch(() => {
-        priceDisplay.value = "Gagal memuat data layanan";
-      });
-  });
-
-  priceDisplay.addEventListener("input", (e) => {
-    let value = e.target.value.replace(/[^\d]/g, "");
-    e.target.value = value
-      ? "Rp" + parseInt(value).toLocaleString("id-ID")
-      : "";
-  });
-}
-
-/* ============================================================
-   KALKULASI TANGGAL SELESAI OTOMATIS
-============================================================ */
-
-const tanggalMasuk = document.getElementById("tanggal_masuk");
-const tanggalSelesai = document.getElementById("tanggal_selesai");
-
-function getDurasiHari() {
-  const val = estimateInput.value.trim();
-  return parseInt(val.replace(/[^\d]/g, "")) || 0;
-}
-
-if (tanggalMasuk && tanggalSelesai && estimateInput) {
-  tanggalMasuk.addEventListener("change", () => {
-    const durasi = getDurasiHari();
-    if (!tanggalMasuk.value || !durasi) {
-      tanggalSelesai.value = "";
-      return;
-    }
-
-    const d = new Date(tanggalMasuk.value);
-    d.setDate(d.getDate() + durasi);
-
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-
-    tanggalSelesai.value = `${yyyy}-${mm}-${dd}`;
-  });
-
-  estimateInput.addEventListener("input", () => {
-    if (tanggalMasuk.value) {
-      const durasi = getDurasiHari();
-      if (!durasi) return (tanggalSelesai.value = "");
-
-      const d = new Date(tanggalMasuk.value);
-      d.setDate(d.getDate() + durasi);
-
-      tanggalSelesai.value = `${d.getFullYear()}-${String(
-        d.getMonth() + 1
-      ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    }
-  });
-}
-
-/* ============================================================
-   MULTI DELETE + SELECT ALL
-============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-  const selectAll = document.getElementById("selectAll");
-  const checkboxes = document.querySelectorAll(".row-checkbox");
-  const deleteBtn = document.getElementById("deleteSelected");
-
-  /* Pilih semua */
-  if (selectAll) {
-    selectAll.addEventListener("change", () => {
-      checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
-    });
-  }
-
-  /* Hapus banyak data */
-  if (deleteBtn) {
-    deleteBtn.addEventListener("click", () => {
-      const selected = Array.from(checkboxes)
-        .filter((cb) => cb.checked)
-        .map((cb) => cb.value);
-
-      if (selected.length === 0) {
-        alert("Pilih data yang ingin dihapus!");
-        return;
-      }
-
-      if (!confirm(`Yakin menghapus ${selected.length} data?`)) return;
-
-      fetch("drop_delete_multi.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selected }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            showSuccessModal("Data berhasil dihapus!");
-            setTimeout(() => location.reload(), 1000);
-          } else {
-            alert("Gagal menghapus data!");
-          }
-        });
-    });
-  }
-});
-
-/* ============================================================
-   NOTIFIKASI BERHASIL
-============================================================ */
-
-function showSuccessModal(message) {
-  const modal = document.getElementById("successModal");
-  const msg = document.getElementById("successMessage");
-  const closeBtn = document.getElementById("closeSuccess");
-
-  if (!modal || !msg || !closeBtn) return;
-
-  msg.textContent = message || "Berhasil!";
-  modal.style.display = "flex";
-
-  closeBtn.onclick = () => {
-    modal.style.display = "none";
-  };
-
-  window.onclick = (e) => {
-    if (e.target === modal) modal.style.display = "none";
-  };
-}
-
-/* Untuk halaman yang baru redirect setelah add */
-document.addEventListener("DOMContentLoaded", () => {
-  if (sessionStorage.getItem("showSuccess") === "true") {
-    sessionStorage.removeItem("showSuccess");
-    showSuccessModal("Data berhasil disimpan!");
-  }
-});
-
-// SHIFT + CLICK MULTI SELECT / UNSELECT CHECKBOXES
-let lastChecked = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-  const checkboxes = document.querySelectorAll(".row-checkbox");
-
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("click", (e) => {
-      // Shift used
-      if (lastChecked && e.shiftKey) {
-        let inRange = false;
-        const shouldCheck = checkbox.checked;
-        // true = check all, false = uncheck all
-
-        checkboxes.forEach((box) => {
-          if (box === checkbox || box === lastChecked) {
-            inRange = !inRange;
-            box.checked = shouldCheck;
-          }
-
-          if (inRange) {
-            box.checked = shouldCheck;
-          }
-        });
-      }
-
-      lastChecked = checkbox;
-    });
   });
 });

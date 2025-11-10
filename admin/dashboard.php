@@ -58,11 +58,16 @@ include '../partials/headerAdmin.php';
             </div>
 
             <div class="calendar-grid">
-                <div class="day">S</div><div class="day">M</div><div class="day">T</div>
-                <div class="day">W</div><div class="day">T</div><div class="day">F</div><div class="day">S</div>
+                <div class="day">S</div>
+                <div class="day">M</div>
+                <div class="day">T</div>
+                <div class="day">W</div>
+                <div class="day">T</div>
+                <div class="day">F</div>
+                <div class="day">S</div>
                 <!-- Sample calendar days -->
-                <?php for ($i=1; $i<=31; $i++): ?>
-                    <div class="date <?php echo $i==7 ? 'active' : ''; ?>"><?php echo $i; ?></div>
+                <?php for ($i = 1; $i <= 31; $i++): ?>
+                    <div class="date <?php echo $i == 7 ? 'active' : ''; ?>"><?php echo $i; ?></div>
                 <?php endfor; ?>
             </div>
 
@@ -101,4 +106,6 @@ include '../partials/headerAdmin.php';
     </div>
 </div>
 
-<?php include '../partials/footer.php'; ?>
+<?php
+include_once('../partials/footer.php');
+?>

@@ -1,5 +1,5 @@
 <?php
-// admin/logout.php
+// customer/logout.php
 require_once '../db.php';
 
 // Hapus semua session
