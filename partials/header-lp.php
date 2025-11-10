@@ -28,12 +28,11 @@
         <a href="#care">CARE</a>
         <a href="#member">MEMBER</a>
         <a href="#contact">CONTACT</a>
-        <a href="status.php">CLEANING STATUS</a>
         <a href="catalog.php">CATALOG</a>
       </nav>
 
       <div class="login-btn">
-        <a href="login.php">LOGIN</a>
+        <a href="../login/login.php">LOGIN</a>
       </div>
     </div>
   </header>

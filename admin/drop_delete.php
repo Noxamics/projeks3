@@ -1,5 +1,5 @@
 <?php
-include '../db.php';
+include('../db.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_drop'])) {
     $id = intval($_POST['id_drop']);
