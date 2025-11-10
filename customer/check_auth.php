@@ -1,5 +1,6 @@
 <?php
-// customer/check_auth.php - Middleware autentikasi untuk customer
+
+session_start();// customer/check_auth.php - Middleware autentikasi untuk customer
 require_once '../db.php';
 
 // Fungsi untuk cek apakah user sudah login
