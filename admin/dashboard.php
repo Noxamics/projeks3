@@ -233,11 +233,14 @@ function generateDeadlineList() {
     });
 }
 
+// Variable untuk menyimpan bulan dan tahun yang sedang ditampilkan
+let currentDisplayYear = new Date().getFullYear();
+let currentDisplayMonth = new Date().getMonth();
+
 // Fungsi untuk calendar dengan deadline colors
 function generateCalendar() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    const year = currentDisplayYear;
+    const month = currentDisplayMonth;
     
     const firstDay = new Date(year, month, 1);    
     const lastDay = new Date(year, month + 1, 0);
@@ -296,7 +299,10 @@ function generateCalendar() {
         }
         
         // Tandai tanggal hari ini
-        if (i === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
+        const today = new Date();
+        if (i === today.getDate() && 
+            month === today.getMonth() && 
+            year === today.getFullYear()) {
             dateElement.classList.add('active');
         }
         
@@ -320,9 +326,18 @@ function getDeadlineInfo(dateString) {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const deadlineDate = new Date(dateString);
     
+    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
+    today.setHours(0, 0, 0, 0);
+    deadlineDate.setHours(0, 0, 0, 0);
+    
     // Hitung selisih hari
     const timeDiff = deadlineDate - today;
-    const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    
+    // Hanya tampilkan deadline yang belum lewat (hari ini atau masa depan)
+    if (daysUntil < 0) {
+        return null; // Deadline sudah lewat, jangan tampilkan warna
+    }
     
     // Cari deadline di tanggal tersebut
     const deadlinesOnDate = deadlinesData.filter(deadline => 
@@ -342,8 +357,94 @@ function getDeadlineInfo(dateString) {
 
 // Fungsi untuk change month
 function changeMonth(direction) {
-    console.log('Change month:', direction);
-    // Implementasi change month bisa ditambahkan nanti
+    currentDisplayMonth += direction;
+    
+    // Handle perubahan tahun
+    if (currentDisplayMonth > 11) {
+        currentDisplayMonth = 0;
+        currentDisplayYear++;
+    } else if (currentDisplayMonth < 0) {
+        currentDisplayMonth = 11;
+        currentDisplayYear--;
+    }
+    
+    // Update header bulan
+    updateCalendarHeader();
+    
+    // Regenerate calendar
+    generateCalendar();
+    
+    // Update deadline list untuk bulan yang baru
+    updateDeadlineListForMonth();
+}
+
+// Fungsi untuk update header kalender
+function updateCalendarHeader() {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+    const headerElement = document.querySelector('.calendar-header h3');
+    if (headerElement) {
+        headerElement.textContent = `${monthNames[currentDisplayMonth]} ${currentDisplayYear}`;
+    }
+}
+
+// Fungsi untuk update deadline list berdasarkan bulan yang dipilih
+function updateDeadlineListForMonth() {
+    const deadlineList = document.getElementById('deadlineList');
+    deadlineList.innerHTML = '';
+    
+    // Filter deadline untuk bulan yang sedang ditampilkan
+    const selectedMonthDeadlines = deadlinesData
+        .map(deadline => ({
+            ...deadline,
+            daysUntil: getDaysUntilDeadline(deadline.deadline_date),
+            deadlineDate: new Date(deadline.deadline_date)
+        }))
+        .filter(deadline => {
+            const dlMonth = deadline.deadlineDate.getMonth();
+            const dlYear = deadline.deadlineDate.getFullYear();
+            return dlMonth === currentDisplayMonth && 
+                   dlYear === currentDisplayYear &&
+                   deadline.daysUntil >= 0; // Hanya yang belum lewat
+        })
+        .sort((a, b) => a.daysUntil - b.daysUntil)
+        .slice(0, 10);
+    
+    if (selectedMonthDeadlines.length === 0) {
+        deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline di bulan ini</p>';
+        return;
+    }
+    
+    selectedMonthDeadlines.forEach(deadline => {
+        const colorClass = getDeadlineColorClass(deadline.daysUntil);
+        const formattedDate = deadline.deadlineDate.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+        
+        let daysText = '';
+        if (deadline.daysUntil === 0) {
+            daysText = 'Hari ini!';
+        } else if (deadline.daysUntil === 1) {
+            daysText = 'Besok';
+        } else {
+            daysText = `${deadline.daysUntil} hari lagi`;
+        }
+        
+        const deadlineItem = document.createElement('div');
+        deadlineItem.className = `deadline-item ${colorClass}`;
+        deadlineItem.innerHTML = `
+            <div>
+                <h4>${deadline.order_code}</h4>
+                <p>${deadline.customer_name} - ${deadline.service_name}</p>
+                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
+            </div>
+            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
+        `;
+        
+        deadlineList.appendChild(deadlineItem);
+    });
 }
 
 // Panggil fungsi saat halaman load
