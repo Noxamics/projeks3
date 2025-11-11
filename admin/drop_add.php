@@ -108,14 +108,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_update_drop->close();
 
     // 🔹 Tutup koneksi
+// 🔹 Tutup koneksi
     $conn->close();
 
-    // 🔹 Redirect ke halaman drops dengan pesan sukses
+    // 🔹 Jika mode cetak (via fetch), kirim JSON
+    if (isset($_GET['print'])) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'drop_id' => $drop_id,
+            'message' => 'Data berhasil disimpan dan siap dicetak.'
+        ]);
+        exit;
+    }
+
+    // 🔹 Redirect ke halaman drops biasa (mode Simpan saja)
     echo "
-    <script>
-        sessionStorage.setItem('showSuccess', 'true');
-        window.location.href = 'drop.php';
-    </script>";
+<script>
+    sessionStorage.setItem('showSuccess', 'true');
+    window.location.href = 'drop.php';
+</script>";
     exit;
+
 }
 ?>

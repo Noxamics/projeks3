@@ -132,19 +132,9 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                     </div>
                 </div>
 
-            <div class="calendar-grid">
-                <div class="day">S</div>
-                <div class="day">M</div>
-                <div class="day">T</div>
-                <div class="day">W</div>
-                <div class="day">T</div>
-                <div class="day">F</div>
-                <div class="day">S</div>
-                <!-- Sample calendar days -->
-                <?php for ($i = 1; $i <= 31; $i++): ?>
-                    <div class="date <?php echo $i == 7 ? 'active' : ''; ?>"><?php echo $i; ?></div>
-                <?php endfor; ?>
-            </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar akan di-generate oleh JavaScript -->
+                </div>
 
                 <div class="deadline-section">
                     <h4>Deadline Mendatang</h4>
@@ -166,17 +156,22 @@ function getDaysUntilDeadline(deadlineDate) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const deadline = new Date(deadlineDate);
+    
+    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
+    today.setHours(0, 0, 0, 0);
+    deadline.setHours(0, 0, 0, 0);
+    
     const timeDiff = deadline - today;
-    const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     return daysUntil;
 }
 
 // Fungsi untuk mendapatkan warna berdasarkan sisa hari
 function getDeadlineColorClass(daysUntil) {
     if (daysUntil < 0) return 'expired';
-    if (daysUntil <= 2) return 'red';
-    if (daysUntil <= 5) return 'yellow';
-    return 'green';
+    if (daysUntil <= 2) return 'red';     // 0-2 hari = merah
+    if (daysUntil <= 5) return 'yellow';   // 3-5 hari = kuning
+    return 'green';                        // 6+ hari = hijau
 }
 
 // Fungsi untuk generate deadline list
@@ -190,9 +185,9 @@ function generateDeadlineList() {
             ...deadline,
             daysUntil: getDaysUntilDeadline(deadline.deadline_date)
         }))
-        .filter(deadline => deadline.daysUntil >= 0)
+        .filter(deadline => deadline.daysUntil >= 0) // Tampilkan semua deadline yang belum lewat
         .sort((a, b) => a.daysUntil - b.daysUntil)
-        .slice(0, 5); // Tampilkan 5 deadline terdekat
+        .slice(0, 10); // Tampilkan 10 deadline terdekat
     
     if (upcomingDeadlines.length === 0) {
         deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang</p>';
@@ -222,12 +217,19 @@ function generateDeadlineList() {
             <div>
                 <h4>${deadline.order_code}</h4>
                 <p>${deadline.customer_name} - ${deadline.service_name}</p>
-                <small style="color: #666; font-size: 11px;">${daysText}</small>
+                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
             </div>
-            <span>${formattedDate}</span>
+            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
         `;
         
         deadlineList.appendChild(deadlineItem);
+    });
+    
+    // Debug: Log untuk memastikan semua deadline terproses
+    console.log('Total deadlines:', deadlinesData.length);
+    console.log('Upcoming deadlines:', upcomingDeadlines.length);
+    upcomingDeadlines.forEach(d => {
+        console.log(`${d.order_code}: ${d.daysUntil} hari (${getDeadlineColorClass(d.daysUntil)})`);
     });
 }
 
@@ -581,6 +583,6 @@ function showSortMessage(sortType) {
 }
 </script>
 
-<?php   
+<?php 
 include('../partials/footer.php'); 
 ?>
