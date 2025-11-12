@@ -72,7 +72,10 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
     </div>
 
     <!-- ✅ ALERT BOX -->
-    <div id="alertBox" class="alert-box"></div>
+    <div id="alertBox" class="alert-box">
+        <span id="alertText"></span>
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
 
     <div class="table-wrapper">
         <table id="laporanTable">
@@ -123,7 +126,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 </main>
 
 <script>
-// ✅ Fungsi hitung total pendapatan
+// ✅ Hitung total pendapatan
 function hitungTotalPendapatan() {
     const jenisTotal = document.getElementById("jenisTotal").value;
     let total = 0;
@@ -140,21 +143,45 @@ function hitungTotalPendapatan() {
     document.getElementById("totalPendapatan").textContent = "Rp " + total.toLocaleString("id-ID");
 }
 
-// ✅ Fungsi tampilkan alert (universal)
-function showAlert(message) {
+// ✅ Alert tanpa progress bar
+function showAlert(message, duration = 6000) {
     const alertBox = document.getElementById("alertBox");
-    alertBox.textContent = message;
-    alertBox.classList.add("show");
-    alertBox.classList.remove("fade-out");
+    const alertText = document.getElementById("alertText");
+    const progressBar = document.getElementById("progressBar");
 
-    // Hilangkan alert setelah 6 detik
+    alertText.textContent = message;
+    alertBox.classList.add("show");
+    progressBar.style.width = "0";
+
     setTimeout(() => {
         alertBox.classList.add("fade-out");
-        setTimeout(() => alertBox.classList.remove("show"), 1000);
-    }, 6000);
+        setTimeout(() => alertBox.classList.remove("show", "fade-out"), 1000);
+    }, duration);
 }
 
-// 🔍 Search Filter
+// ✅ Alert dengan progress bar (khusus export)
+function showExportAlert(message, duration = 4000) {
+    const alertBox = document.getElementById("alertBox");
+    const alertText = document.getElementById("alertText");
+    const progressBar = document.getElementById("progressBar");
+
+    alertText.textContent = message;
+    alertBox.classList.add("show");
+    progressBar.style.transition = "none";
+    progressBar.style.width = "0";
+
+    setTimeout(() => {
+        progressBar.style.transition = `width ${duration / 1000}s linear`;
+        progressBar.style.width = "100%";
+    }, 100);
+
+    setTimeout(() => {
+        alertBox.classList.add("fade-out");
+        setTimeout(() => alertBox.classList.remove("show", "fade-out"), 1000);
+    }, duration);
+}
+
+// 🔍 Search
 document.getElementById("searchInput").addEventListener("keyup", function() {
     const value = this.value.toLowerCase();
     document.querySelectorAll("#laporanTable tbody tr").forEach(row => {
@@ -163,7 +190,7 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
     hitungTotalPendapatan();
 });
 
-// 🔽 Sort Filter + Alert
+// 🔽 Sort Filter
 document.getElementById("sortBy").addEventListener("change", function() {
     const value = this.value.toLowerCase();
     const rows = document.querySelectorAll("#laporanTable tbody tr");
@@ -215,7 +242,7 @@ document.getElementById("sortBy").addEventListener("change", function() {
     hitungTotalPendapatan();
 });
 
-// 🔁 Jenis Total + Alert
+// 🔁 Jenis Total
 document.getElementById("jenisTotal").addEventListener("change", function() {
     const jenisTotal = this.value;
     hitungTotalPendapatan();
@@ -226,19 +253,27 @@ document.getElementById("jenisTotal").addEventListener("change", function() {
     }
 });
 
-// ⬇️ Export
+// ⬇️ Export Buttons (progress cepat, sukses lama)
 document.getElementById("exportExcel").addEventListener("click", () => {
+    showExportAlert("Sedang menyiapkan file Excel...", 4000); // proses cepat
     const filter = document.getElementById("sortBy").value;
     const search = document.getElementById("searchInput").value;
     const jenisTotal = document.getElementById("jenisTotal").value;
-    window.location.href = `report_excel.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+    setTimeout(() => {
+        window.location.href = `report_excel.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+        showAlert("✅ File Excel berhasil diexport!", 12000); // tampil 12 detik
+    }, 4000);
 });
 
 document.getElementById("exportPDF").addEventListener("click", () => {
+    showExportAlert("Sedang membuat laporan PDF...", 4000);
     const filter = document.getElementById("sortBy").value;
     const search = document.getElementById("searchInput").value;
     const jenisTotal = document.getElementById("jenisTotal").value;
-    window.location.href = `report_pdf.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+    setTimeout(() => {
+        window.location.href = `report_pdf.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+        showAlert("✅ File PDF berhasil diexport!", 12000);
+    }, 4000);
 });
 
 window.onload = hitungTotalPendapatan;
