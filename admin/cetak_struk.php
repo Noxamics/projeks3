@@ -18,10 +18,33 @@ $query->execute();
 $result = $query->get_result()->fetch_assoc();
 $query->close();
 
-// Hitung kembalian
+if (!$result) {
+    die("Data tidak ditemukan untuk ID: " . htmlspecialchars($id));
+}
+
 $price = $result['price'];
 $amount_paid = $result['amount_paid'];
 $kembalian = $amount_paid - $price;
+
+// 🔹 Format nomor telepon ke format internasional (Indonesia)
+$phone = preg_replace('/^0/', '62', $result['phone']);
+
+// 🔹 Pesan WhatsApp
+$link_struk = "http://localhost/PROJEKS3/admin/cetak_struk.php?id=" . $id;
+$pesan = "Halo *{$result['name']}*,%0A"
+    . "Berikut detail pesanan Anda di *SengkuClean*:%0A%0A"
+    . "🧾 *Kode Order:* {$result['order_code']}%0A"
+    . "📦 *Barang:* {$result['brand']}%0A"
+    . "🧼 *Layanan:* {$result['service_name']}%0A"
+    . "💰 *Total:* Rp" . number_format($price, 0, ',', '.') . "%0A"
+    . "💵 *Dibayar:* Rp" . number_format($amount_paid, 0, ',', '.') . "%0A"
+    . "💸 *Kembalian:* Rp" . number_format(max($kembalian, 0), 0, ',', '.') . "%0A"
+    . "📅 *Tanggal Masuk:* {$result['trans_date']}%0A"
+    . "📲 *Cek struk Anda di link berikut:* %0A{$link_struk}%0A%0A"
+    . "Terima kasih telah menggunakan layanan *SengkuClean* 💧";
+
+$pesan = str_replace("\r", "", $pesan);
+$wa_url = "https://wa.me/{$phone}?text=" . rawurlencode($pesan);
 ?>
 
 <!DOCTYPE html>
@@ -30,65 +53,31 @@ $kembalian = $amount_paid - $price;
 <head>
     <meta charset="UTF-8">
     <title>Cetak Struk</title>
-    <style>
-        body {
-            font-family: "Courier New", monospace;
-            padding: 20px;
-            background: #fff;
+    <link rel="stylesheet" href="../css/struk.css">
+    <script>
+        function sendWhatsApp() {
+            const waUrl = "<?= $wa_url ?>";
+            // 🔹 Cetak otomatis
+            window.print();
+            // 🔹 Setelah cetak, buka WhatsApp
+            setTimeout(() => {
+                window.open(waUrl, '_blank');
+            }, 1500);
         }
-
-        .struk {
-            width: 300px;
-            border: 1px solid #333;
-            padding: 10px 15px;
-            margin: auto;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 0;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid #333;
-            margin: 10px 0;
-        }
-
-        table {
-            width: 100%;
-            font-size: 14px;
-        }
-
-        td {
-            padding: 3px 0;
-            vertical-align: top;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 12px;
-            font-size: 12px;
-        }
-
-        @media print {
-            body {
-                margin: 0;
-            }
-
-            .struk {
-                border: none;
-            }
-        }
-    </style>
+    </script>
 </head>
 
-<body onload="window.print()">
+<body onload="sendWhatsApp()">
 
-    <div class="struk">
-        <h2>SengkuClean</h2>
-        <hr>
-        <table>
+    <div class="struk-container">
+        <div class="struk-header">
+            <h2>SengkuClean</h2>
+            <p>Kebersihan adalah sebagian dari kenyamanan ✨</p>
+        </div>
+
+        <hr class="divider">
+
+        <table class="struk-table">
             <tr>
                 <td>Kode Order</td>
                 <td>: <?= htmlspecialchars($result['order_code']) ?></td>
@@ -114,29 +103,30 @@ $kembalian = $amount_paid - $price;
                 <td>: <?= htmlspecialchars($result['trans_date']) ?></td>
             </tr>
             <tr>
-                <td>Pembayaran</td>
+                <td>Metode Bayar</td>
                 <td>: <?= htmlspecialchars($result['payment_method']) ?></td>
             </tr>
             <tr>
                 <td>Status</td>
-                <td>: <?= htmlspecialchars($result['status']) ?></td>
-            </tr>
-            <tr>
-                <td>Harga</td>
-                <td>: Rp<?= number_format($price, 0, ',', '.') ?></td>
-            </tr>
-            <tr>
-                <td>Dibayar</td>
-                <td>: Rp<?= number_format($amount_paid, 0, ',', '.') ?></td>
-            </tr>
-            <tr>
-                <td><b>Kembalian</b></td>
-                <td>: <b>Rp<?= number_format(max($kembalian, 0), 0, ',', '.') ?></b></td>
+                <td>: <?= htmlspecialchars(ucfirst($result['status'])) ?></td>
             </tr>
         </table>
-        <hr>
+
+        <hr class="divider">
+
+        <div class="price-section">
+            <p><span>Harga</span><span>Rp<?= number_format($price, 0, ',', '.') ?></span></p>
+            <p><span>Dibayar</span><span>Rp<?= number_format($amount_paid, 0, ',', '.') ?></span></p>
+            <p class="kembalian">
+                <span>Kembalian</span><span>Rp<?= number_format(max($kembalian, 0), 0, ',', '.') ?></span>
+            </p>
+        </div>
+
+        <hr class="divider">
+
         <div class="footer">
-            Terima kasih telah menggunakan SengkuClean!
+            <p>Terima kasih telah menggunakan <strong>SengkuClean</strong> 💧</p>
+            <p class="small">Struk ini sah tanpa tanda tangan</p>
         </div>
     </div>
 
