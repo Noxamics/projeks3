@@ -123,6 +123,18 @@ $customerId = $userData['id'];
             </div>
         </div>
 
+        <div class="contact-form">
+            <h3>Send Your Message</h3>
+            <form id="wa-form">
+                <input type="text" name="name" id="name" placeholder="Full Name" required />
+                <input type="email" name="email" id="email" placeholder="Email" required />
+                <textarea name="message" id="message" placeholder="Comment or message" required></textarea>
+                <button type="submit" class="wa-button">
+                    <img src="../a/assets/WA Putih.png" alt="Send via WhatsApp" />
+                </button>
+            </form>
+        </div>
+
         <div class="info-box">
             <h3>ℹ️ Informasi Login</h3>
             <p><strong>Email:</strong> <?php echo htmlspecialchars($userData['email']); ?></p>
