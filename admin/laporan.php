@@ -2,7 +2,7 @@
 include_once('../partials/headerAdmin.php');
 include_once('../db.php');
 
-// 🔹 Query data laporan (ubah ORDER BY ASC agar urut dari terlama)
+// 🔹 Query data laporan
 $query = "
 SELECT 
     d.id_drop,
@@ -34,7 +34,7 @@ $kategoriQuery = "SELECT DISTINCT category FROM services ORDER BY category ASC";
 $kategoriResult = mysqli_query($conn, $kategoriQuery);
 ?>
 
-<link rel="stylesheet" href="../css/laporan.css">
+<link rel="stylesheet" href="../css/laporan.css?v=<?php echo time(); ?>">
 
 <main>
     <h1>Laporan Transaksi</h1>
@@ -44,18 +44,15 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
         <select id="sortBy">
             <option value="">-- Sort By --</option>
-
             <optgroup label="Waktu">
                 <option value="minggu">Minggu Ini</option>
                 <option value="bulan">Bulan Ini</option>
                 <option value="tahun">Tahun Ini</option>
             </optgroup>
-
             <optgroup label="Status Pembayaran">
                 <option value="lunas">Lunas</option>
                 <option value="belum">Belum Lunas</option>
             </optgroup>
-
             <optgroup label="Kategori Layanan">
                 <?php while ($kat = mysqli_fetch_assoc($kategoriResult)) : ?>
                     <option value="<?= htmlspecialchars(strtolower($kat['category'])) ?>">
@@ -73,6 +70,9 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         <button id="exportExcel" class="btn-green">Export Excel</button>
         <button id="exportPDF" class="btn-red">Export PDF</button>
     </div>
+
+    <!-- ✅ ALERT BOX -->
+    <div id="alertBox" class="alert-box"></div>
 
     <div class="table-wrapper">
         <table id="laporanTable">
@@ -122,9 +122,8 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
     </div>
 </main>
 
-<script src="../js/drop.js"></script>
 <script>
-// 🔢 Hitung total dinamis
+// ✅ Fungsi hitung total pendapatan
 function hitungTotalPendapatan() {
     const jenisTotal = document.getElementById("jenisTotal").value;
     let total = 0;
@@ -132,7 +131,6 @@ function hitungTotalPendapatan() {
         const visible = row.style.display !== "none";
         const status = row.cells[8].textContent.trim().toLowerCase();
         const harga = parseInt(row.cells[10].dataset.harga || 0);
-
         if (visible) {
             if (jenisTotal === "semua" || (jenisTotal === "lunas" && status === "lunas")) {
                 total += harga;
@@ -140,6 +138,20 @@ function hitungTotalPendapatan() {
         }
     });
     document.getElementById("totalPendapatan").textContent = "Rp " + total.toLocaleString("id-ID");
+}
+
+// ✅ Fungsi tampilkan alert (universal)
+function showAlert(message) {
+    const alertBox = document.getElementById("alertBox");
+    alertBox.textContent = message;
+    alertBox.classList.add("show");
+    alertBox.classList.remove("fade-out");
+
+    // Hilangkan alert setelah 6 detik
+    setTimeout(() => {
+        alertBox.classList.add("fade-out");
+        setTimeout(() => alertBox.classList.remove("show"), 1000);
+    }, 6000);
 }
 
 // 🔍 Search Filter
@@ -151,11 +163,12 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
     hitungTotalPendapatan();
 });
 
-// 🔽 Sort Filter
+// 🔽 Sort Filter + Alert
 document.getElementById("sortBy").addEventListener("change", function() {
     const value = this.value.toLowerCase();
     const rows = document.querySelectorAll("#laporanTable tbody tr");
     const now = new Date();
+    let alertMsg = "";
 
     rows.forEach(row => {
         const dateText = row.cells[5].textContent.trim();
@@ -168,35 +181,52 @@ document.getElementById("sortBy").addEventListener("change", function() {
             case "minggu":
                 const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
                 show = transDate >= weekAgo;
+                alertMsg = "Menampilkan transaksi minggu ini";
                 break;
             case "bulan":
                 show = transDate.getMonth() === now.getMonth() && transDate.getFullYear() === now.getFullYear();
+                alertMsg = "Menampilkan transaksi bulan ini";
                 break;
             case "tahun":
                 show = transDate.getFullYear() === now.getFullYear();
+                alertMsg = "Menampilkan transaksi tahun ini";
                 break;
             case "lunas":
                 show = status.includes("lunas");
+                alertMsg = "Menampilkan transaksi yang sudah lunas";
                 break;
             case "belum":
                 show = status.includes("belum");
+                alertMsg = "Menampilkan transaksi yang belum lunas";
                 break;
             case "":
                 show = true;
+                alertMsg = "Menampilkan semua transaksi";
                 break;
             default:
                 show = kategori.includes(value);
+                alertMsg = `Menampilkan kategori layanan: ${value}`;
                 break;
         }
         row.style.display = show ? "" : "none";
     });
+
+    showAlert(alertMsg);
     hitungTotalPendapatan();
 });
 
-// 🔁 Ubah jenis total
-document.getElementById("jenisTotal").addEventListener("change", hitungTotalPendapatan);
+// 🔁 Jenis Total + Alert
+document.getElementById("jenisTotal").addEventListener("change", function() {
+    const jenisTotal = this.value;
+    hitungTotalPendapatan();
+    if (jenisTotal === "lunas") {
+        showAlert("Menampilkan total pendapatan dari transaksi lunas saja");
+    } else {
+        showAlert("Menampilkan total pendapatan dari semua transaksi");
+    }
+});
 
-// ⬇️ Export sesuai filter aktif
+// ⬇️ Export
 document.getElementById("exportExcel").addEventListener("click", () => {
     const filter = document.getElementById("sortBy").value;
     const search = document.getElementById("searchInput").value;
