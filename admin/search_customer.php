@@ -1,34 +1,30 @@
 <?php
-include('../db.php'); // sesuaikan path kalau beda folder
+include('../db.php');
+header('Content-Type: application/json');
 
-header('Content-Type: application/json; charset=utf-8');
-
-$keyword = $_GET['keyword'] ?? '';
+$keyword = trim($_GET['keyword'] ?? '');
 
 if (strlen($keyword) < 2) {
     echo json_encode([]);
     exit;
 }
 
-$sql = "SELECT id_customer, name AS nama, phone AS no_hp 
-        FROM customers 
-        WHERE name LIKE ? OR phone LIKE ?
-        LIMIT 10";
-$stmt = $conn->prepare($sql);
+$keyword = $conn->real_escape_string($keyword);
 
-if (!$stmt) {
-    echo json_encode(["error" => "Query gagal: " . $conn->error]);
-    exit;
-}
+$query = "
+    SELECT id_customer, name AS nama, phone AS no_hp 
+    FROM customers 
+    WHERE name LIKE '%$keyword%' OR phone LIKE '%$keyword%'
+    ORDER BY name ASC
+    LIMIT 10
+";
 
-$param = "%$keyword%";
-$stmt->bind_param("ss", $param, $param);
-$stmt->execute();
-$result = $stmt->get_result();
+$result = $conn->query($query);
+$customers = [];
 
-$data = [];
 while ($row = $result->fetch_assoc()) {
-    $data[] = $row;
+    $customers[] = $row;
 }
 
-echo json_encode($data);
+echo json_encode($customers);
+?>

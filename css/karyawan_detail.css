@@ -1,0 +1,107 @@
+.employee-detail-page {
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: "Poppins", sans-serif;
+}
+
+.header-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.btn-back {
+  background: #3498db;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-back:hover {
+  background: #2980b9;
+}
+
+.profile-section {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 40px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.photo-box .photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 3px solid #ddd;
+}
+
+.info-box h2 {
+  margin: 0;
+  color: #333;
+}
+
+.info-box p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.attendance-section h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.attendance-table th {
+  background: #3498db;
+  color: white;
+}
+
+.attendance-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.attendance-table .hadir {
+  color: #2ecc71;
+  font-weight: 600;
+}
+.attendance-table .izin {
+  color: #f39c12;
+  font-weight: 600;
+}
+.attendance-table .sakit {
+  color: #e67e22;
+  font-weight: 600;
+}
+.attendance-table .alpha {
+  color: #e74c3c;
+  font-weight: 600;
+}
+.no-data {
+  color: #777;
+  padding: 15px;
+  text-align: center;
+}

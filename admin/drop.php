@@ -128,6 +128,7 @@ include('../db.php'); // koneksi database
                         <select name="payment_status">
                             <option value="Belum Lunas">Belum Lunas</option>
                             <option value="Lunas">Lunas</option>
+                            <option value="Pending">Pending</option>
                         </select>
                     </div>
 
@@ -139,18 +140,52 @@ include('../db.php'); // koneksi database
 
                     <div>
                         <label>Metode Pembayaran</label>
-                        <select name="payment_method" id="edit_payment_method">
-                            <option value="">-- Pilih Metode --</option>
+                        <select name="payment_method" required>
                             <option value="Tunai">Tunai</option>
                             <option value="Transfer">Transfer</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
                         </select>
                     </div>
 
                     <div>
-                        <label>Nominal Pembayaran</label>
-                        <input type="number" name="amount_paid" id="amount_paid"
-                            placeholder="Masukkan nominal pembayaran">
+                        <label for="amount_paid">Nominal Pembayaran</label>
+                        <input type="text" id="amount_paid_display" placeholder="Masukkan nominal pembayaran">
+                        <input type="hidden" name="amount_paid" id="amount_paid">
                     </div>
+
+
+                    <!-- Bagian Karyawan (Tambah Barang) -->
+                    <div>
+                        <label>Karyawan</label>
+                        <?php
+                        // Ambil semua karyawan aktif
+                        $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
+                        $employeeCount = $activeEmployees->num_rows;
+
+                        if ($employeeCount === 0) {
+                            echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
+                        } elseif ($employeeCount === 1) {
+                            // Jika hanya satu karyawan aktif, tampil otomatis (readonly)
+                            $emp = $activeEmployees->fetch_assoc();
+                            echo "
+            <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
+            <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
+        ";
+                        } else {
+                            // Jika lebih dari satu, tampil dropdown
+                            echo "<select name='employee_id' required>
+                <option value=''>-- Pilih Karyawan --</option>";
+                            while ($emp = $activeEmployees->fetch_assoc()) {
+                                echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
+                            }
+                            echo "</select>";
+                        }
+                        ?>
+                    </div>
+
+
 
                     <div class="full-width" style="display: flex; gap: 10px; justify-content: center;">
                         <button type="submit" class="save-btn" id="saveOnlyBtn">Simpan</button>
@@ -176,6 +211,7 @@ include('../db.php'); // koneksi database
                         <th>Estimasi Selesai</th>
                         <th>Proses</th>
                         <th>Pembayaran</th>
+                        <th>Karyawan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -184,11 +220,20 @@ include('../db.php'); // koneksi database
                     $sort = isset($_GET['sort']) ? $_GET['sort'] : '';
                     $sql = "
 SELECT 
-    d.*, 
-    c.name, 
+    d.id_drop,
+    d.order_code,
+    d.customer_id,
+    d.service_id,
+    d.brand,
+    d.trans_date,
+    d.est_finish_date,
+    d.status_id,
+    d.employee_id,
+    c.name,
     c.phone,
-    s.service_name, 
+    s.service_name,
     s.category,
+    e.name AS employee_name,
     st.status_name,
     p.payment_method,
     p.payment_date,
@@ -197,6 +242,7 @@ SELECT
 FROM drops d
 JOIN customers c ON d.customer_id = c.id_customer
 JOIN services s ON d.service_id = s.id_service
+LEFT JOIN employees e ON d.employee_id = e.id_employee
 LEFT JOIN statuses st ON d.status_id = st.id_status
 LEFT JOIN payments p ON d.id_drop = p.drop_id
 WHERE 
@@ -204,7 +250,8 @@ WHERE
     d.brand LIKE '%$search%' OR
     s.service_name LIKE '%$search%' OR
     s.category LIKE '%$search%' OR
-    st.status_name LIKE '%$search%'
+    st.status_name LIKE '%$search%' OR
+    e.name LIKE '%$search%'
 ";
 
                     switch ($sort) {
@@ -248,8 +295,20 @@ WHERE
                         echo "<td><span class='service-text'><span class='light'>" . ucfirst(htmlspecialchars($row['category'])) . "</span> <span class='bold'>" . htmlspecialchars($row['service_name']) . "</span></span></td>";
                         echo "<td>" . date('d F Y', strtotime($row['trans_date'])) . "</td>";
                         echo "<td>" . date('d F Y', strtotime($row['est_finish_date'])) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['status_name'] ?? '-') . "</td>";
+                        echo "<td>
+                        <select class='status-dropdown' data-id='{$row['id_drop']}'>
+                            <option value='' disabled>Pilih Status</option>";
+
+                        $st2 = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
+                        while ($s2 = $st2->fetch_assoc()) {
+                            $selected = ($s2['id_status'] == $row['status_id']) ? 'selected' : '';
+                            echo "<option value='{$s2['id_status']}' {$selected}>{$s2['status_name']}</option>";
+                        }
+
+                        echo "</select></td>";
+
                         echo "<td>" . htmlspecialchars($row['pay_status'] ?? '-') . "</td>";
+                        echo "<td>" . htmlspecialchars($row['employee_name'] ?? '-') . "</td>";
                         echo "</tr>";
                     }
 
@@ -389,17 +448,52 @@ WHERE
                 <div>
                     <label>Metode Pembayaran</label>
                     <select name="payment_method" id="edit_payment_method">
-                        <option value="">-- Pilih Metode --</option>
                         <option value="Tunai">Tunai</option>
                         <option value="Transfer">Transfer</option>
                     </select>
                 </div>
 
                 <div>
-                    <label>Nominal Pembayaran</label>
-                    <input type="number" name="amount_paid" id="edit_amount_paid"
-                        placeholder="Masukkan nominal pembayaran">
+                    <label for="edit_amount_paid">Nominal Pembayaran</label>
+                    <input type="text" id="edit_amount_paid_display" placeholder="Masukkan nominal pembayaran">
+                    <input type="hidden" name="amount_paid" id="edit_amount_paid">
                 </div>
+
+
+                <!-- Bagian Karyawan (Edit Barang) -->
+                <div>
+                    <label>Karyawan</label>
+                    <?php
+                    // Ambil semua karyawan aktif
+                    $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
+                    $employeeCount = $activeEmployees->num_rows;
+
+                    // Ambil ID karyawan yang sebelumnya menangani barang ini
+                    $selectedEmployeeId = isset($barang['employee_id']) ? $barang['employee_id'] : '';
+
+                    if ($employeeCount === 0) {
+                        echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
+                    } elseif ($employeeCount === 1 && empty($selectedEmployeeId)) {
+                        // Hanya satu aktif, dan data lama kosong
+                        $emp = $activeEmployees->fetch_assoc();
+                        echo "
+            <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
+            <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
+        ";
+                    } else {
+                        // Tampilkan dropdown (agar bisa ganti karyawan)
+                        echo "<select name='employee_id' id='edit_employee_id' required>";
+                        echo "<option value=''>-- Pilih Karyawan --</option>";
+                        while ($emp = $activeEmployees->fetch_assoc()) {
+                            $selected = ($emp['id_employee'] == $selectedEmployeeId) ? "selected" : "";
+                            echo "<option value='{$emp['id_employee']}' $selected>{$emp['name']}</option>";
+                        }
+                        echo "</select>";
+                    }
+                    ?>
+                </div>
+
+
 
                 <div class="full-width">
                     <button type="submit" class="save-btn">Simpan Perubahan</button>
