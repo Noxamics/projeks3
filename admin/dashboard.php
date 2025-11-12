@@ -99,8 +99,17 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                             default: $status_class = 'status-waiting';
                         }
                         
+                        $est_date_formatted = date('d M Y', strtotime($order['est_finish_date']));
+                        
                         echo "
-                        <div class='order-item' data-category='" . strtolower($order['category']) . "'>
+                        <div class='order-item' 
+                             data-category='" . strtolower($order['category']) . "' 
+                             data-order-code='" . htmlspecialchars($order['order_code']) . "'
+                             data-customer='" . htmlspecialchars($order['customer_name']) . "'
+                             data-service='" . htmlspecialchars($order['service_name']) . "'
+                             data-category-full='" . htmlspecialchars($order['category']) . "'
+                             data-brand='" . htmlspecialchars($order['brand']) . "'
+                             data-est-date='" . $order['est_finish_date'] . "'>
                             <div class='order-header'>
                                 <span class='order-id'>{$order['order_code']}</span>
                                 <span class='order-status {$status_class}'>{$order['status_name']}</span>
@@ -109,7 +118,7 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                                 <strong>{$order['customer_name']}</strong> - {$order['service_name']} ({$order['brand']})
                             </div>
                             <div class='order-time'>
-                                📅 Estimasi Selesai: " . date('d M Y', strtotime($order['est_finish_date'])) . "
+                                📅 Estimasi Selesai: {$est_date_formatted}
                             </div>
                         </div>
                         ";
@@ -145,544 +154,158 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
             </div>
         </div>
     </div>
+
+<!-- POPUP FORM EDIT BARANG - Perbaikan -->
+    <div class="modal" id="editModal">
+        <div class="modal-content large">
+            <span class="close">&times;</span>
+            <h2>Edit Barang</h2>
+
+            <form method="POST" action="dashboard_edit.php" class="grid-form" id="editForm">
+                <input type="hidden" name="id_drop" id="edit_id_drop">
+
+                <!-- Baris 1 -->
+                <div>
+                    <label>Nama Pelanggan</label>
+                    <input type="text" id="edit_customer_name" name="customer_name" required>
+                </div>
+                <div>
+                    <label>No. Handphone</label>
+                    <input type="text" id="edit_customer_phone" name="phone_number" required>
+                </div>
+
+                <!-- Baris 2 -->
+                <div>
+                    <label>Brand / Merk</label>
+                    <input type="text" id="edit_brand" name="brand" required>
+                </div>
+
+                <div>
+                    <label for="edit_service_id">Layanan</label>
+                    <select name="service_id" id="edit_service_id" required>
+                        <option value="">-- Pilih Layanan --</option>
+                        <?php
+                        $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
+                        $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
+                        $result = mysqli_query($conn, $query);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
+                            echo "<option value='{$row['id_service']}'>{$displayName}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Harga</label>
+                    <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;"
+                        readonly>
+                    <input type="hidden" name="price_min" id="edit_price_min">
+                    <input type="hidden" name="price_max" id="edit_price_max">
+                </div>
+
+                <div>
+                    <label>Estimasi Selesai</label>
+                    <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari"
+                        readonly style="background:#f9f9f9;">
+                </div>
+
+                <!-- Baris 3 -->
+                <div>
+                    <label>Tgl. Transaksi</label>
+                    <input type="date" id="edit_tanggal_masuk" name="tanggal_masuk">
+                </div>
+                <div>
+                    <label>Estimasi Selesai</label>
+                    <input type="date" id="edit_tanggal_selesai" name="tanggal_selesai" style="background:#f9f9f9;">
+                </div>
+
+                <!-- Baris 4 -->
+                <div>
+                    <label>Status</label>
+                    <select name="status_id" id="edit_statusSelect" required>
+                        <option value="">Pilih Status</option>
+                        <?php
+                        $st = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
+                        while ($s = $st->fetch_assoc()) {
+                            echo "<option value='{$s['id_status']}'>{$s['status_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div>
+                    <label>Status Pembayaran</label>
+                    <select name="payment_status" id="edit_payment_status">
+                        <option value="Belum Lunas">Belum Lunas</option>
+                        <option value="Lunas">Lunas</option>
+                    </select>
+                </div>
+
+                <!-- Baris 5 -->
+                <div>
+                    <label>Tanggal Pembayaran</label>
+                    <input type="date" id="edit_payment_date" name="payment_date">
+                </div>
+
+                <div>
+                    <label>Metode Pembayaran</label>
+                    <select name="payment_method" id="edit_payment_method">
+                        <option value="">-- Pilih Metode --</option>
+                        <option value="Tunai">Tunai</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Nominal Pembayaran</label>
+                    <input type="number" name="amount_paid" id="edit_amount_paid"
+                        placeholder="Masukkan nominal pembayaran">
+                </div>
+
+                <div class="full-width">
+                    <button type="submit" class="save-btn">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </main>
 
 <script>
-// Data deadlines dari PHP
+// PENTING: Embed data PHP sebelum load external JS
 const deadlinesData = <?php echo json_encode($deadlines); ?>;
+console.log('Deadlines data loaded:', deadlinesData.length, 'items');
 
-// Fungsi untuk menghitung sisa hari
-function getDaysUntilDeadline(deadlineDate) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const deadline = new Date(deadlineDate);
-    
-    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
-    today.setHours(0, 0, 0, 0);
-    deadline.setHours(0, 0, 0, 0);
-    
-    const timeDiff = deadline - today;
-    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    return daysUntil;
-}
+  // Ambil elemen modal dan tombol close
+  const editModal = document.getElementById("editModal");
+  const closeBtn = editModal.querySelector(".close");
 
-// Fungsi untuk mendapatkan warna berdasarkan sisa hari
-function getDeadlineColorClass(daysUntil) {
-    if (daysUntil < 0) return 'expired';
-    if (daysUntil <= 2) return 'red';     // 0-2 hari = merah
-    if (daysUntil <= 5) return 'yellow';   // 3-5 hari = kuning
-    return 'green';                        // 6+ hari = hijau
-}
+  // Fungsi untuk membuka modal
+  function openEditModal(data) {
+    // isi field data jika perlu
+    document.getElementById("edit_customer_name").value = data.customer_name || "";
+    document.getElementById("edit_brand").value = data.brand || "";
+    // ... isi field lainnya ...
 
-// Fungsi untuk generate deadline list
-function generateDeadlineList() {
-    const deadlineList = document.getElementById('deadlineList');
-    deadlineList.innerHTML = '';
-    
-    // Filter deadline yang belum lewat dan sort by date
-    const upcomingDeadlines = deadlinesData
-        .map(deadline => ({
-            ...deadline,
-            daysUntil: getDaysUntilDeadline(deadline.deadline_date)
-        }))
-        .filter(deadline => deadline.daysUntil >= 0) // Tampilkan semua deadline yang belum lewat
-        .sort((a, b) => a.daysUntil - b.daysUntil)
-        .slice(0, 10); // Tampilkan 10 deadline terdekat
-    
-    if (upcomingDeadlines.length === 0) {
-        deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang</p>';
-        return;
+    editModal.style.display = "flex"; // tampilkan modal
+  }
+
+  // Tutup modal jika klik tombol X
+  closeBtn.onclick = () => {
+    editModal.style.display = "none";
+  };
+
+  // Tutup modal jika klik di luar area modal
+  window.onclick = (e) => {
+    if (e.target === editModal) {
+      editModal.style.display = "none";
     }
-    
-    upcomingDeadlines.forEach(deadline => {
-        const colorClass = getDeadlineColorClass(deadline.daysUntil);
-        const formattedDate = new Date(deadline.deadline_date).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        let daysText = '';
-        if (deadline.daysUntil === 0) {
-            daysText = 'Hari ini!';
-        } else if (deadline.daysUntil === 1) {
-            daysText = 'Besok';
-        } else {
-            daysText = `${deadline.daysUntil} hari lagi`;
-        }
-        
-        const deadlineItem = document.createElement('div');
-        deadlineItem.className = `deadline-item ${colorClass}`;
-        deadlineItem.innerHTML = `
-            <div>
-                <h4>${deadline.order_code}</h4>
-                <p>${deadline.customer_name} - ${deadline.service_name}</p>
-                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
-            </div>
-            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
-        `;
-        
-        deadlineList.appendChild(deadlineItem);
-    });
-    
-    // Debug: Log untuk memastikan semua deadline terproses
-    console.log('Total deadlines:', deadlinesData.length);
-    console.log('Upcoming deadlines:', upcomingDeadlines.length);
-    upcomingDeadlines.forEach(d => {
-        console.log(`${d.order_code}: ${d.daysUntil} hari (${getDeadlineColorClass(d.daysUntil)})`);
-    });
-}
+  };
 
-// Variable untuk menyimpan bulan dan tahun yang sedang ditampilkan
-let currentDisplayYear = new Date().getFullYear();
-let currentDisplayMonth = new Date().getMonth();
-
-// Fungsi untuk calendar dengan deadline colors
-function generateCalendar() {
-    const year = currentDisplayYear;
-    const month = currentDisplayMonth;
-    
-    const firstDay = new Date(year, month, 1);    
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    
-    const calendarGrid = document.getElementById('calendarGrid');
-    calendarGrid.innerHTML = '';
-    
-    // Hari dalam seminggu
-    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    days.forEach(day => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'day';
-        dayElement.textContent = day;
-        calendarGrid.appendChild(dayElement);
-    });
-    
-    // Tambahkan empty cells untuk hari sebelum tanggal 1
-    const firstDayOfWeek = firstDay.getDay();
-    for (let i = 0; i < firstDayOfWeek; i++) {
-        const emptyElement = document.createElement('div');
-        emptyElement.className = 'date empty';
-        calendarGrid.appendChild(emptyElement);
-    }
-    
-    // Tanggal dengan warna berdasarkan deadline
-    for (let i = 1; i <= daysInMonth; i++) {
-        const dateElement = document.createElement('div');
-        dateElement.className = 'date';
-        
-        // Format tanggal untuk matching dengan deadline
-        const currentDate = new Date(year, month, i);
-        const dateString = formatDate(currentDate);
-        
-        // Cek apakah ada deadline di tanggal ini
-        const deadlineInfo = getDeadlineInfo(dateString);
-        
-        if (deadlineInfo) {
-            const daysUntilDeadline = deadlineInfo.daysUntil;
-            dateElement.classList.add('has-deadline');
-            
-            // Tentukan warna berdasarkan hari menuju deadline
-            if (daysUntilDeadline <= 2) {
-                dateElement.classList.add('deadline-critical'); // Merah - 0-2 hari lagi
-            } else if (daysUntilDeadline <= 5) {
-                dateElement.classList.add('deadline-warning'); // Kuning - 3-5 hari lagi
-            } else if (daysUntilDeadline >= 6) {
-                dateElement.classList.add('deadline-safe'); // Hijau - 6+ hari lagi
-            }
-            
-            // Tambah tooltip dengan info deadline
-            const tooltipText = deadlineInfo.orders.map(o => 
-                `${o.order_code} - ${o.customer_name}`
-            ).join('\n');
-            dateElement.title = `${tooltipText}\n(${daysUntilDeadline} hari lagi)`;
-        }
-        
-        // Tandai tanggal hari ini
-        const today = new Date();
-        if (i === today.getDate() && 
-            month === today.getMonth() && 
-            year === today.getFullYear()) {
-            dateElement.classList.add('active');
-        }
-        
-        dateElement.textContent = i;
-        dateElement.setAttribute('data-date', dateString);
-        calendarGrid.appendChild(dateElement);
-    }
-}
-
-// Fungsi untuk format date ke YYYY-MM-DD
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-// Fungsi untuk mendapatkan info deadline
-function getDeadlineInfo(dateString) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const deadlineDate = new Date(dateString);
-    
-    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
-    today.setHours(0, 0, 0, 0);
-    deadlineDate.setHours(0, 0, 0, 0);
-    
-    // Hitung selisih hari
-    const timeDiff = deadlineDate - today;
-    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    
-    // Hanya tampilkan deadline yang belum lewat (hari ini atau masa depan)
-    if (daysUntil < 0) {
-        return null; // Deadline sudah lewat, jangan tampilkan warna
-    }
-    
-    // Cari deadline di tanggal tersebut
-    const deadlinesOnDate = deadlinesData.filter(deadline => 
-        deadline.deadline_date === dateString
-    );
-    
-    if (deadlinesOnDate.length > 0) {
-        return {
-            count: deadlinesOnDate.length,
-            daysUntil: daysUntil,
-            orders: deadlinesOnDate
-        };
-    }
-    
-    return null;
-}
-
-// Fungsi untuk change month
-function changeMonth(direction) {
-    currentDisplayMonth += direction;
-    
-    // Handle perubahan tahun
-    if (currentDisplayMonth > 11) {
-        currentDisplayMonth = 0;
-        currentDisplayYear++;
-    } else if (currentDisplayMonth < 0) {
-        currentDisplayMonth = 11;
-        currentDisplayYear--;
-    }
-    
-    // Update header bulan
-    updateCalendarHeader();
-    
-    // Regenerate calendar
-    generateCalendar();
-    
-    // Update deadline list untuk bulan yang baru
-    updateDeadlineListForMonth();
-}
-
-// Fungsi untuk update header kalender
-function updateCalendarHeader() {
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    const headerElement = document.querySelector('.calendar-header h3');
-    if (headerElement) {
-        headerElement.textContent = `${monthNames[currentDisplayMonth]} ${currentDisplayYear}`;
-    }
-}
-
-// Fungsi untuk update deadline list berdasarkan bulan yang dipilih
-function updateDeadlineListForMonth() {
-    const deadlineList = document.getElementById('deadlineList');
-    deadlineList.innerHTML = '';
-    
-    // Filter deadline untuk bulan yang sedang ditampilkan
-    const selectedMonthDeadlines = deadlinesData
-        .map(deadline => ({
-            ...deadline,
-            daysUntil: getDaysUntilDeadline(deadline.deadline_date),
-            deadlineDate: new Date(deadline.deadline_date)
-        }))
-        .filter(deadline => {
-            const dlMonth = deadline.deadlineDate.getMonth();
-            const dlYear = deadline.deadlineDate.getFullYear();
-            return dlMonth === currentDisplayMonth && 
-                   dlYear === currentDisplayYear &&
-                   deadline.daysUntil >= 0; // Hanya yang belum lewat
-        })
-        .sort((a, b) => a.daysUntil - b.daysUntil)
-        .slice(0, 10);
-    
-    if (selectedMonthDeadlines.length === 0) {
-        deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline di bulan ini</p>';
-        return;
-    }
-    
-    selectedMonthDeadlines.forEach(deadline => {
-        const colorClass = getDeadlineColorClass(deadline.daysUntil);
-        const formattedDate = deadline.deadlineDate.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        let daysText = '';
-        if (deadline.daysUntil === 0) {
-            daysText = 'Hari ini!';
-        } else if (deadline.daysUntil === 1) {
-            daysText = 'Besok';
-        } else {
-            daysText = `${deadline.daysUntil} hari lagi`;
-        }
-        
-        const deadlineItem = document.createElement('div');
-        deadlineItem.className = `deadline-item ${colorClass}`;
-        deadlineItem.innerHTML = `
-            <div>
-                <h4>${deadline.order_code}</h4>
-                <p>${deadline.customer_name} - ${deadline.service_name}</p>
-                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
-            </div>
-            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
-        `;
-        
-        deadlineList.appendChild(deadlineItem);
-    });
-}
-
-// Panggil fungsi saat halaman load
-document.addEventListener('DOMContentLoaded', function() {
-    generateCalendar();
-    generateDeadlineList();
-    setupRealTimeSearch();
-});
-
-// Fungsi untuk pencarian pesanan
-function searchOrders() {
-    const searchTerm = document.getElementById('searchOrder').value.toLowerCase().trim();
-    
-    if (searchTerm === '') {
-        return;
-    }
-
-    const orderItems = document.querySelectorAll('.order-item');
-    let foundResults = false;
-    const activeCategory = document.querySelector('.filter-type button.active').textContent.toLowerCase();
-
-    orderItems.forEach(item => {
-        const orderId = item.querySelector('.order-id').textContent.toLowerCase();
-        const customerName = item.querySelector('.order-details strong').textContent.toLowerCase();
-        const serviceDetails = item.querySelector('.order-details').textContent.toLowerCase();
-        const itemCategory = item.getAttribute('data-category');
-        
-        const matchesSearch = orderId.includes(searchTerm) || 
-            customerName.includes(searchTerm) || 
-            serviceDetails.includes(searchTerm);
-            
-        const matchesCategory = activeCategory === 'all' || itemCategory === activeCategory;
-        
-        if (matchesSearch && matchesCategory) {
-            item.style.display = 'block';
-            foundResults = true;
-        } else {
-            item.style.display = 'none';
-        }
-    });
-
-    showSearchMessage(searchTerm, foundResults, activeCategory);
-}
-
-// Fungsi untuk menampilkan pesan pencarian
-function showSearchMessage(searchTerm, foundResults, activeCategory) {
-    const existingMessage = document.querySelector('.search-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'search-message';
-    messageDiv.style.cssText = `
-        background: ${foundResults ? '#d4edda' : '#f8d7da'};
-        color: ${foundResults ? '#155724' : '#721c24'};
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid ${foundResults ? '#c3e6cb' : '#f5c6cb'};
-    `;
-
-    if (foundResults) {
-        if (activeCategory === 'all') {
-            messageDiv.textContent = `Ditemukan hasil untuk: "${searchTerm}"`;
-        } else {
-            messageDiv.textContent = `Ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
-        }
-    } else {
-        if (activeCategory === 'all') {
-            messageDiv.textContent = `Tidak ditemukan hasil untuk: "${searchTerm}"`;
-        } else {
-            messageDiv.textContent = `Tidak ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
-        }
-    }
-
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
-
-// Fungsi untuk real-time search
-function setupRealTimeSearch() {
-    const searchInput = document.getElementById('searchOrder');
-    let searchTimeout;
-    
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase().trim();
-        
-        if (searchTerm === '') {
-            const activeCategory = document.querySelector('.filter-type button.active').textContent.toLowerCase();
-            filterByCategory(activeCategory);
-            return;
-        }
-        
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            searchOrders();
-        }, 500);
-    });
-    
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchOrders();
-        }
-    });
-}
-
-// Fungsi untuk sorting pesanan
-function sortOrders() {
-    const sortBy = document.getElementById('sortFilter').value;
-    const orderItems = document.querySelectorAll('.order-item');
-    const timelineBody = document.getElementById('orderTimeline');
-    
-    const ordersArray = Array.from(orderItems);
-    
-    ordersArray.sort((a, b) => {
-        const dateA = new Date(a.querySelector('.order-time').textContent.replace('📅 Estimasi Selesai: ', ''));
-        const dateB = new Date(b.querySelector('.order-time').textContent.replace('📅 Estimasi Selesai: ', ''));
-        
-        if (sortBy === 'newest') {
-            return dateB - dateA;
-        } else {
-            return dateA - dateB;
-        }
-    });
-    
-    timelineBody.innerHTML = '';
-    ordersArray.forEach(order => {
-        timelineBody.appendChild(order);
-    });
-    
-    showSortMessage(sortBy);
-}
-
-// Fungsi untuk filter berdasarkan category
-function filterByCategory(category) {
-    const orderItems = document.querySelectorAll('.order-item');
-    const filterButtons = document.querySelectorAll('.filter-type button');
-    const searchTerm = document.getElementById('searchOrder').value.toLowerCase().trim();
-    
-    filterButtons.forEach(button => {
-        button.classList.remove('active');
-        if (button.textContent.toLowerCase() === category.toLowerCase() || 
-            (category === 'all' && button.textContent.toLowerCase() === 'all')) {
-            button.classList.add('active');
-        }
-    });
-    
-    let foundResults = false;
-    orderItems.forEach(item => {
-        const orderId = item.querySelector('.order-id').textContent.toLowerCase();
-        const customerName = item.querySelector('.order-details strong').textContent.toLowerCase();
-        const serviceDetails = item.querySelector('.order-details').textContent.toLowerCase();
-        const itemCategory = item.getAttribute('data-category');
-        
-        const matchesCategory = category === 'all' || itemCategory === category.toLowerCase();
-        const matchesSearch = searchTerm === '' || 
-            orderId.includes(searchTerm) || 
-            customerName.includes(searchTerm) || 
-            serviceDetails.includes(searchTerm);
-        
-        if (matchesCategory && matchesSearch) {
-            item.style.display = 'block';
-            foundResults = true;
-        } else {
-            item.style.display = 'none';
-        }
-    });
-    
-    showFilterMessage(category, searchTerm, foundResults);
-}
-
-// Fungsi untuk menampilkan pesan filter
-function showFilterMessage(category, searchTerm, foundResults) {
-    const message = category === 'all' 
-        ? (searchTerm === '' ? 'Menampilkan semua pesanan' : `Menampilkan semua kategori dengan pencarian: "${searchTerm}"`)
-        : (searchTerm === '' ? `Menampilkan kategori: ${category}` : `Menampilkan kategori: ${category} dengan pencarian: "${searchTerm}"`);
-    
-    const existingMessage = document.querySelector('.filter-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'filter-message';
-    messageDiv.style.cssText = `
-        background: #e3f2fd;
-        color: #0d47a1;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid #bbdefb;
-    `;
-    messageDiv.textContent = message;
-    
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
-
-// Fungsi untuk menampilkan pesan sorting
-function showSortMessage(sortType) {
-    const message = sortType === 'newest' 
-        ? 'Pesanan diurutkan dari tanggal terbaru' 
-        : 'Pesanan diurutkan dari tanggal terlama';
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.style.cssText = `
-        background: #d4edda;
-        color: #155724;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid #c3e6cb;
-    `;
-    messageDiv.textContent = message;
-    
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
 </script>
+
+<!-- Load external JavaScript -->
+<script src="../js/dashboard.js"></script>
 
 <?php 
 include('../partials/footer.php'); 
