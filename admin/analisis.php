@@ -13,12 +13,12 @@ $yesterday = date('Y-m-d', strtotime('-1 day'));
 
 // === 1. TODAY'S SALES ===
 $total_sales = $conn->query("
-    SELECT COALESCE(SUM(d.total_amount), 0) as total 
-    FROM drops d
+    SELECT COALESCE(SUM(di.price), 0) as total 
+    FROM drop_items di
+    JOIN drops d ON di.drop_id = d.id_drop
     JOIN payments p ON d.id_drop = p.drop_id
-    WHERE DATE(p.payment_date) = '$today' 
+    WHERE DATE(d.trans_date) = '$today' 
       AND p.status = 'Lunas'
-      AND p.amount_paid >= d.total_amount
 ")->fetch_assoc()['total'] ?? 0;
 
 $total_order = $conn->query("
@@ -28,12 +28,12 @@ $total_order = $conn->query("
     WHERE DATE(p.payment_date) = '$today' AND p.status = 'Lunas'
 ")->fetch_assoc()['count'] ?? 0;
 
-$product_sold = $conn->query("
+$service_completed = $conn->query("
     SELECT COALESCE(SUM(di.quantity), 0) as total 
     FROM drop_items di 
     JOIN drops d ON di.drop_id = d.id_drop 
-    JOIN payments p ON d.id_drop = p.drop_id 
-    WHERE DATE(p.payment_date) = '$today' AND p.status = 'Lunas'
+    WHERE DATE(d.trans_date) = '$today' 
+      AND d.status_id = 4
 ")->fetch_assoc()['total'] ?? 0;
 
 $new_customers = $conn->query("
@@ -44,8 +44,12 @@ $new_customers = $conn->query("
 
 // === PERUBAHAN DARI KEMARIN ===
 $yesterday_sales = $conn->query("
-    SELECT COALESCE(SUM(p.amount_paid), 0) as total 
-    FROM payments p WHERE DATE(p.payment_date) = '$yesterday' AND p.status = 'Lunas'
+    SELECT COALESCE(SUM(di.price), 0) as total 
+    FROM drop_items di
+    JOIN drops d ON di.drop_id = d.id_drop
+    JOIN payments p ON d.id_drop = p.drop_id
+    WHERE DATE(d.trans_date) = '$yesterday' 
+      AND p.status = 'Lunas'
 ")->fetch_assoc()['total'] ?? 0;
 
 $sales_change = $yesterday_sales > 0
@@ -71,8 +75,8 @@ $yesterday_products = $conn->query("
 ")->fetch_assoc()['total'] ?? 0;
 
 $product_change = $yesterday_products > 0
-    ? round((($product_sold - $yesterday_products) / $yesterday_products) * 100, 1)
-    : ($product_sold > 0 ? 100 : 0);
+    ? round((($service_completed - $yesterday_products) / $yesterday_products) * 100, 1)
+    : ($service_completed > 0 ? 100 : 0);
 
 $yesterday_customers = $conn->query("
     SELECT COUNT(DISTINCT c.id_customer) as count 
@@ -88,23 +92,44 @@ $customer_change = $yesterday_customers > 0
     ? round((($new_customers - $yesterday_customers) / $yesterday_customers) * 100, 1)
     : ($new_customers > 0 ? 100 : 0);
 
-// === 2. REVENUE 7 HARI TERAKHIR ===
+// === REVENUE 7 HARI TERAKHIR (FIXED) ===
 $revenue_data = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $day_name = date('D', strtotime($date));
 
     $amount = $conn->query("
-        SELECT COALESCE(SUM(p.amount_paid), 0) as amount 
-        FROM payments p 
-        WHERE DATE(p.payment_date) = '$date' AND p.status = 'Lunas'
+        SELECT COALESCE(SUM(di.price), 0) as amount 
+        FROM drop_items di
+        JOIN drops d ON di.drop_id = d.id_drop
+        JOIN payments p ON d.id_drop = p.drop_id
+        WHERE DATE(d.trans_date) = '$date' 
+          AND p.status = 'Lunas'
     ")->fetch_assoc()['amount'] ?? 0;
 
-    $revenue_data[] = ['day' => $day_name, 'amount' => (int)$amount];
+    $revenue_data[] = [
+        'day' => $day_name,
+        'amount' => (int)$amount
+    ];
 }
 
-// TOP SERVICE
+// === 3. STATUS ORDER REAL-TIME (DARI TABEL STATUSES) ===
+$status_data = $conn->query("
+    SELECT 
+        s.id_status,
+        s.status_name,
+        s.status_code,
+        COALESCE(COUNT(d.id_drop), 0) as total_orders,
+        COALESCE(SUM(di.quantity), 0) as total_items
+    FROM statuses s
+    LEFT JOIN drops d ON s.id_status = d.status_id 
+        AND DATE(d.trans_date) = '$today'
+    LEFT JOIN drop_items di ON d.id_drop = di.drop_id
+    GROUP BY s.id_status, s.status_name, s.status_code, s.status_order
+    ORDER BY s.status_order ASC
+")->fetch_all(MYSQLI_ASSOC);
 
+// === 4. TOP SERVICE ===
 $top_services = $conn->query("
     SELECT 
         s.service_name as name,
@@ -119,10 +144,8 @@ $top_services = $conn->query("
     ORDER BY total_orders DESC
     LIMIT 5
 ")->fetch_all(MYSQLI_ASSOC);
+
 ?>
-
-
-
 <main class="analisis-container">
     <h1 class="page-title">Statistik</h1>
 
@@ -163,15 +186,15 @@ $top_services = $conn->query("
                 </div>
             </div>
 
-            <!-- Product Sold Card -->
+            <!-- Service Completed -->
             <div class="stat-card green">
                 <div class="stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.4 13.98 8.4 12C8.4 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="stat-value"><?php echo $product_sold ?? 0; ?></div>
-                <div class="stat-label">Product Sold</div>
+                <div class="stat-value"><?php echo $service_completed ?? 0; ?></div>
+                <div class="stat-label">Service Completed</div>
                 <div class="stat-change <?php echo ($product_change ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
                     <?php echo ($product_change ?? 0) >= 0 ? '+' : ''; ?><?php echo $product_change ?? 0; ?>% from yesterday
                 </div>
@@ -205,23 +228,11 @@ $top_services = $conn->query("
             </div>
         </div>
 
-        <!-- Target vs Reality Chart -->
+        <!-- STATUS ORDER REAL-TIME (RAPI & TANPA TEKS DUPLIKAT) -->
         <div class="chart-card">
-            <h2>Target vs Reality</h2>
-            <div class="chart-container">
-                <canvas id="targetChart"></canvas>
-            </div>
-            <div class="chart-legends">
-                <div class="legend-item">
-                    <span class="legend-color green"></span>
-                    <span class="legend-text">Reality Sales</span>
-                    <span class="legend-value"><?php echo number_format($total_reality_sales ?? 0, 0, ',', '.'); ?></span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color yellow"></span>
-                    <span class="legend-text">Target Sales</span>
-                    <span class="legend-value"><?php echo number_format($total_target_sales ?? 0, 0, ',', '.'); ?></span>
-                </div>
+            <h2>Status Order Hari Ini</h2>
+            <div class="chart-container" style="height: 320px; position: relative;">
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
     </div>
@@ -274,102 +285,98 @@ $top_services = $conn->query("
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
-    // Data dari PHP untuk Revenue Chart
-    const revenueData = <?php echo json_encode($revenue_data ?? []); ?>;
-    const revenueLabels = revenueData.map(item => item.day) || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const revenueValues = revenueData.map(item => item.amount) || [0, 0, 0, 0, 0, 0, 0];
-
     // Revenue Chart
-    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-    new Chart(revenueCtx, {
+    const revenueData = <?php echo json_encode($revenue_data); ?>;
+    new Chart(document.getElementById('revenueChart'), {
         type: 'bar',
         data: {
-            labels: revenueLabels,
+            labels: revenueData.map(d => d.day),
             datasets: [{
-                label: 'Offline Sales',
-                data: revenueValues,
+                label: 'Revenue',
+                data: revenueData.map(d => d.amount),
                 backgroundColor: '#0066CC',
-                borderRadius: 4,
-                barThickness: 30
+                borderRadius: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'Rp ' + (value / 1000) + 'k';
-                        }
-                    },
-                    grid: {
-                        borderDash: [5, 5]
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
                 }
             }
         }
     });
 
-    // Data dari PHP untuk Target vs Reality Chart
-    const targetData = <?php echo json_encode($target_data ?? []); ?>;
-    const targetLabels = targetData.map(item => item.month) || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July'];
-    const realityValues = targetData.map(item => item.reality) || [0, 0, 0, 0, 0, 0, 0];
-    const targetValues = targetData.map(item => item.target) || [0, 0, 0, 0, 0, 0, 0];
-
-    // Target vs Reality Chart
-    const targetCtx = document.getElementById('targetChart').getContext('2d');
-    new Chart(targetCtx, {
+    // Status Order Chart
+    const statusData = <?php echo json_encode($status_data); ?>;
+    new Chart(document.getElementById('statusChart'), {
         type: 'bar',
         data: {
-            labels: targetLabels,
+            labels: statusData.map(s => s.status_name),
             datasets: [{
-                    label: 'Reality Sales',
-                    data: realityValues,
-                    backgroundColor: '#4CAF50',
-                    borderRadius: 4,
-                    barThickness: 20
-                },
-                {
-                    label: 'Target Sales',
-                    data: targetValues,
-                    backgroundColor: '#FFC107',
-                    borderRadius: 4,
-                    barThickness: 20
-                }
-            ]
+                label: 'Jumlah Order',
+                data: statusData.map(s => s.total_orders),
+                backgroundColor: ['#9C27B0', '#FF9800', '#F44336', '#4CAF50', '#2196F3', '#FFC107'],
+                borderRadius: 8
+            }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const idx = context.dataIndex;
+                            const orders = statusData[idx].total_orders;
+                            const items = statusData[idx].total_items;
+                            return `${orders} order • ${items} item`;
+                        }
+                    },
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleFont: {
+                        size: 13
+                    },
+                    bodyFont: {
+                        size: 12
+                    },
+                    padding: 10,
+                    cornerRadius: 6
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        borderDash: [5, 5]
-                    }
-                },
                 x: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: {
+                            size: 11
+                        }
+                    },
                     grid: {
                         display: false
                     }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        },
+                        padding: 10
+                    }
                 }
+            },
+            animation: {
+                duration: 800
             }
         }
     });
