@@ -2,7 +2,7 @@
 include_once('../partials/headerAdmin.php');
 include_once('../db.php');
 
-// 🔹 Query data laporan (ubah ORDER BY ASC agar urut dari terlama)
+// 🔹 Query data laporan
 $query = "
 SELECT 
     d.id_drop,
@@ -34,7 +34,7 @@ $kategoriQuery = "SELECT DISTINCT category FROM services ORDER BY category ASC";
 $kategoriResult = mysqli_query($conn, $kategoriQuery);
 ?>
 
-<link rel="stylesheet" href="../css/laporan.css">
+<link rel="stylesheet" href="../css/laporan.css?v=<?php echo time(); ?>">
 
 <main>
     <h1>Laporan Transaksi</h1>
@@ -44,18 +44,15 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
         <select id="sortBy">
             <option value="">-- Sort By --</option>
-
             <optgroup label="Waktu">
                 <option value="minggu">Minggu Ini</option>
                 <option value="bulan">Bulan Ini</option>
                 <option value="tahun">Tahun Ini</option>
             </optgroup>
-
             <optgroup label="Status Pembayaran">
                 <option value="lunas">Lunas</option>
                 <option value="belum">Belum Lunas</option>
             </optgroup>
-
             <optgroup label="Kategori Layanan">
                 <?php while ($kat = mysqli_fetch_assoc($kategoriResult)) : ?>
                     <option value="<?= htmlspecialchars(strtolower($kat['category'])) ?>">
@@ -72,6 +69,12 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
         <button id="exportExcel" class="btn-green">Export Excel</button>
         <button id="exportPDF" class="btn-red">Export PDF</button>
+    </div>
+
+    <!-- ✅ ALERT BOX -->
+    <div id="alertBox" class="alert-box">
+        <span id="alertText"></span>
+        <div id="progressBar" class="progress-bar"></div>
     </div>
 
     <div class="table-wrapper">
@@ -122,9 +125,8 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
     </div>
 </main>
 
-<script src="../js/drop.js"></script>
 <script>
-// 🔢 Hitung total dinamis
+// ✅ Hitung total pendapatan
 function hitungTotalPendapatan() {
     const jenisTotal = document.getElementById("jenisTotal").value;
     let total = 0;
@@ -132,7 +134,6 @@ function hitungTotalPendapatan() {
         const visible = row.style.display !== "none";
         const status = row.cells[8].textContent.trim().toLowerCase();
         const harga = parseInt(row.cells[10].dataset.harga || 0);
-
         if (visible) {
             if (jenisTotal === "semua" || (jenisTotal === "lunas" && status === "lunas")) {
                 total += harga;
@@ -142,7 +143,45 @@ function hitungTotalPendapatan() {
     document.getElementById("totalPendapatan").textContent = "Rp " + total.toLocaleString("id-ID");
 }
 
-// 🔍 Search Filter
+// ✅ Alert tanpa progress bar
+function showAlert(message, duration = 6000) {
+    const alertBox = document.getElementById("alertBox");
+    const alertText = document.getElementById("alertText");
+    const progressBar = document.getElementById("progressBar");
+
+    alertText.textContent = message;
+    alertBox.classList.add("show");
+    progressBar.style.width = "0";
+
+    setTimeout(() => {
+        alertBox.classList.add("fade-out");
+        setTimeout(() => alertBox.classList.remove("show", "fade-out"), 1000);
+    }, duration);
+}
+
+// ✅ Alert dengan progress bar (khusus export)
+function showExportAlert(message, duration = 4000) {
+    const alertBox = document.getElementById("alertBox");
+    const alertText = document.getElementById("alertText");
+    const progressBar = document.getElementById("progressBar");
+
+    alertText.textContent = message;
+    alertBox.classList.add("show");
+    progressBar.style.transition = "none";
+    progressBar.style.width = "0";
+
+    setTimeout(() => {
+        progressBar.style.transition = `width ${duration / 1000}s linear`;
+        progressBar.style.width = "100%";
+    }, 100);
+
+    setTimeout(() => {
+        alertBox.classList.add("fade-out");
+        setTimeout(() => alertBox.classList.remove("show", "fade-out"), 1000);
+    }, duration);
+}
+
+// 🔍 Search
 document.getElementById("searchInput").addEventListener("keyup", function() {
     const value = this.value.toLowerCase();
     document.querySelectorAll("#laporanTable tbody tr").forEach(row => {
@@ -156,6 +195,7 @@ document.getElementById("sortBy").addEventListener("change", function() {
     const value = this.value.toLowerCase();
     const rows = document.querySelectorAll("#laporanTable tbody tr");
     const now = new Date();
+    let alertMsg = "";
 
     rows.forEach(row => {
         const dateText = row.cells[5].textContent.trim();
@@ -168,47 +208,72 @@ document.getElementById("sortBy").addEventListener("change", function() {
             case "minggu":
                 const weekAgo = new Date(); weekAgo.setDate(now.getDate() - 7);
                 show = transDate >= weekAgo;
+                alertMsg = "Menampilkan transaksi minggu ini";
                 break;
             case "bulan":
                 show = transDate.getMonth() === now.getMonth() && transDate.getFullYear() === now.getFullYear();
+                alertMsg = "Menampilkan transaksi bulan ini";
                 break;
             case "tahun":
                 show = transDate.getFullYear() === now.getFullYear();
+                alertMsg = "Menampilkan transaksi tahun ini";
                 break;
             case "lunas":
                 show = status.includes("lunas");
+                alertMsg = "Menampilkan transaksi yang sudah lunas";
                 break;
             case "belum":
                 show = status.includes("belum");
+                alertMsg = "Menampilkan transaksi yang belum lunas";
                 break;
             case "":
                 show = true;
+                alertMsg = "Menampilkan semua transaksi";
                 break;
             default:
                 show = kategori.includes(value);
+                alertMsg = `Menampilkan kategori layanan: ${value}`;
                 break;
         }
         row.style.display = show ? "" : "none";
     });
+
+    showAlert(alertMsg);
     hitungTotalPendapatan();
 });
 
-// 🔁 Ubah jenis total
-document.getElementById("jenisTotal").addEventListener("change", hitungTotalPendapatan);
+// 🔁 Jenis Total
+document.getElementById("jenisTotal").addEventListener("change", function() {
+    const jenisTotal = this.value;
+    hitungTotalPendapatan();
+    if (jenisTotal === "lunas") {
+        showAlert("Menampilkan total pendapatan dari transaksi lunas saja");
+    } else {
+        showAlert("Menampilkan total pendapatan dari semua transaksi");
+    }
+});
 
-// ⬇️ Export sesuai filter aktif
+// ⬇️ Export Buttons (progress cepat, sukses lama)
 document.getElementById("exportExcel").addEventListener("click", () => {
+    showExportAlert("Sedang menyiapkan file Excel...", 4000); // proses cepat
     const filter = document.getElementById("sortBy").value;
     const search = document.getElementById("searchInput").value;
     const jenisTotal = document.getElementById("jenisTotal").value;
-    window.location.href = `report_excel.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+    setTimeout(() => {
+        window.location.href = `report_excel.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+        showAlert("✅ File Excel berhasil diexport!", 12000); // tampil 12 detik
+    }, 4000);
 });
 
 document.getElementById("exportPDF").addEventListener("click", () => {
+    showExportAlert("Sedang membuat laporan PDF...", 4000);
     const filter = document.getElementById("sortBy").value;
     const search = document.getElementById("searchInput").value;
     const jenisTotal = document.getElementById("jenisTotal").value;
-    window.location.href = `report_pdf.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+    setTimeout(() => {
+        window.location.href = `report_pdf.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
+        showAlert("✅ File PDF berhasil diexport!", 12000);
+    }, 4000);
 });
 
 window.onload = hitungTotalPendapatan;
