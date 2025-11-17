@@ -32,7 +32,7 @@ $customerId = $userData['id'];
     <main class="container">
         <div class="welcome-section">
             <h1>Selamat Datang, <?php echo htmlspecialchars($userData['name']); ?>! 👋</h1>
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($userData['email']); ?></p>
+            <p><strong>Email:</strong> <?= htmlspecialchars($userData['email'] ?? 'Belum terdaftar'); ?></p>
             <p><strong>Telepon:</strong> <?php echo htmlspecialchars($userData['phone']); ?></p>
             <span class="user-type">👤 Customer</span>
         </div>
@@ -121,6 +121,18 @@ $customerId = $userData['id'];
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="contact-form">
+            <h3>Send Your Message</h3>
+            <form id="wa-form">
+                <input type="text" name="name" id="name" placeholder="Full Name" required />
+                <input type="email" name="email" id="email" placeholder="Email" required />
+                <textarea name="message" id="message" placeholder="Comment or message" required></textarea>
+                <button type="submit" class="wa-button">
+                    <img src="../a/assets/WA Putih.png" alt="Send via WhatsApp" />
+                </button>
+            </form>
         </div>
 
         <div class="info-box">
