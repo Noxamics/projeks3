@@ -41,9 +41,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </a>
                 </li>
 
-                <!-- Member -->
-                <li class="nav-item-container <?= $current_page == 'member.php' ? 'active' : '' ?>">
-                    <a href="../admin/member.php" title="Member">
+                <!-- Karyawan -->
+                <li class="nav-item-container <?= $current_page == 'karyawan.php' ? 'active' : '' ?>">
+                    <a href="../admin/karyawan.php" title="Member">
                         <div class="icon-wrapper">
                             <img src="../a/headerAdmin/member.png" alt="Member" class="icon-default">
                             <img src="../a/headerAdmin/member-active.png" alt="Member Active" class="icon-active">

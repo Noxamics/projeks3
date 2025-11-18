@@ -1,6 +1,5 @@
 <?php
-
-session_start();// customer/check_auth.php - Middleware autentikasi untuk customer
+session_start();
 require_once '../db.php';
 
 // Fungsi untuk cek apakah user sudah login
@@ -40,8 +39,8 @@ function getUserData()
         'id' => $_SESSION['user_id'],
         'type' => $_SESSION['user_type'],
         'name' => $_SESSION['user_name'] ?? '',
-        'email' => $_SESSION['user_email'] ?? '',
         'phone' => $_SESSION['user_phone'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '', // ← tambahkan ini
         'login_time' => $_SESSION['login_time'] ?? null
     ];
 }

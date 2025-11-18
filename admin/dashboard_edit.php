@@ -2,157 +2,147 @@
 include('../db.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
-    $id_drop = $_POST['id_drop'] ?? 0;
-    $customer_name = $_POST['customer_name'] ?? '';
-    $phone_number = $_POST['phone_number'] ?? '';
-    $brand = $_POST['brand'] ?? '';
-    $service_id = $_POST['service_id'] ?? 0;
-    $trans_date = $_POST['tanggal_masuk'] ?? '';
-    $est_finish_date = $_POST['tanggal_selesai'] ?? '';
-    $status_id = $_POST['status_id'] ?? 1;
-    $payment_status = $_POST['payment_status'] ?? 'Belum Lunas';
-    $payment_method = trim($_POST['payment_method'] ?? '');
-    $payment_date = !empty($_POST['payment_date']) ? $_POST['payment_date'] : null;
+    $id_drop = intval($_POST['id_drop'] ?? 0);
+    $customer_name = mysqli_real_escape_string($conn, $_POST['customer_name'] ?? '');
+    $phone_number = mysqli_real_escape_string($conn, $_POST['phone_number'] ?? '');
+    $brand = mysqli_real_escape_string($conn, $_POST['brand'] ?? '');
+    $service_id = intval($_POST['service_id'] ?? 0);
+    $employee_id = intval($_POST['employee_id'] ?? 0);
+    $trans_date = mysqli_real_escape_string($conn, $_POST['tanggal_masuk'] ?? '');
+    $est_finish_date = mysqli_real_escape_string($conn, $_POST['tanggal_selesai'] ?? '');
+    $status_id = intval($_POST['status_id'] ?? 1);
+    $payment_status = mysqli_real_escape_string($conn, $_POST['payment_status'] ?? 'Belum Lunas');
+    $payment_method = mysqli_real_escape_string($conn, trim($_POST['payment_method'] ?? 'Tunai'));
+    $payment_date = !empty($_POST['payment_date']) ? mysqli_real_escape_string($conn, $_POST['payment_date']) : null;
     $amount_paid = floatval($_POST['amount_paid'] ?? 0);
 
-    // Set default payment method jika kosong
-    if (empty($payment_method)) {
-        $payment_method = 'Tunai';
-    }
+    // Debug
+    error_log("=== DASHBOARD EDIT DEBUG ===");
+    error_log("ID Drop: $id_drop");
+    error_log("Customer: $customer_name");
+    error_log("Service ID: $service_id");
+    error_log("Employee ID: $employee_id");
 
-    // Jika status Lunas dan tanggal kosong, isi otomatis
     if ($payment_status === 'Lunas' && empty($payment_date)) {
         $payment_date = date('Y-m-d');
     }
 
-    // Mulai transaksi
-    $conn->begin_transaction();
+    mysqli_begin_transaction($conn);
 
     try {
-        // 1. Ambil customer_id dari drops
-        $stmt = $conn->prepare("SELECT customer_id, payment_id FROM drops WHERE id_drop = ?");
-        $stmt->bind_param("i", $id_drop);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $drop_data = $result->fetch_assoc();
-        $customer_id = $drop_data['customer_id'];
-        $payment_id = $drop_data['payment_id'];
-        $stmt->close();
-
-        // 2. Update data customer
-        $stmt = $conn->prepare("UPDATE customers SET name = ?, phone = ? WHERE id_customer = ?");
-        $stmt->bind_param("ssi", $customer_name, $phone_number, $customer_id);
-        $stmt->execute();
-        $stmt->close();
-
-        // 3. Update data drops
-        $stmt = $conn->prepare("
-            UPDATE drops 
-            SET service_id = ?, 
-                brand = ?, 
-                trans_date = ?, 
-                est_finish_date = ?, 
-                status_id = ?
-            WHERE id_drop = ?
-        ");
-        $stmt->bind_param("isssii", $service_id, $brand, $trans_date, $est_finish_date, $status_id, $id_drop);
-        $stmt->execute();
-        $stmt->close();
-
-        // 4. Update data pembayaran
-        if ($payment_id) {
-            // Update payment yang sudah ada
-            if ($payment_date === null) {
-                $stmt = $conn->prepare("
-                    UPDATE payments 
-                    SET amount_paid = ?, 
-                        payment_method = ?, 
-                        payment_date = NULL, 
-                        status = ?
-                    WHERE id_payment = ?
-                ");
-                $stmt->bind_param("dssi", $amount_paid, $payment_method, $payment_status, $payment_id);
-            } else {
-                $stmt = $conn->prepare("
-                    UPDATE payments 
-                    SET amount_paid = ?, 
-                        payment_method = ?, 
-                        payment_date = ?, 
-                        status = ?
-                    WHERE id_payment = ?
-                ");
-                $stmt->bind_param("dsssi", $amount_paid, $payment_method, $payment_date, $payment_status, $payment_id);
-            }
-            $stmt->execute();
-            $stmt->close();
-        } else {
-            // Buat payment baru jika belum ada
-            if ($payment_date === null) {
-                $stmt = $conn->prepare("
-                    INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
-                    VALUES (?, ?, ?, NULL, ?)
-                ");
-                $stmt->bind_param("idss", $id_drop, $amount_paid, $payment_method, $payment_status);
-            } else {
-                $stmt = $conn->prepare("
-                    INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
-                    VALUES (?, ?, ?, ?, ?)
-                ");
-                $stmt->bind_param("idsss", $id_drop, $amount_paid, $payment_method, $payment_date, $payment_status);
-            }
-            $stmt->execute();
-            $new_payment_id = $stmt->insert_id;
-            $stmt->close();
-
-            // Update drops dengan payment_id baru
-            $stmt = $conn->prepare("UPDATE drops SET payment_id = ? WHERE id_drop = ?");
-            $stmt->bind_param("ii", $new_payment_id, $id_drop);
-            $stmt->execute();
-            $stmt->close();
+        // Validasi id_drop
+        if ($id_drop <= 0) {
+            throw new Exception("ID Drop tidak valid");
         }
 
-        // 5. Update drop_items
-        $stmt = $conn->prepare("
-            UPDATE drop_items 
-            SET service_id = ?, brand = ?
-            WHERE drop_id = ?
-        ");
-        $stmt->bind_param("isi", $service_id, $brand, $id_drop);
-        $stmt->execute();
-        $stmt->close();
+        // Ambil customer_id dari drops
+        $check_drop = "SELECT customer_id FROM drops WHERE id_drop = $id_drop";
+        error_log("Query check drop: $check_drop");
+        
+        $result = mysqli_query($conn, $check_drop);
+        
+        if (!$result) {
+            throw new Exception("Error query: " . mysqli_error($conn));
+        }
+        
+        if (mysqli_num_rows($result) === 0) {
+            throw new Exception("Data drop dengan ID $id_drop tidak ditemukan");
+        }
+        
+        $drop_data = mysqli_fetch_assoc($result);
+        $customer_id = $drop_data['customer_id'];
+        
+        error_log("Customer ID found: $customer_id");
 
-        // 6. Update deadlines
-        $stmt = $conn->prepare("
-            UPDATE deadlines 
-            SET deadline_date = ?, status_id = ?
-            WHERE drop_id = ?
-        ");
-        $stmt->bind_param("sii", $est_finish_date, $status_id, $id_drop);
-        $stmt->execute();
-        $stmt->close();
+        // Update customer
+        $update_customer = "UPDATE customers SET name = '$customer_name', phone = '$phone_number' WHERE id_customer = $customer_id";
+        if (!mysqli_query($conn, $update_customer)) {
+            throw new Exception("Gagal update customer: " . mysqli_error($conn));
+        }
 
-        // Commit transaksi
-        $conn->commit();
+        // Update drops
+        $update_drop = "UPDATE drops SET 
+                        service_id = $service_id, 
+                        employee_id = $employee_id, 
+                        brand = '$brand', 
+                        trans_date = '$trans_date', 
+                        est_finish_date = '$est_finish_date', 
+                        status_id = $status_id
+                        WHERE id_drop = $id_drop";
+        
+        error_log("Update drop query: $update_drop");
+        
+        if (!mysqli_query($conn, $update_drop)) {
+            throw new Exception("Gagal update drops: " . mysqli_error($conn));
+        }
 
-        // Redirect dengan pesan sukses
-        echo "
-        <script>
-            sessionStorage.setItem('showSuccess', 'true');
-            sessionStorage.setItem('successMessage', 'Data berhasil diperbarui!');
-            window.location.href = 'drop.php';
-        </script>";
-        exit;
+        // Update drop_items
+        $update_items = "UPDATE drop_items SET service_id = $service_id, brand = '$brand' WHERE drop_id = $id_drop";
+        if (!mysqli_query($conn, $update_items)) {
+            throw new Exception("Gagal update drop_items: " . mysqli_error($conn));
+        }
+
+        // Handle payments
+        $check_payment = "SELECT id_payment FROM payments WHERE drop_id = $id_drop";
+        $payment_result = mysqli_query($conn, $check_payment);
+
+        if (mysqli_num_rows($payment_result) > 0) {
+            // Update payment
+            if ($payment_date === null) {
+                $update_payment = "UPDATE payments SET 
+                                  amount_paid = $amount_paid, 
+                                  payment_method = '$payment_method', 
+                                  payment_date = NULL, 
+                                  status = '$payment_status'
+                                  WHERE drop_id = $id_drop";
+            } else {
+                $update_payment = "UPDATE payments SET 
+                                  amount_paid = $amount_paid, 
+                                  payment_method = '$payment_method', 
+                                  payment_date = '$payment_date', 
+                                  status = '$payment_status'
+                                  WHERE drop_id = $id_drop";
+            }
+            
+            if (!mysqli_query($conn, $update_payment)) {
+                throw new Exception("Gagal update payment: " . mysqli_error($conn));
+            }
+        } else {
+            // Insert payment baru
+            if ($payment_date === null) {
+                $insert_payment = "INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
+                                  VALUES ($id_drop, $amount_paid, '$payment_method', NULL, '$payment_status')";
+            } else {
+                $insert_payment = "INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
+                                  VALUES ($id_drop, $amount_paid, '$payment_method', '$payment_date', '$payment_status')";
+            }
+            
+            if (!mysqli_query($conn, $insert_payment)) {
+                throw new Exception("Gagal insert payment: " . mysqli_error($conn));
+            }
+        }
+
+        // Update deadlines
+        $update_deadline = "UPDATE deadlines SET deadline_date = '$est_finish_date', status_id = $status_id WHERE drop_id = $id_drop";
+        if (!mysqli_query($conn, $update_deadline)) {
+            error_log("Warning: Gagal update deadline - " . mysqli_error($conn));
+        }
+
+        mysqli_commit($conn);
+        
+        header("Location: dashboard.php?success=1");
+        exit();
 
     } catch (Exception $e) {
-        // Rollback jika ada error
-        $conn->rollback();
-        echo "
-        <script>
-            alert('Gagal mengupdate data: " . addslashes($e->getMessage()) . "');
-            window.history.back();
-        </script>";
-        exit;
+        mysqli_rollback($conn);
+        error_log("Error: " . $e->getMessage());
+        
+        $error_message = urlencode($e->getMessage());
+        header("Location: dashboard.php?error=" . $error_message);
+        exit();
     }
+} else {
+    header("Location: dashboard.php");
+    exit();
 }
 ?>

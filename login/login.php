@@ -42,7 +42,7 @@ if (isset($_SESSION['user_id'])) {
 
             <h2 style="text-align:center; margin-bottom:20px;">LOGIN</h2>
 
-            <!-- ⬇️ Tambahkan bagian ini di sini -->
+            <!-- Pesan Error/Success -->
             <?php if (isset($_GET['error'])): ?>
                 <p style="color:red; text-align:center; margin-bottom:15px;">
                     <?php
@@ -52,6 +52,8 @@ if (isset($_SESSION['user_id'])) {
                         echo "Mohon isi semua field!";
                     } elseif ($_GET['error'] === 'logout') {
                         echo "Anda telah logout.";
+                    } elseif ($_GET['error'] === 'unauthorized') {
+                        echo "Silakan login terlebih dahulu.";
                     }
                     ?>
                 </p>
@@ -59,15 +61,20 @@ if (isset($_SESSION['user_id'])) {
 
             <?php if (isset($_GET['success'])): ?>
                 <p style="color:green; text-align:center; margin-bottom:15px;">
-                    Logout berhasil!
+                    <?php
+                    if ($_GET['success'] === 'logout') {
+                        echo "Logout berhasil!";
+                    } elseif ($_GET['success'] === 'registered') {
+                        echo "Pendaftaran berhasil! Silakan login.";
+                    }
+                    ?>
                 </p>
             <?php endif; ?>
-            <!-- ⬆️ Sampai sini -->
 
             <!-- Tab untuk memilih tipe login -->
             <div class="login-tabs">
                 <button class="tab-btn active" onclick="showLoginForm('customer')">Customer</button>
-                <button class="tab-btn" onclick="showLoginForm('admin')">Admin</button>
+                <button class="tab-btn" onclick="showLoginForm('admin_email')">Admin</button>
             </div>
 
             <!-- Form Login Customer -->
@@ -75,15 +82,16 @@ if (isset($_SESSION['user_id'])) {
                 <input type="hidden" name="login_type" value="customer">
 
                 <div class="input-group">
-                    <label for="customer_email">Email</label>
-                    <input type="email" id="customer_email" name="email" placeholder="Masukkan email Anda" required />
+                    <label for="customer_phone">Nomor Handphone</label>
+                    <input type="tel" id="customer_phone" name="phone" placeholder="Masukkan nomor handphone Anda"
+                        pattern="[0-9]{10,13}" required />
                 </div>
 
                 <div class="input-group">
-                    <label for="customer_password">Order Code</label>
+                    <label for="customer_password">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="customer_password" name="order_code"
-                            placeholder="Masukkan order code Anda" required />
+                        <input type="password" id="customer_password" name="password"
+                            placeholder="Masukkan password Anda" required />
                         <span class="toggle-password" onclick="togglePassword('customer_password', 'customer_eye')">
                             <img src="../a/svg/eye-off.svg" alt="Show Password" id="customer_eye" />
                         </span>
@@ -91,30 +99,27 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
                 <button type="submit" class="btn-login">MASUK</button>
+
+                <p style="text-align:center; margin-top:15px; font-size:14px;">
+                    Belum punya akun? <a href="signup.php" style="color:#4CAF50; text-decoration:none;">Daftar di
+                        sini</a>
+                </p>
             </form>
 
-            <!-- Form Login Admin -->
-            <form id="admin-form" class="login-form" action="process_login.php" method="POST">
-                <input type="hidden" name="login_type" value="admin">
-
+            <!-- Form Login Admin via Email -->
+            <form id="admin_email-form" class="login-form" action="send_otp.php" method="POST">
                 <div class="input-group">
-                    <label for="admin_username">Username</label>
-                    <input type="text" id="admin_username" name="username" placeholder="Masukkan username admin"
-                        required />
+                    <label for="admin_email">Email Admin</label>
+                    <input type="email" id="admin_email" name="email" placeholder="Masukkan email admin" required />
                 </div>
 
-                <div class="input-group">
-                    <label for="admin_password">Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="admin_password" name="password" placeholder="Masukkan password admin"
-                            required />
-                        <span class="toggle-password" onclick="togglePassword('admin_password', 'admin_eye')">
-                            <img src="../a/svg/eye-off.svg" alt="Show Password" id="admin_eye" />
-                        </span>
-                    </div>
-                </div>
+                <button type="submit" class="btn-login">Kirim Kode</button>
 
-                <button type="submit" class="btn-login">MASUK</button>
+                <p style="text-align:center; margin-top:15px; font-size:14px;">
+                    <a href="change_admin_email.php" style="color:#4CAF50; text-decoration:none;">
+                        Ganti Email Admin
+                    </a>
+                </p>
             </form>
         </div>
     </div>

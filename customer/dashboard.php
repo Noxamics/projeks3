@@ -32,7 +32,7 @@ $customerId = $userData['id'];
     <main class="container">
         <div class="welcome-section">
             <h1>Selamat Datang, <?php echo htmlspecialchars($userData['name']); ?>! 👋</h1>
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($userData['email']); ?></p>
+            <p><strong>Email:</strong> <?= htmlspecialchars($userData['email'] ?? 'Belum terdaftar'); ?></p>
             <p><strong>Telepon:</strong> <?php echo htmlspecialchars($userData['phone']); ?></p>
             <span class="user-type">👤 Customer</span>
         </div>

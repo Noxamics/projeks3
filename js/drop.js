@@ -75,14 +75,16 @@ function loadServiceInfo(serviceId, isEditMode = false) {
 const addModal = document.getElementById("addModal");
 const editModal = document.getElementById("editModal");
 const addBtn = document.getElementById("openAddModal");
-const closeAdd = document.querySelector(".close"); // close di addModal
-const closeEdit = editModal?.querySelector(".close"); // close di editModal
+const closeAdd = document.querySelector(".close");
+const closeEdit = editModal?.querySelector(".close");
 
 const dropChoiceModal = document.getElementById("dropChoiceModal");
 const btnDropBaru = document.getElementById("btnDropBaru");
 const btnDropLama = document.getElementById("btnDropLama");
 const searchCustomerModal = document.getElementById("searchCustomerModal");
 const closeSearch = document.querySelector(".close-search");
+
+let selectedCustomer = null;
 
 // === Open add choice modal ===
 if (addBtn && dropChoiceModal) {
@@ -217,10 +219,57 @@ document.querySelectorAll(".data-row").forEach((row) => {
       else console.warn(`[Edit Modal] Element #${id} not found`);
     }
 
+    // Format tampilan nominal di form edit
+    const displayInput = document.getElementById("edit_amount_paid_display");
+    const hiddenInput = document.getElementById("edit_amount_paid");
+
+    if (displayInput && hiddenInput) {
+      const raw = parseFloat(hiddenInput.value) || 0;
+      if (raw > 0) {
+        displayInput.value = "Rp " + new Intl.NumberFormat("id-ID").format(raw);
+      } else {
+        displayInput.value = "";
+      }
+    }
+
     if (data.service_id) loadServiceInfo(data.service_id, true);
 
     if (editModal) editModal.style.display = "block";
     else console.error("[Edit Modal] Modal element not found");
+  });
+});
+
+/* ============================================================
+   FORMAT INPUT NOMINAL PEMBAYARAN (ADD & EDIT)
+============================================================ */
+document.querySelectorAll('input[id$="_display"]').forEach((displayInput) => {
+  const hiddenInputId = displayInput.id.replace("_display", "");
+  const hiddenInput = document.getElementById(hiddenInputId);
+
+  if (!hiddenInput) return;
+
+  // Saat mengetik, ubah tampilan & simpan angka mentah ke hidden input
+  displayInput.addEventListener("input", function (e) {
+    let value = e.target.value.replace(/[^\d]/g, "");
+    if (!value) {
+      e.target.value = "";
+      hiddenInput.value = "";
+      return;
+    }
+    e.target.value = "Rp " + new Intl.NumberFormat("id-ID").format(value);
+    hiddenInput.value = value;
+  });
+
+  // Saat fokus: hapus prefix "Rp " agar mudah edit
+  displayInput.addEventListener("focus", function (e) {
+    e.target.value = e.target.value.replace(/^Rp\s?/, "");
+  });
+
+  // Saat blur: tampilkan kembali format "Rp x.xxx"
+  displayInput.addEventListener("blur", function (e) {
+    const val = e.target.value.replace(/[^\d]/g, "");
+    if (val)
+      e.target.value = "Rp " + new Intl.NumberFormat("id-ID").format(val);
   });
 });
 
@@ -264,6 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Custom confirm modal
   function showConfirmModal(callback) {
+    if (!confirmModal) return callback(false);
     confirmModal.style.display = "flex";
     const handleOk = () => {
       confirmModal.style.display = "none";
@@ -330,9 +380,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Klik luar untuk tutup confirm modal
-  window.addEventListener("click", (e) => {
-    if (e.target === confirmModal) confirmModal.style.display = "none";
-  });
+  if (confirmModal) {
+    window.addEventListener("click", (e) => {
+      if (e.target === confirmModal) confirmModal.style.display = "none";
+    });
+  }
 });
 
 /* ============================================================
@@ -353,10 +405,7 @@ if (saveAndPrintBtn) {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.drop_id) {
-          // buka halaman cetak di tab baru
           window.open("cetak_struk.php?id=" + data.drop_id, "_blank");
-
-          // tutup modal & refresh tabel
           form.reset();
           document.getElementById("addModal").style.display = "none";
           location.reload();
@@ -371,15 +420,14 @@ if (saveAndPrintBtn) {
   });
 }
 
-// -------------------------------------------------------------------
-// === PENCARIAN CUSTOMER ===
-// -------------------------------------------------------------------
-
+/* ============================================================
+   PENCARIAN CUSTOMER
+============================================================ */
 const searchInput = document.getElementById("searchCustomerInput");
 const resultsDiv = document.getElementById("customerResults");
 const saveCustomerBtn = document.getElementById("saveCustomer");
 
-if (searchInput) {
+if (searchInput && resultsDiv && saveCustomerBtn) {
   searchInput.addEventListener("input", function () {
     const keyword = this.value.trim();
     resultsDiv.innerHTML = "<p style='color:gray'>Mencari...</p>";
@@ -425,10 +473,11 @@ if (searchInput) {
     searchCustomerModal.style.display = "none";
     addModal.style.display = "block";
 
-    document.querySelector('input[name="customer_name"]').value =
-      selectedCustomer.nama;
-    document.querySelector('input[name="phone_number"]').value =
-      selectedCustomer.no_hp;
+    const nameInput = document.querySelector('input[name="customer_name"]');
+    const phoneInput = document.querySelector('input[name="phone_number"]');
+
+    if (nameInput) nameInput.value = selectedCustomer.nama;
+    if (phoneInput) phoneInput.value = selectedCustomer.no_hp;
 
     let hidden = document.querySelector('input[name="customer_id"]');
     if (!hidden) {
@@ -439,4 +488,78 @@ if (searchInput) {
     }
     hidden.value = selectedCustomer.id_customer;
   };
+}
+
+/* ============================================================
+   UPDATE STATUS DROPDOWN
+============================================================ */
+/* ============================================================
+   UPDATE STATUS DROPDOWN + SINKRONISASI FORM EDIT
+============================================================ */
+document.addEventListener("DOMContentLoaded", function () {
+  const dropdowns = document.querySelectorAll(".status-dropdown");
+
+  dropdowns.forEach((select) => {
+    select.addEventListener("change", function () {
+      const id_drop = this.getAttribute("data-id");
+      const status_id = this.value;
+
+      if (!id_drop || !status_id) return;
+
+      fetch("../actions/update_status_drop.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body:
+          "id_drop=" +
+          encodeURIComponent(id_drop) +
+          "&status_id=" +
+          encodeURIComponent(status_id),
+      })
+        .then((response) => response.text())
+        .then((text) => {
+          console.log("Response:", text);
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            throw new Error("Respons bukan JSON valid: " + text);
+          }
+
+          if (data.success) {
+            // ✅ Tampilkan notifikasi sukses
+            alert("✅ " + data.message);
+
+            // 🔁 Sinkronkan form edit jika sedang terbuka
+            updateEditForm(id_drop, status_id);
+          } else {
+            alert("❌ Gagal memperbarui status: " + data.message);
+          }
+        })
+        .catch((error) => {
+          alert("⚠️ Terjadi kesalahan koneksi: " + error.message);
+        });
+    });
+  });
+});
+
+function updateEditForm(id_drop, status_id) {
+  // Ambil elemen form edit
+  const form = document.getElementById("editForm");
+  if (!form) return;
+
+  // Ambil id_drop yang sedang aktif di modal
+  const currentId = form.querySelector("#edit_id_drop").value;
+
+  // Jika form edit sedang menampilkan drop yang sama
+  if (String(currentId) === String(id_drop)) {
+    const selectStatus = form.querySelector("#edit_statusSelect");
+    if (selectStatus) {
+      selectStatus.value = status_id;
+
+      // Tambahkan visual feedback
+      selectStatus.style.transition = "background 0.3s";
+      selectStatus.style.background = "#d4edda"; // hijau lembut
+      setTimeout(() => (selectStatus.style.background = ""), 1000);
+    }
+  }
 }
