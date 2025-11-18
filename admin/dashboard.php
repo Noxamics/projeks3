@@ -4,12 +4,18 @@ include('../partials/headerAdmin.php');
 include('../db.php'); 
 ?>
 
-<!-- Tambahkan di bagian atas dashboard.php, setelah include header -->
 <?php
 if (isset($_GET['success'])) {
     echo '<div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
             ✅ Data berhasil diupdate!
           </div>';
+    
+    // AUTO-REDIRECT setelah 2 detik
+    echo '<script>
+            setTimeout(function() {
+                window.location.href = "dashboard.php";
+            }, 2000);
+          </script>';
 }
 
 if (isset($_GET['error'])) {

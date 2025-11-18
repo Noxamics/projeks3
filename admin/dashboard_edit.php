@@ -16,12 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payment_date = !empty($_POST['payment_date']) ? mysqli_real_escape_string($conn, $_POST['payment_date']) : null;
     $amount_paid = floatval($_POST['amount_paid'] ?? 0);
 
-    // Debug
+    // Tambahkan di awal file untuk debug:
     error_log("=== DASHBOARD EDIT DEBUG ===");
+    error_log("POST Data: " . print_r($_POST, true));
     error_log("ID Drop: $id_drop");
-    error_log("Customer: $customer_name");
     error_log("Service ID: $service_id");
     error_log("Employee ID: $employee_id");
+
+    // Cek koneksi database
+    if (!$conn) {
+        error_log("Database connection failed: " . mysqli_connect_error());
+        header("Location: dashboard.php?error=Koneksi database gagal");
+        exit();
+    }
 
     if ($payment_status === 'Lunas' && empty($payment_date)) {
         $payment_date = date('Y-m-d');
@@ -62,13 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Update drops
         $update_drop = "UPDATE drops SET 
-                        service_id = $service_id, 
-                        employee_id = $employee_id, 
-                        brand = '$brand', 
-                        trans_date = '$trans_date', 
-                        est_finish_date = '$est_finish_date', 
-                        status_id = $status_id
-                        WHERE id_drop = $id_drop";
+        trans_date = '$trans_date',
+        est_finish_date = '$est_finish_date',
+        status_id = '$status_id',
+        employee_id = '$employee_id'
+        WHERE id_drop = '$id_drop'";
         
         error_log("Update drop query: $update_drop");
         
