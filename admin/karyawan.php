@@ -46,60 +46,60 @@ while ($row = $attQuery->fetch_assoc()) {
         </div>
     </div>
 
-    <!-- Tabel Karyawan -->
-    <table class="employee-table">
-        <thead>
-            <tr>
-                <th>Foto</th>
-                <th>Nama</th>
-                <th>Nomor HP</th>
-                <th>Status</th>
-                <th>Tanggal Masuk</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><img src="../uploads/employee/<?= $row['photo'] ?: 'default.png' ?>" class="emp-photo"></td>
-                    <td><?= htmlspecialchars($row['name']) ?></td>
-                    <td><?= htmlspecialchars($row['phone']) ?></td>
-                    <td>
-                        <select class="status-dropdown" data-id="<?= $row['id_employee'] ?>">
-                            <option value="Aktif" <?= $row['status'] == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
-                            <option value="Cuti" <?= $row['status'] == 'Cuti' ? 'selected' : '' ?>>Cuti</option>
-                            <option value="Non-Aktif" <?= $row['status'] == 'Non-Aktif' ? 'selected' : '' ?>>Non-Aktif</option>
-                        </select>
-                    </td>
+    <!-- LIST KARYAWAN DALAM BENTUK CARD/BOX -->
+    <div class="employee-list">
 
-                    <td><?= date('d M Y', strtotime($row['join_date'])) ?></td>
-                    <td>
-                        <a href="../actions/employee_detail.php?id=<?= $row['id_employee'] ?>" class="btn-detail">Detail</a>
-                        <button class="btn-edit" data-id="<?= $row['id_employee'] ?>">Edit</button>
-                        <form action="../actions/employee_delete.php" method="POST" style="display:inline;">
-                            <input type="hidden" name="id_employee" value="<?= $row['id_employee'] ?>">
-                            <button type="submit" class="btn-delete"
-                                onclick="return confirm('Yakin hapus karyawan ini?')">Hapus</button>
-                        </form>
+        <?php while ($row = $result->fetch_assoc()): ?>
 
-                        <?php if (isset($attendance[$row['id_employee']])): ?>
-                            <?php if (empty($attendance[$row['id_employee']]['check_out'])): ?>
-                                <!-- Sudah Check In tapi belum Check Out -->
-                                <button class="btn-absen checkin" data-id="<?= $row['id_employee'] ?>">Check Out</button>
-                            <?php else: ?>
-                                <!-- Sudah Check Out -->
-                                <button class="btn-absen done" disabled>✅ Sudah Absen</button>
-                            <?php endif; ?>
+            <div class="employee-card">
+
+                <div class="emp-top">
+                    <img src="../uploads/employee/<?= $row['photo'] ?: 'default.png' ?>" class="emp-card-photo">
+                    <div class="emp-info">
+                        <h3><?= htmlspecialchars($row['name']) ?></h3>
+                        <p class="phone"><?= htmlspecialchars($row['phone']) ?></p>
+
+                        <div class="status-wrapper">
+                            <select class="status-dropdown" data-id="<?= $row['id_employee'] ?>">
+                                <option value="Aktif" <?= $row['status'] == 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+                                <option value="Cuti" <?= $row['status'] == 'Cuti' ? 'selected' : '' ?>>Cuti</option>
+                                <option value="Non-Aktif" <?= $row['status'] == 'Non-Aktif' ? 'selected' : '' ?>>Non-Aktif
+                                </option>
+                            </select>
+                        </div>
+
+                        <p class="join-date">Masuk: <?= date('d M Y', strtotime($row['join_date'])) ?></p>
+                    </div>
+                </div>
+
+                <div class="emp-actions">
+                    <a href="../actions/employee_detail.php?id=<?= $row['id_employee'] ?>" class="btn-detail">Detail</a>
+                    <button class="btn-edit" data-id="<?= $row['id_employee'] ?>">Edit</button>
+
+                    <form action="../actions/employee_delete.php" method="POST" class="inline-form">
+                        <input type="hidden" name="id_employee" value="<?= $row['id_employee'] ?>">
+                        <button type="submit" class="btn-delete"
+                            onclick="return confirm('Yakin hapus karyawan ini?')">Hapus</button>
+                    </form>
+
+                    <?php if (isset($attendance[$row['id_employee']])): ?>
+                        <?php if (empty($attendance[$row['id_employee']]['check_out'])): ?>
+                            <button class="btn-absen checkin" data-id="<?= $row['id_employee'] ?>">Check Out</button>
                         <?php else: ?>
-                            <!-- Belum Absen -->
-                            <button class="btn-absen" data-id="<?= $row['id_employee'] ?>">Absen Hari Ini</button>
+                            <button class="btn-absen done" disabled>Sudah Absen</button>
                         <?php endif; ?>
+                    <?php else: ?>
+                        <button class="btn-absen" data-id="<?= $row['id_employee'] ?>">Absen Hari Ini</button>
+                    <?php endif; ?>
 
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    </div>
+
 
     <!-- Modal Tambah/Edit -->
     <div id="employeeModal" class="modal">
