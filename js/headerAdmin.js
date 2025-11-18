@@ -1,21 +1,31 @@
-// === Toggle Dropdown Pengaturan ===
-const settingIcon = document.querySelector(".icon-setting");
-const dropdownMenu = document.querySelector(".dropdown-menu");
+// Toggle Dropdown Setting
+document.addEventListener("DOMContentLoaded", function () {
+  const settingIcon = document.querySelector(".icon-setting");
+  const dropdownMenu = document.querySelector(".dropdown-menu");
 
-if (settingIcon) {
-  settingIcon.addEventListener("click", (e) => {
-    e.stopPropagation();
-    dropdownMenu.style.display =
-      dropdownMenu.style.display === "block" ? "none" : "block";
-  });
+  if (settingIcon && dropdownMenu) {
+    // Toggle dropdown saat icon di-klik
+    settingIcon.addEventListener("click", function (e) {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
 
-  // Klik di luar menutup dropdown
-  window.addEventListener("click", (e) => {
-    if (!e.target.closest(".setting-dropdown")) {
-      dropdownMenu.style.display = "none";
-    }
-  });
-}
+    // Tutup dropdown saat klik di luar
+    document.addEventListener("click", function (e) {
+      if (!settingIcon.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("show");
+      }
+    });
+
+    // Tutup dropdown saat link di-klik
+    const dropdownLinks = dropdownMenu.querySelectorAll("a");
+    dropdownLinks.forEach((link) => {
+      link.addEventListener("click", function () {
+        dropdownMenu.classList.remove("show");
+      });
+    });
+  }
+});
 
 // === Dark Mode Toggle ===
 const darkToggle = document.getElementById("darkModeToggle");

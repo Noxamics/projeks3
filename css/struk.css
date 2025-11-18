@@ -1,47 +1,56 @@
+/* =========================================================
+   STRUK PAGE - Modern & Compact (80% Scale)
+========================================================= */
 body {
-  font-family: "Poppins", "Courier New", monospace;
-  background-color: #f5f7fa;
-  padding: 30px;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #f0f4f8, #e0e7ef);
+  padding: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
 }
 
 .struk-container {
   background: #fff;
-  width: 340px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  width: 240px;
+  border: 1px solid #d6dee9;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  transform: scale(0.8);
+  transform-origin: center;
 }
 
 .struk-header {
   text-align: center;
+  margin-bottom: 12px;
 }
 
 .struk-header h2 {
   margin: 0;
-  font-size: 22px;
-  color: #0077cc;
+  font-size: 16px;
+  font-weight: 700;
+  color: #004d9d;
 }
 
 .struk-header p {
-  margin: 4px 0 10px;
-  font-size: 13px;
+  margin: 3px 0 0;
+  font-size: 9px;
   color: #777;
+  font-style: italic;
 }
 
 .divider {
   border: none;
-  border-top: 1px dashed #aaa;
+  border-top: 1.5px dashed #ccc;
   margin: 10px 0;
 }
 
 .struk-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .struk-table td {
@@ -50,9 +59,15 @@ body {
   color: #333;
 }
 
+.struk-table td:first-child {
+  font-weight: 600;
+  color: #555;
+  width: 40%;
+}
+
 .price-section {
-  font-size: 15px;
-  margin-top: 10px;
+  font-size: 11px;
+  margin-top: 8px;
 }
 
 .price-section p {
@@ -62,23 +77,33 @@ body {
 }
 
 .price-section .kembalian {
-  font-weight: bold;
-  color: #007b55;
+  font-weight: 700;
+  color: #2ecc71;
+  font-size: 12px;
+  padding-top: 5px;
+  border-top: 1.5px solid #e8eef5;
+  margin-top: 5px;
 }
 
 .footer {
   text-align: center;
-  margin-top: 15px;
-  font-size: 12px;
+  margin-top: 12px;
+  font-size: 9px;
   color: #666;
 }
 
-.footer .small {
-  font-size: 11px;
-  color: #999;
+.footer strong {
+  color: #004d9d;
 }
 
-/* Cetak rapi */
+.footer .small {
+  font-size: 8px;
+  color: #999;
+  margin-top: 3px;
+  display: block;
+}
+
+/* Print styles */
 @media print {
   body {
     background: #fff;

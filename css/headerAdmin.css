@@ -1,85 +1,97 @@
 /* =========================================================
-   ADMIN HEADER – soft gradient + blur + flowing surface
+   HEADER_ADMIN.CSS - Responsive Mobile Optimized (95% Scale)
 ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
 .admin-header-wrapper {
   background: linear-gradient(145deg, #f3f7fb, #ffffff);
-  padding: 18px 40px;
-  border-radius: 22px 22px 22px 22px;
+  padding: 14px 30px;
+  border-radius: 16px;
   backdrop-filter: blur(8px);
-  box-shadow: 0px 10px 15px rgba(0, 40, 120, 0.08);
+  box-shadow: 0px 6px 10px rgba(0, 40, 120, 0.08);
   font-family: "Inter", sans-serif;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: 100;
+  margin-bottom: 18px;
+  width: 100%;
+  transform: scale(0.95);
+  transform-origin: top center;
 }
 
-/* ====== Logo kiri ====== */
+.header-left {
+  display: flex;
+  align-items: center;
+  z-index: 101;
+}
+
 .header-left .logo {
-  height: 23px;
+  height: 20px;
   width: auto;
-  padding-top: 5px;
+  padding-top: 4px;
   cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-/* ====== NAVIGATION TENGAH (Modern + Tetap Tengah) ====== */
+.header-left .logo:hover {
+  transform: scale(1.05);
+}
+
+/* NAVIGATION - Centered */
 .admin-nav {
   background: linear-gradient(135deg, #005dbb, #004a94);
-  padding: 12px 70px;
-  border-radius: 50px;
+  padding: 10px 55px;
+  border-radius: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 10px;
-
-  /* POSISI TETAP */
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
-
-  /* Modern look */
-  box-shadow: 0 8px 25px rgba(0, 77, 157, 0.25);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 6px 20px rgba(0, 77, 157, 0.25);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(6px);
+  z-index: 50;
 }
 
-/* Menu UL */
 .admin-nav ul {
   display: flex;
   list-style: none;
-  gap: 80px;
+  gap: 60px;
   margin: 0;
   padding: 0;
 }
 
-/* ====== Container Icon ====== */
 .nav-item-container {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: 0.25s ease;
+  transition: all 0.25s ease;
   position: relative;
   cursor: pointer;
 }
 
-/* Hover efek */
 .nav-item-container:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.18);
 }
 
-/* Icon Wrapper */
 .icon-wrapper {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
 }
 
-/* Default icon */
 .icon-wrapper img {
   position: absolute;
   top: 50%;
@@ -89,21 +101,19 @@
 }
 
 .icon-default {
-  width: 26px;
+  width: 22px;
   opacity: 1;
 }
 
-/* Active icon (besar) */
 .icon-active {
-  width: 50px;
+  width: 42px;
   opacity: 0;
 }
 
-/* ====== Saat Aktif ====== */
 .nav-item-container.active {
-  transform: translateY(50%);
+  transform: translateY(45%);
   background: #ffffff;
-  box-shadow: 0 8px 18px rgba(0, 50, 150, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 50, 150, 0.3);
 }
 
 .nav-item-container.active .icon-default {
@@ -112,58 +122,70 @@
 
 .nav-item-container.active .icon-active {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1.15);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* ====== Bagian kanan ====== */
+/* HEADER RIGHT */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  position: relative;
+  z-index: 200;
 }
 
-/* ====== Dropdown Setting ====== */
+/* SETTING DROPDOWN */
 .setting-dropdown {
   position: relative;
 }
 
 .icon-setting {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: transform 0.25s ease;
+  position: relative;
+  z-index: 201;
 }
 
 .icon-setting:hover {
   transform: rotate(20deg);
 }
 
+/* DROPDOWN MENU */
 .dropdown-menu {
   display: none;
-  position: absolute;
-  top: 38px;
-  right: 0;
-  margin: 10px 130px;
+  position: fixed;
   background: #ffffff;
   color: #333;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  min-width: 150px;
-  z-index: 100;
+  min-width: 170px;
+  z-index: 999999;
+  border: 1px solid #e0e0e0;
+}
+
+.dropdown-menu.show {
+  display: block;
 }
 
 .dropdown-menu a {
   display: block;
-  padding: 10px 16px;
+  padding: 11px 16px;
   text-decoration: none;
   color: #004d9d;
-  font-size: 0.9rem;
-  transition: background 0.2s;
+  font-size: 13px;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-menu a:last-child {
+  border-bottom: none;
 }
 
 .dropdown-menu a:hover {
-  background-color: #f2f2f2;
+  background-color: #f5f8fc;
 }
 
 .dropdown-menu .logout {
@@ -171,17 +193,30 @@
   font-weight: 600;
 }
 
-/* ====== Switch Dark Mode ====== */
+.dropdown-menu .logout:hover {
+  background-color: #ffe6e6;
+}
+
+/* DARK MODE TOGGLE */
+.dark-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .dark-label {
-  font-size: 0.9rem;
+  font-size: 12px;
   color: #1f73c9;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 40px;
-  height: 22px;
+  width: 34px;
+  height: 19px;
+  flex-shrink: 0;
 }
 
 .switch input {
@@ -198,19 +233,19 @@
   right: 0;
   bottom: 0;
   background-color: #004d9d;
-  transition: 0.4s;
-  border-radius: 34px;
+  transition: 0.4s ease;
+  border-radius: 30px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 13px;
+  width: 13px;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: 0.4s;
+  transition: 0.4s ease;
   border-radius: 50%;
 }
 
@@ -219,11 +254,267 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(18px);
+  transform: translateX(15px);
 }
 
-/* ====== Mode Gelap ====== */
+/* =========================================================
+   DARK MODE STYLES
+========================================================= */
 body.dark {
-  background-color: #1e1e1e;
-  color: #ffffff;
+  background-color: #1a1a1a;
+  color: #e8e8e8;
+}
+
+body.dark .admin-header-wrapper {
+  background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .admin-nav {
+  background: linear-gradient(135deg, #1a4d7a, #0f3a5f);
+  border-color: rgba(102, 179, 255, 0.2);
+}
+
+body.dark .dropdown-menu {
+  background: #2a2a2a;
+  color: #e8e8e8;
+  border-color: #444;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .dropdown-menu a {
+  color: #66b3ff;
+  border-bottom-color: #444;
+}
+
+body.dark .dropdown-menu a:hover {
+  background: #333;
+}
+
+body.dark .dropdown-menu .logout {
+  color: #ff6b6b;
+}
+
+body.dark .dropdown-menu .logout:hover {
+  background-color: #3a1f1f;
+}
+
+body.dark .dark-label {
+  color: #66b3ff;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN - Mobile First
+========================================================= */
+
+/* Large Tablets */
+@media screen and (max-width: 1024px) {
+  .admin-header-wrapper {
+    padding: 12px 24px;
+    transform: scale(0.95);
+  }
+
+  .admin-nav {
+    padding: 9px 45px;
+  }
+
+  .admin-nav ul {
+    gap: 50px;
+  }
+
+  .header-left .logo {
+    height: 19px;
+  }
+}
+
+/* Tablets */
+@media screen and (max-width: 768px) {
+  .admin-header-wrapper {
+    padding: 12px 18px;
+    flex-direction: column;
+    gap: 10px;
+    transform: scale(0.95);
+  }
+
+  .header-left {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-left .logo {
+    height: 18px;
+  }
+
+  .admin-nav {
+    position: relative;
+    left: 0;
+    transform: none;
+    width: 100%;
+    padding: 8px 30px;
+    margin-top: 0;
+  }
+
+  .admin-nav ul {
+    gap: 35px;
+  }
+
+  .nav-item-container {
+    width: 28px;
+    height: 28px;
+  }
+
+  .icon-wrapper {
+    width: 20px;
+    height: 20px;
+  }
+
+  .icon-default {
+    width: 20px;
+  }
+
+  .icon-active {
+    width: 38px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .dropdown-menu {
+    right: 18px;
+  }
+}
+
+/* Mobile Phones */
+@media screen and (max-width: 480px) {
+  .admin-header-wrapper {
+    padding: 10px 14px;
+    border-radius: 12px;
+    transform: scale(0.95);
+    margin-bottom: 14px;
+  }
+
+  .header-left .logo {
+    height: 17px;
+  }
+
+  .admin-nav {
+    padding: 8px 18px;
+    border-radius: 28px;
+  }
+
+  .admin-nav ul {
+    gap: 22px;
+  }
+
+  .nav-item-container {
+    width: 26px;
+    height: 26px;
+  }
+
+  .icon-wrapper {
+    width: 19px;
+    height: 19px;
+  }
+
+  .icon-default {
+    width: 19px;
+  }
+
+  .icon-active {
+    width: 36px;
+  }
+
+  .icon-setting {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dark-label {
+    font-size: 11px;
+  }
+
+  .switch {
+    width: 30px;
+    height: 17px;
+  }
+
+  .slider:before {
+    height: 11px;
+    width: 11px;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(13px);
+  }
+
+  .dropdown-menu {
+    min-width: 150px;
+    right: 10px;
+  }
+
+  .dropdown-menu a {
+    padding: 10px 13px;
+    font-size: 12px;
+  }
+}
+
+/* Extra Small Devices */
+@media screen and (max-width: 360px) {
+  .admin-header-wrapper {
+    padding: 8px 12px;
+    transform: scale(0.95);
+  }
+
+  .admin-nav ul {
+    gap: 18px;
+  }
+
+  .nav-item-container {
+    width: 24px;
+    height: 24px;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+
+  .dark-label {
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   SMOOTH TRANSITIONS
+========================================================= */
+.admin-header-wrapper,
+.admin-header-wrapper *,
+.dropdown-menu,
+.dropdown-menu * {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item-container,
+.icon-setting,
+.switch,
+.slider,
+.dropdown-menu a {
+  transition: all 0.25s ease !important;
+}
+
+/* =========================================================
+   UTILITY CLASSES
+========================================================= */
+.page-container {
+  position: relative;
+  overflow: visible;
+}
+
+.header-spacing {
+  margin-bottom: 18px;
 }
