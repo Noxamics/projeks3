@@ -62,19 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $admin = $result->fetch_assoc();
 
-        // Admin mungkin belum pakai hash (kalau sudah, pakai password_verify)
-        if (password_verify($password, $admin['password']) || $password === $admin['password']) {
-            $_SESSION['user_id'] = $admin['id_admin'];
-            $_SESSION['user_name'] = $admin['username'];
-            $_SESSION['user_type'] = 'admin';
-
-            header("Location: ../admin/dashboard.php");
-            exit;
-        } else {
-            header("Location: login.php?error=invalid");
-            exit;
-        }
-
     } else {
         header("Location: login.php?error=invalid");
         exit;

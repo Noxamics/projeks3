@@ -491,9 +491,6 @@ if (searchInput && resultsDiv && saveCustomerBtn) {
 }
 
 /* ============================================================
-   UPDATE STATUS DROPDOWN
-============================================================ */
-/* ============================================================
    UPDATE STATUS DROPDOWN + SINKRONISASI FORM EDIT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", function () {
@@ -503,6 +500,7 @@ document.addEventListener("DOMContentLoaded", function () {
     select.addEventListener("change", function () {
       const id_drop = this.getAttribute("data-id");
       const status_id = this.value;
+      const row = this.closest("tr");
 
       if (!id_drop || !status_id) return;
 
@@ -526,40 +524,66 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           if (data.success) {
-            // ✅ Tampilkan notifikasi sukses
-            alert("✅ " + data.message);
+            // ✅ Update data-status_id di row
+            if (row) {
+              row.dataset.status_id = status_id;
+            }
 
-            // 🔁 Sinkronkan form edit jika sedang terbuka
-            updateEditForm(id_drop, status_id);
+            // ✅ Sinkronkan ke form edit jika modal sedang terbuka
+            updateEditFormStatus(id_drop, status_id);
+
+            // ✅ Tampilkan notifikasi sukses
+            showNotification("✅ " + data.message, "success");
           } else {
-            alert("❌ Gagal memperbarui status: " + data.message);
+            showNotification(
+              "❌ Gagal memperbarui status: " + data.message,
+              "error"
+            );
           }
         })
         .catch((error) => {
-          alert("⚠️ Terjadi kesalahan koneksi: " + error.message);
+          showNotification(
+            "⚠️ Terjadi kesalahan koneksi: " + error.message,
+            "error"
+          );
         });
     });
   });
 });
 
-function updateEditForm(id_drop, status_id) {
-  // Ambil elemen form edit
-  const form = document.getElementById("editForm");
-  if (!form) return;
+/* ============================================================
+   FUNGSI SINKRONISASI STATUS KE FORM EDIT
+============================================================ */
+function updateEditFormStatus(id_drop, status_id) {
+  const editForm = document.getElementById("editForm");
+  if (!editForm) return;
 
-  // Ambil id_drop yang sedang aktif di modal
-  const currentId = form.querySelector("#edit_id_drop").value;
+  // Ambil id_drop yang sedang aktif di modal edit
+  const currentIdInput = editForm.querySelector("#edit_id_drop");
+  if (!currentIdInput) return;
 
-  // Jika form edit sedang menampilkan drop yang sama
+  const currentId = currentIdInput.value;
+
+  // Jika modal edit sedang menampilkan drop yang sama dengan yang diupdate
   if (String(currentId) === String(id_drop)) {
-    const selectStatus = form.querySelector("#edit_statusSelect");
+    const selectStatus = editForm.querySelector("#edit_statusSelect");
+
     if (selectStatus) {
+      // Update nilai dropdown
       selectStatus.value = status_id;
 
-      // Tambahkan visual feedback
-      selectStatus.style.transition = "background 0.3s";
-      selectStatus.style.background = "#d4edda"; // hijau lembut
-      setTimeout(() => (selectStatus.style.background = ""), 1000);
+      // Tambahkan efek visual untuk menunjukkan perubahan
+      selectStatus.style.transition = "all 0.3s ease";
+      selectStatus.style.background = "#d4edda";
+      selectStatus.style.transform = "scale(1.02)";
+
+      // Kembalikan style normal setelah animasi
+      setTimeout(() => {
+        selectStatus.style.background = "";
+        selectStatus.style.transform = "";
+      }, 1000);
+
+      console.log(`✅ Status di form edit berhasil disinkronkan: ${status_id}`);
     }
   }
 }

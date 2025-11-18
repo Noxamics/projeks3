@@ -1,135 +1,214 @@
-/* ===============================
-   LAPORAN TRANSAKSI STYLE
-   =============================== */
+/* =========================================================
+   LAPORAN PAGE - Responsive Mobile Optimized (95% Scale)
+========================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
 
-/* Import font */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
-
-/* ======== Global ======== */
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: #f6f8fc;
-  color: #2b2b2b;
-  margin: 0;
-  padding: 0;
+.laporan-page {
+  font-family: "Inter", sans-serif;
+  transform: scale(0.95);
+  transform-origin: top center;
+  background-color: #f8fbfd;
+  padding: 18px 26px;
+  transition: background-color 0.3s ease;
 }
 
-/* ======== Container utama ======== */
-main {
-  padding: 20px 40px;
-  max-width: 1400px;
-  margin: auto;
+body.dark .laporan-page {
+  background-color: #1a1a1a;
+  color: #66b3ff;
 }
 
 /* ======== Judul ======== */
 h1 {
+  font-family: "Inter", sans-serif;
   font-weight: 700;
   color: #0b3d91;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
+  font-size: 20px;
 }
 
-/* ======== Search dan Filter Bar ======== */
+body.dark h1 {
+  color: #66b3ff;
+}
+
+/* ======== Search dan Filter ======== */
 .search-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 13px;
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .search-container input {
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #d1d5db;
   border-radius: 8px;
-  padding: 8px 14px;
-  width: 250px;
+  padding: 9px 13px;
+  width: 215px;
+  min-width: 140px;
+  font-size: 12px;
   outline: none;
   transition: 0.2s ease;
+}
+
+body.dark .search-container input {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #e8e8e8;
 }
 
 .search-container input:focus {
   border-color: #0b3d91;
-  box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.2);
+  box-shadow: 0 0 5px rgba(11, 61, 145, 0.2);
 }
 
 select {
-  border: 1px solid #d1d5db;
+  border: 1.5px solid #d1d5db;
   border-radius: 8px;
-  padding: 8px 14px;
-  outline: none;
+  padding: 9px 13px;
   background-color: white;
   color: #333;
+  min-width: 115px;
   transition: 0.2s ease;
+  font-size: 12px;
+}
+
+body.dark select {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #e8e8e8;
 }
 
 select:focus {
   border-color: #0b3d91;
+  box-shadow: 0 0 5px rgba(11, 61, 145, 0.2);
+  outline: none;
 }
 
 /* ======== Tombol ======== */
 button {
   cursor: pointer;
   border: none;
-  transition: 0.2s ease;
   border-radius: 8px;
-  font-weight: 500;
-  padding: 8px 18px;
+  padding: 9px 17px;
+  font-weight: 600;
+  font-size: 12px;
+  transition: 0.25s ease;
+  white-space: nowrap;
 }
 
 button:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .btn-green {
-  background-color: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   color: #fff;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.2);
+}
+
+.btn-green:hover {
+  background: linear-gradient(135deg, #15803d, #166534);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
 }
 
 .btn-red {
-  background-color: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: #fff;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+}
+
+.btn-red:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
 }
 
 /* ======== Table Wrapper ======== */
 .table-wrapper {
   background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  overflow-x: auto;
+  border-radius: 9px;
   border: 1px solid #e0e6f0;
+  overflow-x: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body.dark .table-wrapper {
+  background-color: #2a2a2a;
+  border-color: #444;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* ======== Table ======== */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
-  min-width: 1000px;
+  font-size: 12px;
+  min-width: 950px;
 }
 
 thead {
-  background-color: #0b3d91;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #0b3d91, #0c4da8);
   color: white;
+}
+
+body.dark thead {
+  background: linear-gradient(135deg, #1a4d7a, #0f3a5f);
 }
 
 thead th {
   font-weight: 600;
-  padding: 14px 16px;
-  text-align: left;
+  padding: 11px 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   border-bottom: 2px solid #0b3d91;
+  font-size: 11px;
+}
+
+body.dark thead th {
+  border-bottom-color: #66b3ff;
+}
+
+thead th:first-child {
+  border-top-left-radius: 9px;
+}
+
+thead th:last-child {
+  border-top-right-radius: 9px;
 }
 
 tbody tr {
   border-bottom: 1px solid #e5e7eb;
-  transition: background-color 0.2s ease;
+  transition: 0.2s ease;
+}
+
+body.dark tbody tr {
+  border-bottom-color: #444;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f5f8fc;
+}
+
+body.dark tbody tr:nth-child(even) {
+  background-color: #333;
 }
 
 tbody tr:hover {
   background-color: #eef5ff;
 }
 
+body.dark tbody tr:hover {
+  background-color: #3a3a3a;
+}
+
 tbody td {
-  padding: 12px 16px;
+  font-family: "Inter", sans-serif;
+  padding: 11px 13px;
   color: #333;
+}
+
+body.dark tbody td {
+  color: #e8e8e8;
 }
 
 td.text-green {
@@ -142,53 +221,72 @@ td.text-red {
   font-weight: 600;
 }
 
-/* ======== Footer Total Pendapatan ======== */
+/* ======== Footer Total ======== */
 tfoot {
+  font-family: "Inter", sans-serif;
   background-color: #f9fafb;
   font-weight: 600;
 }
 
+body.dark tfoot {
+  background-color: #333;
+}
+
 tfoot td {
-  padding: 12px 16px;
+  padding: 11px 13px;
+  font-size: 12px;
   border-top: 2px solid #0b3d91;
   color: #0b3d91;
 }
 
-/* ===============================
-   ALERT BOX (Hijau Pastel Style)
-   =============================== */
+body.dark tfoot td {
+  border-top-color: #66b3ff;
+  color: #66b3ff;
+}
+
+/* ======== Alert Box ======== */
 .alert-box {
   display: none;
-  background-color: #d1fae5; /* hijau pastel lembut */
-  color: #065f46; /* hijau tua untuk teks */
+  position: relative;
+  padding: 12px 17px;
+  background-color: #d1fae5;
   border: 1px solid #6ee7b7;
+  color: #065f46;
   border-radius: 10px;
-  padding: 12px 18px;
-  margin: 15px 0;
-  text-align: center;
-  font-size: 15px;
+  margin: 12px 0 17px;
+  font-size: 13px;
   font-weight: 500;
+  text-align: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  animation: fadeInSlide 0.4s ease-in-out;
-  opacity: 1;
-  transition: opacity 1s ease-out;
+  animation: fadeInSlide 0.3s ease-in-out;
+}
+
+body.dark .alert-box {
+  background-color: #064e3b;
+  border-color: #047857;
+  color: #6ee7b7;
 }
 
 .alert-box::before {
   content: "✔ ";
-  color: #059669;
   font-weight: 600;
+  color: #059669;
 }
 
 .alert-box.show {
   display: block;
 }
 
-.alert-box.fade-out {
-  opacity: 0;
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background-color: #34d399;
+  width: 0;
+  border-radius: 0 0 10px 10px;
 }
 
-/* Animasi muncul lembut */
 @keyframes fadeInSlide {
   from {
     opacity: 0;
@@ -200,69 +298,120 @@ tfoot td {
   }
 }
 
-/* ======== RESPONSIVE ======== */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 1024px) {
+  .laporan-page {
+    transform: scale(0.95);
+    padding: 16px 22px;
+  }
+
+  h1 {
+    font-size: 19px;
+  }
+
+  .search-container {
+    gap: 12px;
+  }
+}
+
 @media (max-width: 768px) {
-  table {
-    font-size: 12px;
+  .laporan-page {
+    transform: scale(0.95);
+    padding: 14px 18px;
+  }
+
+  h1 {
+    font-size: 18px;
   }
 
   .search-container {
     flex-direction: column;
-    align-items: flex-start;
+    width: 100%;
+    align-items: stretch;
   }
 
   .search-container input,
-  .search-container select,
-  .btn-green,
-  .btn-red {
+  select,
+  button {
     width: 100%;
+    min-width: 0;
+  }
+
+  table {
+    font-size: 11px;
+  }
+
+  thead th,
+  tbody td,
+  tfoot td {
+    padding: 9px 11px;
+    font-size: 10px;
   }
 }
- /* ==== ALERT + PROGRESS BAR ==== */
-.alert-box {
-  display: none;
-  position: relative;
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
-  border-radius: 10px;
-  padding: 12px 18px;
-  margin-top: 12px;
-  margin-bottom: 18px;
-  font-size: 15px;
-  font-weight: 500;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  animation: fadeInSlide 0.3s ease-in-out;
-  overflow: hidden;
+
+@media (max-width: 480px) {
+  .laporan-page {
+    transform: scale(0.95);
+    padding: 12px 14px;
+  }
+
+  h1 {
+    font-size: 17px;
+  }
+
+  table {
+    font-size: 10px;
+    min-width: 750px;
+  }
+
+  thead th,
+  tbody td,
+  tfoot td {
+    padding: 8px 9px;
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 11px;
+  }
+
+  .alert-box {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
 }
 
-.alert-box::before {
-  content: "✔ ";
-  color: #059669;
-  font-weight: 600;
+@media (max-width: 360px) {
+  .laporan-page {
+    padding: 10px 12px;
+  }
+
+  h1 {
+    font-size: 16px;
+  }
+
+  button {
+    padding: 7px 13px;
+    font-size: 10px;
+  }
 }
 
-.alert-box.show {
-  display: block;
+/* =========================================================
+   SMOOTH TRANSITIONS
+========================================================= */
+* {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fade-out {
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
-.progress-bar {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 4px;
-  background-color: #34d399;
-  width: 0;
-  border-radius: 0 0 10px 10px;
-}
-
-@keyframes fadeInSlide {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+button,
+a,
+input:focus,
+select:focus {
+  transition: background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease !important;
 }
