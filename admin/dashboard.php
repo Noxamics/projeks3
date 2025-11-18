@@ -4,6 +4,22 @@ include('../partials/headerAdmin.php');
 include('../db.php'); 
 ?>
 
+<!-- Tambahkan di bagian atas dashboard.php, setelah include header -->
+<?php
+if (isset($_GET['success'])) {
+    echo '<div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+            ✅ Data berhasil diupdate!
+          </div>';
+}
+
+if (isset($_GET['error'])) {
+    $error_message = urldecode($_GET['error']);
+    echo '<div class="alert alert-danger" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+            ❌ ' . htmlspecialchars($error_message) . '
+          </div>';
+}
+?>
+
 <?php
 // Query untuk mendapatkan semua deadline dalam bulan ini
 $currentMonth = date('Y-m');
@@ -25,7 +41,6 @@ $deadlines_query = "
 $deadlines_result = mysqli_query($conn, $deadlines_query);
 $deadlines = [];
 
-// Simpan deadline dalam array untuk digunakan di JavaScript
 while($deadline = mysqli_fetch_assoc($deadlines_result)) {
     $deadlines[] = $deadline;
 }
@@ -57,7 +72,6 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
             <div class="filter-type">
                 <button class="active" onclick="filterByCategory('all')">All</button>
                 <?php
-                // Query untuk mendapatkan category dari tabel services
                 $category_query = "SELECT DISTINCT category FROM services WHERE category IS NOT NULL AND category != ''";
                 $category_result = mysqli_query($conn, $category_query);
                 
@@ -69,21 +83,40 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
             <div class="timeline-body" id="orderTimeline">
                 <?php
-                // Query untuk timeline pesanan
+                // Query LENGKAP untuk mendapatkan SEMUA data
                 $timeline_query = "
                     SELECT 
+                        d.id_drop,
                         d.order_code,
+                        d.trans_date,
                         d.est_finish_date,
+                        d.status_id,
+                        d.employee_id,
+                        c.id_customer,
                         c.name as customer_name,
+                        c.phone as phone_number,
+                        s.id_service,
                         s.service_name,
                         s.category,
+                        s.price_min,
+                        s.price_max,
+                        s.duration,
                         di.brand,
-                        st.status_name
+                        di.service_id as drop_item_service_id,
+                        st.status_name,
+                        p.status as payment_status,
+                        p.payment_method,
+                        p.payment_date,
+                        p.amount_paid,
+                        e.name as employee_name
                     FROM drops d
                     JOIN customers c ON d.customer_id = c.id_customer
-                    JOIN services s ON d.service_id = s.id_service
                     JOIN drop_items di ON d.id_drop = di.drop_id
+                    JOIN services s ON di.service_id = s.id_service
                     JOIN statuses st ON d.status_id = st.id_status
+                    LEFT JOIN payments p ON d.id_drop = p.drop_id
+                    LEFT JOIN employees e ON d.employee_id = e.id_employee
+                    WHERE d.est_finish_date >= CURDATE() -- TAMBAHKAN INI: hanya tampilkan yang belum lewat deadline
                     ORDER BY d.trans_date DESC 
                     LIMIT 10
                 ";
@@ -99,8 +132,40 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                             default: $status_class = 'status-waiting';
                         }
                         
+                        $est_date_formatted = date('d M Y', strtotime($order['est_finish_date']));
+                        
+                        // Format harga
+                        $price_display = '';
+                        if ($order['price_min'] == $order['price_max']) {
+                            $price_display = 'Rp ' . number_format($order['price_min'], 0, ',', '.');
+                        } else {
+                            $price_display = 'Rp ' . number_format($order['price_min'], 0, ',', '.') . ' - Rp ' . number_format($order['price_max'], 0, ',', '.');
+                        }
+                        
                         echo "
-                        <div class='order-item' data-category='" . strtolower($order['category']) . "'>
+                        <div class='order-item' 
+                             data-id-drop='" . htmlspecialchars($order['id_drop']) . "'
+                            data-category='" . strtolower($order['category']) . "' 
+                            data-order-code='" . htmlspecialchars($order['order_code']) . "'
+                            data-customer='" . htmlspecialchars($order['customer_name']) . "'
+                            data-phone='" . htmlspecialchars($order['phone_number']) . "'
+                            data-service='" . htmlspecialchars($order['service_name']) . "'
+                            data-service-id='" . htmlspecialchars($order['id_service']) . "'  // PASTIKAN INI id_service, BUKAN drop_item_service_id
+                            data-category-full='" . htmlspecialchars($order['category']) . "'
+                            data-brand='" . htmlspecialchars($order['brand']) . "'
+                            data-trans-date='" . htmlspecialchars($order['trans_date']) . "'
+                            data-est-date='" . htmlspecialchars($order['est_finish_date']) . "'
+                            data-status-id='" . htmlspecialchars($order['status_id']) . "'
+                            data-price-min='" . htmlspecialchars($order['price_min']) . "'
+                            data-price-max='" . htmlspecialchars($order['price_max']) . "'
+                            data-price-display='" . htmlspecialchars($price_display) . "'
+                            data-duration='" . htmlspecialchars($order['duration']) . "'
+                            data-payment-status='" . htmlspecialchars($order['payment_status'] ?? 'Belum Lunas') . "'
+                            data-payment-method='" . htmlspecialchars($order['payment_method'] ?? 'Tunai') . "'
+                            data-payment-date='" . htmlspecialchars($order['payment_date'] ?? '') . "'
+                            data-amount-paid='" . htmlspecialchars($order['amount_paid'] ?? '0') . "'
+                            data-employee-id='" . htmlspecialchars($order['employee_id'] ?? '') . "'
+                            data-employee-name='" . htmlspecialchars($order['employee_name'] ?? '') . "'>
                             <div class='order-header'>
                                 <span class='order-id'>{$order['order_code']}</span>
                                 <span class='order-status {$status_class}'>{$order['status_name']}</span>
@@ -109,7 +174,10 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                                 <strong>{$order['customer_name']}</strong> - {$order['service_name']} ({$order['brand']})
                             </div>
                             <div class='order-time'>
-                                📅 Estimasi Selesai: " . date('d M Y', strtotime($order['est_finish_date'])) . "
+                                📅 Estimasi Selesai: {$est_date_formatted}
+                            </div>
+                            <div class='order-hint' style='font-size: 11px; color: #999; margin-top: 5px;'>
+                                💡 Double klik untuk edit
                             </div>
                         </div>
                         ";
@@ -132,557 +200,361 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                     </div>
                 </div>
 
-                <div class="calendar-grid" id="calendarGrid">
-                    <!-- Calendar akan di-generate oleh JavaScript -->
-                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
 
                 <div class="deadline-section">
                     <h4>Deadline Mendatang</h4>
-                    <div id="deadlineList">
-                        <!-- Deadline items akan di-generate oleh JavaScript -->
-                    </div>
+                    <div id="deadlineList"></div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- POPUP FORM EDIT BARANG -->
+<div class="modal" id="editModal">
+    <div class="modal-content large">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Barang</h2>
+
+        <!-- UBAH ACTION MENJADI dashboard_edit.php -->
+        <form method="POST" action="dashboard_edit.php" class="grid-form" id="editForm">
+            <input type="hidden" name="id_drop" id="edit_id_drop">
+
+            <div>
+                <label>Nama Pelanggan</label>
+                <input type="text" id="edit_customer_name" name="customer_name" required>
+            </div>
+            <div>
+                <label>No. Handphone</label>
+                <input type="text" id="edit_customer_phone" name="phone_number" required>
+            </div>
+
+            <div>
+                <label>Brand / Merk</label>
+                <input type="text" id="edit_brand" name="brand" required>
+            </div>
+
+            <div>
+                <label for="edit_service_id">Layanan</label>
+                <select name="service_id" id="edit_service_id" required onchange="updateServiceInfo(this.value)">
+                    <option value="">-- Pilih Layanan --</option>
+                    <?php
+                    $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
+                    $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
+                    $result = mysqli_query($conn, $query);
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
+                        echo "<option value='{$row['id_service']}' data-category='{$row['category']}' data-service='{$row['service_name']}'>{$displayName}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div>
+                <label>Harga</label>
+                <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;" readonly>
+                <input type="hidden" name="price_min" id="edit_price_min">
+                <input type="hidden" name="price_max" id="edit_price_max">
+            </div>
+
+            <div>
+                <label>Estimasi Selesai</label>
+                <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari" readonly style="background:#f9f9f9;">
+            </div>
+
+            <div>
+                <label>Tgl. Transaksi</label>
+                <input type="date" id="edit_tanggal_masuk" name="tanggal_masuk" required>
+            </div>
+            <div>
+                <label>Estimasi Selesai</label>
+                <input type="date" id="edit_tanggal_selesai" name="tanggal_selesai" required>
+            </div>
+
+            <div>
+                <label>Status</label>
+                <select name="status_id" id="edit_statusSelect" required>
+                    <option value="">Pilih Status</option>
+                    <?php
+                    $st = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
+                    while ($s = $st->fetch_assoc()) {
+                        echo "<option value='{$s['id_status']}'>{$s['status_name']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div>
+                <label>Status Pembayaran</label>
+                <select name="payment_status" id="edit_payment_status">
+                    <option value="Belum Lunas">Belum Lunas</option>
+                    <option value="Lunas">Lunas</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Tanggal Pembayaran</label>
+                <input type="date" id="edit_payment_date" name="payment_date">
+            </div>
+
+            <div>
+                <label>Metode Pembayaran</label>
+                <select name="payment_method" id="edit_payment_method">
+                    <option value="Tunai">Tunai</option>
+                    <option value="Transfer">Transfer</option>
+                    <option value="QRIS">QRIS</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="edit_amount_paid">Nominal Pembayaran</label>
+                <input type="text" id="edit_amount_paid_display" placeholder="Masukkan nominal pembayaran">
+                <input type="hidden" name="amount_paid" id="edit_amount_paid">
+            </div>
+
+            <div>
+                <label>Karyawan</label>
+                <select name="employee_id" id="edit_employee_id" required>
+                    <option value="">-- Pilih Karyawan --</option>
+                    <?php
+                    $emp_query = "SELECT id_employee, name FROM employees WHERE status = 'Aktif' ORDER BY name";
+                    $emp_result = mysqli_query($conn, $emp_query);
+                    while ($emp = mysqli_fetch_assoc($emp_result)) {
+                        echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+
+            <div class="full-width">
+                <button type="submit" class="save-btn">💾 Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </main>
 
 <script>
-// Data deadlines dari PHP
+// Data deadlines
 const deadlinesData = <?php echo json_encode($deadlines); ?>;
+console.log('Deadlines loaded:', deadlinesData.length);
 
-// Fungsi untuk menghitung sisa hari
-function getDaysUntilDeadline(deadlineDate) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const deadline = new Date(deadlineDate);
-    
-    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
-    today.setHours(0, 0, 0, 0);
-    deadline.setHours(0, 0, 0, 0);
-    
-    const timeDiff = deadline - today;
-    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    return daysUntil;
+// Format Rupiah
+function formatRupiah(angka) {
+    if (!angka || angka == 0) return 'Rp 0';
+    return 'Rp ' + parseInt(angka).toLocaleString('id-ID');
 }
 
-// Fungsi untuk mendapatkan warna berdasarkan sisa hari
-function getDeadlineColorClass(daysUntil) {
-    if (daysUntil < 0) return 'expired';
-    if (daysUntil <= 2) return 'red';     // 0-2 hari = merah
-    if (daysUntil <= 5) return 'yellow';   // 3-5 hari = kuning
-    return 'green';                        // 6+ hari = hijau
+// Parse Rupiah ke angka
+function parseRupiah(rupiah) {
+    return parseInt(rupiah.replace(/[^0-9]/g, '')) || 0;
 }
 
-// Fungsi untuk generate deadline list
-function generateDeadlineList() {
-    const deadlineList = document.getElementById('deadlineList');
-    deadlineList.innerHTML = '';
+// Update service info saat ganti layanan
+function updateServiceInfo(serviceId) {
+    if (!serviceId) return;
     
-    // Filter deadline yang belum lewat dan sort by date
-    const upcomingDeadlines = deadlinesData
-        .map(deadline => ({
-            ...deadline,
-            daysUntil: getDaysUntilDeadline(deadline.deadline_date)
-        }))
-        .filter(deadline => deadline.daysUntil >= 0) // Tampilkan semua deadline yang belum lewat
-        .sort((a, b) => a.daysUntil - b.daysUntil)
-        .slice(0, 10); // Tampilkan 10 deadline terdekat
-    
-    if (upcomingDeadlines.length === 0) {
-        deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang</p>';
-        return;
-    }
-    
-    upcomingDeadlines.forEach(deadline => {
-        const colorClass = getDeadlineColorClass(deadline.daysUntil);
-        const formattedDate = new Date(deadline.deadline_date).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        let daysText = '';
-        if (deadline.daysUntil === 0) {
-            daysText = 'Hari ini!';
-        } else if (deadline.daysUntil === 1) {
-            daysText = 'Besok';
-        } else {
-            daysText = `${deadline.daysUntil} hari lagi`;
-        }
-        
-        const deadlineItem = document.createElement('div');
-        deadlineItem.className = `deadline-item ${colorClass}`;
-        deadlineItem.innerHTML = `
-            <div>
-                <h4>${deadline.order_code}</h4>
-                <p>${deadline.customer_name} - ${deadline.service_name}</p>
-                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
-            </div>
-            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
-        `;
-        
-        deadlineList.appendChild(deadlineItem);
-    });
-    
-    // Debug: Log untuk memastikan semua deadline terproses
-    console.log('Total deadlines:', deadlinesData.length);
-    console.log('Upcoming deadlines:', upcomingDeadlines.length);
-    upcomingDeadlines.forEach(d => {
-        console.log(`${d.order_code}: ${d.daysUntil} hari (${getDeadlineColorClass(d.daysUntil)})`);
-    });
-}
-
-// Variable untuk menyimpan bulan dan tahun yang sedang ditampilkan
-let currentDisplayYear = new Date().getFullYear();
-let currentDisplayMonth = new Date().getMonth();
-
-// Fungsi untuk calendar dengan deadline colors
-function generateCalendar() {
-    const year = currentDisplayYear;
-    const month = currentDisplayMonth;
-    
-    const firstDay = new Date(year, month, 1);    
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    
-    const calendarGrid = document.getElementById('calendarGrid');
-    calendarGrid.innerHTML = '';
-    
-    // Hari dalam seminggu
-    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    days.forEach(day => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'day';
-        dayElement.textContent = day;
-        calendarGrid.appendChild(dayElement);
-    });
-    
-    // Tambahkan empty cells untuk hari sebelum tanggal 1
-    const firstDayOfWeek = firstDay.getDay();
-    for (let i = 0; i < firstDayOfWeek; i++) {
-        const emptyElement = document.createElement('div');
-        emptyElement.className = 'date empty';
-        calendarGrid.appendChild(emptyElement);
-    }
-    
-    // Tanggal dengan warna berdasarkan deadline
-    for (let i = 1; i <= daysInMonth; i++) {
-        const dateElement = document.createElement('div');
-        dateElement.className = 'date';
-        
-        // Format tanggal untuk matching dengan deadline
-        const currentDate = new Date(year, month, i);
-        const dateString = formatDate(currentDate);
-        
-        // Cek apakah ada deadline di tanggal ini
-        const deadlineInfo = getDeadlineInfo(dateString);
-        
-        if (deadlineInfo) {
-            const daysUntilDeadline = deadlineInfo.daysUntil;
-            dateElement.classList.add('has-deadline');
-            
-            // Tentukan warna berdasarkan hari menuju deadline
-            if (daysUntilDeadline <= 2) {
-                dateElement.classList.add('deadline-critical'); // Merah - 0-2 hari lagi
-            } else if (daysUntilDeadline <= 5) {
-                dateElement.classList.add('deadline-warning'); // Kuning - 3-5 hari lagi
-            } else if (daysUntilDeadline >= 6) {
-                dateElement.classList.add('deadline-safe'); // Hijau - 6+ hari lagi
+    fetch(`get_service_info.php?id_service=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+                return;
             }
             
-            // Tambah tooltip dengan info deadline
-            const tooltipText = deadlineInfo.orders.map(o => 
-                `${o.order_code} - ${o.customer_name}`
-            ).join('\n');
-            dateElement.title = `${tooltipText}\n(${daysUntilDeadline} hari lagi)`;
-        }
-        
-        // Tandai tanggal hari ini
-        const today = new Date();
-        if (i === today.getDate() && 
-            month === today.getMonth() && 
-            year === today.getFullYear()) {
-            dateElement.classList.add('active');
-        }
-        
-        dateElement.textContent = i;
-        dateElement.setAttribute('data-date', dateString);
-        calendarGrid.appendChild(dateElement);
-    }
-}
-
-// Fungsi untuk format date ke YYYY-MM-DD
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-// Fungsi untuk mendapatkan info deadline
-function getDeadlineInfo(dateString) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const deadlineDate = new Date(dateString);
-    
-    // Reset waktu ke 00:00:00 untuk perhitungan yang akurat
-    today.setHours(0, 0, 0, 0);
-    deadlineDate.setHours(0, 0, 0, 0);
-    
-    // Hitung selisih hari
-    const timeDiff = deadlineDate - today;
-    const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    
-    // Hanya tampilkan deadline yang belum lewat (hari ini atau masa depan)
-    if (daysUntil < 0) {
-        return null; // Deadline sudah lewat, jangan tampilkan warna
-    }
-    
-    // Cari deadline di tanggal tersebut
-    const deadlinesOnDate = deadlinesData.filter(deadline => 
-        deadline.deadline_date === dateString
-    );
-    
-    if (deadlinesOnDate.length > 0) {
-        return {
-            count: deadlinesOnDate.length,
-            daysUntil: daysUntil,
-            orders: deadlinesOnDate
-        };
-    }
-    
-    return null;
-}
-
-// Fungsi untuk change month
-function changeMonth(direction) {
-    currentDisplayMonth += direction;
-    
-    // Handle perubahan tahun
-    if (currentDisplayMonth > 11) {
-        currentDisplayMonth = 0;
-        currentDisplayYear++;
-    } else if (currentDisplayMonth < 0) {
-        currentDisplayMonth = 11;
-        currentDisplayYear--;
-    }
-    
-    // Update header bulan
-    updateCalendarHeader();
-    
-    // Regenerate calendar
-    generateCalendar();
-    
-    // Update deadline list untuk bulan yang baru
-    updateDeadlineListForMonth();
-}
-
-// Fungsi untuk update header kalender
-function updateCalendarHeader() {
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    const headerElement = document.querySelector('.calendar-header h3');
-    if (headerElement) {
-        headerElement.textContent = `${monthNames[currentDisplayMonth]} ${currentDisplayYear}`;
-    }
-}
-
-// Fungsi untuk update deadline list berdasarkan bulan yang dipilih
-function updateDeadlineListForMonth() {
-    const deadlineList = document.getElementById('deadlineList');
-    deadlineList.innerHTML = '';
-    
-    // Filter deadline untuk bulan yang sedang ditampilkan
-    const selectedMonthDeadlines = deadlinesData
-        .map(deadline => ({
-            ...deadline,
-            daysUntil: getDaysUntilDeadline(deadline.deadline_date),
-            deadlineDate: new Date(deadline.deadline_date)
-        }))
-        .filter(deadline => {
-            const dlMonth = deadline.deadlineDate.getMonth();
-            const dlYear = deadline.deadlineDate.getFullYear();
-            return dlMonth === currentDisplayMonth && 
-                   dlYear === currentDisplayYear &&
-                   deadline.daysUntil >= 0; // Hanya yang belum lewat
-        })
-        .sort((a, b) => a.daysUntil - b.daysUntil)
-        .slice(0, 10);
-    
-    if (selectedMonthDeadlines.length === 0) {
-        deadlineList.innerHTML = '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline di bulan ini</p>';
-        return;
-    }
-    
-    selectedMonthDeadlines.forEach(deadline => {
-        const colorClass = getDeadlineColorClass(deadline.daysUntil);
-        const formattedDate = deadline.deadlineDate.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-        
-        let daysText = '';
-        if (deadline.daysUntil === 0) {
-            daysText = 'Hari ini!';
-        } else if (deadline.daysUntil === 1) {
-            daysText = 'Besok';
-        } else {
-            daysText = `${deadline.daysUntil} hari lagi`;
-        }
-        
-        const deadlineItem = document.createElement('div');
-        deadlineItem.className = `deadline-item ${colorClass}`;
-        deadlineItem.innerHTML = `
-            <div>
-                <h4>${deadline.order_code}</h4>
-                <p>${deadline.customer_name} - ${deadline.service_name}</p>
-                <small style="color: #666; font-size: 11px; font-weight: 600;">${daysText}</small>
-            </div>
-            <span style="font-size: 12px; white-space: nowrap;">${formattedDate}</span>
-        `;
-        
-        deadlineList.appendChild(deadlineItem);
-    });
-}
-
-// Panggil fungsi saat halaman load
-document.addEventListener('DOMContentLoaded', function() {
-    generateCalendar();
-    generateDeadlineList();
-    setupRealTimeSearch();
-});
-
-// Fungsi untuk pencarian pesanan
-function searchOrders() {
-    const searchTerm = document.getElementById('searchOrder').value.toLowerCase().trim();
-    
-    if (searchTerm === '') {
-        return;
-    }
-
-    const orderItems = document.querySelectorAll('.order-item');
-    let foundResults = false;
-    const activeCategory = document.querySelector('.filter-type button.active').textContent.toLowerCase();
-
-    orderItems.forEach(item => {
-        const orderId = item.querySelector('.order-id').textContent.toLowerCase();
-        const customerName = item.querySelector('.order-details strong').textContent.toLowerCase();
-        const serviceDetails = item.querySelector('.order-details').textContent.toLowerCase();
-        const itemCategory = item.getAttribute('data-category');
-        
-        const matchesSearch = orderId.includes(searchTerm) || 
-            customerName.includes(searchTerm) || 
-            serviceDetails.includes(searchTerm);
+            // Update harga
+            document.getElementById('edit_price_min').value = data.price_min;
+            document.getElementById('edit_price_max').value = data.price_max;
             
-        const matchesCategory = activeCategory === 'all' || itemCategory === activeCategory;
-        
-        if (matchesSearch && matchesCategory) {
-            item.style.display = 'block';
-            foundResults = true;
-        } else {
-            item.style.display = 'none';
-        }
-    });
-
-    showSearchMessage(searchTerm, foundResults, activeCategory);
+            let priceDisplay = '';
+            if (data.price_min == data.price_max) {
+                priceDisplay = formatRupiah(data.price_min);
+            } else {
+                priceDisplay = formatRupiah(data.price_min) + ' - ' + formatRupiah(data.price_max);
+            }
+            document.getElementById('edit_price_display').value = priceDisplay;
+            
+            // Update durasi
+            document.getElementById('edit_estimate_desc').value = data.duration || '';
+        })
+        .catch(error => console.error('Error:', error));
 }
 
-// Fungsi untuk menampilkan pesan pencarian
-function showSearchMessage(searchTerm, foundResults, activeCategory) {
-    const existingMessage = document.querySelector('.search-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'search-message';
-    messageDiv.style.cssText = `
-        background: ${foundResults ? '#d4edda' : '#f8d7da'};
-        color: ${foundResults ? '#155724' : '#721c24'};
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid ${foundResults ? '#c3e6cb' : '#f5c6cb'};
-    `;
-
-    if (foundResults) {
-        if (activeCategory === 'all') {
-            messageDiv.textContent = `Ditemukan hasil untuk: "${searchTerm}"`;
-        } else {
-            messageDiv.textContent = `Ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
-        }
+// PERBAIKI function openEditModal - tambahkan debug dan pastikan service_id benar
+function openEditModal(orderElement) {
+    console.log('Opening edit modal...');
+    
+    // Debug detail untuk cap cleaning
+    console.log('=== DEBUG CAP CLEANING ===');
+    console.log('Order Element:', orderElement);
+    console.log('All datasets:', orderElement.dataset);
+    console.log('Service ID from dataset:', orderElement.dataset.serviceId);
+    console.log('Service Name from dataset:', orderElement.dataset.service);
+    console.log('Category from dataset:', orderElement.dataset.categoryFull);
+    
+    // Ambil semua data dari data attributes
+    const data = {
+        id_drop: orderElement.dataset.idDrop,
+        customer_name: orderElement.dataset.customer,
+        phone_number: orderElement.dataset.phone,
+        brand: orderElement.dataset.brand,
+        service_id: orderElement.dataset.serviceId, // PASTIKAN INI TERISI
+        trans_date: orderElement.dataset.transDate,
+        est_date: orderElement.dataset.estDate,
+        status_id: orderElement.dataset.statusId,
+        price_min: orderElement.dataset.priceMin,
+        price_max: orderElement.dataset.priceMax,
+        price_display: orderElement.dataset.priceDisplay,
+        duration: orderElement.dataset.duration,
+        payment_status: orderElement.dataset.paymentStatus || 'Belum Lunas',
+        payment_method: orderElement.dataset.paymentMethod || 'Tunai',
+        payment_date: orderElement.dataset.paymentDate || '',
+        amount_paid: orderElement.dataset.amountPaid || '0',
+        employee_id: orderElement.dataset.employeeId || '',
+        employee_name: orderElement.dataset.employeeName || ''
+    };
+    
+    console.log('Processed Data:', data);
+    
+    // ISI SEMUA FIELD FORM
+    document.getElementById('edit_id_drop').value = data.id_drop;
+    document.getElementById('edit_customer_name').value = data.customer_name;
+    document.getElementById('edit_customer_phone').value = data.phone_number;
+    document.getElementById('edit_brand').value = data.brand;
+    
+    // PERBAIKI BAGIAN SERVICE - lebih robust
+    const serviceSelect = document.getElementById('edit_service_id');
+    if (data.service_id && data.service_id !== 'null' && data.service_id !== '') {
+        serviceSelect.value = data.service_id;
+        console.log('✅ Service ID set to:', data.service_id);
+        console.log('✅ Selected option:', serviceSelect.options[serviceSelect.selectedIndex]?.text);
+        
+        // Update harga dan durasi berdasarkan service yang dipilih
+        updateServiceInfo(data.service_id);
     } else {
-        if (activeCategory === 'all') {
-            messageDiv.textContent = `Tidak ditemukan hasil untuk: "${searchTerm}"`;
-        } else {
-            messageDiv.textContent = `Tidak ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
+        console.warn('❌ Service ID tidak valid:', data.service_id);
+        // Fallback: coba cari berdasarkan nama service
+        for (let option of serviceSelect.options) {
+            if (option.text.toLowerCase().includes(data.service_name?.toLowerCase())) {
+                option.selected = true;
+                console.log('🔄 Fallback: Service found by name:', option.text);
+                updateServiceInfo(option.value);
+                break;
+            }
         }
     }
-
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
+    
+    // Isi tanggal
+    document.getElementById('edit_tanggal_masuk').value = data.trans_date;
+    document.getElementById('edit_tanggal_selesai').value = data.est_date;
+    document.getElementById('edit_statusSelect').value = data.status_id;
+    
+    // Isi harga & durasi (sebagai backup jika updateServiceInfo gagal)
+    document.getElementById('edit_price_min').value = data.price_min;
+    document.getElementById('edit_price_max').value = data.price_max;
+    document.getElementById('edit_price_display').value = data.price_display;
+    document.getElementById('edit_estimate_desc').value = data.duration;
+    
+    // Isi pembayaran
+    document.getElementById('edit_payment_status').value = data.payment_status;
+    document.getElementById('edit_payment_method').value = data.payment_method;
+    document.getElementById('edit_payment_date').value = data.payment_date ? data.payment_date.split(' ')[0] : '';
+    document.getElementById('edit_amount_paid').value = data.amount_paid;
+    document.getElementById('edit_amount_paid_display').value = formatRupiah(data.amount_paid);
+    
+    // Isi karyawan
+    if (data.employee_id && data.employee_id !== 'null') {
+        document.getElementById('edit_employee_id').value = data.employee_id;
+    }
+    
+    // Tampilkan modal
+    document.getElementById('editModal').style.display = 'block';
 }
 
-// Fungsi untuk real-time search
-function setupRealTimeSearch() {
-    const searchInput = document.getElementById('searchOrder');
-    let searchTimeout;
+// PERBAIKI function updateServiceInfo - tambahkan error handling
+function updateServiceInfo(serviceId) {
+    if (!serviceId || serviceId === 'null') {
+        console.warn('Service ID tidak valid untuk updateServiceInfo:', serviceId);
+        return;
+    }
     
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase().trim();
-        
-        if (searchTerm === '') {
-            const activeCategory = document.querySelector('.filter-type button.active').textContent.toLowerCase();
-            filterByCategory(activeCategory);
-            return;
-        }
-        
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            searchOrders();
-        }, 500);
-    });
+    console.log('🔄 Updating service info for ID:', serviceId);
     
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchOrders();
-        }
-    });
+    fetch(`get_service_info.php?id_service=${serviceId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                console.error('Error from server:', data.error);
+                return;
+            }
+            
+            console.log('✅ Service info received:', data);
+            
+            // Update harga
+            document.getElementById('edit_price_min').value = data.price_min;
+            document.getElementById('edit_price_max').value = data.price_max;
+            
+            let priceDisplay = '';
+            if (data.price_min == data.price_max) {
+                priceDisplay = formatRupiah(data.price_min);
+            } else {
+                priceDisplay = formatRupiah(data.price_min) + ' - ' + formatRupiah(data.price_max);
+            }
+            document.getElementById('edit_price_display').value = priceDisplay;
+            
+            // Update durasi
+            document.getElementById('edit_estimate_desc').value = data.duration || '';
+            
+        })
+        .catch(error => {
+            console.error('❌ Error fetching service info:', error);
+            // Tetap gunakan harga dari data attributes sebagai fallback
+        });
 }
 
-// Fungsi untuk sorting pesanan
-function sortOrders() {
-    const sortBy = document.getElementById('sortFilter').value;
+// Tutup modal
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+// Setup double click handler
+document.addEventListener('DOMContentLoaded', function() {
     const orderItems = document.querySelectorAll('.order-item');
-    const timelineBody = document.getElementById('orderTimeline');
     
-    const ordersArray = Array.from(orderItems);
-    
-    ordersArray.sort((a, b) => {
-        const dateA = new Date(a.querySelector('.order-time').textContent.replace('📅 Estimasi Selesai: ', ''));
-        const dateB = new Date(b.querySelector('.order-time').textContent.replace('📅 Estimasi Selesai: ', ''));
-        
-        if (sortBy === 'newest') {
-            return dateB - dateA;
-        } else {
-            return dateA - dateB;
-        }
-    });
-    
-    timelineBody.innerHTML = '';
-    ordersArray.forEach(order => {
-        timelineBody.appendChild(order);
-    });
-    
-    showSortMessage(sortBy);
-}
-
-// Fungsi untuk filter berdasarkan category
-function filterByCategory(category) {
-    const orderItems = document.querySelectorAll('.order-item');
-    const filterButtons = document.querySelectorAll('.filter-type button');
-    const searchTerm = document.getElementById('searchOrder').value.toLowerCase().trim();
-    
-    filterButtons.forEach(button => {
-        button.classList.remove('active');
-        if (button.textContent.toLowerCase() === category.toLowerCase() || 
-            (category === 'all' && button.textContent.toLowerCase() === 'all')) {
-            button.classList.add('active');
-        }
-    });
-    
-    let foundResults = false;
     orderItems.forEach(item => {
-        const orderId = item.querySelector('.order-id').textContent.toLowerCase();
-        const customerName = item.querySelector('.order-details strong').textContent.toLowerCase();
-        const serviceDetails = item.querySelector('.order-details').textContent.toLowerCase();
-        const itemCategory = item.getAttribute('data-category');
-        
-        const matchesCategory = category === 'all' || itemCategory === category.toLowerCase();
-        const matchesSearch = searchTerm === '' || 
-            orderId.includes(searchTerm) || 
-            customerName.includes(searchTerm) || 
-            serviceDetails.includes(searchTerm);
-        
-        if (matchesCategory && matchesSearch) {
-            item.style.display = 'block';
-            foundResults = true;
-        } else {
-            item.style.display = 'none';
-        }
+        item.style.cursor = 'pointer';
+        item.addEventListener('dblclick', function() {
+            openEditModal(this);
+        });
     });
     
-    showFilterMessage(category, searchTerm, foundResults);
-}
-
-// Fungsi untuk menampilkan pesan filter
-function showFilterMessage(category, searchTerm, foundResults) {
-    const message = category === 'all' 
-        ? (searchTerm === '' ? 'Menampilkan semua pesanan' : `Menampilkan semua kategori dengan pencarian: "${searchTerm}"`)
-        : (searchTerm === '' ? `Menampilkan kategori: ${category}` : `Menampilkan kategori: ${category} dengan pencarian: "${searchTerm}"`);
-    
-    const existingMessage = document.querySelector('.filter-message');
-    if (existingMessage) {
-        existingMessage.remove();
+    // Format nominal pembayaran
+    const amountInput = document.getElementById('edit_amount_paid_display');
+    if (amountInput) {
+        amountInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = formatRupiah(value);
+            document.getElementById('edit_amount_paid').value = value;
+        });
     }
     
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'filter-message';
-    messageDiv.style.cssText = `
-        background: #e3f2fd;
-        color: #0d47a1;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid #bbdefb;
-    `;
-    messageDiv.textContent = message;
-    
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
-
-// Fungsi untuk menampilkan pesan sorting
-function showSortMessage(sortType) {
-    const message = sortType === 'newest' 
-        ? 'Pesanan diurutkan dari tanggal terbaru' 
-        : 'Pesanan diurutkan dari tanggal terlama';
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.style.cssText = `
-        background: #d4edda;
-        color: #155724;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid #c3e6cb;
-    `;
-    messageDiv.textContent = message;
-    
-    const timelineBody = document.getElementById('orderTimeline');
-    timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-    
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
+    // Close modal dengan klik di luar
+    window.onclick = function(e) {
+        const modal = document.getElementById('editModal');
+        if (e.target === modal) {
+            closeEditModal();
+        }
+    }
+});
 </script>
+
+<!-- Load external JavaScript -->
+<script src="../js/dashboard.js"></script>
 
 <?php 
 include('../partials/footer.php'); 
