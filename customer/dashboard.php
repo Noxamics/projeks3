@@ -123,6 +123,106 @@ $customerId = $userData['id'];
             </div>
         </div>
 
+        <!-- PROGRES PENGERJAAN SEPATU — WARNA HIJAU #45a049 -->
+        <div class="progress-section">
+            <h2>Progres Pengerjaan Sepatu Anda</h2>
+
+            <?php
+            $progress_query = "
+                SELECT 
+                    di.id_item,
+                    d.order_code,
+                    di.brand,
+                    di.quantity,
+                    st.status_name,
+                    st.description AS status_description,
+                    st.status_order,
+                    DATE(d.trans_date) AS tanggal_masuk,
+                    dd.deadline_date
+                FROM drop_items di
+                JOIN drops d ON di.drop_id = d.id_drop
+                JOIN statuses st ON d.status_id = st.id_status
+                LEFT JOIN deadlines dd ON d.id_drop = dd.drop_id
+                WHERE d.customer_id = ?
+                ORDER BY d.trans_date DESC, st.status_order ASC
+            ";
+            $stmt = $conn->prepare($progress_query);
+            $stmt->bind_param("i", $customerId);
+            $stmt->execute();
+            $progress_result = $stmt->get_result();
+            ?>
+
+            <?php if ($progress_result->num_rows > 0): ?>
+                <div class="progress-grid">
+                    <?php while ($shoe = $progress_result->fetch_assoc()):
+                        $progressPercent = round(($shoe['status_order'] / 6) * 100);
+                    ?>
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <div>
+                                    <strong><?php echo htmlspecialchars($shoe['brand'] ?: 'Sepatu'); ?></strong>
+                                    <?php if ($shoe['quantity'] > 1): ?>
+                                        <small> • <?php echo $shoe['quantity']; ?> pasang</small>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="order-code">#<?php echo htmlspecialchars($shoe['order_code']); ?></div>
+                            </div>
+
+                            <!-- KOTAK DESKRIPSI STATUS — WARNA HIJAU #45a049 -->
+                            <div style="
+                                margin: 16px 0; 
+                                padding: 16px; 
+                                background: #f0f0f0; 
+                                border-left: 5px solid #45a049; 
+                                border-radius: 10px; 
+                                font-size: 15px; 
+                                line-height: 1.6;
+                            ">
+                                <strong style="color: #1a438a; font-size: 16px;">
+                                    <?php echo htmlspecialchars($shoe['status_name']); ?>
+                                </strong><br>
+                                <span style="color: #333;">
+                                    <?php echo nl2br(htmlspecialchars($shoe['status_description'] ?: 'Status sedang diperbarui...')); ?>
+                                </span>
+                            </div>
+
+                            <!-- PROGRESS BAR — WARNA HIJAU -->
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: <?php echo $progressPercent; ?>%; background: #45a049;"></div>
+                            </div>
+
+                            <div class="progress-percentage" style="color: #1a438a;">
+                                <?php echo $progressPercent; ?>% Selesai
+                            </div>
+
+                            <!-- LANGKAH BULAT — WARNA HIJAU UNTUK YANG AKTIF -->
+                            <div class="progress-steps">
+                                <?php for ($i = 1; $i <= 6; $i++): ?>
+                                    <div class="step <?php echo $shoe['status_order'] >= $i ? 'active' : ''; ?>"
+                                        style="background: <?php echo $shoe['status_order'] >= $i ? '#45a049' : '#e0e0e0'; ?>;">
+                                        <?php echo $i; ?>
+                                    </div>
+                                <?php endfor; ?>
+                            </div>
+
+                            <div class="progress-status">
+                                <small style="color:#666; font-size:13px;">
+                                    Masuk: <?php echo date('d/m/Y', strtotime($shoe['tanggal_masuk'])); ?>
+                                    <?php if ($shoe['deadline_date']): ?>
+                                        • Estimasi selesai: <?php echo date('d/m/Y', strtotime($shoe['deadline_date'])); ?>
+                                    <?php endif; ?>
+                                </small>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            <?php else: ?>
+                <div class="empty-state">
+                    <p>Belum ada sepatu dalam proses pengerjaan</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
         <div class="contact-form">
             <h3>Send Your Message</h3>
             <form id="wa-form">
