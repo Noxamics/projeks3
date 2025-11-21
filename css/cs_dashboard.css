@@ -231,6 +231,127 @@ tbody tr:hover {
   color: var(--color-medium-blue);
 }
 
+/* PROGRES SECTION – YANG BARU KITA BUAT */
+.progress-section {
+  margin: 40px 0;
+  padding: 30px;
+  background: var(--color-card);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.progress-section h2 {
+  color: var(--color-navy);
+  font-size: 26px;
+  margin-bottom: 25px;
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.progress-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+  transition: all 0.3s;
+}
+
+.progress-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.order-code {
+  font-family: "Courier New", monospace;
+  background: #f0f0f0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.progress-bar-container {
+  height: 12px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-navy);
+  border-radius: 6px;
+  transition: width 1s ease;
+}
+
+.progress-percentage {
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-navy);
+  margin: 10px 0;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.step.active {
+  background: var(--color-navy);
+  transform: scale(1.1);
+}
+
+.progress-status div:first-child {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--color-navy);
+  margin-bottom: 6px;
+}
+
+.progress-status small {
+  color: #777;
+  font-size: 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 18px;
+}
+
 .contact-form {
   flex: 1 1 400px;
   background: #fff;
