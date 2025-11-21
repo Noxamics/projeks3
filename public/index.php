@@ -151,21 +151,18 @@ include_once "../partials/header-lp.php";
   <h2>Follow Our Journey</h2>
   <div class="divider"></div>
   <p>
-    Kami bukan sekadar tempat laundry sepatu, kami adalah bagian dari gaya
-    hidup para pecinta sepatu. <br />
-    Ikuti perjalanan kami di media sosial dan jadi saksi bagaimana setiap
-    pasang sepatu kembali tampil prima. <br />
-    Dari proses pencucian, tips perawatan, hingga kisah pelanggan, semua
-    kami bagikan untuk kamu. <br />
+  Kami bukan sekadar tempat laundry sepatu, tetapi bagian dari gaya hidup para pecinta fashion. <br />
+  Ikuti perjalanan kami di media sosial dan jadi saksi bagaimana setiap sepatu kami kembalikan ke kondisi terbaiknya. <br />
+  Mulai dari proses pencucian, tips perawatan, sampai kisah pelanggan, semuanya kami bagikan untuk kamu. <br />
   </p>
   <div class="social-icons">
-    <a href="https://facebook.com" target="_blank">
+    <a href="https://www.facebook.com/p/sengkuclean-100064133437924/" target="_blank">
       <img src="../a/assets/FB Putih.png" class="icon" data-hover="../a/assets/FB Real.png" alt="Facebook" />
     </a>
-    <a href="https://instagram.com" target="_blank">
+    <a href="https://www.instagram.com/sengkuclean/" target="_blank">
       <img src="../a/assets/IG Putih.png" class="icon" data-hover="../a/assets/IG Real.png" alt="Instagram" />
     </a>
-    <a href="https://tiktok.com" target="_blank">
+    <a href="https://www.tiktok.com/@sengkuclean?lang=en" target="_blank">
       <img src="../a/assets/Tiktok Putih.png" class="icon" data-hover="../a/assets/Tiktok Real.png" alt="Tiktok" />
     </a>
   </div>
@@ -175,8 +172,8 @@ include_once "../partials/header-lp.php";
   <h2>Services</h2>
   <div class="divider"></div>
   <p class="desc">
-    Tidak hanya sepatu kami juga melanyani pencucian untuk tas dan juga
-    topi. <br />Berikut jasa yang kami tawarkan:
+    Tidak hanya sepatu saja, Kami juga melanyani pencucian untuk <strong>Tas</strong> dan juga
+    <strong>Topi</strong>. <br />Berikut jasa yang kami tawarkan:
   </p>
 
   <div class="catalog">
@@ -191,7 +188,7 @@ include_once "../partials/header-lp.php";
           </div>
         </div>
         <p class="title">Sepatu</p>
-        <p class="detail">Cleanse midsole & outsole part entirely.</p>
+        <p class="detail">Pulihkan kondisi sepatu favorit Anda dari kusam, lepas sol, hingga warna pudar; kami menawarkan layanan cleaning mendalam, reglue kuat, dan repaint presisi agar sepatu Anda siap beraksi kembali.</p>
       </div>
     </a>
 
@@ -207,7 +204,7 @@ include_once "../partials/header-lp.php";
         </div>
         <p class="title">Tas</p>
         <p class="detail">
-          Cleanse upper, midsole & outsole part entirely.
+        Serahkan tas kesayangan Anda pada layanan deep cleaning profesional kami untuk menghilangkan noda membandel dan mengembalikan kilau serta kualitas materialnya.
         </p>
       </div>
     </a>
@@ -224,7 +221,7 @@ include_once "../partials/header-lp.php";
         </div>
         <p class="title">Topi</p>
         <p class="detail">
-          Cleanse upper, midsole, outsole & insole part entirely.
+        Jaga bentuk dan higienitas topi koleksi Anda dengan layanan cleaning spesialis kami yang efektif menghilangkan noda keringat, bakteri, dan bau tanpa merusak struktur.
         </p>
       </div>
     </a>
@@ -336,15 +333,13 @@ include_once "../partials/header-lp.php";
 
 
 <section class="contact-section" id="contact">
-  <h2>Contact Us</h2>
+  <h2>Location</h2>
   <div class="divider-contact"></div>
   <div class="contact-container">
-    <!-- LOKASI DI KIRI -->
+    <!-- LOKASI -->
     <div class="contact-info">
       <div class="info-box">
-        <div>
-          <h3>Location</h3>
-        </div>
+        
       </div>
       <div class="map-wrapper">
         <iframe
@@ -360,18 +355,7 @@ include_once "../partials/header-lp.php";
       </div>
     </div>
 
-    <!-- FORM KONTAK DI KANAN -->
-    <div class="contact-form">
-      <h3>Send Your Message</h3>
-      <form id="wa-form">
-        <input type="text" name="name" id="name" placeholder="Full Name" required />
-        <input type="email" name="email" id="email" placeholder="Email" required />
-        <textarea name="message" id="message" placeholder="Comment or message" required></textarea>
-        <button type="submit" class="wa-button">
-          <img src="../a/assets/WA Putih.png" alt="Send via WhatsApp" />
-        </button>
-      </form>
-    </div>
+    
   </div>
 </section>
 
