@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Cek koneksi database
     if (!$conn) {
         error_log("Database connection failed: " . mysqli_connect_error());
-        header("Location: dashboard.php?error=Koneksi database gagal");
+        header("Location: dashboard.php");
         exit();
     }
 

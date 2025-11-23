@@ -14,7 +14,7 @@ if (isset($_GET['success'])) {
     echo '<script>
             setTimeout(function() {
                 window.location.href = "dashboard.php";
-            }, 2000);
+            }, 1500);
           </script>';
 }
 
