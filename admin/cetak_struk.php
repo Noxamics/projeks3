@@ -31,20 +31,31 @@ $phone = preg_replace('/^0/', '62', $result['phone']);
 
 // 🔹 Pesan WhatsApp
 $link_struk = "http://localhost/PROJEKS3/admin/cetak_struk.php?id=" . $id;
-$pesan = "Halo *{$result['name']}*,%0A"
-    . "Berikut detail pesanan Anda di *SengkuClean*:%0A%0A"
-    . "🧾 *Kode Order:* {$result['order_code']}%0A"
-    . "📦 *Barang:* {$result['brand']}%0A"
-    . "🧼 *Layanan:* {$result['service_name']}%0A"
-    . "💰 *Total:* Rp" . number_format($price, 0, ',', '.') . "%0A"
-    . "💵 *Dibayar:* Rp" . number_format($amount_paid, 0, ',', '.') . "%0A"
-    . "💸 *Kembalian:* Rp" . number_format(max($kembalian, 0), 0, ',', '.') . "%0A"
-    . "📅 *Tanggal Masuk:* {$result['trans_date']}%0A"
-    . "📲 *Cek struk Anda di link berikut:* %0A{$link_struk}%0A%0A"
-    . "Terima kasih telah menggunakan layanan *SengkuClean* 💧";
+$pesan =
+    "Halo *{$result['name']}*, 👋
+Terima kasih telah mempercayakan layanan laundry di *SengkuClean*. Berikut detail pesanan Anda:
+
+🧾 *Kode Order* : {$result['order_code']}
+📦 *Barang* : {$result['brand']}
+🧼 *Layanan* : {$result['service_name']}
+📅 *Tanggal Masuk* : {$result['trans_date']}
+💳 *Metode Pembayaran* : {$result['payment_method']}
+📌 *Status* : *" . ucfirst($result['status']) . "*
+
+💰 *Total Harga* : Rp" . number_format($price, 0, ',', '.') . "
+💵 *Jumlah Dibayar* : Rp" . number_format($amount_paid, 0, ',', '.') . "
+💸 *Kembalian* : Rp" . number_format(max($kembalian, 0), 0, ',', '.') . "
+
+📲 Anda dapat melihat struk lengkap melalui link berikut:
+{$link_struk}
+
+Jika ada pertanyaan, Anda dapat membalas pesan ini kapan saja 😊
+Salam hangat dari *SengkuClean* 💧";
 
 $pesan = str_replace("\r", "", $pesan);
-$wa_url = "https://wa.me/{$phone}?text=" . rawurlencode($pesan);
+$wa_desktop = "https://wa.me/send?phone={$phone}&text=" . rawurlencode($pesan);
+$wa_web = "https://web.whatsapp.com/send?phone={$phone}&text=" . rawurlencode($pesan);
+$wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_desktop : $wa_web;
 ?>
 
 <!DOCTYPE html>
