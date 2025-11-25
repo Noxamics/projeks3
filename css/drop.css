@@ -191,6 +191,48 @@
   background-color: #edf3fb;
 }
 
+/* Style utama dropdown */
+.status-dropdown {
+  padding: 8px 14px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  transition: 0.25s ease;
+  outline: none;
+}
+
+/* Hover & fokus */
+.status-dropdown:hover,
+.status-dropdown:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+}
+
+/* Hilangkan tampilan default arrow browser */
+.status-dropdown::-ms-expand {
+  display: none;
+}
+
+/* Gaya dropdown dengan custom arrow */
+.status-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236b7280' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+/* Jika diletakkan dalam tabel */
+td .status-dropdown {
+  width: 100%;
+}
+
 /* =========================================================
    MODAL PILIHAN DROP (Drop Baru / Drop Lama)
 ========================================================= */

@@ -405,10 +405,36 @@ if (saveAndPrintBtn) {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.drop_id) {
-          window.open("cetak_struk.php?id=" + data.drop_id, "_blank");
+          // buka halaman cetak struk
+          const strukWindow = window.open(
+            "cetak_struk.php?id=" + data.drop_id,
+            "_blank"
+          );
+
+          // buat pesan WhatsApp
+          const phone = data.customer_phone; // pastikan sudah dikirim dari PHP (tanpa +62, nanti otomatis)
+          const message = data.wa_message; // sudah dalam format teks biasa, TIDAK pakai %0A
+
+          // buka WA Web setelah struk terbuka
+          strukWindow.onload = function () {
+            setTimeout(() => {
+              const waURL =
+                "https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}";
+
+              // jika tab WhatsApp sebelumnya sudah terbuka → pindah ke sana
+              if (window.waTab && !window.waTab.closed) {
+                window.waTab.location.href = waURL;
+                window.waTab.focus();
+              } else {
+                // jika belum ada WA Web terbuka → buka baru
+                window.waTab = window.open(waURL, "_blank");
+              }
+            }, 500);
+          };
+
           form.reset();
           document.getElementById("addModal").style.display = "none";
-          location.reload();
+          setTimeout(() => location.reload(), 2000);
         } else {
           alert("Gagal menyimpan data: " + (data.message || "Unknown error"));
         }
