@@ -13,7 +13,7 @@ if (isset($_GET['success'])) {
     // AUTO-REDIRECT setelah 2 detik
     echo '<script>
             setTimeout(function() {
-                window.location.href = "dashboard.php";
+                window.location.href = "timeline_pesanan.php";
             }, 1500);
           </script>';
 }
@@ -90,7 +90,6 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
             <div class="timeline-body" id="orderTimeline">
                 <?php
-                // Query LENGKAP untuk mendapatkan SEMUA data
                 $timeline_query = "
                     SELECT 
                         d.id_drop,
@@ -109,13 +108,16 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                         s.price_max,
                         s.duration,
                         di.brand,
+                        di.fixed_price,
                         di.service_id as drop_item_service_id,
                         st.status_name,
                         p.status as payment_status,
                         p.payment_method,
                         p.payment_date,
                         p.amount_paid,
-                        e.name as employee_name
+                        e.name as employee_name,
+                        -- Gunakan fixed_price jika ada, jika tidak gunakan price_min
+                        COALESCE(di.fixed_price, s.price_min) as actual_price
                     FROM drops d
                     JOIN customers c ON d.customer_id = c.id_customer
                     JOIN drop_items di ON d.id_drop = di.drop_id
@@ -123,12 +125,12 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                     JOIN statuses st ON d.status_id = st.id_status
                     LEFT JOIN payments p ON d.id_drop = p.drop_id
                     LEFT JOIN employees e ON d.employee_id = e.id_employee
-                    WHERE d.est_finish_date >= CURDATE() -- TAMBAHKAN INI: hanya tampilkan yang belum lewat deadline
+                    WHERE d.est_finish_date >= CURDATE()
                     ORDER BY d.trans_date DESC 
                     LIMIT 10
                 ";
                 $timeline_result = mysqli_query($conn, $timeline_query);
-                
+
                 if(mysqli_num_rows($timeline_result) > 0) {
                     while($order = mysqli_fetch_assoc($timeline_result)) {
                         $status_class = '';
@@ -141,20 +143,15 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                         
                         $est_date_formatted = date('d M Y', strtotime($order['est_finish_date']));
                         
-                        // Format harga
-                        $price_display = '';
-                        if ($order['price_min'] == $order['price_max']) {
-                            $price_display = 'Rp ' . number_format($order['price_min'], 0, ',', '.');
-                        } else {
-                            $price_display = 'Rp ' . number_format($order['price_min'], 0, ',', '.') . ' - Rp ' . number_format($order['price_max'], 0, ',', '.');
-                        }
+                        // Format harga - gunakan actual_price (fixed_price) untuk display
+                        $actual_price = $order['actual_price'] ?? $order['price_min'];
+                        $price_display = 'Rp ' . number_format($actual_price, 0, ',', '.');
                         
-                        // Debug untuk cap cleaning
                         $actual_service_id = $order['drop_item_service_id'] ?: $order['id_service'];
                         
                         echo "
                         <div class='order-item' 
-                             data-id-drop='" . htmlspecialchars($order['id_drop']) . "'
+                            data-id-drop='" . htmlspecialchars($order['id_drop']) . "'
                             data-category='" . strtolower($order['category']) . "' 
                             data-order-code='" . htmlspecialchars($order['order_code']) . "'
                             data-customer='" . htmlspecialchars($order['customer_name']) . "'
@@ -168,8 +165,9 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                             data-status-id='" . htmlspecialchars($order['status_id']) . "'
                             data-price-min='" . htmlspecialchars($order['price_min']) . "'
                             data-price-max='" . htmlspecialchars($order['price_max']) . "'
+                            data-fixed-price='" . htmlspecialchars($actual_price) . "'
                             data-price-display='" . htmlspecialchars($price_display) . "'
-                            data-duration='" . htmlspecialchars($order['duration']) . "'
+                            data-duration='" . htmlspecialchars($order['duration']) . " hari'
                             data-payment-status='" . htmlspecialchars($order['payment_status'] ?? 'Belum Lunas') . "'
                             data-payment-method='" . htmlspecialchars($order['payment_method'] ?? 'Tunai') . "'
                             data-payment-date='" . htmlspecialchars($order['payment_date'] ?? '') . "'
@@ -226,7 +224,6 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
         <span class="close" onclick="closeEditModal()">&times;</span>
         <h2>Edit Barang</h2>
 
-        <!-- UBAH ACTION MENJADI dashboard_edit.php -->
         <form method="POST" action="dashboard_edit.php" class="grid-form" id="editForm">
             <input type="hidden" name="id_drop" id="edit_id_drop">
 
@@ -262,10 +259,9 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
             <div>
                 <label>Harga</label>
-                <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;" readonly>
-                <input type="hidden" name="price_min" id="edit_price_min">
-                <input type="hidden" name="price_max" id="edit_price_max">
+                <input type="text" id="edit_fixed_price" name="fixed_price" placeholder="Rp 0">
             </div>
+
 
             <div>
                 <label>Estimasi Selesai</label>
@@ -360,61 +356,20 @@ function parseRupiah(rupiah) {
     return parseInt(rupiah.replace(/[^0-9]/g, '')) || 0;
 }
 
-// Update service info saat ganti layanan
-function updateServiceInfo(serviceId) {
-    if (!serviceId) return;
-    
-    fetch(`get_service_info.php?id_service=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                console.error('Error:', data.error);
-                return;
-            }
-            
-            // Update harga
-            document.getElementById('edit_price_min').value = data.price_min;
-            document.getElementById('edit_price_max').value = data.price_max;
-            
-            let priceDisplay = '';
-            if (data.price_min == data.price_max) {
-                priceDisplay = formatRupiah(data.price_min);
-            } else {
-                priceDisplay = formatRupiah(data.price_min) + ' - ' + formatRupiah(data.price_max);
-            }
-            document.getElementById('edit_price_display').value = priceDisplay;
-            
-            // Update durasi
-            document.getElementById('edit_estimate_desc').value = data.duration || '';
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// PERBAIKI function openEditModal - tambahkan debug dan pastikan service_id benar
+// ✅ FUNGSI OPEN EDIT MODAL
 function openEditModal(orderElement) {
     console.log('Opening edit modal...');
     
-    // Debug detail untuk cap cleaning
-    console.log('=== DEBUG CAP CLEANING ===');
-    console.log('Order Element:', orderElement);
-    console.log('All datasets:', orderElement.dataset);
-    console.log('Service ID from dataset:', orderElement.dataset.serviceId);
-    console.log('Service Name from dataset:', orderElement.dataset.service);
-    console.log('Category from dataset:', orderElement.dataset.categoryFull);
-    
-    // Ambil semua data dari data attributes
     const data = {
         id_drop: orderElement.dataset.idDrop,
         customer_name: orderElement.dataset.customer,
         phone_number: orderElement.dataset.phone,
         brand: orderElement.dataset.brand,
-        service_id: orderElement.dataset.serviceId, // PASTIKAN INI TERISI
+        service_id: orderElement.dataset.serviceId,
         trans_date: orderElement.dataset.transDate,
         est_date: orderElement.dataset.estDate,
         status_id: orderElement.dataset.statusId,
-        price_min: orderElement.dataset.priceMin,
-        price_max: orderElement.dataset.priceMax,
-        price_display: orderElement.dataset.priceDisplay,
+        fixed_price: orderElement.dataset.fixedPrice,
         duration: orderElement.dataset.duration,
         payment_status: orderElement.dataset.paymentStatus || 'Belum Lunas',
         payment_method: orderElement.dataset.paymentMethod || 'Tunai',
@@ -432,39 +387,28 @@ function openEditModal(orderElement) {
     document.getElementById('edit_customer_phone').value = data.phone_number;
     document.getElementById('edit_brand').value = data.brand;
     
-    // PERBAIKI BAGIAN SERVICE - lebih robust
     const serviceSelect = document.getElementById('edit_service_id');
     if (data.service_id && data.service_id !== 'null' && data.service_id !== '') {
         serviceSelect.value = data.service_id;
-        console.log('✅ Service ID set to:', data.service_id);
-        console.log('✅ Selected option:', serviceSelect.options[serviceSelect.selectedIndex]?.text);
-        
-        // Update harga dan durasi berdasarkan service yang dipilih
-        updateServiceInfo(data.service_id);
-    } else {
-        console.warn('❌ Service ID tidak valid:', data.service_id);
-        // Fallback: coba cari berdasarkan nama service
-        for (let option of serviceSelect.options) {
-            if (option.text.toLowerCase().includes(data.service_name?.toLowerCase())) {
-                option.selected = true;
-                console.log('🔄 Fallback: Service found by name:', option.text);
-                updateServiceInfo(option.value);
-                break;
-            }
-        }
+    }
+    
+    // ISI HARGA FIX
+    const fixedPriceInput = document.getElementById('edit_fixed_price');
+    if (fixedPriceInput) {
+        fixedPriceInput.value = formatRupiah(data.fixed_price);
     }
     
     // Isi tanggal
     document.getElementById('edit_tanggal_masuk').value = data.trans_date;
     document.getElementById('edit_tanggal_selesai').value = data.est_date;
     document.getElementById('edit_statusSelect').value = data.status_id;
-    
-    // Isi harga & durasi (sebagai backup jika updateServiceInfo gagal)
-    document.getElementById('edit_price_min').value = data.price_min;
-    document.getElementById('edit_price_max').value = data.price_max;
-    document.getElementById('edit_price_display').value = data.price_display;
-    document.getElementById('edit_estimate_desc').value = data.duration;
-    
+    // Pastikan format "X hari"
+    let durationText = data.duration;
+    if (durationText && !durationText.toLowerCase().includes('hari')) {
+        durationText = durationText + ' hari';
+    }
+    document.getElementById('edit_estimate_desc').value = durationText;
+        
     // Isi pembayaran
     document.getElementById('edit_payment_status').value = data.payment_status;
     document.getElementById('edit_payment_method').value = data.payment_method;
@@ -481,50 +425,27 @@ function openEditModal(orderElement) {
     document.getElementById('editModal').style.display = 'block';
 }
 
-// PERBAIKI function updateServiceInfo - tambahkan error handling
+// Update service info
 function updateServiceInfo(serviceId) {
     if (!serviceId || serviceId === 'null') {
-        console.warn('Service ID tidak valid untuk updateServiceInfo:', serviceId);
         return;
     }
     
-    console.log('🔄 Updating service info for ID:', serviceId);
-    
     fetch(`get_service_info.php?id_service=${serviceId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.error) {
-                console.error('Error from server:', data.error);
+                console.error('Error:', data.error);
                 return;
             }
-            
-            console.log('✅ Service info received:', data);
-            
-            // Update harga
-            document.getElementById('edit_price_min').value = data.price_min;
-            document.getElementById('edit_price_max').value = data.price_max;
-            
-            let priceDisplay = '';
-            if (data.price_min == data.price_max) {
-                priceDisplay = formatRupiah(data.price_min);
-            } else {
-                priceDisplay = formatRupiah(data.price_min) + ' - ' + formatRupiah(data.price_max);
+            // Auto tambah "hari" jika belum ada
+            let durationText = data.duration || '';
+            if (durationText && !durationText.toLowerCase().includes('hari')) {
+                durationText = durationText + ' hari';
             }
-            document.getElementById('edit_price_display').value = priceDisplay;
-            
-            // Update durasi
-            document.getElementById('edit_estimate_desc').value = data.duration || '';
-            
-        })
-        .catch(error => {
-            console.error('❌ Error fetching service info:', error);
-            // Tetap gunakan harga dari data attributes sebagai fallback
-        });
+            document.getElementById('edit_estimate_desc').value = durationText;
+                    })
+        .catch(error => console.error('Error:', error));
 }
 
 // Tutup modal
@@ -532,16 +453,18 @@ function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
 }
 
-// Setup double click handler
+// ✅ SETUP SAAT DOM READY (HANYA SATU KALI)
 document.addEventListener('DOMContentLoaded', function() {
-    const orderItems = document.querySelectorAll('.order-item');
+    console.log('✅ Setting up event listeners...');
     
-    orderItems.forEach(item => {
-        item.style.cursor = 'pointer';
-        item.addEventListener('dblclick', function() {
-            openEditModal(this);
+    // Format harga fix input
+    const fixedPriceInput = document.getElementById('edit_fixed_price');
+    if (fixedPriceInput) {
+        fixedPriceInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = formatRupiah(value);
         });
-    });
+    }
     
     // Format nominal pembayaran
     const amountInput = document.getElementById('edit_amount_paid_display');
@@ -560,11 +483,13 @@ document.addEventListener('DOMContentLoaded', function() {
             closeEditModal();
         }
     }
+    
+    console.log('✅ Event listeners ready!');
 });
 </script>
 
 <!-- Load external JavaScript -->
-<script src="../js/dashboard.js"></script>
+<script src="../js/timeline_pesanan.js"></script>
 
 <?php 
 include('../partials/footer.php'); 
