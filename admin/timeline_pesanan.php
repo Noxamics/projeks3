@@ -52,22 +52,23 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
 }
 ?>
 
-<link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/timeline_pesanan.css">
 
 <main class="dashboard-container">
-    <div class="dashboard-header">
-        <h1>Dashboard</h1>
-    </div>
+    
     
     <div class="dashboard-content">
         <!-- TIMELINE SECTION -->
         <div class="timeline-card">
             <h2>Timeline Pesanan</h2>
-            
+
             <div class="filter-row">
                 <select id="sortFilter" onchange="sortOrders()">
                     <option value="newest">Tanggal Terbaru</option>
                     <option value="oldest">Tanggal Terlama</option>
+                    <option value="deadline-critical">🔴 Deadline Kritis (≤2 hari)</option>
+                    <option value="deadline-warning">🟡 Deadline Mendesak (3-5 hari)</option>
+                    <option value="deadline-safe">🟢 Deadline Aman (≥6 hari)</option>
                 </select>
                 <div class="search-box">
                     <input type="text" id="searchOrder" placeholder="Cari pesanan...">
@@ -148,6 +149,9 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                             $price_display = 'Rp ' . number_format($order['price_min'], 0, ',', '.') . ' - Rp ' . number_format($order['price_max'], 0, ',', '.');
                         }
                         
+                        // Debug untuk cap cleaning
+                        $actual_service_id = $order['drop_item_service_id'] ?: $order['id_service'];
+                        
                         echo "
                         <div class='order-item' 
                              data-id-drop='" . htmlspecialchars($order['id_drop']) . "'
@@ -156,7 +160,7 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
                             data-customer='" . htmlspecialchars($order['customer_name']) . "'
                             data-phone='" . htmlspecialchars($order['phone_number']) . "'
                             data-service='" . htmlspecialchars($order['service_name']) . "'
-                            data-service-id='" . htmlspecialchars($order['drop_item_service_id']) . "'
+                            data-service-id='" . htmlspecialchars($actual_service_id) . "'
                             data-category-full='" . htmlspecialchars($order['category']) . "'
                             data-brand='" . htmlspecialchars($order['brand']) . "'
                             data-trans-date='" . htmlspecialchars($order['trans_date']) . "'
