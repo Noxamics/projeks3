@@ -27,8 +27,7 @@ if (isset($_GET['error'])) {
 ?>
 
 <?php
-// Query untuk mendapatkan semua deadline dalam bulan ini
-$currentMonth = date('Y-m');
+// Query untuk mendapatkan SEMUA deadline (tidak hanya bulan ini)
 $deadlines_query = "
     SELECT 
         dl.deadline_date,
@@ -41,7 +40,6 @@ $deadlines_query = "
     JOIN customers c ON d.customer_id = c.id_customer
     JOIN services s ON d.service_id = s.id_service
     JOIN drop_items di ON d.id_drop = di.drop_id
-    WHERE DATE_FORMAT(dl.deadline_date, '%Y-%m') = '$currentMonth'
     ORDER BY dl.deadline_date
 ";
 $deadlines_result = mysqli_query($conn, $deadlines_query);
@@ -344,6 +342,7 @@ while($deadline = mysqli_fetch_assoc($deadlines_result)) {
 // Data deadlines
 const deadlinesData = <?php echo json_encode($deadlines); ?>;
 console.log('Deadlines loaded:', deadlinesData.length);
+console.log('Deadlines data:', deadlinesData); // Debug: lihat semua deadline
 
 // Format Rupiah
 function formatRupiah(angka) {
