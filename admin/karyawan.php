@@ -11,7 +11,7 @@ include('../partials/headerAdmin.php');
     <link rel="stylesheet" href="../css/karyawan.css">
 </head>
 
-<body>
+<main class="employee-page">
     <div class="container">
         <!-- HEADER CONTROLS -->
         <div class="header-controls">
@@ -150,6 +150,8 @@ include('../partials/headerAdmin.php');
     <?php include('../modal/karyawan/detail.php'); ?>
 
     <script src="../js/karyawan.js"></script>
-</body>
+</main>
+
+
 
 </html>

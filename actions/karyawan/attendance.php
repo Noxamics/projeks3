@@ -12,6 +12,7 @@ if (!$employee_id || !$password || !$action) {
 }
 
 // Verify password
+// CATATAN: Anda perlu menambahkan kolom 'password' di tabel employees
 $stmt = $conn->prepare("SELECT password FROM employees WHERE id_employee = ?");
 $stmt->bind_param("i", $employee_id);
 $stmt->execute();
@@ -29,7 +30,7 @@ $now = date('H:i:s');
 
 if ($action === 'checkin') {
     // Check if already checked in today
-    $chk = $conn->prepare("SELECT id FROM attendances WHERE employee_id = ? AND date = ? AND check_in IS NOT NULL");
+    $chk = $conn->prepare("SELECT id_attendance FROM attendances WHERE employee_id = ? AND attendance_date = ? AND check_in IS NOT NULL");
     $chk->bind_param("is", $employee_id, $today);
     $chk->execute();
     $chk->store_result();
@@ -42,7 +43,7 @@ if ($action === 'checkin') {
     $chk->close();
 
     // Insert check in
-    $ins = $conn->prepare("INSERT INTO attendances (employee_id, date, check_in, status) VALUES (?, ?, ?, 'Hadir')");
+    $ins = $conn->prepare("INSERT INTO attendances (employee_id, attendance_date, check_in) VALUES (?, ?, ?)");
     $ins->bind_param("iss", $employee_id, $today, $now);
     $ok = $ins->execute();
     $ins->close();
@@ -51,7 +52,7 @@ if ($action === 'checkin') {
 
 } elseif ($action === 'checkout') {
     // Check if checked in today
-    $chk = $conn->prepare("SELECT id, check_out FROM attendances WHERE employee_id = ? AND date = ?");
+    $chk = $conn->prepare("SELECT id_attendance, check_out FROM attendances WHERE employee_id = ? AND attendance_date = ?");
     $chk->bind_param("is", $employee_id, $today);
     $chk->execute();
     $chk->bind_result($att_id, $existing_checkout);
@@ -68,9 +69,25 @@ if ($action === 'checkin') {
         exit;
     }
 
-    // Update check out
-    $upd = $conn->prepare("UPDATE attendances SET check_out = ? WHERE id = ?");
-    $upd->bind_param("si", $now, $att_id);
+    // Calculate work hours
+    $get_checkin = $conn->prepare("SELECT check_in FROM attendances WHERE id_attendance = ?");
+    $get_checkin->bind_param("i", $att_id);
+    $get_checkin->execute();
+    $get_checkin->bind_result($check_in_time);
+    $get_checkin->fetch();
+    $get_checkin->close();
+
+    $work_hours = 0;
+    if ($check_in_time) {
+        $start = new DateTime($today . ' ' . $check_in_time);
+        $end = new DateTime($today . ' ' . $now);
+        $diff = $start->diff($end);
+        $work_hours = $diff->h + ($diff->i / 60);
+    }
+
+    // Update check out and work hours
+    $upd = $conn->prepare("UPDATE attendances SET check_out = ?, work_hours = ? WHERE id_attendance = ?");
+    $upd->bind_param("sdi", $now, $work_hours, $att_id);
     $ok = $upd->execute();
     $upd->close();
 
