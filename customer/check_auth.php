@@ -47,4 +47,3 @@ function getUserData()
 
 // Panggil requireCustomer() untuk proteksi halaman
 requireCustomer();
-?>

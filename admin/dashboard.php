@@ -147,7 +147,7 @@ $top_services = $conn->query("
 
 ?>
 <main class="analisis-container">
-    <h1 class="page-title">Statistik</h1>
+    <h1 class="page-title">Dashboard</h1>
 
     <!-- Today's Sales Section -->
     <div class="sales-section">
