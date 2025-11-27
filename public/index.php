@@ -332,6 +332,7 @@ include_once "../partials/header-lp.php";
 </section>
 
 
+
 <section class="contact-section" id="contact">
   <h2>Location</h2>
   <div class="divider-contact"></div>

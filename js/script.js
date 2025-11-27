@@ -63,18 +63,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setInterval(changeBackground, 3000);
-  // Fade in testimonial when visible
-const testimonial = document.querySelector(".testimonial-section");
-
-if (testimonial) {
-  testimonial.style.opacity = "0";
-  testimonial.style.transition = "1.2s ease";
-
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > testimonial.offsetTop - 500) {
-      testimonial.style.opacity = "1";
-    }
-  });
-}
-
+  
 });
