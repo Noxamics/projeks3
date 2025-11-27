@@ -909,3 +909,25 @@
   font-size: 13px;
   color: #999;
 }
+
+/* Warna untuk berbagai tingkat deadline */
+.calendar-grid .date.deadline-critical {
+  background: #ff4444 !important;
+  color: white !important;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.7);
+  border-color: #ff0000;
+}
+
+.calendar-grid .date.deadline-warning {
+  background: #ffbb33 !important;
+  color: #333 !important;
+  box-shadow: 0 0 8px rgba(255, 187, 51, 0.7);
+  border-color: #ffaa00;
+}
+
+.calendar-grid .date.deadline-safe {
+  background: #00c851 !important;
+  color: white !important;
+  box-shadow: 0 0 8px rgba(0, 200, 81, 0.7);
+  border-color: #009933;
+}
