@@ -22,8 +22,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <nav class="admin-nav">
             <ul>
                 <!-- Dashboard -->
-                <li class="nav-item-container <?= $current_page == 'dashboard.php' ? 'active' : '' ?>">
-                    <a href="../admin/dashboard.php" title="Dashboard">
+                <li class="nav-item-container <?= $current_page == 'analisis.php' ? 'active' : '' ?>">
+                    <a href="../admin/analisis.php" title="Dashboard">
                         <div class="icon-wrapper">
                             <img src="../a/headerAdmin/dashboard.png" alt="Dashboard" class="icon-default">
                             <img src="../a/headerAdmin/dashboard-active.png" alt="Dashboard Active" class="icon-active">
@@ -52,8 +52,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </li>
 
                 <!-- Analisis -->
-                <li class="nav-item-container <?= $current_page == 'analisis.php' ? 'active' : '' ?>">
-                    <a href="../admin/analisis.php" title="Analisis">
+                <li class="nav-item-container <?= $current_page == 'timeline_pesanan.php' ? 'active' : '' ?>">
+                    <a href="../admin/timeline_pesanan.php" title="Analisis">
                         <div class="icon-wrapper">
                             <img src="../a/headerAdmin/analisis.png" alt="Analisis" class="icon-default">
                             <img src="../a/headerAdmin/analisis-active.png" alt="Analisis Active" class="icon-active">

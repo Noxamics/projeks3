@@ -839,3 +839,95 @@
 .no-orders-message small {
   font-size: 12px;
 }
+
+/* Tambahkan CSS ini ke dashboard.css untuk styling select dropdown yang lebih baik */
+
+.filter-row select {
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 35px 10px 12px;
+  background: white;
+  font-size: 14px;
+  min-width: 220px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.filter-row select:hover {
+  border-color: #104a8e;
+  box-shadow: 0 2px 8px rgba(16, 74, 142, 0.15);
+}
+
+.filter-row select:focus {
+  outline: none;
+  border-color: #104a8e;
+  box-shadow: 0 0 0 3px rgba(16, 74, 142, 0.1);
+}
+
+/* Styling untuk option di dalam select */
+.filter-row select option {
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Pesan filter yang lebih menarik */
+.filter-message {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* No orders message styling */
+.no-orders-message {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.no-orders-message p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.no-orders-message small {
+  font-size: 13px;
+  color: #999;
+}
+
+/* Warna untuk berbagai tingkat deadline */
+.calendar-grid .date.deadline-critical {
+  background: #ff4444 !important;
+  color: white !important;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.7);
+  border-color: #ff0000;
+}
+
+.calendar-grid .date.deadline-warning {
+  background: #ffbb33 !important;
+  color: #333 !important;
+  box-shadow: 0 0 8px rgba(255, 187, 51, 0.7);
+  border-color: #ffaa00;
+}
+
+.calendar-grid .date.deadline-safe {
+  background: #00c851 !important;
+  color: white !important;
+  box-shadow: 0 0 8px rgba(0, 200, 81, 0.7);
+  border-color: #009933;
+}

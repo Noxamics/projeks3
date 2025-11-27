@@ -1,5 +1,8 @@
 // Data deadlinesData sudah di-load dari PHP di file utama
 
+// ✅ BACKUP SEMUA ORDER ITEMS (penting untuk switching filter)
+let allOrderItems = [];
+
 // Fungsi untuk menghitung sisa hari
 function getDaysUntilDeadline(deadlineDate) {
   const now = new Date();
@@ -20,6 +23,163 @@ function getDeadlineColorClass(daysUntil) {
   if (daysUntil <= 2) return "red";
   if (daysUntil <= 5) return "yellow";
   return "green";
+}
+
+// ✅ FUNGSI SORT ORDERS YANG DIPERBAIKI
+function sortOrders() {
+  const sortBy = document.getElementById("sortFilter").value;
+  const timelineBody = document.getElementById("orderTimeline");
+
+  // Jika belum ada backup, ambil semua order items dari DOM
+  if (allOrderItems.length === 0) {
+    allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  }
+
+  // Clone array untuk manipulasi
+  const ordersArray = [...allOrderItems];
+
+  // RESET: Set semua ke display block
+  ordersArray.forEach((order) => (order.style.display = "block"));
+
+  // Jika filter deadline, filter berdasarkan kriteria
+  if (sortBy.startsWith("deadline-")) {
+    const filteredOrders = ordersArray.filter((order) => {
+      const estDate = order.getAttribute("data-est-date");
+      const daysUntil = getDaysUntilDeadline(estDate);
+
+      if (sortBy === "deadline-critical") {
+        return daysUntil >= 0 && daysUntil <= 2;
+      } else if (sortBy === "deadline-warning") {
+        return daysUntil >= 3 && daysUntil <= 5;
+      } else if (sortBy === "deadline-safe") {
+        return daysUntil >= 6;
+      }
+      return false;
+    });
+
+    // Urutkan berdasarkan deadline terdekat
+    filteredOrders.sort((a, b) => {
+      const dateA = new Date(a.getAttribute("data-est-date"));
+      const dateB = new Date(b.getAttribute("data-est-date"));
+      return dateA - dateB;
+    });
+
+    // Tampilkan hasil filter
+    timelineBody.innerHTML = "";
+    filteredOrders.forEach((order) => timelineBody.appendChild(order));
+
+    showDeadlineFilterMessage(sortBy, filteredOrders.length);
+  } else {
+    // Sort berdasarkan tanggal (newest/oldest)
+    ordersArray.sort((a, b) => {
+      const dateA = new Date(a.getAttribute("data-est-date"));
+      const dateB = new Date(b.getAttribute("data-est-date"));
+      return sortBy === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    timelineBody.innerHTML = "";
+    ordersArray.forEach((order) => timelineBody.appendChild(order));
+    showSortMessage(sortBy);
+  }
+
+  // Re-attach double click handlers (sesuai dengan PHP Anda)
+  setupDoubleClickHandlers();
+}
+
+// Fungsi untuk menampilkan pesan filter deadline
+function showDeadlineFilterMessage(filterType, count) {
+  let message = "";
+  let emoji = "";
+
+  if (filterType === "deadline-critical") {
+    message = `Menampilkan ${count} pesanan dengan deadline KRITIS (≤2 hari)`;
+    emoji = "🔴";
+  } else if (filterType === "deadline-warning") {
+    message = `Menampilkan ${count} pesanan dengan deadline MENDESAK (3-5 hari)`;
+    emoji = "🟡";
+  } else if (filterType === "deadline-safe") {
+    message = `Menampilkan ${count} pesanan dengan deadline AMAN (≥6 hari)`;
+    emoji = "🟢";
+  }
+
+  const existingMessage = document.querySelector(".filter-message");
+  if (existingMessage) existingMessage.remove();
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "filter-message";
+  messageDiv.style.cssText = `
+    background: ${
+      filterType === "deadline-critical"
+        ? "#fee"
+        : filterType === "deadline-warning"
+        ? "#fffbeb"
+        : "#d4edda"
+    };
+    color: ${
+      filterType === "deadline-critical"
+        ? "#c00"
+        : filterType === "deadline-warning"
+        ? "#b45309"
+        : "#155724"
+    };
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid ${
+      filterType === "deadline-critical"
+        ? "#fcc"
+        : filterType === "deadline-warning"
+        ? "#fde68a"
+        : "#c3e6cb"
+    };
+  `;
+  messageDiv.textContent = `${emoji} ${message}`;
+
+  const timelineBody = document.getElementById("orderTimeline");
+  timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
+
+  if (count === 0) {
+    const noDataDiv = document.createElement("div");
+    noDataDiv.className = "no-orders-message";
+    noDataDiv.innerHTML = `
+      <p>Tidak ada pesanan dengan kriteria deadline ini</p>
+      <small>Coba pilih filter deadline lainnya</small>
+    `;
+    timelineBody.appendChild(noDataDiv);
+  }
+}
+
+// Update fungsi showSortMessage
+function showSortMessage(sortType) {
+  const message =
+    sortType === "newest"
+      ? "📅 Pesanan diurutkan dari tanggal terbaru"
+      : "📅 Pesanan diurutkan dari tanggal terlama";
+
+  const existingMessage = document.querySelector(".filter-message");
+  if (existingMessage) existingMessage.remove();
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "filter-message";
+  messageDiv.style.cssText = `
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #bbdefb;
+  `;
+  messageDiv.textContent = message;
+
+  const timelineBody = document.getElementById("orderTimeline");
+  timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
+  setTimeout(() => messageDiv.remove(), 3000);
 }
 
 // Fungsi untuk generate deadline list
@@ -87,7 +247,7 @@ function generateDeadlineList() {
 let currentDisplayYear = new Date().getFullYear();
 let currentDisplayMonth = new Date().getMonth();
 
-// Fungsi untuk calendar
+// Fungsi untuk calendar - FIXED VERSION
 function generateCalendar() {
   const year = currentDisplayYear;
   const month = currentDisplayMonth;
@@ -116,6 +276,11 @@ function generateCalendar() {
     calendarGrid.appendChild(emptyElement);
   }
 
+  // PENTING: Hitung hari ini sekali saja di awal
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  today.setHours(0, 0, 0, 0);
+
   for (let i = 1; i <= daysInMonth; i++) {
     const dateElement = document.createElement("div");
     dateElement.className = "date";
@@ -126,14 +291,21 @@ function generateCalendar() {
     const deadlineInfo = getDeadlineInfo(dateString);
 
     if (deadlineInfo) {
-      const daysUntilDeadline = deadlineInfo.daysUntil;
       dateElement.classList.add("has-deadline");
 
+      // PENTING: Hitung sisa hari dari HARI INI ke tanggal di kalender
+      const deadlineDate = new Date(dateString);
+      deadlineDate.setHours(0, 0, 0, 0);
+
+      const timeDiff = deadlineDate - today;
+      const daysUntilDeadline = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+      // Tambahkan warna sesuai sisa hari dari HARI INI
       if (daysUntilDeadline <= 2) {
         dateElement.classList.add("deadline-critical");
       } else if (daysUntilDeadline <= 5) {
         dateElement.classList.add("deadline-warning");
-      } else if (daysUntilDeadline >= 6) {
+      } else {
         dateElement.classList.add("deadline-safe");
       }
 
@@ -143,11 +315,11 @@ function generateCalendar() {
       dateElement.title = `${tooltipText}\n(${daysUntilDeadline} hari lagi)`;
     }
 
-    const today = new Date();
+    // Tandai tanggal hari ini
     if (
-      i === today.getDate() &&
-      month === today.getMonth() &&
-      year === today.getFullYear()
+      i === now.getDate() &&
+      month === now.getMonth() &&
+      year === now.getFullYear()
     ) {
       dateElement.classList.add("active");
     }
@@ -170,14 +342,15 @@ function formatDate(date) {
 function getDeadlineInfo(dateString) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const deadlineDate = new Date(dateString);
-
   today.setHours(0, 0, 0, 0);
+
+  const deadlineDate = new Date(dateString);
   deadlineDate.setHours(0, 0, 0, 0);
 
   const timeDiff = deadlineDate - today;
   const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
 
+  // FILTER: Jangan tampilkan deadline yang sudah lewat
   if (daysUntil < 0) {
     return null;
   }
@@ -189,7 +362,6 @@ function getDeadlineInfo(dateString) {
   if (deadlinesOnDate.length > 0) {
     return {
       count: deadlinesOnDate.length,
-      daysUntil: daysUntil,
       orders: deadlinesOnDate,
     };
   }
@@ -380,17 +552,26 @@ function setupModalHandlers() {
   });
 }
 
-function setupOrderClickHandlers() {
+// ✅ Setup double click handler (untuk edit modal - sesuai file PHP Anda)
+function setupDoubleClickHandlers() {
   const orderItems = document.querySelectorAll(".order-item");
   orderItems.forEach((item) => {
     item.style.cursor = "pointer";
-    item.addEventListener("click", function () {
-      showOrderDetail(this);
+
+    // Remove old listeners untuk avoid duplicate
+    const newItem = item.cloneNode(true);
+    item.parentNode.replaceChild(newItem, item);
+
+    // Attach double click untuk edit modal
+    newItem.addEventListener("dblclick", function () {
+      if (typeof openEditModal === "function") {
+        openEditModal(this);
+      }
     });
   });
 }
 
-// Search, filter, sort functions (tetap sama seperti sebelumnya)
+// Search functions
 function searchOrders() {
   const searchTerm = document
     .getElementById("searchOrder")
@@ -490,33 +671,6 @@ function setupRealTimeSearch() {
   });
 }
 
-function sortOrders() {
-  const sortBy = document.getElementById("sortFilter").value;
-  const orderItems = document.querySelectorAll(".order-item");
-  const timelineBody = document.getElementById("orderTimeline");
-
-  const ordersArray = Array.from(orderItems);
-
-  ordersArray.sort((a, b) => {
-    const dateA = new Date(
-      a
-        .querySelector(".order-time")
-        .textContent.replace("📅 Estimasi Selesai: ", "")
-    );
-    const dateB = new Date(
-      b
-        .querySelector(".order-time")
-        .textContent.replace("📅 Estimasi Selesai: ", "")
-    );
-    return sortBy === "newest" ? dateB - dateA : dateA - dateB;
-  });
-
-  timelineBody.innerHTML = "";
-  ordersArray.forEach((order) => timelineBody.appendChild(order));
-  showSortMessage(sortBy);
-  setupOrderClickHandlers(); // Re-attach click handlers
-}
-
 function filterByCategory(category) {
   const orderItems = document.querySelectorAll(".order-item");
   const filterButtons = document.querySelectorAll(".filter-type button");
@@ -597,87 +751,17 @@ function showFilterMessage(category, searchTerm, foundResults) {
   setTimeout(() => messageDiv.remove(), 3000);
 }
 
-function showSortMessage(sortType) {
-  const message =
-    sortType === "newest"
-      ? "Pesanan diurutkan dari tanggal terbaru"
-      : "Pesanan diurutkan dari tanggal terlama";
-
-  const messageDiv = document.createElement("div");
-  messageDiv.style.cssText = `
-        background: #d4edda;
-        color: #155724;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-size: 14px;
-        border: 1px solid #c3e6cb;
-    `;
-  messageDiv.textContent = message;
-
-  const timelineBody = document.getElementById("orderTimeline");
-  timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
-  setTimeout(() => messageDiv.remove(), 3000);
-}
-
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Dashboard initialized");
+
+  // Backup semua order items saat pertama kali load
+  allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  console.log("✅ Total order items loaded:", allOrderItems.length);
+
   generateCalendar();
   generateDeadlineList();
   setupRealTimeSearch();
-  setupOrderClickHandlers();
+  setupDoubleClickHandlers();
   setupModalHandlers();
-});
-
-/* ============================================================
-   DOUBLE CLICK ROW TO EDIT
-============================================================ */
-document.addEventListener("DOMContentLoaded", function () {
-  const orderItems = document.querySelectorAll(".order-item");
-  const modal = document.getElementById("editModal");
-  const closeModal = modal.querySelector(".close");
-
-  orderItems.forEach((item) => {
-    item.addEventListener("dblclick", function () {
-      // Ambil data dari atribut data-*
-      const orderCode = this.getAttribute("data-order-code");
-      const customer = this.getAttribute("data-customer");
-      const service = this.getAttribute("data-service");
-      const category = this.getAttribute("data-category-full");
-      const brand = this.getAttribute("data-brand");
-      const estDate = this.getAttribute("data-est-date");
-
-      // === Isi form modal ===
-      document.getElementById("edit_id_drop").value = orderCode || "";
-      document.getElementById("edit_customer_name").value = customer || "";
-      document.getElementById("edit_brand").value = brand || "";
-      document.getElementById("edit_tanggal_selesai").value = estDate || "";
-
-      // Pilih layanan berdasarkan teks yang mirip
-      const serviceSelect = document.getElementById("edit_service_id");
-      for (let option of serviceSelect.options) {
-        if (option.text.toLowerCase().includes(service.toLowerCase())) {
-          option.selected = true;
-          break;
-        }
-      }
-
-      // Tampilkan modal
-      modal.style.display = "flex";
-    });
-  });
-
-  // Tutup modal saat klik tombol X
-  closeModal.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  // Tutup modal jika klik di luar area konten modal
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
-  });
 });

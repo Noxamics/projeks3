@@ -15,13 +15,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $payment_method = mysqli_real_escape_string($conn, trim($_POST['payment_method'] ?? 'Tunai'));
     $payment_date = !empty($_POST['payment_date']) ? mysqli_real_escape_string($conn, $_POST['payment_date']) : null;
     $amount_paid = floatval($_POST['amount_paid'] ?? 0);
+    
+    // Parse harga fix dengan benar
+$fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0'));
 
-    // Debug
     error_log("=== DASHBOARD EDIT DEBUG ===");
+    error_log("POST Data: " . print_r($_POST, true));
     error_log("ID Drop: $id_drop");
-    error_log("Customer: $customer_name");
     error_log("Service ID: $service_id");
-    error_log("Employee ID: $employee_id");
+    error_log("Fixed Price: $fixed_price");
+
+    // Cek koneksi database
+    if (!$conn) {
+        error_log("Database connection failed: " . mysqli_connect_error());
+        header("Location: timeline_pesanan.php");
+        exit();
+    }
 
     if ($payment_status === 'Lunas' && empty($payment_date)) {
         $payment_date = date('Y-m-d');
@@ -62,13 +71,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Update drops
         $update_drop = "UPDATE drops SET 
-                        service_id = $service_id, 
-                        employee_id = $employee_id, 
-                        brand = '$brand', 
-                        trans_date = '$trans_date', 
-                        est_finish_date = '$est_finish_date', 
-                        status_id = $status_id
-                        WHERE id_drop = $id_drop";
+        trans_date = '$trans_date',
+        est_finish_date = '$est_finish_date',
+        status_id = '$status_id',
+        employee_id = '$employee_id'
+        WHERE id_drop = '$id_drop'";
         
         error_log("Update drop query: $update_drop");
         
@@ -76,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Gagal update drops: " . mysqli_error($conn));
         }
 
-        // Update drop_items
-        $update_items = "UPDATE drop_items SET service_id = $service_id, brand = '$brand' WHERE drop_id = $id_drop";
+        // Update drop_items - TAMBAHKAN fixed_price
+        $update_items = "UPDATE drop_items SET service_id = $service_id, brand = '$brand', fixed_price = $fixed_price WHERE drop_id = $id_drop";
         if (!mysqli_query($conn, $update_items)) {
             throw new Exception("Gagal update drop_items: " . mysqli_error($conn));
         }
@@ -128,9 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log("Warning: Gagal update deadline - " . mysqli_error($conn));
         }
 
+        $delete_old_deadline = "DELETE FROM deadlines WHERE deadline_date < CURDATE()";
+        mysqli_query($conn, $delete_old_deadline);
+        
         mysqli_commit($conn);
         
-        header("Location: dashboard.php?success=1");
+        header("Location: timeline_pesanan.php?success=1");
         exit();
 
     } catch (Exception $e) {
@@ -138,11 +148,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Error: " . $e->getMessage());
         
         $error_message = urlencode($e->getMessage());
-        header("Location: dashboard.php?error=" . $error_message);
+        header("Location: timeline_pesanan.php?error=" . $error_message);
         exit();
     }
 } else {
-    header("Location: dashboard.php");
+    header("Location: timeline_pesanan.php");
     exit();
 }
 ?>
