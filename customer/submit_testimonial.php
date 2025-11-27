@@ -25,8 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("iis", $customerId, $rating, $testimonial);
 
     if ($stmt->execute()) {
-        // Redirect kembali ke dashboard
-        header("Location: dashboard.php?success=testimonial_submitted");
+        header("Location: dashboard.php?testimonial_success=1");
         exit;
     } else {
         echo "Gagal menyimpan testimoni: " . $conn->error;

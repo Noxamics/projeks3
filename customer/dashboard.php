@@ -15,6 +15,7 @@ $customerId = $userData['id'];
     <link rel="icon" type="image/png" href="../public/img/logo.png">
     <link rel="stylesheet" href="../css/cs_dashboard.css">
     <script src="../js/customer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -220,6 +221,21 @@ $customerId = $userData['id'];
         </div>
 
         <!-- <== Testimoni Page Customer ==> -->
+
+        <?php if (isset($_GET['testimonial_success'])): ?>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        title: "Terima Kasih!",
+                        text: "Telah menggunakan layanan kami dan mengirimkan testimoni 😊",
+                        icon: "success",
+                        confirmButtonColor: "#154283",
+                        confirmButtonText: "OK"
+                    });
+                });
+            </script>
+        <?php endif; ?>
+
 
         <div class="testimonial-section">
 
