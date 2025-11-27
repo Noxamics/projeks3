@@ -48,12 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         $mail->Username = 'noxamics@gmail.com'; // ganti
-        $mail->Password = 'vitnggtchvqizrsu';
+        $mail->Password = 'pkfmdmhjfuexfeio';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Penerima
-        $mail->setFrom('noxamics@gmail.com', 'SengkuClean Admin Login');
+        $mail->setFrom('email_pengirim@gmail.com', 'SengkuClean Admin Login');
         $mail->addAddress($email);
 
         // Konten
