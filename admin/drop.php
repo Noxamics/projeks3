@@ -10,9 +10,6 @@ include('../db.php'); // koneksi database
 
         <!-- TOP BAR -->
         <div class="top-bar">
-
-            <!-- KIRI: Tambah + Search -->
-            <!-- TOP BAR -->
             <div class="left-bar">
                 <button class="add-btn" id="openAddModal">Tambah Barang</button>
 
@@ -25,13 +22,10 @@ include('../db.php'); // koneksi database
                 </form>
             </div>
 
-            <!-- KANAN: Sorting + Hapus Terpilih -->
             <div class="right-tools">
-
                 <form method="GET" id="filterForm">
                     <select id="sort" name="sort" class="filter-select"
                         onchange="document.getElementById('filterForm').submit()">
-                        <!-- Placeholder -->
                         <option value="" disabled selected hidden>-- Pilih --</option>
                         <option value="nama_asc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_asc') ? 'selected' : '' ?>>Nama (A-Z)</option>
                         <option value="nama_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_desc') ? 'selected' : '' ?>>Nama (Z-A)</option>
@@ -40,20 +34,19 @@ include('../db.php'); // koneksi database
                     </select>
                 </form>
 
-
-                <button class="delete-btn" data-id="<?= $row['id_drop'] ?>" title="Hapus">
+                <button class="delete-btn" title="Hapus">
                     <img src="../a/svg/trash.svg" alt="Hapus" class="delete-icon">
                 </button>
             </div>
         </div>
 
         <!-- POPUP FORM TAMBAH BARANG -->
-        <div class="modal" id="addModal">
+        <div class="modal" id="addModal" style="display:none;">
             <div class="modal-content large">
-                <span class="close">&times;</span>
+                <span class="close" data-target="addModal">&times;</span>
                 <h2>Tambah Barang</h2>
 
-                <form method="POST" action="drop_add.php" class="grid-form">
+                <form method="POST" action="drop_add.php" class="grid-form" id="addForm">
                     <!-- Baris 1 -->
                     <div>
                         <label>Nama Pelanggan</label>
@@ -78,16 +71,16 @@ include('../db.php'); // koneksi database
                             $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
                             $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
                             $result = mysqli_query($conn, $query);
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
-                                echo "<option value='{$row['id_service']}'>{$displayName}</option>";
+                            while ($r = mysqli_fetch_assoc($result)) {
+                                $displayName = ucfirst($r['category']) . " - " . ucfirst($r['service_name']);
+                                echo "<option value='{$r['id_service']}'>{$displayName}</option>";
                             }
                             ?>
                         </select>
                     </div>
 
                     <div>
-                        <label>Harga</label>
+                        <label>Harga (min)</label>
                         <input type="text" id="price_display" name="price_display" style="background:#f9f9f9;">
                         <input type="hidden" name="price_min" id="price_min">
                         <input type="hidden" name="price_max" id="price_max">
@@ -106,8 +99,7 @@ include('../db.php'); // koneksi database
 
                     <div>
                         <label for="tanggal_selesai">Tanggal Estimasi Selesai</label>
-                        <input type="date" id="tanggal_selesai" name="tanggal_selesai" readonly
-                            style="background:#f9f9f9;">
+                        <input type="date" id="tanggal_selesai" name="tanggal_selesai" readonly style="background:#f9f9f9;">
                     </div>
 
                     <!-- Baris 5 -->
@@ -125,7 +117,7 @@ include('../db.php'); // koneksi database
                     </div>
                     <div>
                         <label>Status Pembayaran</label>
-                        <select name="payment_status">
+                        <select name="payment_status" id="payment_status">
                             <option value="Belum Lunas">Belum Lunas</option>
                             <option value="Lunas">Lunas</option>
                             <option value="Pending">Pending</option>
@@ -135,7 +127,7 @@ include('../db.php'); // koneksi database
                     <!-- Baris 6 -->
                     <div>
                         <label>Tanggal Pembayaran</label>
-                        <input type="date" name="payment_date">
+                        <input type="date" name="payment_date" id="payment_date" readonly style="background:#f9f9f9;">
                     </div>
 
                     <div>
@@ -155,28 +147,26 @@ include('../db.php'); // koneksi database
                         <input type="hidden" name="amount_paid" id="amount_paid">
                     </div>
 
-
                     <!-- Bagian Karyawan (Tambah Barang) -->
                     <div>
                         <label>Karyawan</label>
                         <?php
-                        // Ambil semua karyawan aktif
                         $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
                         $employeeCount = $activeEmployees->num_rows;
 
                         if ($employeeCount === 0) {
                             echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
                         } elseif ($employeeCount === 1) {
-                            // Jika hanya satu karyawan aktif, tampil otomatis (readonly)
                             $emp = $activeEmployees->fetch_assoc();
                             echo "
-            <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
-            <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
-        ";
+                                <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
+                                <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
+                            ";
                         } else {
-                            // Jika lebih dari satu, tampil dropdown
                             echo "<select name='employee_id' required>
-                <option value=''>-- Pilih Karyawan --</option>";
+                                <option value=''>-- Pilih Karyawan --</option>";
+                            // reset pointer
+                            $activeEmployees->data_seek(0);
                             while ($emp = $activeEmployees->fetch_assoc()) {
                                 echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
                             }
@@ -185,14 +175,17 @@ include('../db.php'); // koneksi database
                         ?>
                     </div>
 
-
+                    <!-- NOTE PELANGGAN (Tambah) -->
+                    <div class="full-width">
+                        <label>Catatan Pelanggan</label>
+                        <textarea name="note" rows="3" placeholder="Contoh: Jangan dicampur warna lain."
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+                    </div>
 
                     <div class="full-width" style="display: flex; gap: 10px; justify-content: center;">
                         <button type="submit" class="save-btn" id="saveOnlyBtn">Simpan</button>
                         <button type="button" class="print-btn" id="saveAndPrintBtn">Cetak Struk</button>
                     </div>
-
-
                 </form>
             </div>
         </div>
@@ -212,6 +205,7 @@ include('../db.php'); // koneksi database
                         <th>Proses</th>
                         <th>Pembayaran</th>
                         <th>Karyawan</th>
+                        <th>Catatan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -229,6 +223,7 @@ SELECT
     d.est_finish_date,
     d.status_id,
     d.employee_id,
+    d.note,
     c.name,
     c.phone,
     s.service_name,
@@ -271,7 +266,6 @@ WHERE
                             $sql .= " ORDER BY d.trans_date DESC";
                     }
 
-
                     $result = $conn->query($sql);
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr class='data-row'
@@ -286,7 +280,8 @@ WHERE
     data-payment_status='" . htmlspecialchars($row['pay_status'] ?? '', ENT_QUOTES) . "'
     data-payment_date='" . htmlspecialchars($row['payment_date'] ?? '', ENT_QUOTES) . "'
     data-payment_method='" . htmlspecialchars($row['payment_method'] ?? '', ENT_QUOTES) . "'
-    data-amount_paid='" . htmlspecialchars($row['amount_paid'] ?? '', ENT_QUOTES) . "'>";
+    data-amount_paid='" . htmlspecialchars($row['amount_paid'] ?? '', ENT_QUOTES) . "'
+    data-note=\"" . htmlspecialchars($row['note'] ?? '', ENT_QUOTES) . "\">";
 
                         echo "<td><input type='checkbox' class='row-checkbox' value='{$row['id_drop']}'></td>";
                         echo "<td>" . htmlspecialchars($row['order_code']) . "</td>";
@@ -309,6 +304,7 @@ WHERE
 
                         echo "<td>" . htmlspecialchars($row['pay_status'] ?? '-') . "</td>";
                         echo "<td>" . htmlspecialchars($row['employee_name'] ?? '-') . "</td>";
+                        echo "<td>" . (!empty($row['note']) ? htmlspecialchars($row['note']) : '-') . "</td>";
                         echo "</tr>";
                     }
 
@@ -319,7 +315,7 @@ WHERE
     </div>
 
     <!-- MODAL NOTIFIKASI BERHASIL -->
-    <div id="successModal" class="modal">
+    <div id="successModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <p id="successMessage" style="font-size: 16px; font-weight: 600; color: #004d9d;">Data berhasil disimpan
             </p>
@@ -327,7 +323,7 @@ WHERE
         </div>
     </div>
 
-    <div id="dropChoiceModal" class="modal">
+    <div id="dropChoiceModal" class="modal" style="display:none;">
         <div class="modal-content small">
             <h3>Drop Barang Baru / Pernah Drop Barang?</h3>
             <div class="modal-actions">
@@ -338,7 +334,7 @@ WHERE
     </div>
 
     <!-- Modal Cari Customer -->
-    <div id="searchCustomerModal" class="modal">
+    <div id="searchCustomerModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-search">&times;</span>
             <h2>Cari Data Customer</h2>
@@ -353,10 +349,10 @@ WHERE
         </div>
     </div>
 
-    <!-- POPUP FORM EDIT BARANG - Perbaikan -->
-    <div class="modal" id="editModal">
+    <!-- POPUP FORM EDIT BARANG -->
+    <div class="modal" id="editModal" style="display:none;">
         <div class="modal-content large">
-            <span class="close">&times;</span>
+            <span class="close" data-target="editModal">&times;</span>
             <h2>Edit Barang</h2>
 
             <form method="POST" action="drop_edit.php" class="grid-form" id="editForm">
@@ -386,26 +382,24 @@ WHERE
                         $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
                         $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
                         $result = mysqli_query($conn, $query);
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
-                            echo "<option value='{$row['id_service']}'>{$displayName}</option>";
+                        while ($r = mysqli_fetch_assoc($result)) {
+                            $displayName = ucfirst($r['category']) . " - " . ucfirst($r['service_name']);
+                            echo "<option value='{$r['id_service']}'>{$displayName}</option>";
                         }
                         ?>
                     </select>
                 </div>
 
                 <div>
-                    <label>Harga</label>
-                    <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;"
-                        readonly>
+                    <label>Harga (min)</label>
+                    <input type="text" id="edit_price_display" name="price_display" style="background:#f9f9f9;" readonly>
                     <input type="hidden" name="price_min" id="edit_price_min">
                     <input type="hidden" name="price_max" id="edit_price_max">
                 </div>
 
                 <div>
                     <label>Estimasi Selesai</label>
-                    <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari"
-                        readonly style="background:#f9f9f9;">
+                    <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari" readonly style="background:#f9f9f9;">
                 </div>
 
                 <!-- Baris 3 -->
@@ -436,13 +430,14 @@ WHERE
                     <select name="payment_status" id="edit_payment_status">
                         <option value="Belum Lunas">Belum Lunas</option>
                         <option value="Lunas">Lunas</option>
+                        <option value="Pending">Pending</option>
                     </select>
                 </div>
 
                 <!-- Baris 5 -->
                 <div>
                     <label>Tanggal Pembayaran</label>
-                    <input type="date" id="edit_payment_date" name="payment_date">
+                    <input type="date" id="edit_payment_date" name="payment_date" readonly style="background:#f9f9f9;">
                 </div>
 
                 <div>
@@ -450,6 +445,8 @@ WHERE
                     <select name="payment_method" id="edit_payment_method">
                         <option value="Tunai">Tunai</option>
                         <option value="Transfer">Transfer</option>
+                        <option value="QRIS">QRIS</option>
+                        <option value="Debit">Debit</option>
                     </select>
                 </div>
 
@@ -459,41 +456,39 @@ WHERE
                     <input type="hidden" name="amount_paid" id="edit_amount_paid">
                 </div>
 
-
                 <!-- Bagian Karyawan (Edit Barang) -->
                 <div>
                     <label>Karyawan</label>
                     <?php
-                    // Ambil semua karyawan aktif
                     $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
                     $employeeCount = $activeEmployees->num_rows;
-
-                    // Ambil ID karyawan yang sebelumnya menangani barang ini
-                    $selectedEmployeeId = isset($barang['employee_id']) ? $barang['employee_id'] : '';
+                    $selectedEmployeeId = ''; // will be set by JS when opening modal
 
                     if ($employeeCount === 0) {
                         echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
                     } elseif ($employeeCount === 1 && empty($selectedEmployeeId)) {
-                        // Hanya satu aktif, dan data lama kosong
                         $emp = $activeEmployees->fetch_assoc();
                         echo "
-            <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
-            <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
-        ";
+                            <input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
+                            <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>
+                        ";
                     } else {
-                        // Tampilkan dropdown (agar bisa ganti karyawan)
                         echo "<select name='employee_id' id='edit_employee_id' required>";
                         echo "<option value=''>-- Pilih Karyawan --</option>";
+                        $activeEmployees->data_seek(0);
                         while ($emp = $activeEmployees->fetch_assoc()) {
-                            $selected = ($emp['id_employee'] == $selectedEmployeeId) ? "selected" : "";
-                            echo "<option value='{$emp['id_employee']}' $selected>{$emp['name']}</option>";
+                            echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
                         }
                         echo "</select>";
                     }
                     ?>
                 </div>
 
-
+                <!-- NOTE PELANGGAN (Edit) -->
+                <div class="full-width">
+                    <label>Catatan Pelanggan</label>
+                    <textarea name="note" id="edit_note" rows="3" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+                </div>
 
                 <div class="full-width">
                     <button type="submit" class="save-btn">Simpan Perubahan</button>
@@ -502,8 +497,9 @@ WHERE
         </div>
     </div>
 </main>
+
 <!-- Modal Konfirmasi Hapus -->
-<div id="confirmDeleteModal" class="confirm-modal">
+<div id="confirmDeleteModal" class="confirm-modal" style="display:none;">
     <div class="confirm-content">
         <h3>Yakin ingin menghapus data ini?</h3>
         <p class="warning-text">Data yang dihapus tidak dapat dikembalikan!</p>
@@ -514,6 +510,96 @@ WHERE
     </div>
 </div>
 
-
 <?php include_once "../partials/footer.php"; ?>
-<script src="../js/drop.js"></script>
+
+<!-- SCRIPT: buka/tutup modal, isi edit form, auto tanggal berdasarkan status -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // helper show/hide modal
+    function showModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'block';
+    }
+    function hideModal(id) {
+        const m = document.getElementById(id);
+        if (m) m.style.display = 'none';
+    }
+
+    // open add modal
+    document.getElementById('openAddModal').addEventListener('click', function() {
+        showModal('addModal');
+    });
+
+    // close buttons (both modals)
+    document.querySelectorAll('.close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const target = btn.getAttribute('data-target');
+            if (target) hideModal(target);
+        });
+    });
+    document.querySelectorAll('.close-search').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            hideModal('searchCustomerModal');
+        });
+    });
+
+    // double click row to edit (fills edit modal)
+    document.querySelectorAll('.data-row').forEach(function(row) {
+        row.addEventListener('dblclick', function() {
+            const id = row.dataset.id_drop || '';
+            if (!id) return;
+
+            document.getElementById('edit_id_drop').value = id;
+            document.getElementById('edit_customer_name').value = row.dataset.customer_name || '';
+            document.getElementById('edit_customer_phone').value = row.dataset.phone_number || '';
+            document.getElementById('edit_brand').value = row.dataset.brand || '';
+            document.getElementById('edit_service_id').value = row.dataset.service_id || '';
+            document.getElementById('edit_tanggal_masuk').value = row.dataset.tanggal_masuk || '';
+            document.getElementById('edit_tanggal_selesai').value = row.dataset.tanggal_selesai || '';
+            document.getElementById('edit_statusSelect').value = row.dataset.status_id || '';
+            document.getElementById('edit_payment_status').value = row.dataset.payment_status || '';
+            document.getElementById('edit_payment_date').value = row.dataset.payment_date || '';
+            document.getElementById('edit_payment_method').value = row.dataset.payment_method || '';
+            document.getElementById('edit_amount_paid').value = row.dataset.amount_paid || '';
+            // NOTE
+            document.getElementById('edit_note').value = row.dataset.note || '';
+
+            // set selected employee (if dropdown exists)
+            const empEl = document.getElementById('edit_employee_id');
+            if (empEl && row.dataset.employee_id) {
+                empEl.value = row.dataset.employee_id;
+            }
+
+            showModal('editModal');
+        });
+    });
+
+    // AUTO: jika status pembayaran = Lunas -> set tanggal hari ini, else kosong (ADD)
+    const payStatus = document.getElementById("payment_status");
+    const payDate = document.getElementById("payment_date");
+    if (payStatus && payDate) {
+        payStatus.addEventListener("change", function () {
+            if (this.value === "Lunas") {
+                payDate.value = new Date().toISOString().split("T")[0];
+            } else {
+                payDate.value = "";
+            }
+        });
+    }
+
+    // AUTO: (EDIT)
+    const editPayStatus = document.getElementById("edit_payment_status");
+    const editPayDate = document.getElementById("edit_payment_date");
+    if (editPayStatus && editPayDate) {
+        editPayStatus.addEventListener("change", function () {
+            if (this.value === "Lunas") {
+                editPayDate.value = new Date().toISOString().split("T")[0];
+            } else {
+                editPayDate.value = "";
+            }
+        });
+    }
+
+});
+</script>

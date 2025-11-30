@@ -189,18 +189,34 @@ function generateDeadlineList() {
 
   deadlineList.innerHTML = "";
 
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
   const upcomingDeadlines = deadlinesData
-    .map((deadline) => ({
-      ...deadline,
-      daysUntil: getDaysUntilDeadline(deadline.deadline_date),
-    }))
-    .filter((deadline) => deadline.daysUntil >= 0)
+    .map((deadline) => {
+      const deadlineDate = new Date(deadline.deadline_date);
+      return {
+        ...deadline,
+        daysUntil: getDaysUntilDeadline(deadline.deadline_date),
+        deadlineMonth: deadlineDate.getMonth(),
+        deadlineYear: deadlineDate.getFullYear(),
+      };
+    })
+    .filter((deadline) => {
+      // Filter: deadline harus >= 0 hari DAN harus di bulan sekarang
+      return (
+        deadline.daysUntil >= 0 &&
+        deadline.deadlineMonth === currentMonth &&
+        deadline.deadlineYear === currentYear
+      );
+    })
     .sort((a, b) => a.daysUntil - b.daysUntil)
     .slice(0, 10);
 
   if (upcomingDeadlines.length === 0) {
     deadlineList.innerHTML =
-      '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang</p>';
+      '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang di bulan ini</p>';
     return;
   }
 

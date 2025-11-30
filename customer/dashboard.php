@@ -14,6 +14,7 @@ $customerId = $userData['id'];
     <title>Dashboard Customer | SengkuClean</title>
     <link rel="icon" type="image/png" href="../public/img/logo.png">
     <link rel="stylesheet" href="../css/cs_dashboard.css">
+    <script src="../js/customer.js"></script>
 </head>
 
 <body>
@@ -123,7 +124,7 @@ $customerId = $userData['id'];
             </div>
         </div>
 
-        <!-- PROGRES PENGERJAAN SEPATU — WARNA HIJAU #45a049 -->
+        <!-- PROGRES PENGERJAAN SEPATU — VERSI BERSIH (TANPA DESCRIPTION) -->
         <div class="progress-section">
             <h2>Progres Pengerjaan Sepatu Anda</h2>
 
@@ -135,7 +136,6 @@ $customerId = $userData['id'];
                     di.brand,
                     di.quantity,
                     st.status_name,
-                    st.description AS status_description,
                     st.status_order,
                     DATE(d.trans_date) AS tanggal_masuk,
                     dd.deadline_date
@@ -168,34 +168,30 @@ $customerId = $userData['id'];
                                 <div class="order-code">#<?php echo htmlspecialchars($shoe['order_code']); ?></div>
                             </div>
 
-                            <!-- KOTAK DESKRIPSI STATUS — WARNA HIJAU #45a049 -->
+                            <!-- STATUS SAAT INI — HANYA NAMA STATUS, LEBIH BERSIH -->
                             <div style="
-                                margin: 16px 0; 
-                                padding: 16px; 
-                                background: #f0f0f0; 
-                                border-left: 5px solid #45a049; 
-                                border-radius: 10px; 
-                                font-size: 15px; 
-                                line-height: 1.6;
+                                margin: 18px 0 10px;
+                                padding: 12px 16px;
+                                background: #e8f5e8;
+                                border-left: 5px solid #45a049;
+                                border-radius: 10px;
+                                font-weight: 600;
+                                color: #45a049;
+                                font-size: 16px;
                             ">
-                                <strong style="color: #1a438a; font-size: 16px;">
-                                    <?php echo htmlspecialchars($shoe['status_name']); ?>
-                                </strong><br>
-                                <span style="color: #333;">
-                                    <?php echo nl2br(htmlspecialchars($shoe['status_description'] ?: 'Status sedang diperbarui...')); ?>
-                                </span>
+                                <?php echo htmlspecialchars($shoe['status_name']); ?>
                             </div>
 
-                            <!-- PROGRESS BAR — WARNA HIJAU -->
+                            <!-- PROGRESS BAR -->
                             <div class="progress-bar-container">
                                 <div class="progress-bar-fill" style="width: <?php echo $progressPercent; ?>%; background: #45a049;"></div>
                             </div>
 
-                            <div class="progress-percentage" style="color: #1a438a;">
+                            <div class="progress-percentage" style="color: #1a438a; font-weight: 700;">
                                 <?php echo $progressPercent; ?>% Selesai
                             </div>
 
-                            <!-- LANGKAH BULAT — WARNA HIJAU UNTUK YANG AKTIF -->
+                            <!-- LANGKAH BULAT -->
                             <div class="progress-steps">
                                 <?php for ($i = 1; $i <= 6; $i++): ?>
                                     <div class="step <?php echo $shoe['status_order'] >= $i ? 'active' : ''; ?>"
@@ -206,7 +202,7 @@ $customerId = $userData['id'];
                             </div>
 
                             <div class="progress-status">
-                                <small style="color:#666; font-size:13px;">
+                                <small style="color:#666; font-size:13px; display:block; margin-top:10px;">
                                     Masuk: <?php echo date('d/m/Y', strtotime($shoe['tanggal_masuk'])); ?>
                                     <?php if ($shoe['deadline_date']): ?>
                                         • Estimasi selesai: <?php echo date('d/m/Y', strtotime($shoe['deadline_date'])); ?>
@@ -222,6 +218,35 @@ $customerId = $userData['id'];
                 </div>
             <?php endif; ?>
         </div>
+
+        <!-- <== Testimoni Page Customer ==> -->
+
+        <div class="testimonial-section">
+
+            <h2 class="testimonial-title">Berikan Testimoni Anda</h2>
+
+            <form action="submit_testimonial.php" method="POST" class="testimonial-form">
+                <input type="hidden" name="customer_id" value="<?= $customerId ?>">
+
+                <label>Rating:</label>
+
+                <div class="star-rating">
+                    <input type="hidden" name="rating" id="rating-value" required>
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+
+                <label for="testimonial">Testimoni:</label>
+                <textarea name="testimonial" id="testimonial" rows="4" placeholder="Write Your Experience..." required></textarea>
+
+                <button type="submit" class="testi-btn">Kirim Testimoni</button>
+            </form>
+
+        </div>
+
 
         <div class="contact-form">
             <h3>Send Your Message</h3>
