@@ -1,0 +1,187 @@
+/* =============================
+   ABOUT SECTION
+============================= */
+.about-section {
+  padding: 0px 80px;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.about-section h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #1d56a7;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =============================
+   KARYAWAN SECTION
+============================= */
+
+.karyawan-section {
+  padding: 0px 20px;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  justify-content: center;
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.karyawan-section h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #1d56a7;
+  font-weight: 700;
+  text-align: center;
+}
+
+.divider-emp {
+  width: 60px;
+  height: 4px;
+  background-color: #1d56a7;
+  margin: 10px auto 20px;
+  margin-bottom: 80px;
+}
+
+.kotak-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.kotak {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  width: 200px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.kotak:hover {
+  transform: translateY(-5px);
+}
+
+.kotak img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.kotak h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+  color: #1d56a7;
+}
+
+.kotak .role {
+  font-size: 14px;
+  color: #1d57a7d6;
+  margin-bottom: 15px;
+}
+
+.social-icons-emp {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.icon-emp {
+  width: 50px;
+  height: 50px;
+  transition: transform 0.3s ease;
+}
+
+.icon-emp:hover {
+  width: 25px;
+  height: 25px;
+  transform: scale(1.3);
+}
+
+.social-icons-emp img {
+  width: 25px;
+  height: 25px;
+  transition: all 0.3s ease;
+}
+
+/* =============================
+   JOURNEY SECTION
+============================= */
+
+.journey-section {
+  background: url("../../a/img/foto2.png") center center / cover no-repeat;
+  background-attachment: fixed;
+  position: relative;
+  padding: 80px 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.journey-section h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+}
+
+.journey-section .divider {
+  width: 60px;
+  height: 4px;
+  background-color: #fff;
+  margin: 10px auto 20px;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  margin-top: 20px;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.icon:hover {
+  transform: scale(1.5);
+}
+
+.social-icons img {
+  width: 25px;
+  height: 25px;
+  transition: all 0.3s ease;
+}
+
+/* =============================
+   MEMBER SECTION
+============================= */
+.member-section {
+  padding: 0px 80px;
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.member-section h2 {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #1d56a7;
+  font-weight: 700;
+  text-align: center;
+}

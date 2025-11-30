@@ -1,0 +1,431 @@
+/* ================================================
+   CARD & TABLE INTERACTIONS CSS
+   File: css/karyawan/card-interactions.css
+   ================================================ */
+
+/* ========================================
+   CARD ACTION BUTTONS
+   ======================================== */
+
+.card-action-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.employee-card:hover .card-action-buttons {
+  opacity: 1;
+}
+
+.btn-card-mini {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-card-mini:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-card-mini.btn-edit:hover {
+  background: #3498db;
+  color: white;
+}
+
+.btn-card-mini.btn-delete:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-card-mini:active {
+  transform: scale(1.05);
+}
+
+/* ========================================
+   CARD HOVER & INTERACTION
+   ======================================== */
+
+.employee-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.employee-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.2);
+}
+
+.employee-card:active {
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   CARD HINT (DOUBLE-CLICK MESSAGE)
+   ======================================== */
+
+.card-hint {
+  padding: 8px;
+  text-align: center;
+  background: rgba(0, 102, 204, 0.05);
+  border-top: 1px solid rgba(0, 102, 204, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.employee-card:hover .card-hint {
+  opacity: 1;
+}
+
+.card-hint small {
+  color: #0066cc;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ========================================
+   CARD IMAGE WRAPPER
+   ======================================== */
+
+.card-image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ========================================
+   RIPPLE EFFECT ANIMATION
+   ======================================== */
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   TABLE ROW INTERACTIONS
+   ======================================== */
+
+.table-row-interactive {
+  transition: all 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: pointer;
+}
+
+.table-row-interactive:hover {
+  background: rgba(0, 102, 204, 0.05);
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+}
+
+.table-row-interactive:active {
+  transform: scale(0.99);
+}
+
+/* ========================================
+   TABLE PHOTO
+   ======================================== */
+
+.table-photo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e3f2fd;
+  transition: all 0.3s ease;
+}
+
+.table-row-interactive:hover .table-photo {
+  transform: scale(1.1);
+  border-color: #0066cc;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+}
+
+/* ========================================
+   TABLE ACTION BUTTONS
+   ======================================== */
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-table {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #f8f9fa;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+}
+
+.btn-table:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-table:active {
+  transform: translateY(0);
+}
+
+.btn-table.btn-edit:hover {
+  background: #3498db;
+  color: white;
+}
+
+.btn-table.btn-delete:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+/* ========================================
+   TABLE HINT (DOUBLE-CLICK MESSAGE)
+   ======================================== */
+
+.table-hint {
+  padding: 12px;
+  text-align: center;
+  background: rgba(0, 102, 204, 0.05);
+  border-radius: 8px;
+  margin-top: 12px;
+  animation: fadeIn 0.5s ease;
+}
+
+.table-hint small {
+  color: #0066cc;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   ROLE BADGES IN TABLE
+   ======================================== */
+
+.role-badges-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+/* ========================================
+   IMPROVED TABLE STYLES
+   ======================================== */
+
+.employee-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.employee-table thead {
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  color: white;
+}
+
+.employee-table thead th {
+  padding: 16px;
+  font-weight: 600;
+  text-align: left;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.employee-table tbody td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.employee-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ========================================
+   STATUS BADGE
+   ======================================== */
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.status-aktif {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-cuti {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-non-aktif {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ========================================
+   ROLE BADGE
+   ======================================== */
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.role-cleaning {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-reglue {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.role-repaint {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.role-kasir {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .card-action-buttons {
+    opacity: 1; /* Always visible on mobile */
+    top: 5px;
+    right: 5px;
+  }
+
+  .btn-card-mini {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .card-hint {
+    opacity: 1; /* Always visible on mobile */
+  }
+
+  .table-hint {
+    display: none; /* Hide on mobile */
+  }
+
+  .btn-table {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.btn-card-mini:focus,
+.btn-table:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+.employee-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+.table-row-interactive:focus-within {
+  background: rgba(0, 102, 204, 0.08);
+  outline: 2px solid #0066cc;
+  outline-offset: -2px;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.btn-card-mini:disabled,
+.btn-table:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .card-action-buttons,
+  .table-actions,
+  .card-hint,
+  .table-hint {
+    display: none !important;
+  }
+
+  .employee-card,
+  .table-row-interactive {
+    page-break-inside: avoid;
+  }
+}

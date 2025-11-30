@@ -1,0 +1,133 @@
+/* =============================
+   HEADER & NAVIGATION
+============================= */
+header {
+  height: 80px;
+  position: fixed;
+  width: 100%;
+  background: transparent;
+  display: flex;
+  transition: all 0.6s ease;
+  z-index: 1000;
+}
+
+header.scrolled {
+  height: 55px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* =============================
+   LOGO
+============================= */
+.logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-right: 25px;
+}
+
+.logo img {
+  height: 80px;
+  transition: all 0.6s ease, opacity 0.6s ease;
+}
+
+/* Mengecil saat scroll */
+header.scrolled .logo img {
+  height: 40px;
+}
+
+/* Efek fade agar pergantian logo halus */
+.logo img.fade-out {
+  opacity: 0;
+}
+
+/* =============================
+   NAVIGATION LINKS
+============================= */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-left: auto;
+}
+
+.nav-right a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 4px;
+  transition: color 0.4s ease;
+}
+
+/* Warna saat di-scroll */
+header.scrolled .nav-right a {
+  color: #1d56a7;
+}
+
+/* Underline efek */
+.nav-right a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #fff;
+  transition: width 0.6s ease, background-color 0.6s ease;
+}
+
+.nav-right a:hover::after {
+  width: 100%;
+}
+
+/* Saat header di-scroll, garis berubah warna */
+header.scrolled .nav-right a::after {
+  background-color: #1d56a7;
+}
+
+/* Aktif link */
+.nav-right a.active {
+  font-weight: bold;
+}
+
+.nav-right a.active::after {
+  width: 100%;
+}
+
+/* =============================
+   LOGIN BUTTON
+============================= */
+.login-btn {
+  margin-left: 20px;
+  margin-bottom: 5px;
+}
+
+.login-btn a {
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.login-btn a:hover {
+  background-color: #16457f;
+}
+
+/* Jika header di-scroll */
+header.scrolled .login-btn a {
+  color: #1d56a7;
+}
+
+header.scrolled .login-btn a:hover {
+  background-color: #e7e7e7;
+}
