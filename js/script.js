@@ -49,19 +49,69 @@ document.addEventListener("DOMContentLoaded", () => {
   sections.forEach((section) => observer.observe(section));
 
   // ============================
-  // HERO SLIDESHOW
+  // HERO SLIDESHOW - SIMPLE VERSION
   // ============================
-  const bgImages = ["../a/img/BG1.jpg", "../a/img/BG2.jpg", "../a/img/BG3.jpg"];
-  let current = 0;
 
-  function changeBackground() {
-    if (!hero) return;
-    hero.style.backgroundImage = `url('${bgImages[current]}')`;
-    dots.forEach((dot) => dot.classList.remove("active"));
-    if (dots[current]) dots[current].classList.add("active");
-    current = (current + 1) % bgImages.length;
-  }
+  // Pastikan script ini berjalan setelah DOM ready
+  window.addEventListener("load", function () {
+    const hero = document.getElementById("heroSection");
+    const dots = document.querySelectorAll(".slideshow-dots .dot");
 
-  setInterval(changeBackground, 3000);
-  
+    // Cek apakah element ditemukan
+    if (!hero) {
+      console.error('❌ Element dengan ID "heroSection" tidak ditemukan!');
+      return;
+    }
+
+    if (dots.length === 0) {
+      console.error("❌ Dots tidak ditemukan!");
+      return;
+    }
+
+    console.log("✅ Hero found:", hero);
+    console.log("✅ Dots found:", dots.length);
+
+    // Array gambar background
+    const images = ["../a/img/BG1.jpg", "../a/img/BG2.jpg", "../a/img/BG3.jpg"];
+
+    let currentIndex = 0;
+
+    // Fungsi untuk mengganti background
+    function changeBackground(index) {
+      console.log("🔄 Changing to image index:", index);
+
+      // Set background image
+      hero.style.backgroundImage = "url(" + images[index] + ")";
+
+      // Update active dot
+      dots.forEach(function (dot, i) {
+        if (i === index) {
+          dot.classList.add("active");
+        } else {
+          dot.classList.remove("active");
+        }
+      });
+
+      console.log("✅ Background changed to:", images[index]);
+    }
+
+    // Set background awal
+    changeBackground(0);
+
+    // Auto slide setiap 3 detik
+    setInterval(function () {
+      currentIndex = (currentIndex + 1) % images.length;
+      changeBackground(currentIndex);
+    }, 3000);
+
+    // Click pada dots
+    dots.forEach(function (dot, index) {
+      dot.addEventListener("click", function () {
+        currentIndex = index;
+        changeBackground(currentIndex);
+      });
+    });
+
+    console.log("🎬 Slideshow started! Will change every 3 seconds");
+  });
 });
