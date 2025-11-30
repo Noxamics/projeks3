@@ -51,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Input mentah dari form
     $input_trans_date = $_POST['tanggal_masuk'] ?? '';
     $input_est_finish_date = $_POST['tanggal_selesai'] ?? '';
-    // ✅ INPUT PAYMENT_DATE DIABAIKAN - Logika sepenuhnya di backend
 
     try {
         // ===========================================
@@ -72,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($est_finish_date === false) {
              throw new Exception("Format tanggal selesai ('Tanggal Selesai') tidak valid. Harap gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
         }
-        // ✅ PERBAIKAN UTAMA: Jika input kosong (NULL), default ke 3 hari dari tanggal masuk
+        // Jika input kosong (NULL), default ke 3 hari dari tanggal masuk
         if ($est_finish_date === null) {
             $est_finish_date = date('Y-m-d', strtotime($trans_date . ' +3 days'));
         }

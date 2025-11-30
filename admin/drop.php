@@ -42,7 +42,6 @@ include('../db.php'); // koneksi database
                 </button>
             </div>
         </div>
-
         <div class="modal" id="addModal" style="display:none;">
             <div class="modal-content large">
                 <span class="close" data-target="addModal">&times;</span>
@@ -125,7 +124,7 @@ include('../db.php'); // koneksi database
 
                     <div>
                         <label>Tanggal Pembayaran</label>
-                        <input type="date" name="payment_date" id="payment_date" readonly style="background:#f9f9f9; pointer-events: none;" disabled>
+                        <input type="date" name="payment_date" id="payment_date" style="background:#f9f9f9;">
                     </div>
 
                     <div>
@@ -184,7 +183,6 @@ include('../db.php'); // koneksi database
                 </form>
             </div>
         </div>
-
         <div class="table-container">
             <table id="dropTable">
                 <thead>
@@ -316,7 +314,6 @@ WHERE
             </table>
         </div>
     </div>
-
     <div id="successModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <p id="successMessage" style="font-size: 16px; font-weight: 600; color: #004d9d;">Data berhasil disimpan
@@ -408,7 +405,7 @@ WHERE
 
                 <div>
                     <label>Tanggal Pembayaran</label>
-                    <input type="date" id="edit_payment_date" name="payment_date" readonly style="background:#f9f9f9;">
+                    <input type="date" id="edit_payment_date" name="payment_date" style="background:#f9f9f9;">
                 </div>
 
                 <div>
@@ -479,11 +476,13 @@ WHERE
 </div>
 
 <?php include_once "../partials/footer.php"; ?>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Helper functions (Rupiah formatting)
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
     const formatRupiah = (angka) => {
         if (typeof angka !== 'number') return 'Rp 0';
         return 'Rp ' + angka.toLocaleString('id-ID');
@@ -493,35 +492,123 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseInt(rupiah.replace(/[^0-9]/g, '') || 0);
     };
 
-    // Helper show/hide modal
     function showModal(id) {
         const m = document.getElementById(id);
         if (m) m.style.display = 'block';
     }
+    
     function hideModal(id) {
         const m = document.getElementById(id);
         if (m) m.style.display = 'none';
     }
     
-    // open add modal
+    // ============================================
+    // PAYMENT DATE LOCK LOGIC - ADD MODAL
+    // ============================================
+    
+    const managePaymentDate = (isLunas) => {
+        const paymentDateInput = document.getElementById('payment_date');
+        
+        if (!paymentDateInput) return;
+
+        if (isLunas) {
+            // Jika Lunas, UNLOCK field
+            paymentDateInput.disabled = false;
+            paymentDateInput.style.pointerEvents = 'auto';
+            paymentDateInput.style.background = '#fff';
+            paymentDateInput.style.color = '#000';
+            paymentDateInput.style.cursor = 'pointer';
+            
+            // Auto-set dengan hari ini jika kosong
+            if (!paymentDateInput.value) {
+                paymentDateInput.value = new Date().toISOString().split('T')[0];
+            }
+        } else {
+            // Jika bukan Lunas, LOCK field
+            paymentDateInput.disabled = true;
+            paymentDateInput.value = '';
+            paymentDateInput.style.pointerEvents = 'none';
+            paymentDateInput.style.background = '#f9f9f9';
+            paymentDateInput.style.color = '#888';
+            paymentDateInput.style.cursor = 'not-allowed';
+        }
+    };
+    
+    const paymentStatusSelect = document.getElementById('payment_status');
+    if (paymentStatusSelect) {
+        // Set initial state saat form dibuka
+        managePaymentDate(paymentStatusSelect.value === 'Lunas');
+        
+        // Listen perubahan status pembayaran
+        paymentStatusSelect.addEventListener('change', function() {
+            managePaymentDate(this.value === 'Lunas');
+        });
+    }
+
+    // ============================================
+    // PAYMENT DATE LOCK LOGIC - EDIT MODAL
+    // ============================================
+
+    const managePaymentDateEdit = (isLunas) => {
+        const editPaymentDateInput = document.getElementById('edit_payment_date');
+        
+        if (!editPaymentDateInput) return;
+
+        if (isLunas) {
+            // Jika Lunas, UNLOCK field
+            editPaymentDateInput.disabled = false;
+            editPaymentDateInput.style.pointerEvents = 'auto';
+            editPaymentDateInput.style.background = '#fff';
+            editPaymentDateInput.style.color = '#000';
+            editPaymentDateInput.style.cursor = 'pointer';
+            
+            // Auto-set dengan hari ini jika kosong
+            if (!editPaymentDateInput.value) {
+                editPaymentDateInput.value = new Date().toISOString().split('T')[0];
+            }
+        } else {
+            // Jika bukan Lunas, LOCK field
+            editPaymentDateInput.disabled = true;
+            editPaymentDateInput.value = '';
+            editPaymentDateInput.style.pointerEvents = 'none';
+            editPaymentDateInput.style.background = '#f9f9f9';
+            editPaymentDateInput.style.color = '#888';
+            editPaymentDateInput.style.cursor = 'not-allowed';
+        }
+    };
+
+    const editPaymentStatusSelect = document.getElementById('edit_payment_status');
+    if (editPaymentStatusSelect) {
+        // Set initial state
+        managePaymentDateEdit(editPaymentStatusSelect.value === 'Lunas');
+        
+        // Listen perubahan
+        editPaymentStatusSelect.addEventListener('change', function() {
+            managePaymentDateEdit(this.value === 'Lunas');
+        });
+    }
+
+    // ============================================
+    // OPEN ADD MODAL
+    // ============================================
+    
     document.getElementById('openAddModal').addEventListener('click', function() {
         document.getElementById('addForm').reset();
         document.getElementById('tanggal_masuk').value = new Date().toISOString().split('T')[0];
-        
-        document.getElementById('price_display').value = 'Rp 0';
-        document.getElementById('price_min').value = '0';
-        document.getElementById('price_max').value = '0';
-        document.getElementById('estimate_desc').value = '-';
-        document.getElementById('duration').value = '0';
-        document.getElementById('tanggal_selesai').value = '';
         document.getElementById('payment_date').value = '';
-        document.getElementById('amount_paid_display').value = ''; 
-
+        document.getElementById('amount_paid_display').value = '';
+        
+        // Reset payment date lock
+        managePaymentDate(document.getElementById('payment_status').value === 'Lunas');
+        
         showModal('addModal');
         runUpdateAdd(); 
     });
 
-    // close buttons (both modals)
+    // ============================================
+    // CLOSE MODAL BUTTONS
+    // ============================================
+    
     document.querySelectorAll('.close').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const target = btn.getAttribute('data-target');
@@ -529,9 +616,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // =========================================================================================
-    // LOGIKA HARGA & ESTIMASI SELESAI OTOMATIS (ADD & EDIT MODAL)
-    // =========================================================================================
+    // ============================================
+    // HARGA & ESTIMASI SELESAI (ADD MODAL)
+    // ============================================
 
     const serviceSelectAdd = document.getElementById('service_id');
     const priceDisplayAdd = document.getElementById('price_display');
@@ -590,9 +677,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tanggalMasukAdd.addEventListener('change', runUpdateAdd);
     }
     
-    // =========================================================================================
-    // LOGIKA NOMINAL PEMBAYARAN (RUPIAH FORMATTING)
-    // =========================================================================================
+    // ============================================
+    // NOMINAL PEMBAYARAN (RUPIAH FORMATTING)
+    // ============================================
 
     const setupRupiahInput = (displayInputId, hiddenInputId) => {
         const displayInput = document.getElementById(displayInputId);
@@ -620,11 +707,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     setupRupiahInput('amount_paid_display', 'amount_paid');
-    
-    
-    // =========================================================================================
-    // LOGIKA EDIT MODAL
-    // =========================================================================================
+    // ============================================
+    // EDIT MODAL LOGIC
+    // ============================================
 
     document.querySelectorAll('.data-row').forEach(function(row) {
         row.addEventListener('dblclick', function() {
@@ -694,61 +779,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // =========================================================================================
-    // LOGIKA STATUS PEMBAYARAN & TANGGAL
-    // =========================================================================================
-
-    const managePaymentDateAdd = (isLunas) => {
-        if (isLunas) {
-            if (!payDate.value) {
-                payDate.value = new Date().toISOString().split("T")[0];
-            }
-            payDate.readOnly = true;
-            payDate.style.background = "#f9f9f9";
-        } else {
-            payDate.readOnly = false;
-            payDate.style.background = "#fff";
-        }
-    };
-    
-    const payStatus = document.getElementById("payment_status");
-    const payDate = document.getElementById("payment_date");
-
-    if (payStatus && payDate) {
-        managePaymentDateAdd(payStatus.value === "Lunas");
-        
-        payStatus.addEventListener("change", function () {
-            managePaymentDateAdd(this.value === "Lunas");
-        });
-    }
-
-    const managePaymentDateEdit = (isLunas) => {
-        const editPayDate = document.getElementById("edit_payment_date");
-        if (!editPayDate) return;
-
-        if (isLunas) {
-            if (!editPayDate.value) {
-                 editPayDate.value = new Date().toISOString().split("T")[0];
-            }
-            editPayDate.readOnly = true;
-            editPayDate.style.background = "#f9f9f9";
-        } else {
-            editPayDate.readOnly = false;
-            editPayDate.style.background = "#fff";
-        }
-    }
-    
-    const editPayStatus = document.getElementById("edit_payment_status");
-    const editPayDate = document.getElementById("edit_payment_date");
-    if (editPayStatus && editPayDate) {
-        editPayStatus.addEventListener("change", function () {
-            managePaymentDateEdit(this.value === "Lunas");
-        });
-    }
-    
-    // =========================================================================================
-    // LOGIKA CETAK STRUK
-    // =========================================================================================
+    // ============================================
+    // CETAK STRUK
+    // ============================================
 
     document.getElementById('saveAndPrintBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -778,9 +811,9 @@ document.addEventListener('DOMContentLoaded', function() {
         window.open(printUrl, '_blank');
     });
 
-    // =========================================================================================
-    // LOGIKA PEMBERITAHUAN
-    // =========================================================================================
+    // ============================================
+    // SUCCESS NOTIFICATION
+    // ============================================
 
     if (sessionStorage.getItem('showSuccess') === 'true') {
         document.getElementById('successMessage').textContent = sessionStorage.getItem('successMessage');
@@ -792,9 +825,9 @@ document.addEventListener('DOMContentLoaded', function() {
         hideModal('successModal');
     });
 
-    // =========================================================================================
-    // LOGIKA HAPUS DATA (DIPERBAIKI)
-    // =========================================================================================
+    // ============================================
+    // DELETE DATA
+    // ============================================
 
     document.querySelector('.delete-btn').addEventListener('click', function() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
@@ -843,9 +876,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // =========================================================================================
-    // LOGIKA SELECT ALL CHECKBOX
-    // =========================================================================================
+    // ============================================
+    // SELECT ALL CHECKBOX
+    // ============================================
     
     document.getElementById('selectAll').addEventListener('change', function() {
         document.querySelectorAll('.row-checkbox').forEach(cb => {
@@ -861,9 +894,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // =========================================================================================
-    // LOGIKA UPDATE STATUS (DIPERBAIKI)
-    // =========================================================================================
+    // ============================================
+    // UPDATE STATUS
+    // ============================================
     
     document.querySelectorAll('.status-dropdown').forEach(select => {
         select.addEventListener('change', function() {

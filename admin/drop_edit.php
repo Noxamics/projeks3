@@ -48,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $input_trans_date = $_POST['tanggal_masuk'] ?? '';
     $input_est_finish_date = $_POST['tanggal_selesai'] ?? '';
-    // ✅ PENTING: Input payment_date dari form DIABAIKAN, logika sepenuhnya di backend
 
     try {
         // ===========================================
