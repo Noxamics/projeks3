@@ -247,7 +247,7 @@ include_once "../partials/header-lp.php";
   <h2>Services</h2>
   <div class="divider"></div>
   <p class="desc">
-    Tidak hanya sepatu saja, Kami juga melanyani pencucian untuk <strong>Tas</strong> dan juga
+    Tidak hanya sepatu, Kami juga melanyani pencucian untuk <strong>Tas</strong> dan juga
     <strong>Topi</strong>. <br />Berikut jasa yang kami tawarkan:
   </p>
 
