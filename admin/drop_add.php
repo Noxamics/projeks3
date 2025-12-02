@@ -1,54 +1,58 @@
 <?php
+// ==========================================
+// FILE: drop_add.php
+// ==========================================
+
 include('../db.php');
 session_start();
 
-// Tambahkan error reporting untuk debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+error_log("===========================================");
+error_log("DROP ADD - POST DATA RECEIVED:");
+error_log(print_r($_POST, true));
+error_log("===========================================");
+
+if (isset($_POST['payment_date'])) {
+    error_log("✅ payment_date EXISTS in POST: '" . $_POST['payment_date'] . "'");
+} else {
+    error_log("❌ payment_date NOT FOUND in POST!");
+}
+
 /**
- * FUNGSI PERBAIKAN: Mengonversi dan memvalidasi tanggal dari format DD-MM-YYYY atau YYYY-MM-DD ke YYYY-MM-DD (format DB).
- * @param string $input_date Tanggal.
- * @return string|null|false Format YYYY-MM-DD, NULL jika input kosong, atau FALSE jika input tidak valid.
+ * Fungsi konversi tanggal ke format database (YYYY-MM-DD)
  */
 function convertDateToDbFormat($input_date) {
     if (empty($input_date) || trim($input_date) === '') {
-        return null; // Return NULL jika kosong
+        return null;
     }
     $input_date = trim($input_date);
     
-    // Secara eksplisit anggap invalid jika input hanya berupa angka 4 digit (hanya tahun)
     if (is_numeric($input_date) && strlen($input_date) === 4) {
          return false;
     }
     
-    // Ganti pemisah '/' menjadi '-' untuk konsistensi validasi
     $cleaned_date = str_replace('/', '-', $input_date);
     
-    // 1. Coba format DD-MM-YYYY (d-m-Y)
     $dt_dmy = DateTime::createFromFormat('d-m-Y', $cleaned_date);
     if ($dt_dmy && $dt_dmy->format('d-m-Y') === $cleaned_date) {
         return $dt_dmy->format('Y-m-d');
     }
 
-    // 2. Coba format YYYY-MM-DD (Y-m-d)
     $dt_ymd = DateTime::createFromFormat('Y-m-d', $cleaned_date);
     if ($dt_ymd && $dt_ymd->format('Y-m-d') === $cleaned_date) {
         return $dt_ymd->format('Y-m-d');
     }
     
-    // Jika semua validasi gagal
     return false; 
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Ambil data dari form
     $customer_name = trim($_POST['customer_name'] ?? '');
     $phone_number = trim($_POST['phone_number'] ?? '');
-    
-    // Input mentah dari form
     $input_trans_date = $_POST['tanggal_masuk'] ?? '';
     $input_est_finish_date = $_POST['tanggal_selesai'] ?? '';
 
@@ -57,25 +61,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // DATE CONVERSION & VALIDATION
         // ===========================================
         
-        // 1. Tanggal Masuk (trans_date) - Wajib, default Hari Ini jika kosong
         $trans_date = convertDateToDbFormat($input_trans_date);
         if ($trans_date === false) {
-             throw new Exception("Format tanggal masuk ('Tanggal Masuk') tidak valid. Harap gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
+             throw new Exception("Format tanggal masuk tidak valid. Gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
         }
         if ($trans_date === null) {
-            $trans_date = date('Y-m-d'); // Default ke hari ini
+            $trans_date = date('Y-m-d');
         }
 
-        // 2. Tanggal Selesai (est_finish_date) - Wajib karena kolom DB NOT NULL.
         $est_finish_date = convertDateToDbFormat($input_est_finish_date);
         if ($est_finish_date === false) {
-             throw new Exception("Format tanggal selesai ('Tanggal Selesai') tidak valid. Harap gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
+             throw new Exception("Format tanggal selesai tidak valid. Gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
         }
-        // Jika input kosong (NULL), default ke 3 hari dari tanggal masuk
         if ($est_finish_date === null) {
             $est_finish_date = date('Y-m-d', strtotime($trans_date . ' +3 days'));
         }
 
+        // ===========================================
+        // AMBIL DATA LAINNYA
         // ===========================================
 
         $service_id = intval($_POST['service_id'] ?? 0);
@@ -88,21 +91,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $employee_id = intval($_POST['employee_id'] ?? 0);
         $note = trim($_POST['note'] ?? '');
 
+        // ===========================================
+        // PERBAIKAN KRUSIAL: LOGIKA PAYMENT DATE
+        // ===========================================
         
-        // ✅ LOGIKA TANGGAL PEMBAYARAN (FINAL - ADD) - TANGGAL TERKUNCI
-        // Pada add: set tanggal HANYA saat status Lunas, jika bukan Lunas = NULL
-        // Input dari form DIABAIKAN sepenuhnya
+        $input_payment_date = trim($_POST['payment_date'] ?? '');
+        
+        error_log("=== PAYMENT DATE LOGIC (ADD) ===");
+        error_log("Payment Status from POST: " . $payment_status);
+        error_log("Input Payment Date from POST: '" . $input_payment_date . "'");
+        
         if ($payment_status === 'Lunas') {
-            // Set tanggal pembayaran = hari ini saat pertama kali di-set Lunas
-            $payment_date = date('Y-m-d');
+            // Status Lunas - WAJIB ada tanggal
+            if (!empty($input_payment_date)) {
+                // Validasi format
+                $payment_date = convertDateToDbFormat($input_payment_date);
+                if ($payment_date === false) {
+                    throw new Exception("Format tanggal pembayaran tidak valid. Gunakan format YYYY-MM-DD.");
+                }
+                error_log("✅ Payment date dari form: " . $payment_date);
+            } else {
+                // Jika kosong, gunakan hari ini
+                $payment_date = date('Y-m-d');
+                error_log("⚠️ Payment date kosong, menggunakan hari ini: " . $payment_date);
+            }
         } else {
-            // Jika bukan Lunas, tanggal pembayaran NULL
+            // Status bukan Lunas - tanggal NULL
             $payment_date = null;
+            error_log("ℹ️ Payment date set to NULL (status: " . $payment_status . ")");
         }
+        
+        error_log("FINAL payment_date: " . ($payment_date ?? 'NULL'));
 
+        // ===========================================
+        // VALIDASI DATA WAJIB
+        // ===========================================
 
-
-        // Validasi data wajib
         if (empty($customer_name) || empty($phone_number)) {
             die("<script>alert('Nama dan nomor HP customer wajib diisi!'); window.history.back();</script>");
         }
@@ -113,10 +137,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("<script>alert('Karyawan harus dipilih!'); window.history.back();</script>");
         }
 
+        // ===========================================
+        // BEGIN TRANSACTION
+        // ===========================================
 
         $conn->begin_transaction();
 
+        // ===========================================
         // 1. CEK/SIMPAN CUSTOMER
+        // ===========================================
+        
         $customer_id = null;
         $stmt_check = $conn->prepare("SELECT id_customer FROM customers WHERE phone = ?");
         if (!$stmt_check) throw new Exception("Prepare failed (check customer): " . $conn->error);
@@ -145,10 +175,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Gagal mendapatkan ID customer.");
         }
 
+        // ===========================================
         // 2. GENERATE ORDER CODE
+        // ===========================================
+        
         $order_code = "ORD" . date("ym") . "-" . str_pad(rand(1, 9999), 4, "0", STR_PAD_LEFT);
 
+        // ===========================================
         // 3. SIMPAN KE DROPS
+        // ===========================================
+        
         $sql_drop = "
             INSERT INTO drops (
                 order_code, customer_id, service_id, brand, 
@@ -161,15 +197,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Prepare failed (insert drops): " . $conn->error);
         }
 
-        // est_finish_date dijamin berupa tanggal YYYY-MM-DD
         $stmt_drop->bind_param(
             "siisssiis",
             $order_code,
             $customer_id,
             $service_id,
             $brand,
-            $trans_date, // YYYY-MM-DD
-            $est_finish_date, // YYYY-MM-DD (DULU BISA NULL, SEKARANG WAJIB DATE)
+            $trans_date,
+            $est_finish_date,
             $status_id,
             $employee_id,
             $note
@@ -182,7 +217,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $drop_id = $stmt_drop->insert_id;
         $stmt_drop->close();
 
+        // ===========================================
         // 4. SIMPAN KE DROP_ITEMS
+        // ===========================================
+        
         $stmt_item = $conn->prepare("
             INSERT INTO drop_items (drop_id, service_id, brand, price)
             VALUES (?, ?, ?, ?)
@@ -192,8 +230,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt_item->execute()) throw new Exception("Insert drop_items failed: " . $stmt_item->error);
         $stmt_item->close();
 
+        // ===========================================
         // 5. SIMPAN KE DEADLINES
-        // est_finish_date (deadline_date) dijamin BUKAN NULL
+        // ===========================================
+        
         $sql_deadline = "INSERT INTO deadlines (drop_id, deadline_date, status_id) VALUES (?, ?, ?)";
         $stmt_deadline = $conn->prepare($sql_deadline);
         if (!$stmt_deadline) throw new Exception("Prepare failed (insert deadlines): " . $conn->error);
@@ -201,8 +241,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt_deadline->execute()) throw new Exception("Insert deadlines failed: " . $stmt_deadline->error);
         $stmt_deadline->close();
 
-
-        // 6. SIMPAN KE PAYMENTS
+        // ===========================================
+        // PERBAIKAN KRUSIAL: SIMPAN KE PAYMENTS
+        // ===========================================
+        
+        error_log("=== INSERTING TO PAYMENTS TABLE ===");
+        error_log("drop_id: " . $drop_id);
+        error_log("amount_paid: " . $amount_paid);
+        error_log("payment_method: " . $payment_method);
+        error_log("payment_date: " . ($payment_date ?? 'NULL'));
+        error_log("status: " . $payment_status);
+        
         if ($payment_date === null) {
             $stmt_payment = $conn->prepare("
                 INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
@@ -211,9 +260,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$stmt_payment) throw new Exception("Prepare failed (insert payments 1): " . $conn->error);
             $stmt_payment->bind_param("idss", $drop_id, $amount_paid, $payment_method, $payment_status);
         } else {
+            // PENTING: Gunakan STR_TO_DATE untuk konversi DATE
             $stmt_payment = $conn->prepare("
                 INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, STR_TO_DATE(?, '%Y-%m-%d'), ?)
             ");
             if (!$stmt_payment) throw new Exception("Prepare failed (insert payments 2): " . $conn->error);
             $stmt_payment->bind_param("idsss", $drop_id, $amount_paid, $payment_method, $payment_date, $payment_status);
@@ -222,10 +272,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt_payment->execute()) {
             throw new Exception("Insert payments failed: " . $stmt_payment->error);
         }
+        
+        error_log("✅ Payment record inserted successfully!");
         $stmt_payment->close();
 
+        // ===========================================
         // COMMIT TRANSAKSI
+        // ===========================================
+        
         $conn->commit();
+        error_log("✅ Transaction committed successfully!");
 
         // Response untuk print request
         if (isset($_GET['print']) && $_GET['print'] == '1') {
@@ -245,9 +301,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         $conn->rollback();
-
-        // Log error detail untuk debugging server
-        error_log("DROP ADD ERROR: " . $e->getMessage());
+        error_log("❌ DROP ADD ERROR: " . $e->getMessage());
+        error_log("Stack trace: " . $e->getTraceAsString());
 
         if (isset($_GET['print']) && $_GET['print'] == '1') {
             header('Content-Type: application/json');
@@ -255,7 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Alert untuk request biasa
         echo "
         <script>
             alert('Gagal menyimpan data: " . addslashes($e->getMessage()) . "');

@@ -42,6 +42,8 @@ include('../db.php'); // koneksi database
                 </button>
             </div>
         </div>
+        
+        <!-- MODAL ADD -->
         <div class="modal" id="addModal" style="display:none;">
             <div class="modal-content large">
                 <span class="close" data-target="addModal">&times;</span>
@@ -113,6 +115,7 @@ include('../db.php'); // koneksi database
                             ?>
                         </select>
                     </div>
+                    
                     <div>
                         <label>Status Pembayaran</label>
                         <select name="payment_status" id="payment_status">
@@ -124,7 +127,16 @@ include('../db.php'); // koneksi database
 
                     <div>
                         <label>Tanggal Pembayaran</label>
-                        <input type="date" name="payment_date" id="payment_date" style="background:#f9f9f9;">
+                        <input 
+                            type="date" 
+                            id="payment_date_display" 
+                            readonly 
+                            disabled
+                            style="background:#f9f9f9; cursor: not-allowed;">
+                        <input 
+                            type="hidden" 
+                            id="payment_date_hidden" 
+                            name="payment_date">
                     </div>
 
                     <div>
@@ -183,6 +195,7 @@ include('../db.php'); // koneksi database
                 </form>
             </div>
         </div>
+
         <div class="table-container">
             <table id="dropTable">
                 <thead>
@@ -314,14 +327,15 @@ WHERE
             </table>
         </div>
     </div>
+    
     <div id="successModal" class="modal" style="display:none;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <p id="successMessage" style="font-size: 16px; font-weight: 600; color: #004d9d;">Data berhasil disimpan
-            </p>
+            <p id="successMessage" style="font-size: 16px; font-weight: 600; color: #004d9d;">Data berhasil disimpan</p>
             <button id="closeSuccess" class="save-btn" style="width:auto; margin-top:15px;">OK</button>
         </div>
     </div>
 
+    <!-- MODAL EDIT -->
     <div class="modal" id="editModal" style="display:none;">
         <div class="modal-content large">
             <span class="close" data-target="editModal">&times;</span>
@@ -394,6 +408,7 @@ WHERE
                         ?>
                     </select>
                 </div>
+                
                 <div>
                     <label>Status Pembayaran</label>
                     <select name="payment_status" id="edit_payment_status">
@@ -405,7 +420,16 @@ WHERE
 
                 <div>
                     <label>Tanggal Pembayaran</label>
-                    <input type="date" id="edit_payment_date" name="payment_date" style="background:#f9f9f9;">
+                    <input 
+                        type="date" 
+                        id="edit_payment_date_display" 
+                        readonly 
+                        disabled
+                        style="background:#f9f9f9; cursor: not-allowed;">
+                    <input 
+                        type="hidden" 
+                        id="edit_payment_date_hidden" 
+                        name="payment_date">
                 </div>
 
                 <div>
@@ -478,11 +502,9 @@ WHERE
 <?php include_once "../partials/footer.php"; ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("✅ Page loaded, initializing...");
 
-    // ============================================
-    // HELPER FUNCTIONS
-    // ============================================
-    
+    // ===== HELPER FUNCTIONS =====
     const formatRupiah = (angka) => {
         if (typeof angka !== 'number') return 'Rp 0';
         return 'Rp ' + angka.toLocaleString('id-ID');
@@ -502,113 +524,87 @@ document.addEventListener('DOMContentLoaded', function() {
         if (m) m.style.display = 'none';
     }
     
-    // ============================================
-    // PAYMENT DATE LOCK LOGIC - ADD MODAL
-    // ============================================
+    // ===== PAYMENT DATE FUNCTIONS (PERBAIKAN KRUSIAL) =====
     
-    const managePaymentDate = (isLunas) => {
-        const paymentDateInput = document.getElementById('payment_date');
+    function setPaymentDate(displayId, hiddenId, date) {
+        const display = document.getElementById(displayId);
+        const hidden = document.getElementById(hiddenId);
         
-        if (!paymentDateInput) return;
-
-        if (isLunas) {
-            // Jika Lunas, UNLOCK field
-            paymentDateInput.disabled = false;
-            paymentDateInput.style.pointerEvents = 'auto';
-            paymentDateInput.style.background = '#fff';
-            paymentDateInput.style.color = '#000';
-            paymentDateInput.style.cursor = 'pointer';
+        console.log(`[setPaymentDate] displayId: ${displayId}, hiddenId: ${hiddenId}, date: ${date}`);
+        
+        if (display && hidden) {
+            // Set nilai
+            display.value = date || '';
+            hidden.value = date || '';
             
-            // Auto-set dengan hari ini jika kosong
-            if (!paymentDateInput.value) {
-                paymentDateInput.value = new Date().toISOString().split('T')[0];
-            }
+            // PENTING: Simpan di dataset untuk mencegah perubahan
+            hidden.dataset.originalDate = date || '';
+            
+            console.log(`✅ Display value: "${display.value}"`);
+            console.log(`✅ Hidden value: "${hidden.value}"`);
+            console.log(`✅ Original date locked: "${hidden.dataset.originalDate}"`);
         } else {
-            // Jika bukan Lunas, LOCK field
-            paymentDateInput.disabled = true;
-            paymentDateInput.value = '';
-            paymentDateInput.style.pointerEvents = 'none';
-            paymentDateInput.style.background = '#f9f9f9';
-            paymentDateInput.style.color = '#888';
-            paymentDateInput.style.cursor = 'not-allowed';
+            console.error(`❌ Field not found! Display: ${display}, Hidden: ${hidden}`);
         }
-    };
-    
-    const paymentStatusSelect = document.getElementById('payment_status');
-    if (paymentStatusSelect) {
-        // Set initial state saat form dibuka
-        managePaymentDate(paymentStatusSelect.value === 'Lunas');
-        
-        // Listen perubahan status pembayaran
-        paymentStatusSelect.addEventListener('change', function() {
-            managePaymentDate(this.value === 'Lunas');
-        });
     }
 
-    // ============================================
-    // PAYMENT DATE LOCK LOGIC - EDIT MODAL
-    // ============================================
-
-    const managePaymentDateEdit = (isLunas) => {
-        const editPaymentDateInput = document.getElementById('edit_payment_date');
+    function handlePaymentStatusChange(statusValue, displayId, hiddenId, existingDate = null) {
+        console.log(`=== handlePaymentStatusChange ===`);
+        console.log(`Status: ${statusValue}`);
+        console.log(`Existing date: ${existingDate}`);
         
-        if (!editPaymentDateInput) return;
-
-        if (isLunas) {
-            // Jika Lunas, UNLOCK field
-            editPaymentDateInput.disabled = false;
-            editPaymentDateInput.style.pointerEvents = 'auto';
-            editPaymentDateInput.style.background = '#fff';
-            editPaymentDateInput.style.color = '#000';
-            editPaymentDateInput.style.cursor = 'pointer';
-            
-            // Auto-set dengan hari ini jika kosong
-            if (!editPaymentDateInput.value) {
-                editPaymentDateInput.value = new Date().toISOString().split('T')[0];
+        const hiddenField = document.getElementById(hiddenId);
+        
+        if (statusValue === 'Lunas') {
+            // LUNAS - set tanggal
+            if (existingDate) {
+                // Data lama (edit) - gunakan tanggal lama
+                setPaymentDate(displayId, hiddenId, existingDate);
+                console.log(`✅ Using existing date (locked): ${existingDate}`);
+            } else {
+                // Data baru (add) - gunakan tanggal hari ini
+                const today = new Date().toISOString().split('T')[0];
+                setPaymentDate(displayId, hiddenId, today);
+                console.log(`✅ Using today's date: ${today}`);
             }
         } else {
-            // Jika bukan Lunas, LOCK field
-            editPaymentDateInput.disabled = true;
-            editPaymentDateInput.value = '';
-            editPaymentDateInput.style.pointerEvents = 'none';
-            editPaymentDateInput.style.background = '#f9f9f9';
-            editPaymentDateInput.style.color = '#888';
-            editPaymentDateInput.style.cursor = 'not-allowed';
+            // BUKAN LUNAS - clear tanggal
+            setPaymentDate(displayId, hiddenId, '');
+            if (hiddenField) {
+                hiddenField.dataset.originalDate = '';
+            }
+            console.log(`⚠️ Payment date cleared (status not Lunas)`);
         }
-    };
-
-    const editPaymentStatusSelect = document.getElementById('edit_payment_status');
-    if (editPaymentStatusSelect) {
-        // Set initial state
-        managePaymentDateEdit(editPaymentStatusSelect.value === 'Lunas');
-        
-        // Listen perubahan
-        editPaymentStatusSelect.addEventListener('change', function() {
-            managePaymentDateEdit(this.value === 'Lunas');
-        });
     }
 
-    // ============================================
-    // OPEN ADD MODAL
-    // ============================================
+    // ===== OPEN ADD MODAL =====
     
     document.getElementById('openAddModal').addEventListener('click', function() {
+        console.log("Opening ADD modal...");
+        
         document.getElementById('addForm').reset();
         document.getElementById('tanggal_masuk').value = new Date().toISOString().split('T')[0];
-        document.getElementById('payment_date').value = '';
-        document.getElementById('amount_paid_display').value = '';
+        document.getElementById('price_display').value = 'Rp 0';
+        document.getElementById('price_min').value = '0';
+        document.getElementById('price_max').value = '0';
+        document.getElementById('estimate_desc').value = '-';
+        document.getElementById('duration').value = '0';
+        document.getElementById('tanggal_selesai').value = '';
+        document.getElementById('amount_paid_display').value = ''; 
         
-        // Reset payment date lock
-        managePaymentDate(document.getElementById('payment_status').value === 'Lunas');
+        // Reset payment date fields
+        setPaymentDate('payment_date_display', 'payment_date_hidden', '');
         
         showModal('addModal');
-        runUpdateAdd(); 
+        
+        // Set initial state berdasarkan status pembayaran
+        const payStatus = document.getElementById('payment_status');
+        if (payStatus) {
+            handlePaymentStatusChange(payStatus.value, 'payment_date_display', 'payment_date_hidden');
+        }
     });
 
-    // ============================================
-    // CLOSE MODAL BUTTONS
-    // ============================================
-    
+    // Close buttons
     document.querySelectorAll('.close').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const target = btn.getAttribute('data-target');
@@ -616,9 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ============================================
-    // HARGA & ESTIMASI SELESAI (ADD MODAL)
-    // ============================================
+    // ===== SERVICE LOGIC =====
 
     const serviceSelectAdd = document.getElementById('service_id');
     const priceDisplayAdd = document.getElementById('price_display');
@@ -628,35 +622,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const tanggalMasukAdd = document.getElementById('tanggal_masuk');
     const tanggalSelesaiAdd = document.getElementById('tanggal_selesai');
 
-    const calculateFinishDate = (startDate, durationDays) => {
-        if (!startDate || durationDays <= 0) return '';
-        
-        const date = new Date(startDate);
-        date.setDate(date.getDate() + durationDays);
-
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        
-        return `${year}-${month}-${day}`;
+    const fetchDynamicEstimate = async (serviceId, transDate, excludeDropId = 0) => {
+        try {
+            const formData = new FormData();
+            formData.append('service_id', serviceId);
+            formData.append('trans_date', transDate);
+            formData.append('exclude_drop_id', excludeDropId);
+            
+            const response = await fetch('get_dynamic_estimate.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching dynamic estimate:', error);
+            return null;
+        }
     };
 
-    const updateServiceDataAutomatic = (serviceSelect, priceDisplay, priceMinInput, estimateDesc, durationInput, tanggalMasuk, tanggalSelesai) => {
+    const updateServiceDataDynamic = async (serviceSelect, priceDisplay, priceMinInput, estimateDesc, durationInput, tanggalMasuk, tanggalSelesai, excludeDropId = 0) => {
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         
         if (selectedOption && selectedOption.value) {
-            const priceMin = parseFloat(selectedOption.getAttribute('data-price') || 0);
-            const duration = parseInt(selectedOption.getAttribute('data-duration') || 0); 
-
-            priceDisplay.value = formatRupiah(priceMin);
-            priceMinInput.value = priceMin;
-
-            durationInput.value = duration;
-            estimateDesc.value = (duration > 0) ? `${duration} Hari` : 'Durasi belum ditentukan';
-
-            const finishDate = calculateFinishDate(tanggalMasuk.value, duration);
-            tanggalSelesai.value = finishDate;
-
+            const serviceId = selectedOption.value;
+            const transDate = tanggalMasuk.value;
+            
+            estimateDesc.value = 'Menghitung...';
+            durationInput.value = '0';
+            tanggalSelesai.value = '';
+            
+            const result = await fetchDynamicEstimate(serviceId, transDate, excludeDropId);
+            
+            if (result && result.success) {
+                priceDisplay.value = formatRupiah(result.price_min);
+                priceMinInput.value = result.price_min;
+                durationInput.value = result.duration;
+                estimateDesc.value = result.estimate_desc;
+                tanggalSelesai.value = result.estimate_date;
+                if (result.queue_info) console.log(result.queue_info);
+            } else {
+                const priceMin = parseFloat(selectedOption.getAttribute('data-price') || 0);
+                const duration = parseInt(selectedOption.getAttribute('data-duration') || 0);
+                priceDisplay.value = formatRupiah(priceMin);
+                priceMinInput.value = priceMin;
+                durationInput.value = duration;
+                estimateDesc.value = (duration > 0) ? `${duration} Hari` : '-';
+                const date = new Date(transDate);
+                date.setDate(date.getDate() + duration);
+                tanggalSelesai.value = date.toISOString().split('T')[0];
+            }
         } else {
             priceDisplay.value = 'Rp 0';
             priceMinInput.value = '0';
@@ -666,20 +682,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    const runUpdateAdd = () => updateServiceDataAutomatic(
-        serviceSelectAdd, priceDisplayAdd, priceMinInputAdd, estimateDescAdd, durationInputAdd, tanggalMasukAdd, tanggalSelesaiAdd 
-    );
-
     if (serviceSelectAdd) {
-        serviceSelectAdd.addEventListener('change', runUpdateAdd);
-    }
-    if (tanggalMasukAdd) {
-        tanggalMasukAdd.addEventListener('change', runUpdateAdd);
+        serviceSelectAdd.addEventListener('change', () => {
+            updateServiceDataDynamic(serviceSelectAdd, priceDisplayAdd, priceMinInputAdd, estimateDescAdd, durationInputAdd, tanggalMasukAdd, tanggalSelesaiAdd);
+        });
     }
     
-    // ============================================
-    // NOMINAL PEMBAYARAN (RUPIAH FORMATTING)
-    // ============================================
+    if (tanggalMasukAdd) {
+        tanggalMasukAdd.addEventListener('change', () => {
+            if (serviceSelectAdd.value) {
+                updateServiceDataDynamic(serviceSelectAdd, priceDisplayAdd, priceMinInputAdd, estimateDescAdd, durationInputAdd, tanggalMasukAdd, tanggalSelesaiAdd);
+            }
+        });
+    }
+    
+    // ===== RUPIAH FORMATTING =====
 
     const setupRupiahInput = (displayInputId, hiddenInputId) => {
         const displayInput = document.getElementById(displayInputId);
@@ -695,7 +712,6 @@ document.addEventListener('DOMContentLoaded', function() {
             displayInput.addEventListener('input', function(e) {
                 let value = e.target.value;
                 const numericValue = parseRupiah(value);
-                
                 hiddenInput.value = numericValue;
                 e.target.value = formatRupiah(numericValue);
             });
@@ -707,12 +723,75 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     setupRupiahInput('amount_paid_display', 'amount_paid');
-    // ============================================
-    // EDIT MODAL LOGIC
-    // ============================================
+    
+    // ===== EVENT LISTENERS PAYMENT STATUS =====
+    
+    // ADD MODAL - Payment Status Change
+    const payStatusAdd = document.getElementById('payment_status');
+    if (payStatusAdd) {
+        console.log("✅ ADD payment status listener attached");
+        payStatusAdd.addEventListener('change', function() {
+            console.log("📍 ADD: Payment status changed to:", this.value);
+            handlePaymentStatusChange(this.value, 'payment_date_display', 'payment_date_hidden');
+        });
+    } else {
+        console.error("❌ ADD payment status field not found!");
+    }
+    
+    // EDIT MODAL - Payment Status Change
+    const payStatusEdit = document.getElementById('edit_payment_status');
+    if (payStatusEdit) {
+        console.log("✅ EDIT payment status listener attached");
+        payStatusEdit.addEventListener('change', function() {
+            console.log("📍 EDIT: Payment status changed to:", this.value);
+            const hiddenField = document.getElementById('edit_payment_date_hidden');
+            const existingDate = hiddenField ? hiddenField.dataset.lockedDate : null;
+            handlePaymentStatusChange(this.value, 'edit_payment_date_display', 'edit_payment_date_hidden', existingDate);
+        });
+    } else {
+        console.error("❌ EDIT payment status field not found!");
+    }
+
+    // ===== CEGAH EDIT MANUAL PAYMENT DATE =====
+    
+    const payDateDisplayAdd = document.getElementById('payment_date_display');
+    if (payDateDisplayAdd) {
+        payDateDisplayAdd.addEventListener('focus', function(e) {
+            e.preventDefault();
+            e.target.blur();
+            console.warn(`⚠️ Manual edit tidak diizinkan untuk payment date`);
+        });
+        
+        payDateDisplayAdd.addEventListener('change', function(e) {
+            const hidden = document.getElementById('payment_date_hidden');
+            const original = hidden ? hidden.dataset.originalDate : '';
+            e.target.value = original;
+            console.log(`🔒 Payment date reset to locked value: ${original}`);
+        });
+    }
+    
+    const payDateDisplayEdit = document.getElementById('edit_payment_date_display');
+    if (payDateDisplayEdit) {
+        payDateDisplayEdit.addEventListener('focus', function(e) {
+            e.preventDefault();
+            e.target.blur();
+            console.warn(`⚠️ Manual edit tidak diizinkan untuk payment date`);
+        });
+        
+        payDateDisplayEdit.addEventListener('change', function(e) {
+            const hidden = document.getElementById('edit_payment_date_hidden');
+            const original = hidden ? hidden.dataset.originalDate : '';
+            e.target.value = original;
+            console.log(`🔒 Payment date reset to locked value: ${original}`);
+        });
+    }
+
+    // ===== EDIT MODAL - DOUBLE CLICK =====
 
     document.querySelectorAll('.data-row').forEach(function(row) {
-        row.addEventListener('dblclick', function() {
+        row.addEventListener('dblclick', async function() {
+            console.log("Opening EDIT modal...");
+            
             const id = row.dataset.id_drop || '';
             if (!id) return;
 
@@ -732,26 +811,34 @@ document.addEventListener('DOMContentLoaded', function() {
             serviceSelectEdit.value = row.dataset.service_id || '';
             priceMinInputEdit.value = row.dataset.price_min || '0';
             priceDisplayEdit.value = formatRupiah(parseFloat(row.dataset.price_min || 0));
-            
             durationInputEdit.value = row.dataset.duration || '0'; 
             estimateDescEdit.value = row.dataset.estimate_desc || '-'; 
-
             tanggalMasukEdit.value = row.dataset.tanggal_masuk || '';
             tanggalSelesaiEdit.value = row.dataset.tanggal_selesai || ''; 
             document.getElementById('edit_statusSelect').value = row.dataset.status_id || '';
 
             const payStatusValue = row.dataset.payment_status || 'Belum Lunas';
-            document.getElementById('edit_payment_status').value = payStatusValue;
-            
             const paymentDateValue = row.dataset.payment_date || '';
-            document.getElementById('edit_payment_date').value = paymentDateValue;
             
+            console.log("Edit data - Payment Status:", payStatusValue);
+            console.log("Edit data - Payment Date:", paymentDateValue);
+            
+            document.getElementById('edit_payment_status').value = payStatusValue;
             document.getElementById('edit_payment_method').value = row.dataset.payment_method || 'Tunai';
+            
+            // SET PAYMENT DATE FIELDS
+            setPaymentDate('edit_payment_date_display', 'edit_payment_date_hidden', paymentDateValue);
+            
+            // LOCK EXISTING DATE
+            const editPayDateHidden = document.getElementById('edit_payment_date_hidden');
+            if (editPayDateHidden) {
+                editPayDateHidden.dataset.lockedDate = paymentDateValue;
+                console.log("🔐 Locked date:", paymentDateValue);
+            }
             
             const amountPaidValue = parseFloat(row.dataset.amount_paid || 0);
             document.getElementById('edit_amount_paid').value = amountPaidValue;
             document.getElementById('edit_amount_paid_display').value = amountPaidValue > 0 ? formatRupiah(amountPaidValue) : '';
-            
             document.getElementById('edit_note').value = row.dataset.note || '';
 
             const empEl = document.getElementById('edit_employee_id');
@@ -764,34 +851,104 @@ document.addEventListener('DOMContentLoaded', function() {
 
             setupRupiahInput('edit_amount_paid_display', 'edit_amount_paid');
             
-            const runUpdateEdit = () => updateServiceDataAutomatic(
-                serviceSelectEdit, priceDisplayEdit, priceMinInputEdit, estimateDescEdit, durationInputEdit, tanggalMasukEdit, tanggalSelesaiEdit 
-            );
+            const runUpdateEdit = async () => {
+                await updateServiceDataDynamic(serviceSelectEdit, priceDisplayEdit, priceMinInputEdit, estimateDescEdit, durationInputEdit, tanggalMasukEdit, tanggalSelesaiEdit, id);
+            };
 
             serviceSelectEdit.onchange = runUpdateEdit;
             tanggalMasukEdit.onchange = runUpdateEdit;
 
-            managePaymentDateEdit(payStatusValue === "Lunas");
-            
             showModal('editModal');
-            
-            runUpdateEdit();
         });
     });
-
-    // ============================================
-    // CETAK STRUK
-    // ============================================
+    
+    // ===== FORM SUBMIT VALIDATION =====
+    
+    // ADD FORM SUBMIT
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+        const paymentStatus = document.getElementById('payment_status').value;
+        const paymentDateHidden = document.getElementById('payment_date_hidden');
+        
+        console.log("=== ADD FORM SUBMIT ===");
+        console.log("Payment Status:", paymentStatus);
+        console.log("Hidden field value BEFORE:", paymentDateHidden.value);
+        
+        // FORCE SET jika Lunas tapi kosong
+        if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
+            const today = new Date().toISOString().split('T')[0];
+            setPaymentDate('payment_date_display', 'payment_date_hidden', today);
+            console.log("⚠️ FORCED set to:", today);
+        }
+        
+        console.log("Hidden field value AFTER:", paymentDateHidden.value);
+        
+        // Log FormData
+        const formData = new FormData(this);
+        console.log("=== FORM DATA BEING SENT ===");
+        let found = false;
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: "${value}"`);
+            if (key === 'payment_date') {
+                found = true;
+                if (value) {
+                    console.log("✅✅✅ payment_date FOUND with value:", value);
+                } else {
+                    console.warn("⚠️ payment_date found but EMPTY");
+                }
+            }
+        }
+        if (!found) {
+            console.error("❌❌❌ payment_date NOT IN FORM DATA!");
+        }
+    });
+    
+    // EDIT FORM SUBMIT
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        const paymentStatus = document.getElementById('edit_payment_status').value;
+        const paymentDateHidden = document.getElementById('edit_payment_date_hidden');
+        
+        console.log("=== EDIT FORM SUBMIT ===");
+        console.log("Payment Status:", paymentStatus);
+        console.log("Hidden field value BEFORE:", paymentDateHidden.value);
+        
+        // FORCE SET jika Lunas tapi kosong
+        if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
+            const today = new Date().toISOString().split('T')[0];
+            setPaymentDate('edit_payment_date_display', 'edit_payment_date_hidden', today);
+            console.log("⚠️ FORCED set to:", today);
+        }
+        
+        console.log("Hidden field value AFTER:", paymentDateHidden.value);
+        
+        // Log FormData
+        const formData = new FormData(this);
+        console.log("=== FORM DATA BEING SENT ===");
+        let found = false;
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: "${value}"`);
+            if (key === 'payment_date') {
+                found = true;
+                if (value) {
+                    console.log("✅✅✅ payment_date FOUND with value:", value);
+                } else {
+                    console.warn("⚠️ payment_date found but EMPTY");
+                }
+            }
+        }
+        if (!found) {
+            console.error("❌❌❌ payment_date NOT IN FORM DATA!");
+        }
+    });
+    
+    // ===== CETAK STRUK =====
 
     document.getElementById('saveAndPrintBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const form = document.getElementById('addForm');
-        
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
         }
-        
         const originalAction = form.action;
         form.action = originalAction + '?print=1';
         form.submit();
@@ -801,19 +958,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('printSelectedBtn').addEventListener('click', function() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const ids = Array.from(checked).map(cb => cb.value);
-
         if (ids.length === 0) {
             alert('Pilih setidaknya satu data untuk dicetak struknya.');
             return;
         }
-
-        const printUrl = 'cetak_struk.php?id=' + ids.join(',');
-        window.open(printUrl, '_blank');
+        window.open('cetak_struk.php?id=' + ids.join(','), '_blank');
     });
 
-    // ============================================
-    // SUCCESS NOTIFICATION
-    // ============================================
+    // ===== NOTIFICATIONS =====
 
     if (sessionStorage.getItem('showSuccess') === 'true') {
         document.getElementById('successMessage').textContent = sessionStorage.getItem('successMessage');
@@ -821,13 +973,12 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('showSuccess');
         sessionStorage.removeItem('successMessage');
     }
+    
     document.getElementById('closeSuccess').addEventListener('click', function() {
         hideModal('successModal');
     });
 
-    // ============================================
-    // DELETE DATA
-    // ============================================
+    // ===== DELETE LOGIC =====
 
     document.querySelector('.delete-btn').addEventListener('click', function() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
@@ -845,20 +996,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('confirmOk').addEventListener('click', function() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const ids = Array.from(checked).map(cb => cb.value);
-
         hideModal('confirmDeleteModal');
 
         fetch('drop_delete.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'ids=' + ids.join(',')
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
         .then(data => {
@@ -876,9 +1022,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ============================================
-    // SELECT ALL CHECKBOX
-    // ============================================
+    // ===== SELECT ALL CHECKBOX =====
     
     document.getElementById('selectAll').addEventListener('change', function() {
         document.querySelectorAll('.row-checkbox').forEach(cb => {
@@ -894,9 +1038,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ============================================
-    // UPDATE STATUS
-    // ============================================
+    // ===== UPDATE STATUS =====
     
     document.querySelectorAll('.status-dropdown').forEach(select => {
         select.addEventListener('change', function() {
@@ -918,15 +1060,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fetch('drop_update_status.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id_drop=${idDrop}&status_id=${newStatusId}`
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
             .then(data => {
@@ -948,5 +1086,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         select.dataset.oldValue = select.value;
     });
+    
+    console.log("✅ All event listeners initialized");
 });
 </script>
