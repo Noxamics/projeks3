@@ -1,0 +1,43 @@
+/* =============================
+   GLOBAL RESET & BASE STYLE
+============================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background: #fff;
+  color: #333;
+}
+
+/* =============================
+   CONTAINER
+============================= */
+.container {
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 50px;
+}
+
+/* =============================
+   COMMON ELEMENTS
+============================= */
+.divider {
+  width: 60px;
+  height: 4px;
+  background-color: #1d56a7;
+  margin: 10px auto 20px;
+}
+
+.desc {
+  line-height: 1.6;
+  font-size: 18px;
+  margin-bottom: 40px;
+  color: #1d56a7;
+}

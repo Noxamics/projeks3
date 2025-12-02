@@ -27,12 +27,7 @@
         <a href="#catalog">SERVICE</a>
         <a href="#care">CARE</a>
         <a href="#member">MEMBER</a>
-        <a href="#contact">LOCATION</a>
         <a href="catalog.php">CATALOG</a>
       </nav>
-
-      <div class="login-btn">
-        <a href="../login/login.php">LOGIN</a>
-      </div>
     </div>
   </header>

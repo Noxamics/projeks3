@@ -1,0 +1,18 @@
+/* =============================
+   MAIN CSS - Landing Page
+   Import all component stylesheets
+============================= */
+
+/* Base Styles */
+@import url("base.css");
+
+/* Layout Components */
+@import url("header.css");
+@import url("hero.css");
+@import url("sections.css");
+@import url("catalog.css");
+@import url("take-care.css");
+@import url("footer.css");
+
+/* Responsive Styles */
+@import url("responsive.css");

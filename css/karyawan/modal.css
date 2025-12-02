@@ -1,0 +1,635 @@
+/* ===========================
+   COMPLETE MODAL CSS
+   File: css/karyawan/modal.css
+   
+   IMPORTANT: Pastikan file ini di-load di karyawan.php
+=========================== */
+
+/* ===========================
+   MODAL OVERLAY - CRITICAL
+=========================== */
+.modal {
+  /* Force overlay behavior */
+  display: none !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+
+  /* Layering */
+  z-index: 999999 !important;
+
+  /* Visual */
+  background: rgba(0, 102, 204, 0.1) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  /* Layout */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+
+  /* Animation */
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Hide modal by default */
+.modal {
+  display: none !important;
+}
+
+/* Show modal when has inline style display:flex */
+.modal[style*="display: flex"],
+.modal[style*="display:flex"] {
+  display: flex !important;
+}
+
+/* ===========================
+   MODAL BOX
+=========================== */
+.modal-box {
+  /* Positioning */
+  position: relative !important;
+  z-index: 1000000 !important;
+
+  /* Sizing */
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+
+  /* Visual */
+  background: white;
+  border-radius: 20px;
+  border: 3px solid #e3f2fd;
+  box-shadow: 0 20px 60px rgba(0, 102, 204, 0.3);
+
+  /* Spacing */
+  padding: 40px;
+  margin: auto;
+
+  /* Overflow */
+  overflow-y: auto;
+
+  /* Animation */
+  animation: slideUp 0.3s ease-in-out;
+}
+
+/* ===========================
+   ANIMATIONS
+=========================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===========================
+   MODAL HEADER
+=========================== */
+.modal-box h3 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #0066cc;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===========================
+   FORM ELEMENTS
+=========================== */
+.modal-box label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.modal-box input,
+.modal-box select,
+.modal-box textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e3f2fd;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s;
+  color: #333;
+  font-family: inherit;
+  background: #f8fbff;
+}
+
+.modal-box input:focus,
+.modal-box select:focus,
+.modal-box textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  background: white;
+}
+
+.modal-box textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modal-box input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+.modal-box input[type="file"] {
+  padding: 10px;
+  background: white;
+}
+
+/* ===========================
+   MODAL ACTIONS
+=========================== */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-save,
+.btn-checkin {
+  background: #0066cc;
+  color: white;
+}
+
+.btn-save:hover,
+.btn-checkin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 102, 204, 0.4);
+  background: #0052a3;
+}
+
+.btn-cancel {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+.btn-delete-confirm {
+  background: #d32f2f;
+  color: white;
+}
+
+.btn-delete-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+  background: #b71c1c;
+}
+
+.btn-checkout {
+  background: #f57c00;
+  color: white;
+}
+
+.btn-checkout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+  background: #ef6c00;
+}
+
+/* ===========================
+   DETAIL MODAL SPECIFIC
+=========================== */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 30px;
+  padding: 25px;
+  background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+  border-radius: 15px;
+  border: 2px solid #e3f2fd;
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.08);
+}
+
+.detail-photo {
+  width: 130px;
+  height: 130px;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgba(0, 102, 204, 0.25);
+  border: 4px solid white;
+  transition: all 0.3s;
+}
+
+.detail-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 102, 204, 0.35);
+}
+
+.detail-info {
+  flex: 1;
+}
+
+.detail-info h3 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #0066cc;
+  font-weight: 700;
+}
+
+.detail-info p {
+  color: #666;
+  margin: 6px 0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-info p::before {
+  content: "•";
+  color: #0066cc;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* ===========================
+   TABS
+=========================== */
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 25px;
+  background: #f8fbff;
+  padding: 8px;
+  border-radius: 12px;
+  border: 2px solid #e3f2fd;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 14px 24px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn.active {
+  color: white;
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+}
+
+.tab-btn:hover:not(.active) {
+  color: #0066cc;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeInTab 0.3s ease-in-out;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===========================
+   ATTENDANCE SECTION
+=========================== */
+.attendance-section {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  border: 2px solid #e3f2fd;
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.08);
+  transition: all 0.3s;
+}
+
+.attendance-section:hover {
+  border-color: #0066cc;
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.15);
+  transform: translateY(-2px);
+}
+
+.attendance-section h4 {
+  color: #0066cc;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.time-display {
+  font-size: 56px;
+  font-weight: 700;
+  color: #0066cc;
+  text-align: center;
+  margin: 30px 0;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8fbff 0%, #e3f2fd 100%);
+  border-radius: 20px;
+  border: 3px solid #e3f2fd;
+  box-shadow: 0 8px 25px rgba(0, 102, 204, 0.12);
+  letter-spacing: 2px;
+  font-family: "Courier New", monospace;
+}
+
+.attendance-history {
+  margin-top: 30px;
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #e3f2fd;
+  box-shadow: 0 4px 15px rgba(0, 102, 204, 0.08);
+}
+
+.attendance-history h4 {
+  color: #0066cc;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.attendance-history table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.attendance-history th,
+.attendance-history td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e3f2fd;
+}
+
+.attendance-history th {
+  background: #0066cc;
+  color: white;
+  font-weight: 600;
+}
+
+.attendance-history tbody tr:hover {
+  background: #f0f8ff;
+}
+
+/* ===========================
+   ALERT MESSAGES
+=========================== */
+.alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #c8e6c9;
+}
+
+.alert-error {
+  background: #ffebee;
+  color: #c62828;
+  border: 2px solid #ffcdd2;
+}
+
+.alert-warning {
+  background: #fff3e0;
+  color: #e65100;
+  border: 2px solid #ffe0b2;
+}
+
+.alert-info {
+  background: #e3f2fd;
+  color: #0066cc;
+  border: 2px solid #bbdefb;
+}
+
+/* ===========================
+   STATUS BADGES
+=========================== */
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.status-aktif {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #c8e6c9;
+}
+
+.status-cuti {
+  background: #fff3e0;
+  color: #e65100;
+  border: 2px solid #ffe0b2;
+}
+
+.status-non-aktif {
+  background: #ffebee;
+  color: #c62828;
+  border: 2px solid #ffcdd2;
+}
+
+/* ===========================
+   ROLE BADGES
+=========================== */
+.role-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.role-cleaning {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.role-reglue {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffe0b2;
+}
+
+.role-repaint {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+}
+
+.role-kasir {
+  background: #fff9c4;
+  color: #f57f17;
+  border: 1px solid #fff59d;
+}
+
+/* ===========================
+   PREVENT BODY SCROLL
+=========================== */
+body.modal-open {
+  overflow: hidden !important;
+  position: relative;
+}
+
+/* ===========================
+   SPECIFIC MODAL IDS
+=========================== */
+#modalAdd,
+#modalEdit,
+#modalDelete,
+#modalDetail {
+  z-index: 999999 !important;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+  .modal {
+    padding: 10px !important;
+  }
+
+  .modal-box {
+    padding: 20px;
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .modal-box h3 {
+    font-size: 24px;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .detail-photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .detail-info p::before {
+    display: none;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab-btn {
+    padding: 12px;
+  }
+
+  .time-display {
+    font-size: 42px;
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* ===========================
+   FIX FOR IOS SAFARI
+=========================== */
+@supports (-webkit-touch-callout: none) {
+  .modal {
+    position: fixed !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===========================
+   PRINT STYLES
+=========================== */
+@media print {
+  .modal {
+    display: none !important;
+  }
+}

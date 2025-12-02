@@ -135,6 +135,9 @@ $fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0
             error_log("Warning: Gagal update deadline - " . mysqli_error($conn));
         }
 
+        $delete_old_deadline = "DELETE FROM deadlines WHERE deadline_date < CURDATE()";
+        mysqli_query($conn, $delete_old_deadline);
+        
         mysqli_commit($conn);
         
         header("Location: timeline_pesanan.php?success=1");

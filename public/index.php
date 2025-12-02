@@ -1,18 +1,92 @@
 <?php
 include_once "../partials/header-lp.php";
 ?>
-<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/landing-page/main.css">
 
 <!-- Hero Section -->
 <section class="hero" id="heroSection">
-  <img src="../a/img/Logo Teks.png" alt="Sengkuclean Logo" class="hero-logo" />
-  <p>Premium Shoes Laundry</p>
+  <div class="hero-container">
+    <div class="hero-left">
+      <h1 class="hero-title">
+        <span class="brand-name">SengkuClean</span>
+      </h1>
 
-  <div class="slideshow-dots" id="slideshowDots">
-    <span class="dot active"></span>
-    <span class="dot"></span>
-    <span class="dot"></span>
+      <p class="hero-description">Premium Shoes Laundry dengan perawatan profesional untuk sepatu kesayangan Anda</p>
+
+      <div class="hero-buttons">
+        <button class="btn-login" onclick="window.location.href='../login/login.php'">Login</button>
+        <button class="btn-location"
+          onclick="window.open('https://www.google.com/maps/dir//Sengkuclean+Jl.+Bengawan+Solo+No.31+Tegal+Boto+Lor,+Sumbersari+Kec.+Sumbersari,+Kabupaten+Jember,+Jawa+Timur/@-8.1677831,113.7088894,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x2dd695c52e73d537:0x3b7dcad7e00c765!2m2!1d113.7088894!2d-8.1677831?entry=ttu&g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D', '_blank')">Our
+          Location</button>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="time-card">
+        <div class="time-card-inner">
+          <div class="clock-wrapper">
+            <svg class="clock-icon" viewBox="0 0 120 120" width="140" height="140">
+              <!-- Outer circle with blue gradient -->
+              <defs>
+                <linearGradient id="clockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                </linearGradient>
+                <filter id="shadow">
+                  <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.3" />
+                </filter>
+              </defs>
+
+              <circle cx="60" cy="60" r="55" fill="url(#clockGradient)" filter="url(#shadow)" />
+              <circle cx="60" cy="60" r="48" fill="white" />
+
+              <!-- Clock ticks -->
+              <g stroke="#2563eb" stroke-width="2.5" stroke-linecap="round">
+                <!-- 12 o'clock -->
+                <line x1="60" y1="20" x2="60" y2="28" />
+                <!-- 3 o'clock -->
+                <line x1="100" y1="60" x2="92" y2="60" />
+                <!-- 6 o'clock -->
+                <line x1="60" y1="100" x2="60" y2="92" />
+                <!-- 9 o'clock -->
+                <line x1="20" y1="60" x2="28" y2="60" />
+
+                <!-- Additional ticks -->
+                <line x1="82" y1="30" x2="78" y2="34" />
+                <line x1="90" y1="48" x2="85" y2="50" />
+                <line x1="90" y1="72" x2="85" y2="70" />
+                <line x1="82" y1="90" x2="78" y2="86" />
+                <line x1="38" y1="90" x2="42" y2="86" />
+                <line x1="30" y1="72" x2="35" y2="70" />
+                <line x1="30" y1="48" x2="35" y2="50" />
+                <line x1="38" y1="30" x2="42" y2="34" />
+              </g>
+
+              <!-- Clock hands pointing to 3:00 (15:00) -->
+              <!-- Hour hand -->
+              <line x1="60" y1="60" x2="75" y2="60" stroke="#1e40af" stroke-width="4" stroke-linecap="round" />
+              <!-- Minute hand pointing up (00 minutes) -->
+              <line x1="60" y1="60" x2="60" y2="35" stroke="#2563eb" stroke-width="3" stroke-linecap="round" />
+
+              <!-- Center dot -->
+              <circle cx="60" cy="60" r="4" fill="#1e40af" />
+            </svg>
+          </div>
+
+          <div class="time-text">
+            <p class="time-label">Open from</p>
+            <p class="time-value">15:00 <span class="time-to">to</span><br>22:00</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+
+  <!-- Decorative elements -->
+  <div class="decoration-circle circle-1"></div>
+  <div class="decoration-circle circle-2"></div>
+  <div class="decoration-circle circle-3"></div>
 </section>
 
 <!-- About Section -->
@@ -151,9 +225,10 @@ include_once "../partials/header-lp.php";
   <h2>Follow Our Journey</h2>
   <div class="divider"></div>
   <p>
-  Kami bukan sekadar tempat laundry sepatu, tetapi bagian dari gaya hidup para pecinta fashion. <br />
-  Ikuti perjalanan kami di media sosial dan jadi saksi bagaimana setiap sepatu kami kembalikan ke kondisi terbaiknya. <br />
-  Mulai dari proses pencucian, tips perawatan, sampai kisah pelanggan, semuanya kami bagikan untuk kamu. <br />
+    Kami bukan sekadar tempat laundry sepatu, tetapi bagian dari gaya hidup para pecinta fashion. <br />
+    Ikuti perjalanan kami di media sosial dan jadi saksi bagaimana setiap sepatu kami kembalikan ke kondisi terbaiknya.
+    <br />
+    Mulai dari proses pencucian, tips perawatan, sampai kisah pelanggan, semuanya kami bagikan untuk kamu. <br />
   </p>
   <div class="social-icons">
     <a href="https://www.facebook.com/p/sengkuclean-100064133437924/" target="_blank">
@@ -188,7 +263,9 @@ include_once "../partials/header-lp.php";
           </div>
         </div>
         <p class="title">Sepatu</p>
-        <p class="detail">Pulihkan kondisi sepatu favorit Anda dari kusam, lepas sol, hingga warna pudar; kami menawarkan layanan cleaning mendalam, reglue kuat, dan repaint presisi agar sepatu Anda siap beraksi kembali.</p>
+        <p class="detail">Pulihkan kondisi sepatu favorit Anda dari kusam, lepas sol, hingga warna pudar; kami
+          menawarkan layanan cleaning mendalam, reglue kuat, dan repaint presisi agar sepatu Anda siap beraksi kembali.
+        </p>
       </div>
     </a>
 
@@ -204,7 +281,8 @@ include_once "../partials/header-lp.php";
         </div>
         <p class="title">Tas</p>
         <p class="detail">
-        Serahkan tas kesayangan Anda pada layanan deep cleaning profesional kami untuk menghilangkan noda membandel dan mengembalikan kilau serta kualitas materialnya.
+          Serahkan tas kesayangan Anda pada layanan deep cleaning profesional kami untuk menghilangkan noda membandel
+          dan mengembalikan kilau serta kualitas materialnya.
         </p>
       </div>
     </a>
@@ -221,7 +299,8 @@ include_once "../partials/header-lp.php";
         </div>
         <p class="title">Topi</p>
         <p class="detail">
-        Jaga bentuk dan higienitas topi koleksi Anda dengan layanan cleaning spesialis kami yang efektif menghilangkan noda keringat, bakteri, dan bau tanpa merusak struktur.
+          Jaga bentuk dan higienitas topi koleksi Anda dengan layanan cleaning spesialis kami yang efektif menghilangkan
+          noda keringat, bakteri, dan bau tanpa merusak struktur.
         </p>
       </div>
     </a>
@@ -284,78 +363,19 @@ include_once "../partials/header-lp.php";
 
 <!-- ====== MEMBER SECTION ====== -->
 <section class="member-section" id="member">
-  <div class="container">
-    <div class="member-header">
-      <h2>Member Card</h2>
-      <div class="divider"></div>
-      <h3>SENGKUCLEAN MEMBER</h3>
-      <p class="desc">
-        Jadi bagian dari keluarga <strong>Sengkuclean</strong>. Nikmati berbagai keuntungan eksklusif seperti diskon layanan, prioritas pengerjaan, dan poin loyalitas setiap kali transaksi.
-      </p>
-    </div>
-
-    <div class="member-tiers">
-      <div class="member-tier">
-        <h4>Basic Member</h4>
-        <p>Gratis daftar! Dapatkan potongan 5% untuk layanan pertama dan notifikasi status pengerjaan langsung ke email.</p>
-        <ul>
-          <li>Potongan 5% layanan pertama</li>
-          <li>Notifikasi status via email</li>
-          <li>Update progress real-time</li>
-        </ul>
-      </div>
-      
-      <div class="member-tier">
-        <h4>Premium Member</h4>
-        <p>Nikmati potongan 10% setiap transaksi dan prioritas antrian layanan. Gratis upgrade bila sudah 10 kali transaksi.</p>
-        <ul>
-          <li>Potongan 10% setiap transaksi</li>
-          <li>Prioritas antrian pengerjaan</li>
-          <li>Free upgrade setelah 10x transaksi</li>
-          <li>Layanan customer service khusus</li>
-        </ul>
-        <a href="#" class="member-btn">Gabung Sekarang</a>
-      </div>
-      
-      <div class="member-tier">
-        <h4>VIP Member</h4>
-        <p>Keistimewaan eksklusif! Diskon 15%, free pickup & delivery, dan bonus perawatan setiap bulan.</p>
-        <ul>
-          <li>Diskon 15% semua layanan</li>
-          <li>Free pickup & delivery</li>
-          <li>Bonus perawatan bulanan</li>
-          <li>Priority customer service 24/7</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section class="contact-section" id="contact">
-  <h2>Location</h2>
-  <div class="divider-contact"></div>
-  <div class="contact-container">
-    <!-- LOKASI -->
-    <div class="contact-info">
-      <div class="info-box">
-        
-      </div>
-      <div class="map-wrapper">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.3466941868514!2d113.70631447477018!3d-8.16778309186307!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695c52e73d537%3A0x3b7dcad7e00c765!2sSengkuclean!5e0!3m2!1sid!2sid!4v1751220779476!5m2!1sid!2sid"
-          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-      </div>
-      <div class="alamat">
-        <p>
-          Jl. Bengawan Solo No.31, Tegal Boto Lor, Sumbersari, Kec.
-          Sumbersari, Kabupaten Jember, Jawa Timur
-        </p>
-      </div>
-    </div>
-
-    
+  <h2>Keuntungan Member</h2>
+  <div class="divider"></div>
+  <p class="desc">
+    Setiap pelanggan yang melakukan transaksi pertama dengan total pembelian lebih dari Rp80.000 berhak mendapatkan
+    kartu member sebagai bentuk apresiasi dari kami. Kartu member ini dapat digunakan untuk menikmati berbagai
+    keuntungan dan program loyalitas pada kunjungan berikutnya.
+  </p>
+  <p class="desc">
+    Untuk transaksi kedua dan seterusnya, pelanggan yang sudah memiliki kartu member dan kembali melakukan transaksi
+    dengan nilai di atas Rp80.000 akan memperoleh keuntungan tambahan, seperti potongan harga khusus atau bahkan layanan
+    gratis sesuai dengan promo yang sedang berlaku. Program ini dibuat untuk memberikan pengalaman yang lebih
+    menyenangkan dan menguntungkan bagi pelanggan setia kami.
+  </p>
   </div>
 </section>
 

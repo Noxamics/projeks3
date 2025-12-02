@@ -1,0 +1,283 @@
+/* ===========================
+   RESPONSIVE DESIGN
+   File: css/karyawan/responsive.css
+=========================== */
+
+/* Tablet - 768px and below */
+@media (max-width: 768px) {
+  .employee-page {
+    padding: var(--spacing-md);
+  }
+
+  .employee-page .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  /* Header */
+  .employee-page .page-title {
+    font-size: 36px;
+  }
+
+  .employee-page .header-controls {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .employee-page .left-section {
+    width: 100%;
+  }
+
+  .employee-page .control-buttons {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .employee-page .control-buttons > * {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .employee-page .view-toggle {
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Quick Stats */
+  .employee-page .quick-stats {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .employee-page .stat-card {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Filter Section */
+  .employee-page .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .employee-page .search-box {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .employee-page .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .employee-page .filter-buttons {
+    justify-content: space-between;
+  }
+
+  .employee-page .filter-btn {
+    flex: 1;
+  }
+
+  .employee-page .role-select {
+    width: 100%;
+  }
+
+  /* Cards Grid */
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+  }
+
+  /* Card Hover Effect - Reduce on mobile */
+  .employee-page .employee-card:hover {
+    transform: scale(1.05);
+  }
+
+  .employee-page .cards-grid:hover .employee-card:not(:hover) {
+    transform: scale(0.98);
+    opacity: 0.9;
+    filter: blur(1px);
+  }
+
+  /* Table */
+  .employee-page .table-wrapper {
+    padding: var(--spacing-md);
+  }
+
+  .employee-page .employee-table {
+    font-size: 13px;
+  }
+
+  .employee-page .employee-table th,
+  .employee-page .employee-table td {
+    padding: 10px 8px;
+  }
+
+  .employee-page .table-thumb {
+    width: 50px;
+    height: 50px;
+  }
+
+  .employee-page .action-buttons {
+    flex-direction: column;
+  }
+
+  /* Modal */
+  .employee-page .modal-box {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-sm);
+  }
+
+  .employee-page .modal-box h3 {
+    font-size: 24px;
+  }
+
+  .employee-page .detail-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .employee-page .detail-photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .employee-page .detail-info p::before {
+    display: none;
+  }
+
+  .employee-page .tabs {
+    flex-direction: column;
+  }
+
+  .employee-page .tab-btn {
+    padding: 12px;
+  }
+
+  .employee-page .time-display {
+    font-size: 42px;
+    padding: var(--spacing-lg);
+  }
+
+  .employee-page .modal-actions {
+    flex-direction: column;
+  }
+
+  .employee-page .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* Mobile - 480px and below */
+@media (max-width: 480px) {
+  .employee-page {
+    padding: var(--spacing-sm);
+  }
+
+  .employee-page .page-title {
+    font-size: 28px;
+  }
+
+  .employee-page .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .employee-page .cards-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .employee-page .card-name {
+    font-size: 18px;
+  }
+
+  .employee-page .employee-card:hover .card-name {
+    font-size: 20px;
+  }
+
+  .employee-page .stat-card {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .employee-page .stat-content h3 {
+    font-size: 24px;
+  }
+
+  .employee-page .stat-icon {
+    font-size: 28px;
+    width: 45px;
+    height: 45px;
+  }
+
+  /* Hide less important columns in table */
+  .employee-page .employee-table th:nth-child(6),
+  .employee-page .employee-table td:nth-child(6),
+  .employee-page .employee-table th:nth-child(7),
+  .employee-page .employee-table td:nth-child(7),
+  .employee-page .employee-table th:nth-child(9),
+  .employee-page .employee-table td:nth-child(9) {
+    display: none;
+  }
+
+  .employee-page .time-display {
+    font-size: 36px;
+  }
+
+  .employee-page .attendance-history {
+    overflow-x: auto;
+  }
+
+  .employee-page .attendance-history table {
+    font-size: 12px;
+  }
+}
+
+/* Large Desktop - 1600px and above */
+@media (min-width: 1600px) {
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 35px;
+  }
+
+  .employee-page .page-title {
+    font-size: 56px;
+  }
+
+  .employee-page .modal-box {
+    max-width: 700px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .employee-page .header-controls,
+  .employee-page .filter-section,
+  .employee-page .card-actions,
+  .employee-page .action-buttons,
+  .employee-page .modal {
+    display: none !important;
+  }
+
+  .employee-page .employee-card:hover {
+    transform: none;
+  }
+
+  .employee-page .cards-grid:hover .employee-card:not(:hover) {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .employee-page {
+    background: white;
+  }
+
+  .employee-page .employee-table th,
+  .employee-page .employee-table td {
+    border: 1px solid #ddd;
+  }
+}

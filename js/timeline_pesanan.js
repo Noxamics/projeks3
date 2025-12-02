@@ -189,18 +189,34 @@ function generateDeadlineList() {
 
   deadlineList.innerHTML = "";
 
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
   const upcomingDeadlines = deadlinesData
-    .map((deadline) => ({
-      ...deadline,
-      daysUntil: getDaysUntilDeadline(deadline.deadline_date),
-    }))
-    .filter((deadline) => deadline.daysUntil >= 0)
+    .map((deadline) => {
+      const deadlineDate = new Date(deadline.deadline_date);
+      return {
+        ...deadline,
+        daysUntil: getDaysUntilDeadline(deadline.deadline_date),
+        deadlineMonth: deadlineDate.getMonth(),
+        deadlineYear: deadlineDate.getFullYear(),
+      };
+    })
+    .filter((deadline) => {
+      // Filter: deadline harus >= 0 hari DAN harus di bulan sekarang
+      return (
+        deadline.daysUntil >= 0 &&
+        deadline.deadlineMonth === currentMonth &&
+        deadline.deadlineYear === currentYear
+      );
+    })
     .sort((a, b) => a.daysUntil - b.daysUntil)
     .slice(0, 10);
 
   if (upcomingDeadlines.length === 0) {
     deadlineList.innerHTML =
-      '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang</p>';
+      '<p style="color: #fff; text-align: center; padding: 20px;">Tidak ada deadline mendatang di bulan ini</p>';
     return;
   }
 
@@ -247,7 +263,7 @@ function generateDeadlineList() {
 let currentDisplayYear = new Date().getFullYear();
 let currentDisplayMonth = new Date().getMonth();
 
-// Fungsi untuk calendar
+// Fungsi untuk calendar - FIXED VERSION
 function generateCalendar() {
   const year = currentDisplayYear;
   const month = currentDisplayMonth;
@@ -276,6 +292,11 @@ function generateCalendar() {
     calendarGrid.appendChild(emptyElement);
   }
 
+  // PENTING: Hitung hari ini sekali saja di awal
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  today.setHours(0, 0, 0, 0);
+
   for (let i = 1; i <= daysInMonth; i++) {
     const dateElement = document.createElement("div");
     dateElement.className = "date";
@@ -286,14 +307,21 @@ function generateCalendar() {
     const deadlineInfo = getDeadlineInfo(dateString);
 
     if (deadlineInfo) {
-      const daysUntilDeadline = deadlineInfo.daysUntil;
       dateElement.classList.add("has-deadline");
 
+      // PENTING: Hitung sisa hari dari HARI INI ke tanggal di kalender
+      const deadlineDate = new Date(dateString);
+      deadlineDate.setHours(0, 0, 0, 0);
+
+      const timeDiff = deadlineDate - today;
+      const daysUntilDeadline = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+      // Tambahkan warna sesuai sisa hari dari HARI INI
       if (daysUntilDeadline <= 2) {
         dateElement.classList.add("deadline-critical");
       } else if (daysUntilDeadline <= 5) {
         dateElement.classList.add("deadline-warning");
-      } else if (daysUntilDeadline >= 6) {
+      } else {
         dateElement.classList.add("deadline-safe");
       }
 
@@ -303,11 +331,11 @@ function generateCalendar() {
       dateElement.title = `${tooltipText}\n(${daysUntilDeadline} hari lagi)`;
     }
 
-    const today = new Date();
+    // Tandai tanggal hari ini
     if (
-      i === today.getDate() &&
-      month === today.getMonth() &&
-      year === today.getFullYear()
+      i === now.getDate() &&
+      month === now.getMonth() &&
+      year === now.getFullYear()
     ) {
       dateElement.classList.add("active");
     }
@@ -330,14 +358,15 @@ function formatDate(date) {
 function getDeadlineInfo(dateString) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const deadlineDate = new Date(dateString);
-
   today.setHours(0, 0, 0, 0);
+
+  const deadlineDate = new Date(dateString);
   deadlineDate.setHours(0, 0, 0, 0);
 
   const timeDiff = deadlineDate - today;
   const daysUntil = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
 
+  // FILTER: Jangan tampilkan deadline yang sudah lewat
   if (daysUntil < 0) {
     return null;
   }
@@ -349,7 +378,6 @@ function getDeadlineInfo(dateString) {
   if (deadlinesOnDate.length > 0) {
     return {
       count: deadlinesOnDate.length,
-      daysUntil: daysUntil,
       orders: deadlinesOnDate,
     };
   }
@@ -750,6 +778,6 @@ document.addEventListener("DOMContentLoaded", function () {
   generateCalendar();
   generateDeadlineList();
   setupRealTimeSearch();
-  setupDoubleClickHandlers(); // Gunakan double click sesuai PHP
+  setupDoubleClickHandlers();
   setupModalHandlers();
 });
