@@ -11,7 +11,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 80px 20px 100px;
+  padding: 60px 20px 80px;
   overflow: hidden;
   transition: background-image 1s ease-in-out;
 }
@@ -34,22 +34,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1100px;
   width: 100%;
-  gap: 80px;
+  gap: 50px;
 }
 
 /* Left Side - Text Content */
 .hero-left {
   flex: 1;
-  max-width: 550px;
+  max-width: 500px;
 }
 
 .hero-title {
-  font-size: 72px;
+  font-size: 52px;
   font-weight: 900;
   line-height: 1.1;
-  margin: 0 0 30px 0;
+  margin: 0 0 20px 0;
   color: #ffffff;
   letter-spacing: -1px;
   text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.7);
@@ -61,24 +61,24 @@
 }
 
 .hero-description {
-  font-size: 18px;
-  line-height: 1.7;
-  margin: 0 0 35px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 25px 0;
   color: #ffffff;
-  max-width: 480px;
+  max-width: 450px;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .hero-buttons {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .btn-login,
 .btn-location {
-  padding: 16px 42px;
-  font-size: 18px;
+  padding: 12px 32px;
+  font-size: 16px;
   font-weight: 600;
   border: none;
   border-radius: 50px;
@@ -127,12 +127,12 @@
 
 .time-card-inner {
   background: transparent;
-  border-radius: 30px;
-  padding: 50px 60px;
+  border-radius: 20px;
+  padding: 30px 40px;
   box-shadow: none;
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
   transform: rotateY(-5deg) rotateX(5deg);
   transition: transform 0.3s ease;
   border: none;
@@ -140,7 +140,12 @@
 
 .clock-wrapper {
   position: relative;
-  filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.15));
+  filter: drop-shadow(0 8px 16px rgba(37, 99, 235, 0.15));
+}
+
+.clock-wrapper svg {
+  width: 80px;
+  height: 80px;
 }
 
 .time-text {
@@ -148,15 +153,15 @@
 }
 
 .time-label {
-  font-size: 24px;
+  font-size: 18px;
   color: #ffffff;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   font-style: italic;
   font-weight: 500;
 }
 
 .time-value {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 800;
   color: #2563eb;
   margin: 0;
@@ -165,7 +170,7 @@
 }
 
 .time-to {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 400;
   color: #ffffff;
 }
@@ -173,17 +178,17 @@
 /* Slideshow Dots */
 .slideshow-dots {
   position: absolute;
-  bottom: 40px;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 12px;
+  gap: 10px;
   z-index: 3;
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
@@ -198,8 +203,8 @@
 
 .dot.active {
   background-color: #ffffff;
-  width: 35px;
-  border-radius: 6px;
+  width: 30px;
+  border-radius: 5px;
   border-color: #ffffff;
 }
 
@@ -217,10 +222,10 @@
 }
 
 .circle-1 {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  right: -100px;
+  width: 350px;
+  height: 350px;
+  top: -80px;
+  right: -80px;
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 0.08) 0%,
@@ -230,10 +235,10 @@
 }
 
 .circle-2 {
-  width: 300px;
-  height: 300px;
-  bottom: -80px;
-  left: -80px;
+  width: 250px;
+  height: 250px;
+  bottom: -60px;
+  left: -60px;
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 0.06) 0%,
@@ -243,8 +248,8 @@
 }
 
 .circle-3 {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   top: 50%;
   right: 15%;
   background: radial-gradient(
@@ -282,5 +287,39 @@
   }
   50% {
     transform: translate(-20px, 20px) scale(1.05);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-container {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-description {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .time-card-inner {
+    padding: 20px 30px;
+  }
+
+  .time-value {
+    font-size: 26px;
+  }
+
+  .time-label {
+    font-size: 16px;
   }
 }

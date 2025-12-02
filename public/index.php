@@ -16,7 +16,7 @@ include_once "../partials/header-lp.php";
       <div class="hero-buttons">
         <button class="btn-login" onclick="window.location.href='../login/login.php'">Login</button>
         <button class="btn-location"
-          onclick="window.open('https://www.google.com/maps/dir//Sengkuclean+Jl.+Bengawan+Solo+No.31+Tegal+Boto+Lor,+Sumbersari+Kec.+Sumbersari,+Kabupaten+Jember,+Jawa+Timur/@-8.1677831,113.7088894,17z/data=!4m8!4m7!1m0!1m5!1m1!1s0x2dd695c52e73d537:0x3b7dcad7e00c765!2m2!1d113.7088894!2d-8.1677831?entry=ttu&g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D', '_blank')">Our
+          onclick="window.open('https://www.google.com/maps/place/Sengkuclean/@-8.1677831,113.7063145,17z/data=!3m1!4b1!4m6!3m5!1s0x2dd695c52e73d537:0x3b7dcad7e00c765!8m2!3d-8.1677831!4d113.7088894!16s%2Fg%2F11vd8j_c69?entry=ttu&g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D', '_blank')">Our
           Location</button>
       </div>
     </div>
