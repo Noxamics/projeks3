@@ -461,39 +461,149 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         document.getElementById('editModal').style.display = 'none';
     }
 
-    // ✅ SETUP SAAT DOM READY (HANYA SATU KALI)
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('✅ Setting up event listeners...');
+    // Tambahkan script ini di dalam timeline_pesanan.php, setelah DOM Content Loaded
 
-        // Format harga fix input
-        const fixedPriceInput = document.getElementById('edit_fixed_price');
-        if (fixedPriceInput) {
-            fixedPriceInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/[^0-9]/g, '');
-                e.target.value = formatRupiah(value);
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Setting up payment status handler...');
+        
+        // Event listener untuk perubahan status pembayaran
+        const paymentStatusSelect = document.getElementById('edit_payment_status');
+        const paymentDateInput = document.getElementById('edit_payment_date');
+        
+        if (paymentStatusSelect && paymentDateInput) {
+            // Simpan nilai awal saat modal dibuka
+            let originalPaymentStatus = '';
+            let originalPaymentDate = '';
+            
+            // Ketika modal dibuka, simpan status awal
+            const editModal = document.getElementById('editModal');
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'style') {
+                        if (editModal.style.display === 'block') {
+                            // Modal dibuka - simpan nilai awal
+                            originalPaymentStatus = paymentStatusSelect.value;
+                            originalPaymentDate = paymentDateInput.value;
+                            console.log('Modal opened - Original status:', originalPaymentStatus, 'Date:', originalPaymentDate);
+                        }
+                    }
+                });
             });
-        }
-
-        // Format nominal pembayaran
-        const amountInput = document.getElementById('edit_amount_paid_display');
-        if (amountInput) {
-            amountInput.addEventListener('input', function (e) {
-                let value = e.target.value.replace(/[^0-9]/g, '');
-                e.target.value = formatRupiah(value);
-                document.getElementById('edit_amount_paid').value = value;
+            
+            observer.observe(editModal, {
+                attributes: true,
+                attributeFilter: ['style']
             });
+            
+            // Handler untuk perubahan status pembayaran
+            paymentStatusSelect.addEventListener('change', function() {
+                const newStatus = this.value;
+                console.log('Payment status changed to:', newStatus);
+                console.log('Original status was:', originalPaymentStatus);
+                console.log('Current payment date:', paymentDateInput.value);
+                
+                // Jika diubah menjadi "Lunas" DAN sebelumnya "Belum Lunas" DAN tanggal pembayaran kosong
+                if (newStatus === 'Lunas' && 
+                    originalPaymentStatus === 'Belum Lunas' && 
+                    (!originalPaymentDate || originalPaymentDate === '')) {
+                    
+                    // Set tanggal hari ini
+                    const today = new Date();
+                    const formattedDate = today.toISOString().split('T')[0];
+                    paymentDateInput.value = formattedDate;
+                    
+                    console.log('✅ Auto-filled payment date:', formattedDate);
+                    
+                    // Tampilkan notifikasi kecil
+                    showNotification('📅 Tanggal pembayaran diisi otomatis: ' + formatDateDisplay(formattedDate));
+                }
+                // Jika diubah kembali ke "Belum Lunas" dan tanggal baru saja diisi otomatis
+                else if (newStatus === 'Belum Lunas' && 
+                        originalPaymentStatus === 'Belum Lunas' &&
+                        paymentDateInput.value !== originalPaymentDate) {
+                    
+                    // Kosongkan tanggal pembayaran
+                    paymentDateInput.value = '';
+                    console.log('✅ Cleared payment date');
+                    
+                    showNotification('🗑️ Tanggal pembayaran dikosongkan');
+                }
+            });
+            
+            console.log('✅ Payment status handler ready!');
         }
+    });
 
-        // Close modal dengan klik di luar
-        window.onclick = function (e) {
-            const modal = document.getElementById('editModal');
-            if (e.target === modal) {
-                closeEditModal();
+    // Fungsi untuk format tanggal ke display Indonesia
+    function formatDateDisplay(dateString) {
+        const date = new Date(dateString);
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('id-ID', options);
+    }
+
+    // Fungsi untuk menampilkan notifikasi sementara
+    function showNotification(message) {
+        // Hapus notifikasi lama jika ada
+        const oldNotif = document.querySelector('.auto-payment-notification');
+        if (oldNotif) {
+            oldNotif.remove();
+        }
+        
+        // Buat notifikasi baru
+        const notification = document.createElement('div');
+        notification.className = 'auto-payment-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        
+        // Tambahkan ke body
+        document.body.appendChild(notification);
+        
+        // Hapus setelah 3 detik
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Tambahkan CSS untuk animasi notifikasi
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
-
-        console.log('✅ Event listeners ready!');
-    });
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 <!-- Load external JavaScript -->
