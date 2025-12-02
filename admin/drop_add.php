@@ -1,8 +1,4 @@
 <?php
-// ==========================================
-// FILE: drop_add.php
-// ==========================================
-
 include('../db.php');
 session_start();
 
@@ -61,14 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // DATE CONVERSION & VALIDATION
         // ===========================================
         
+        // 1. Tanggal Masuk (trans_date)
         $trans_date = convertDateToDbFormat($input_trans_date);
         if ($trans_date === false) {
              throw new Exception("Format tanggal masuk tidak valid. Gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
         }
         if ($trans_date === null) {
-            $trans_date = date('Y-m-d');
+            $trans_date = date('Y-m-d'); // Default hari ini
         }
 
+        // 2. Tanggal Selesai (est_finish_date)
         $est_finish_date = convertDateToDbFormat($input_est_finish_date);
         if ($est_finish_date === false) {
              throw new Exception("Format tanggal selesai tidak valid. Gunakan format DD-MM-YYYY atau YYYY-MM-DD.");
@@ -92,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $note = trim($_POST['note'] ?? '');
 
         // ===========================================
-        // PERBAIKAN KRUSIAL: LOGIKA PAYMENT DATE
+        // LOGIKA PAYMENT DATE
         // ===========================================
         
         $input_payment_date = trim($_POST['payment_date'] ?? '');
@@ -142,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ===========================================
 
         $conn->begin_transaction();
-
+        
         // ===========================================
         // 1. CEK/SIMPAN CUSTOMER
         // ===========================================
@@ -155,6 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt_check->get_result();
 
         if ($result->num_rows > 0) {
+            // Customer sudah ada - update nama
             $customer_id = $result->fetch_assoc()['id_customer'];
             $stmt_update = $conn->prepare("UPDATE customers SET name = ? WHERE id_customer = ?");
             if (!$stmt_update) throw new Exception("Prepare failed (update customer): " . $conn->error);
@@ -162,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_update->execute();
             $stmt_update->close();
         } else {
+            // Customer baru - insert
             $stmt_customer = $conn->prepare("INSERT INTO customers (name, phone) VALUES (?, ?)");
             if (!$stmt_customer) throw new Exception("Prepare failed (insert customer): " . $conn->error);
             $stmt_customer->bind_param("ss", $customer_name, $phone_number);
@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_deadline->close();
 
         // ===========================================
-        // PERBAIKAN KRUSIAL: SIMPAN KE PAYMENTS
+        // 6. SIMPAN KE PAYMENTS
         // ===========================================
         
         error_log("=== INSERTING TO PAYMENTS TABLE ===");
@@ -260,7 +260,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$stmt_payment) throw new Exception("Prepare failed (insert payments 1): " . $conn->error);
             $stmt_payment->bind_param("idss", $drop_id, $amount_paid, $payment_method, $payment_status);
         } else {
-            // PENTING: Gunakan STR_TO_DATE untuk konversi DATE
             $stmt_payment = $conn->prepare("
                 INSERT INTO payments (drop_id, amount_paid, payment_method, payment_date, status)
                 VALUES (?, ?, ?, STR_TO_DATE(?, '%Y-%m-%d'), ?)
@@ -283,38 +282,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->commit();
         error_log("✅ Transaction committed successfully!");
 
-        // Response untuk print request
-        if (isset($_GET['print']) && $_GET['print'] == '1') {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'drop_id' => $drop_id, 'message' => 'Data berhasil disimpan!']);
-            exit;
-        }
-
-        // Redirect normal
-        echo "
-        <script>
-            sessionStorage.setItem('showSuccess', 'true');
-            sessionStorage.setItem('successMessage', 'Data berhasil disimpan!');
-            window.location.href = 'drop.php';
-        </script>";
+        // ===========================================
+        // RESPONSE - UPDATED FOR SAVE & PRINT
+        // ===========================================
+        
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true, 
+            'drop_id' => $drop_id,
+            'order_code' => $order_code,
+            'message' => 'Pesanan berhasil disimpan!'
+        ]);
+        error_log("✅ JSON Response sent with drop_id: " . $drop_id);
         exit;
 
     } catch (Exception $e) {
+        // ===========================================
+        // ERROR HANDLING
+        // ===========================================
+        
         $conn->rollback();
+
         error_log("❌ DROP ADD ERROR: " . $e->getMessage());
         error_log("Stack trace: " . $e->getTraceAsString());
 
-        if (isset($_GET['print']) && $_GET['print'] == '1') {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-            exit;
-        }
-
-        echo "
-        <script>
-            alert('Gagal menyimpan data: " . addslashes($e->getMessage()) . "');
-            window.history.back();
-        </script>";
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+        error_log("❌ JSON Error Response sent");
         exit;
     }
 }
