@@ -1,11 +1,11 @@
 /* Palet Warna Utama Sengkuclean yang Diterapkan */
 :root {
-  --color-navy: #1a438a; /* Biru Tua/Navy - untuk Header, Judul Utama, Angka Statistik */
-  --color-medium-blue: #3a98ff; /* Biru Medium - untuk Aksen/Gradient */
-  --color-logout: #f44336; /* Merah - Dipertahankan untuk Logout */
-  --color-user-type: #4caf50; /* Hijau - Dipertahankan untuk User Type */
-  --color-background: #f5f7fa; /* Abu-abu terang latar belakang */
-  --color-text-default: #333; /* Teks biasa */
+  --color-navy: #1a438a;
+  --color-medium-blue: #3a98ff;
+  --color-logout: #f44336;
+  --color-user-type: #4caf50;
+  --color-background: #f5f7fa;
+  --color-text-default: #333;
 }
 
 * {
@@ -21,34 +21,22 @@ body {
 }
 
 .header {
-  /* LATAR BELAKAR DIUBAH MENJADI PUTIH */
   background: #ffffff;
-
-  /* WARNA TEKS DIUBAH MENJADI HITAM (Atau warna teks default Anda) */
   color: #333;
-
   padding: 20px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  /* SHADOW DIBAWAH HEADER SEBAGAI PEMBATAS */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  /* Properti lain dari header */
-  /* Pastikan semua diakhiri dengan titik koma (;) */
 }
 
-/* Tambahan: Pastikan link navigasi juga berwarna hitam/navy */
 .header-nav .nav-link {
-  color: var(
-    --color-navy
-  ); /* Menggunakan Biru Tua/Navy untuk link agar terlihat */
+  color: var(--color-navy);
 }
 
 .btn-logout {
-  background: var(--color-logout); /* Merah dipertahankan */
-  color: black !important; /* ✅ PAKSAKAN WARNA HITAM. Gunakan !important jika terjadi konflik dengan .nav-link */
+  background: var(--color-logout);
+  color: white !important;
   padding: 10px 25px;
   border-radius: 8px;
   font-weight: 600;
@@ -88,13 +76,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.btn-logout {
-  background: var(--color-logout); /* Dipertahankan merah */
-  padding: 10px 25px;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
 .btn-logout:hover {
   background: #d32f2f;
 }
@@ -118,7 +99,7 @@ body {
 }
 
 .welcome-section h1 {
-  color: #f5f7fa; /* Diubah ke Biru Tua */
+  color: #f5f7fa;
   font-size: 32px;
   margin-bottom: 15px;
 }
@@ -131,7 +112,6 @@ body {
 
 .user-type {
   display: inline-block;
-  /* Warna hijau dipertahankan/disesuaikan */
   background: linear-gradient(135deg, var(--color-user-type) 0%, #45a049 100%);
   color: white;
   padding: 8px 20px;
@@ -154,7 +134,7 @@ body {
   border-radius: 15px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s;
-  border-left: 4px solid var(--color-user-type); /* Dipertahankan hijau */
+  border-left: 4px solid var(--color-user-type);
 }
 
 .stat-card:hover {
@@ -174,7 +154,7 @@ body {
 .stat-number {
   font-size: 36px;
   font-weight: 700;
-  color: var(--color-navy); /* Diubah ke Biru Tua/Navy */
+  color: var(--color-navy);
 }
 
 .recent-section {
@@ -186,7 +166,7 @@ body {
 }
 
 .recent-section h2 {
-  color: var(--color-navy); /* Diubah ke Biru Tua/Navy */
+  color: var(--color-navy);
   font-size: 24px;
   margin-bottom: 20px;
 }
@@ -204,7 +184,7 @@ th {
   padding: 15px;
   text-align: left;
   font-weight: 600;
-  color: var(--color-navy); /* Diubah ke Biru Tua/Navy */
+  color: var(--color-navy);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -226,16 +206,14 @@ tbody tr:hover {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  /* Menggunakan Biru Medium dan Biru Tua untuk Status Badge */
   background: #e3f2fd;
   color: var(--color-medium-blue);
 }
 
-/* PROGRES SECTION – YANG BARU KITA BUAT */
 .progress-section {
   margin: 40px 0;
   padding: 30px;
-  background: var(--color-card);
+  background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
@@ -352,20 +330,14 @@ tbody tr:hover {
   font-size: 18px;
 }
 
-/* Memberikan jarak antara Testimoni & Contact Form */
 .testimonial-section {
   padding: 30px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-}
-
-/* Hilangkan garis biru kiri */
-.testimonial-section {
   border-left: none !important;
 }
 
-/* Judul Testimoni */
 .testimonial-title {
   text-align: center;
   color: var(--color-navy);
@@ -373,14 +345,12 @@ tbody tr:hover {
   margin-bottom: 25px;
 }
 
-/* Form */
 .testimonial-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* Textarea */
 .testimonial-form textarea {
   padding: 14px;
   border-radius: 10px;
@@ -389,7 +359,6 @@ tbody tr:hover {
   resize: vertical;
 }
 
-/* Tombol submit (warna #154283) */
 .testi-btn {
   padding: 14px;
   background: var(--color-navy);
@@ -405,7 +374,6 @@ tbody tr:hover {
   background: #0f3166;
 }
 
-/* ⭐ Rating Bintang */
 .star-rating {
   display: inline-flex !important;
   width: auto !important;
@@ -419,7 +387,7 @@ tbody tr:hover {
 }
 
 .star-rating .star.active {
-  color: #ffd700 !important; /* ⭐ kuning */
+  color: #ffd700 !important;
 }
 
 .star-rating .star:hover {
@@ -437,7 +405,7 @@ tbody tr:hover {
 }
 
 .contact-form h3 {
-  color: var(--color-navy); /* Diubah ke Biru Tua/Navy */
+  color: var(--color-navy);
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 30px;
@@ -462,14 +430,14 @@ tbody tr:hover {
 
 .contact-form input:focus,
 .contact-form textarea:focus {
-  border-color: var(--color-medium-blue); /* Diubah ke Biru Medium */
+  border-color: var(--color-medium-blue);
   outline: none;
-  box-shadow: 0 0 5px rgba(58, 152, 255, 0.4); /* Disesuaikan dengan Biru Medium */
-  color: var(--color-navy); /* Diubah ke Biru Tua */
+  box-shadow: 0 0 5px rgba(58, 152, 255, 0.4);
+  color: var(--color-navy);
 }
 
 .contact-form button {
-  background: var(--color-navy); /* Diubah ke Biru Tua/Navy */
+  background: var(--color-navy);
   color: white;
   padding: 12px 20px;
   border: none;
@@ -483,7 +451,7 @@ tbody tr:hover {
 }
 
 .contact-form button:hover {
-  background: #154283; /* Sedikit lebih gelap dari Biru Tua */
+  background: #154283;
 }
 
 .wa-button {
@@ -504,14 +472,10 @@ tbody tr:hover {
 }
 
 .info-box {
-  background: linear-gradient(
-    135deg,
-    #fff3cd 0%,
-    #fff9e6 100%
-  ); /* Dipertahankan kuning */
+  background: linear-gradient(135deg, #fff3cd 0%, #fff9e6 100%);
   padding: 20px;
   border-radius: 15px;
-  border-left: 4px solid #ffc107; /* Dipertahankan kuning */
+  border-left: 4px solid #ffc107;
 }
 
 .info-box h3 {
@@ -533,32 +497,454 @@ tbody tr:hover {
   color: #856404;
 }
 
+/* ===================================
+   RESPONSIVE DESIGN - TABLET & MOBILE
+   =================================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    padding: 25px 30px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .progress-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+/* Mobile Large (481px - 768px) */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     gap: 15px;
-    padding: 20px;
+    padding: 15px 20px;
   }
 
-  .header-nav {
-    flex-wrap: wrap;
+  .header-logo {
+    width: 100%;
     justify-content: center;
   }
 
+  .header-logo h2 {
+    font-size: 18px;
+  }
+
+  .header-logo img {
+    height: 35px;
+  }
+
+  .header-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .nav-link {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  .btn-logout {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+
   .container {
+    padding: 20px 15px;
+  }
+
+  .welcome-section {
     padding: 20px;
+  }
+
+  .welcome-section h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .welcome-section p {
+    font-size: 14px;
+  }
+
+  .user-type {
+    font-size: 12px;
+    padding: 6px 15px;
   }
 
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+
+  .recent-section {
+    padding: 20px 15px;
+  }
+
+  .recent-section h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  /* Tabel responsif - scroll horizontal */
+  .recent-section > div {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   table {
-    font-size: 14px;
+    font-size: 13px;
+    min-width: 600px;
   }
 
   th,
   td {
-    padding: 10px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  th {
+    font-size: 11px;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .progress-section {
+    padding: 20px 15px;
+    margin: 30px 0;
+  }
+
+  .progress-section h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .progress-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .progress-card {
+    padding: 20px;
+  }
+
+  .progress-header {
+    font-size: 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .order-code {
+    align-self: flex-start;
+  }
+
+  .progress-steps {
+    margin: 15px 0;
+  }
+
+  .step {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  .progress-percentage {
+    font-size: 16px;
+  }
+
+  .testimonial-section {
+    padding: 20px 15px;
+  }
+
+  .testimonial-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .star-rating {
+    font-size: 35px;
+    gap: 10px;
+  }
+
+  .testimonial-form textarea {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .testi-btn {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .contact-form {
+    padding: 20px 15px;
+    margin-top: 30px;
+  }
+
+  .contact-form h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .info-box {
+    padding: 15px;
+  }
+
+  .info-box h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .info-box p {
+    font-size: 13px;
+  }
+
+  .note {
+    font-size: 12px;
+  }
+}
+
+/* Mobile Small (320px - 480px) */
+@media (max-width: 480px) {
+  .header-logo h2 {
+    font-size: 16px;
+  }
+
+  .header-logo img {
+    height: 30px;
+  }
+
+  .header-nav {
+    gap: 8px;
+  }
+
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .btn-logout {
+    padding: 6px 15px;
+    font-size: 13px;
+  }
+
+  .container {
+    padding: 15px 10px;
+  }
+
+  .welcome-section {
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .welcome-section h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .welcome-section p {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .user-type {
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+
+  .stat-card {
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .stat-card h3 {
+    font-size: 12px;
+  }
+
+  .stat-number {
+    font-size: 24px;
+  }
+
+  .recent-section {
+    padding: 15px 10px;
+    border-radius: 12px;
+  }
+
+  .recent-section h2 {
+    font-size: 18px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .progress-section {
+    padding: 15px 10px;
+    border-radius: 12px;
+  }
+
+  .progress-section h2 {
+    font-size: 18px;
+  }
+
+  .progress-card {
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .progress-header {
+    font-size: 14px;
+  }
+
+  .order-code {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .step {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .progress-percentage {
+    font-size: 14px;
+  }
+
+  .progress-status small {
+    font-size: 12px;
+  }
+
+  .testimonial-section {
+    padding: 15px 10px;
+    border-radius: 12px;
+  }
+
+  .testimonial-title {
+    font-size: 20px;
+  }
+
+  .star-rating {
+    font-size: 30px;
+    gap: 8px;
+  }
+
+  .testimonial-form textarea {
+    font-size: 13px;
+  }
+
+  .testi-btn {
+    font-size: 14px;
+  }
+
+  .contact-form {
+    padding: 15px 10px;
+    border-radius: 15px;
+  }
+
+  .contact-form h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .wa-button img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .info-box {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .info-box h3 {
+    font-size: 15px;
+  }
+
+  .info-box p {
+    font-size: 12px;
+  }
+
+  .note {
+    font-size: 11px;
+  }
+}
+
+/* Extra Small Mobile (< 375px) */
+@media (max-width: 374px) {
+  .welcome-section h1 {
+    font-size: 18px;
+  }
+
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .progress-steps {
+    gap: 5px;
+  }
+
+  .step {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .star-rating {
+    font-size: 28px;
+    gap: 6px;
+  }
+}
+
+/* Landscape Mode untuk Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .header {
+    padding: 10px 15px;
+  }
+
+  .container {
+    padding: 15px;
+  }
+
+  .welcome-section {
+    padding: 15px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
