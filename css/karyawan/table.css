@@ -1,16 +1,66 @@
 /* ===========================
-   TABLE BUTTON FIX
-   Pastikan button table berfungsi
+   TABLE LAYOUT & COLUMN WIDTH
 =========================== */
+.employee-page .employee-table {
+  width: 100%;
+  table-layout: fixed; /* Kolom width tetap */
+}
 
-/* Table Actions - IMPORTANT: Higher specificity */
+.employee-page .employee-table th:nth-child(1),
+.employee-page .employee-table td:nth-child(1) {
+  width: 5%; /* # */
+  text-align: center;
+}
+
+.employee-page .employee-table th:nth-child(2),
+.employee-page .employee-table td:nth-child(2) {
+  width: 8%; /* FOTO */
+  text-align: center;
+}
+
+.employee-page .employee-table th:nth-child(3),
+.employee-page .employee-table td:nth-child(3) {
+  width: 12%; /* KODE */
+}
+
+.employee-page .employee-table th:nth-child(4),
+.employee-page .employee-table td:nth-child(4) {
+  width: 18%; /* NAMA */
+}
+
+.employee-page .employee-table th:nth-child(5),
+.employee-page .employee-table td:nth-child(5) {
+  width: 15%; /* NO HP */
+}
+
+.employee-page .employee-table th:nth-child(6),
+.employee-page .employee-table td:nth-child(6) {
+  width: 12%; /* STATUS */
+  text-align: center;
+}
+
+.employee-page .employee-table th:nth-child(7),
+.employee-page .employee-table td:nth-child(7) {
+  width: 15%; /* ROLES */
+  text-align: center;
+}
+
+.employee-page .employee-table th:nth-child(8),
+.employee-page .employee-table td:nth-child(8) {
+  width: 15%; /* AKSI */
+  text-align: center;
+}
+
+/* ===========================
+   TABLE BUTTON FIX
+=========================== */
 .employee-page .table-actions {
   display: flex;
   gap: 8px;
   justify-content: center;
   align-items: center;
   position: relative;
-  z-index: 100 !important; /* CRITICAL: Highest z-index */
+  z-index: 100 !important;
   pointer-events: auto !important;
 }
 
@@ -27,8 +77,8 @@
   min-width: 36px;
   min-height: 36px;
   position: relative;
-  z-index: 101 !important; /* CRITICAL: Higher than parent */
-  pointer-events: auto !important; /* CRITICAL: Always clickable */
+  z-index: 101 !important;
+  pointer-events: auto !important;
   user-select: none;
 }
 
@@ -61,13 +111,13 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Pastikan table cell tidak block pointer events */
 .employee-page .employee-table td {
   position: relative;
   pointer-events: auto;
+  vertical-align: middle;
+  padding: 12px 8px;
 }
 
-/* Fix untuk row yang interactive */
 .employee-page .table-row-interactive {
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -78,7 +128,6 @@
   background-color: rgba(0, 102, 204, 0.05);
 }
 
-/* CRITICAL: Pastikan cell dengan button tidak trigger row click */
 .employee-page .employee-table td:last-child {
   pointer-events: auto !important;
   position: relative;
@@ -89,7 +138,6 @@
   pointer-events: auto !important;
 }
 
-/* Optional: Tambahkan visual feedback */
 .employee-page .btn-table::before {
   content: "";
   position: absolute;
@@ -108,7 +156,6 @@
   height: 100px;
 }
 
-/* Pastikan text/emoji di dalam button terlihat */
 .employee-page .btn-table > * {
   position: relative;
   z-index: 1;

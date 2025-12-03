@@ -182,5 +182,3 @@
         </form>
     </div>
 </div>
-
-<script src="../js/karyawan/notification.js"></script>

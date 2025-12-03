@@ -82,7 +82,6 @@
             <div class="attendance-section" id="checkout-section" style="display:none;">
                 <div class="section-header">
                     <h4>
-                        <span class="icon">🔴</span>
                         Check Out
                     </h4>
                     <span class="section-subtitle">Selesai Kerja</span>
@@ -93,28 +92,24 @@
                     <h5>Ringkasan Kerja Hari Ini</h5>
                     <div class="summary-grid">
                         <div class="summary-item">
-                            <span class="summary-icon">👟</span>
                             <div class="summary-details">
                                 <strong id="summary_shoes">0</strong>
                                 <span>Sepatu Selesai</span>
                             </div>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-icon">⏱️</span>
                             <div class="summary-details">
                                 <strong id="summary_duration">0</strong>
                                 <span>Jam Kerja</span>
                             </div>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-icon">👔</span>
                             <div class="summary-details">
                                 <strong id="summary_role">-</strong>
                                 <span>Role</span>
                             </div>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-icon">⭐</span>
                             <div class="summary-details">
                                 <strong id="summary_score">0</strong>
                                 <span>Score</span>
@@ -269,6 +264,3 @@
         font-style: italic;
     }
 </style>
-
-<script src="../js/karyawan/notification.js"></script>
-<script src="../js/karyawan/attendance.js"></script>

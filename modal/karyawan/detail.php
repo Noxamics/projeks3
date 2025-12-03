@@ -138,5 +138,3 @@
         </div>
     </div>
 </div>
-
-<script src="../js/karyawan/notification.js"></script>

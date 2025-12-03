@@ -233,12 +233,17 @@ function getEmployeePhotoPath($photoFile, $name, $index)
 
                             <div class="stat-footer">
                                 <span class="stat-info">
-                                    <!-- ICON SVG -->
+                                    <!-- ICON SVG - FIXED -->
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 21V19C20 17.9391 19.5786 16.9217 ..." stroke="#f59e0b"
-                                            stroke-width="2" />
-                                        <path d="M12 11C14.2091 11 16 9.20914 ..." stroke="#f59e0b" stroke-width="2" />
+                                        <path
+                                            d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+                                            stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                        <path
+                                            d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
+                                            stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
                                     </svg>
 
                                     <?php
@@ -512,12 +517,28 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                                 <button class="btn-table btn-edit"
                                                     onclick="event.stopPropagation(); openEditModal(<?php echo $json; ?>)"
                                                     title="Edit Karyawan">
-                                                    ✏️
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                        </path>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                        </path>
+                                                    </svg>
                                                 </button>
                                                 <button class="btn-table btn-delete"
                                                     onclick="event.stopPropagation(); openDeleteModal(<?php echo $emp['id_employee']; ?>, '<?php echo htmlspecialchars($emp['name'], ENT_QUOTES); ?>')"
                                                     title="Hapus Karyawan">
-                                                    🗑️
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path
+                                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                        </path>
+                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                    </svg>
                                                 </button>
                                             </div>
                                         </td>
