@@ -12,7 +12,7 @@ $customerId = $userData['id'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Customer | SengkuClean</title>
-    <link rel="icon" type="image/png" href="../public/img/logo.png">
+    <link rel="icon" type="image/png" href="../a/img/logo.png">
     <link rel="stylesheet" href="../css/cs_dashboard.css">
     <script src="../js/customer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
