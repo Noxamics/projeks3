@@ -1,309 +1,187 @@
-<!-- 
-  Add Employee Modal - COMPLETE VERSION
-  Location: modal/karyawan/add.php
--->
+<link rel="stylesheet" href="../css/karyawan/notification.css">
+
 <div id="modalAdd" class="modal">
     <div class="modal-box">
-        <h3>➕ Tambah Karyawan Baru</h3>
+        <h3>Tambah Karyawan Baru</h3>
 
-        <!-- Alert for messages -->
-        <div id="add_alert" class="alert" style="display: none;"></div>
-
-        <form id="formAdd" method="POST" enctype="multipart/form-data">
+        <form id="formAddEmployee" method="POST" enctype="multipart/form-data">
 
             <!-- Employee Code -->
-            <label for="add_employee_code">
-                Kode Karyawan <span style="color: red;">*</span>
-            </label>
-            <input type="text" id="add_employee_code" name="employee_code" placeholder="Contoh: EMP001" required
-                maxlength="20" pattern="[A-Z0-9]+" title="Gunakan huruf KAPITAL dan angka saja (contoh: EMP001)"
-                style="text-transform: uppercase;">
-            <small style="color: #666; font-size: 12px;">Format: Huruf kapital + angka (EMP001, KRY002, dll)</small>
+            <div class="form-group">
+                <label for="add_employee_code" class="required">Kode Karyawan</label>
+                <input type="text" id="add_employee_code" name="employee_code" class="form-control" readonly
+                    style="background:#eee; cursor:not-allowed;">
+            </div>
 
             <!-- Name -->
-            <label for="add_name">
-                Nama Lengkap <span style="color: red;">*</span>
-            </label>
-            <input type="text" id="add_name" name="name" placeholder="Contoh: Ahmad Wijaya" required maxlength="100">
-            <small style="color: #666; font-size: 12px;">Nama lengkap sesuai KTP</small>
+            <div class="form-group">
+                <label for="add_name" class="required">Nama Lengkap</label>
+                <input type="text" id="add_name" name="name" class="form-control" placeholder="Nama Lengkap Karyawan"
+                    required maxlength="100">
+            </div>
 
             <!-- Phone -->
-            <label for="add_phone">
-                Nomor HP <span style="color: red;">*</span>
-            </label>
-            <input type="tel" id="add_phone" name="phone" placeholder="Contoh: 081234567890" required
-                pattern="[0-9]{10,15}" title="Masukkan nomor HP yang valid (10-15 digit angka)" maxlength="15">
-            <small style="color: #666; font-size: 12px;">Format: 10-15 digit angka tanpa spasi atau tanda baca</small>
+            <div class="form-group">
+                <label for="add_phone" class="required">Nomor HP</label>
+                <input type="tel" id="add_phone" name="phone" class="form-control" placeholder="08XX-XXXX-XXXX" required
+                    pattern="[0-9]{10,15}" maxlength="15" title="Masukkan nomor HP 10-15 digit">
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="add_email">Email</label>
+                <input type="email" id="add_email" name="email" class="form-control" placeholder="email@example.com"
+                    maxlength="100">
+                <small class="form-hint">Opsional</small>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label for="add_address">Alamat</label>
+                <textarea id="add_address" name="address" class="form-control" rows="3"
+                    placeholder="Alamat Karyawan"></textarea>
+                <small class="form-hint">Opsional</small>
+            </div>
+
+            <!-- Birth Date -->
+            <div class="form-group">
+                <label for="add_birth_date">Tanggal Lahir</label>
+                <input type="date" id="add_birth_date" name="birth_date" class="form-control">
+                <small class="form-hint">Opsional</small>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="form-group">
+                <label for="add_emergency_contact">Kontak Darurat</label>
+                <input type="tel" id="add_emergency_contact" name="emergency_contact" class="form-control"
+                    placeholder="08XX-XXXX-XXXX" pattern="[0-9]{10,15}" maxlength="15">
+                <small class="form-hint">Nomor Cadangan (Opsional)</small>
+            </div>
+
+            <!-- Base Salary -->
+            <div class="form-group">
+                <label for="add_base_salary">Gaji Pokok</label>
+                <input type="number" id="add_base_salary" name="base_salary" class="form-control" placeholder="0"
+                    min="0" step="0.01" value="0.00">
+                <small class="form-hint">Dalam Rupiah. Default: 0.00</small>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="add_password" class="required">Password</label>
+                <div class="password-container">
+                    <input type="password" id="add_password" name="password" class="form-control password-input"
+                        placeholder="Masukkan Password" required minlength="6">
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('add_password', this)">
+                        <svg class="icon-eye" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+                <small class="form-hint">Minimal 6 karakter</small>
+            </div>
 
             <!-- Join Date -->
-            <label for="add_join_date">
-                Tanggal Bergabung <span style="color: red;">*</span>
-            </label>
-            <input type="date" id="add_join_date" name="join_date" required max="<?php echo date('Y-m-d'); ?>">
-            <small style="color: #666; font-size: 12px;">Tanggal mulai bekerja</small>
-
-            <!-- Roles (Multiple Selection) -->
-            <label style="margin-top: 20px;">
-                Role / Tugas <span style="color: red;">*</span>
-            </label>
-            <small style="color: #666; font-size: 12px; display: block; margin-bottom: 10px;">
-                Pilih minimal 1 role (bisa lebih dari 1)
-            </small>
-            <div
-                style="display: flex; flex-direction: column; gap: 10px; padding: 15px; background: #f8fbff; border-radius: 10px; border: 2px solid #e3f2fd;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="roles[]" value="cleaning" id="add_role_cleaning" checked
-                        style="width: 18px; height: 18px; cursor: pointer;">
-                    <span style="font-weight: 600;">🧹 Cleaning</span>
-                    <small style="color: #666;">(Pembersihan sepatu)</small>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="roles[]" value="reglue" id="add_role_reglue"
-                        style="width: 18px; height: 18px; cursor: pointer;">
-                    <span style="font-weight: 600;">🔧 Reglue</span>
-                    <small style="color: #666;">(Perekat sepatu)</small>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="roles[]" value="repaint" id="add_role_repaint"
-                        style="width: 18px; height: 18px; cursor: pointer;">
-                    <span style="font-weight: 600;">🎨 Repaint</span>
-                    <small style="color: #666;">(Pengecatan sepatu)</small>
-                </label>
-
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="roles[]" value="kasir" id="add_role_kasir"
-                        style="width: 18px; height: 18px; cursor: pointer;">
-                    <span style="font-weight: 600;">💰 Kasir</span>
-                    <small style="color: #666;">(Transaksi pembayaran)</small>
-                </label>
+            <div class="form-group">
+                <label for="add_join_date" class="required">Tanggal Bergabung</label>
+                <input type="date" id="add_join_date" name="join_date" class="form-control" required
+                    value="<?php echo date('Y-m-d'); ?>">
             </div>
 
             <!-- Status -->
-            <label for="add_status">
-                Status Karyawan <span style="color: red;">*</span>
-            </label>
-            <select id="add_status" name="status" required>
-                <option value="Aktif" selected>✅ Aktif - Sedang bekerja</option>
-                <option value="Cuti">🏖️ Cuti - Sedang libur</option>
-                <option value="Non-Aktif">❌ Non-Aktif - Tidak aktif</option>
-            </select>
-            <small style="color: #666; font-size: 12px;">Status keaktifan karyawan saat ini</small>
-
-            <!-- Password -->
-            <label for="add_password">
-                Password <span style="color: red;">*</span>
-            </label>
-            <input type="password" id="add_password" name="password" placeholder="Minimal 6 karakter" required
-                minlength="6" maxlength="50">
-            <small style="color: #666; font-size: 12px;">
-                Password untuk login dan absensi (min. 6 karakter)
-            </small>
-
-            <!-- Show Password Toggle -->
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 10px;">
-                <input type="checkbox" id="add_show_password" onclick="togglePasswordVisibility('add_password', this)"
-                    style="width: 16px; height: 16px;">
-                <span style="font-size: 13px; color: #666;">Tampilkan password</span>
-            </label>
-
-            <!-- Photo -->
-            <label for="add_photo" style="margin-top: 20px;">
-                Foto Karyawan (Opsional)
-            </label>
-            <input type="file" id="add_photo" name="photo" accept="image/jpeg,image/png,image/jpg"
-                onchange="previewAddPhoto(this)">
-            <small style="color: #666; font-size: 12px;">
-                Format: JPG, JPEG, PNG • Maksimal 5MB • Rasio 3:4 (foto portrait)
-            </small>
-
-            <!-- Photo Preview -->
-            <div id="add_photo_preview" style="display: none; margin-top: 15px; text-align: center;">
-                <p style="font-size: 13px; color: #0066cc; margin-bottom: 10px;">
-                    <strong>Preview Foto:</strong>
-                </p>
-                <img id="add_photo_preview_img" src="" alt="Preview"
-                    style="max-width: 200px; max-height: 250px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 3px solid #e3f2fd;">
-                <button type="button" onclick="removePhotoPreview()"
-                    style="display: block; margin: 10px auto 0; padding: 8px 16px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px;">
-                    ❌ Hapus Foto
-                </button>
+            <div class="form-group">
+                <label for="add_status">Status Awal</label>
+                <input type="text" id="add_status" name="status" class="form-control" value="Non-Aktif" readonly
+                    style="background: #f0f0f0; cursor: not-allowed;">
+                <small class="form-hint">Status otomatis "Non-Aktif". Akan berubah "Aktif" saat karyawan melakukan check
+                    in absensi.</small>
             </div>
 
-            <!-- Actions -->
-            <div class="modal-actions" style="margin-top: 30px;">
-                <button type="submit" class="btn-save" id="btn_add_save">
-                    💾 Simpan Karyawan
+            <!-- Roles -->
+            <div class="form-group">
+                <label class="required">Role / Posisi</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="roles[]" value="cleaning" id="add_role_cleaning" checked>
+                        <span class="role-badge role-cleaning">Cleaning</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="roles[]" value="reglue" id="add_role_reglue">
+                        <span class="role-badge role-reglue">Reglue</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="roles[]" value="repaint" id="add_role_repaint">
+                        <span class="role-badge role-repaint">Repaint</span>
+                    </label>
+                </div>
+                <small class="form-hint">Pilih Minimal 1 Role</small>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="form-group">
+                <label for="add_photo">Foto Karyawan</label>
+                <input type="file" id="add_photo" name="photo" class="form-control"
+                    accept="image/jpeg,image/jpg,image/png"
+                    onchange="previewImageWithEditor(this, 'add_photo_preview')">
+                <small class="form-hint">Format: JPG, JPEG, PNG. Max: 2MB (Opsional)</small>
+
+                <!-- Photo Preview with Editor -->
+                <div id="add_photo_preview" class="photo-preview-editor" style="display: none;">
+                    <div class="preview-controls">
+                        <button type="button" class="btn-control" onclick="rotateImage('add_photo_preview', -90)"
+                            title="Rotate Left">
+                            ↶
+                        </button>
+                        <button type="button" class="btn-control" onclick="rotateImage('add_photo_preview', 90)"
+                            title="Rotate Right">
+                            ↷
+                        </button>
+                        <button type="button" class="btn-control" onclick="flipImage('add_photo_preview', 'horizontal')"
+                            title="Flip Horizontal">
+                            ↔
+                        </button>
+                        <button type="button" class="btn-control" onclick="flipImage('add_photo_preview', 'vertical')"
+                            title="Flip Vertical">
+                            ↕
+                        </button>
+                        <button type="button" class="btn-control" onclick="zoomImage('add_photo_preview', 0.1)"
+                            title="Zoom In">
+                            +
+                        </button>
+                        <button type="button" class="btn-control" onclick="zoomImage('add_photo_preview', -0.1)"
+                            title="Zoom Out">
+                            -
+                        </button>
+                        <button type="button" class="btn-control" onclick="resetImage('add_photo_preview')"
+                            title="Reset">
+                            ⟲
+                        </button>
+                    </div>
+                    <div class="preview-container">
+                        <img src="" alt="Preview" class="preview-image" data-rotation="0" data-scale="1" data-flip-h="1"
+                            data-flip-v="1">
+                    </div>
+                    <button type="button" class="btn-remove-preview"
+                        onclick="removePreviewEditor('add_photo', 'add_photo_preview')">
+                        Hapus Foto
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-cancel" onclick="closeAddModal()">
+                    Batal
                 </button>
-                <button type="button" class="btn-cancel" onclick="closeAddModal()">
-                    ❌ Batal
+                <button type="submit" class="btn btn-primary btn-save">
+                    Simpan Karyawan
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<script>
-    // Toggle password visibility
-    function togglePasswordVisibility(inputId, checkbox) {
-        const input = document.getElementById(inputId);
-        input.type = checkbox.checked ? 'text' : 'password';
-    }
-
-    // Preview photo before upload
-    function previewAddPhoto(input) {
-        const preview = document.getElementById('add_photo_preview');
-        const previewImg = document.getElementById('add_photo_preview_img');
-        const alertDiv = document.getElementById('add_alert');
-
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-
-            // Validate file size (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alertDiv.className = 'alert alert-error';
-                alertDiv.textContent = '⚠️ Ukuran file terlalu besar! Maksimal 5MB.';
-                alertDiv.style.display = 'block';
-                input.value = '';
-                preview.style.display = 'none';
-
-                setTimeout(() => {
-                    alertDiv.style.display = 'none';
-                }, 4000);
-                return;
-            }
-
-            // Validate file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                alertDiv.className = 'alert alert-error';
-                alertDiv.textContent = '⚠️ Tipe file tidak valid! Gunakan JPG, JPEG, atau PNG.';
-                alertDiv.style.display = 'block';
-                input.value = '';
-                preview.style.display = 'none';
-
-                setTimeout(() => {
-                    alertDiv.style.display = 'none';
-                }, 4000);
-                return;
-            }
-
-            // Show preview
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                previewImg.src = e.target.result;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.style.display = 'none';
-        }
-    }
-
-    // Remove photo preview
-    function removePhotoPreview() {
-        document.getElementById('add_photo').value = '';
-        document.getElementById('add_photo_preview').style.display = 'none';
-    }
-
-    // Form submission with AJAX
-    document.addEventListener('DOMContentLoaded', function () {
-        const formAdd = document.getElementById('formAdd');
-
-        if (formAdd) {
-            formAdd.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                // Validate at least one role selected
-                const roles = document.querySelectorAll('input[name="roles[]"]:checked');
-                if (roles.length === 0) {
-                    showAddAlert('⚠️ Pilih minimal 1 role untuk karyawan!', 'error');
-                    return;
-                }
-
-                const submitBtn = document.getElementById('btn_add_save');
-                const originalText = submitBtn.innerHTML;
-
-                // Show loading
-                submitBtn.innerHTML = '⏳ Menyimpan...';
-                submitBtn.disabled = true;
-
-                // Submit form
-                fetch('../actions/karyawan/add.php', {
-                    method: 'POST',
-                    body: new FormData(this)
-                })
-                    .then(response => response.text())
-                    .then(text => {
-                        console.log('Server response:', text);
-                        const trimmed = text.trim();
-
-                        if (trimmed === 'success') {
-                            showAddAlert('✅ Karyawan berhasil ditambahkan!', 'success');
-
-                            // Reset form
-                            formAdd.reset();
-                            removePhotoPreview();
-
-                            // Reload page after 1.5 seconds
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-
-                        } else {
-                            // Handle errors
-                            let errorMsg = '❌ Gagal menambahkan karyawan!';
-
-                            if (trimmed.includes('duplicate')) {
-                                errorMsg = '⚠️ Kode karyawan atau nomor HP sudah terdaftar!';
-                            } else if (trimmed.includes('invalid_file_type')) {
-                                errorMsg = '⚠️ Tipe file tidak valid! Gunakan JPG, JPEG, atau PNG.';
-                            } else if (trimmed.includes('file_too_large')) {
-                                errorMsg = '⚠️ Ukuran file terlalu besar! Maksimal 5MB.';
-                            } else if (trimmed.includes('password_too_short')) {
-                                errorMsg = '⚠️ Password terlalu pendek! Minimal 6 karakter.';
-                            } else if (trimmed.includes('missing_roles')) {
-                                errorMsg = '⚠️ Pilih minimal 1 role untuk karyawan!';
-                            }
-
-                            showAddAlert(errorMsg, 'error');
-
-                            // Re-enable button
-                            submitBtn.innerHTML = originalText;
-                            submitBtn.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAddAlert('❌ Terjadi kesalahan: ' + error.message, 'error');
-
-                        // Re-enable button
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-                    });
-            });
-        }
-    });
-
-    // Show alert in modal
-    function showAddAlert(message, type) {
-        const alertDiv = document.getElementById('add_alert');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.textContent = message;
-        alertDiv.style.display = 'block';
-
-        // Scroll to top of modal to see alert
-        const modalBox = document.querySelector('#modalAdd .modal-box');
-        if (modalBox) {
-            modalBox.scrollTop = 0;
-        }
-
-        // Auto hide success alerts
-        if (type === 'success') {
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-            }, 3000);
-        }
-    }
-</script>
+<script src="../js/karyawan/notification.js"></script>
+<script src="../js/karyawan/modal_karyawan.js"></script>

@@ -1,6 +1,7 @@
 // ================================================
-// CARD & TABLE INTERACTIONS JAVASCRIPT
+// ENHANCED CARD & TABLE INTERACTIONS JAVASCRIPT
 // File: js/karyawan/card-interactions.js
+// Fixed: Button table tidak berfungsi
 // ================================================
 
 /**
@@ -12,8 +13,11 @@ function initializeCardTableInteractions() {
   // Initialize card double-click
   initializeCardDoubleClick();
 
-  // Initialize table row double-click
+  // Initialize table row double-click WITH BUTTON FIX
   initializeTableDoubleClick();
+
+  // CRITICAL: Initialize button click handlers
+  initializeTableButtons();
 
   console.log("✅ Card and table interactions initialized");
 }
@@ -37,7 +41,10 @@ function initializeCardDoubleClick() {
 
     card.addEventListener("click", function (e) {
       // Don't trigger if clicking on action buttons
-      if (e.target.closest(".btn-card-mini")) {
+      if (
+        e.target.closest(".btn-card-mini") ||
+        e.target.closest(".card-action-buttons")
+      ) {
         console.log("Button clicked, ignoring card click");
         return;
       }
@@ -73,7 +80,61 @@ function initializeCardDoubleClick() {
 }
 
 /**
+ * CRITICAL FIX: Initialize table buttons properly
+ */
+function initializeTableButtons() {
+  const tableButtons = document.querySelectorAll(".btn-table");
+
+  if (tableButtons.length === 0) {
+    console.warn("No table buttons found");
+    return;
+  }
+
+  console.log(`Found ${tableButtons.length} table buttons`);
+
+  tableButtons.forEach((button) => {
+    // CRITICAL: Stop ALL propagation on button clicks
+    button.addEventListener(
+      "click",
+      function (e) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log("Button clicked:", this.className);
+      },
+      true
+    ); // Use capture phase
+
+    // Ensure button is always clickable
+    button.style.pointerEvents = "auto";
+    button.style.cursor = "pointer";
+
+    // Verify onclick attribute exists
+    if (!button.onclick && !button.getAttribute("onclick")) {
+      console.warn("Button missing onclick handler:", button);
+    }
+  });
+
+  // CRITICAL: Prevent action cells from propagating
+  const actionCells = document.querySelectorAll(
+    ".employee-table td:last-child, .table-actions"
+  );
+  actionCells.forEach((cell) => {
+    cell.addEventListener(
+      "click",
+      function (e) {
+        e.stopPropagation();
+        console.log("Action cell clicked, stopped propagation");
+      },
+      true
+    ); // Use capture phase
+  });
+
+  console.log("✅ Table buttons initialized with proper event handling");
+}
+
+/**
  * Initialize double-click functionality for table rows
+ * FIXED: Better button detection
  */
 function initializeTableDoubleClick() {
   const tableRows = document.querySelectorAll(".table-row-interactive");
@@ -90,9 +151,13 @@ function initializeTableDoubleClick() {
     let clickTimer = null;
 
     row.addEventListener("click", function (e) {
-      // Don't trigger if clicking on action buttons
-      if (e.target.closest(".btn-table")) {
-        console.log("Button clicked, ignoring row click");
+      // CRITICAL: Don't trigger if clicking anywhere in action area
+      if (
+        e.target.closest(".btn-table") ||
+        e.target.closest(".table-actions") ||
+        e.target.closest("td:last-child")
+      ) {
+        console.log("Action area clicked, ignoring row click");
         return;
       }
 
@@ -120,7 +185,13 @@ function initializeTableDoubleClick() {
 
     // Alternative: Native dblclick event (backup)
     row.addEventListener("dblclick", function (e) {
-      if (e.target.closest(".btn-table")) return;
+      if (
+        e.target.closest(".btn-table") ||
+        e.target.closest(".table-actions") ||
+        e.target.closest("td:last-child")
+      ) {
+        return;
+      }
 
       console.log("Native double-click detected on row");
       this.style.background = "";
@@ -313,6 +384,34 @@ function reinitializeInteractions() {
   addMobileTouchSupport();
 }
 
+/**
+ * Debug function to check button status
+ */
+function debugTableButtons() {
+  const buttons = document.querySelectorAll(".btn-table");
+  console.log("🔍 Debugging table buttons...");
+  console.log("Total buttons found:", buttons.length);
+
+  buttons.forEach((btn, index) => {
+    const computedStyle = window.getComputedStyle(btn);
+    const hasOnclick = btn.onclick || btn.getAttribute("onclick");
+
+    console.log(`Button ${index + 1} (${btn.className}):`, {
+      pointerEvents: computedStyle.pointerEvents,
+      cursor: computedStyle.cursor,
+      zIndex: computedStyle.zIndex,
+      display: computedStyle.display,
+      position: computedStyle.position,
+      onclick: hasOnclick ? "✅ Has handler" : "❌ Missing handler",
+    });
+
+    // Test click
+    btn.addEventListener("click", function () {
+      console.log(`✅ Button ${index + 1} successfully clicked!`);
+    });
+  });
+}
+
 // ================================================
 // AUTO-INITIALIZE ON PAGE LOAD
 // ================================================
@@ -325,6 +424,9 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeCardTableInteractions();
     addKeyboardSupport();
     addMobileTouchSupport();
+
+    // Log status
+    console.log("✅ All interactions initialized successfully");
   }, 100);
 });
 
@@ -332,5 +434,6 @@ document.addEventListener("DOMContentLoaded", function () {
 window.initializeCardTableInteractions = initializeCardTableInteractions;
 window.reinitializeInteractions = reinitializeInteractions;
 window.createRippleEffect = createRippleEffect;
+window.debugTableButtons = debugTableButtons;
 
 console.log("✅ Card/Table interactions module loaded");

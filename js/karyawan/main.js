@@ -1,34 +1,166 @@
 // ===========================
 // EMPLOYEE MANAGEMENT - MAIN
 // File: js/karyawan/main.js
-// WITH AUTO RELOAD AFTER SUCCESS
+// Merged with view-toggle functionality
 // ===========================
 
 /**
- * View Switching between Card and Table
+ * Switch between Card and Table views
+ * @param {string} viewType - 'card' or 'table'
  */
 function switchView(viewType) {
-  document.querySelectorAll(".toggle-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
+  console.log("Switching to view:", viewType);
 
-  const targetBtn = document.querySelector(`[data-view="${viewType}"]`);
-  if (targetBtn) {
-    targetBtn.classList.add("active");
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const cardView = document.getElementById("cardView");
+  const tableView = document.getElementById("tableView");
+
+  // Validation
+  if (!cardView || !tableView) {
+    console.error("View containers not found!");
+    return;
   }
 
-  document.querySelectorAll(".view-content").forEach((content) => {
-    content.classList.remove("active");
-  });
+  // Remove active class from all buttons
+  toggleButtons.forEach((btn) => btn.classList.remove("active"));
 
-  const viewElement = document.getElementById(
-    viewType === "card" ? "cardView" : "tableView"
+  // Add active class to selected button
+  const activeButton = document.querySelector(
+    `.toggle-btn[data-view="${viewType}"]`
   );
-  if (viewElement) {
-    viewElement.classList.add("active");
+  if (activeButton) {
+    activeButton.classList.add("active");
   }
 
-  localStorage.setItem("preferredView", viewType);
+  // Hide both views first
+  cardView.classList.remove("active");
+  tableView.classList.remove("active");
+
+  // Show selected view with animation
+  setTimeout(() => {
+    if (viewType === "card") {
+      cardView.classList.add("active");
+      console.log("✅ Card view activated");
+    } else if (viewType === "table") {
+      tableView.classList.add("active");
+      console.log("✅ Table view activated");
+    }
+  }, 50);
+
+  // Save preference
+  localStorage.setItem("employeeViewPreference", viewType);
+
+  // Trigger custom event
+  const viewChangeEvent = new CustomEvent("viewChanged", {
+    detail: { viewType: viewType },
+  });
+  document.dispatchEvent(viewChangeEvent);
+}
+
+/**
+ * Initialize view toggle functionality
+ */
+function initializeViewToggle() {
+  console.log("Initializing view toggle...");
+
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const cardView = document.getElementById("cardView");
+  const tableView = document.getElementById("tableView");
+
+  if (!cardView || !tableView) {
+    console.error("View containers not found!");
+    return;
+  }
+
+  if (toggleButtons.length === 0) {
+    console.error("Toggle buttons not found!");
+    return;
+  }
+
+  console.log(`Found ${toggleButtons.length} toggle buttons`);
+
+  // Get saved view preference
+  const savedView = localStorage.getItem("employeeViewPreference") || "card";
+  console.log("Saved view preference:", savedView);
+
+  // Set initial view
+  switchView(savedView);
+
+  // Add click handlers to toggle buttons
+  toggleButtons.forEach((button) => {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const viewType = this.getAttribute("data-view");
+      console.log("Toggle clicked:", viewType);
+
+      // Switch view
+      switchView(viewType);
+    });
+
+    // Ensure button is always clickable
+    button.style.pointerEvents = "auto";
+    button.style.cursor = "pointer";
+  });
+
+  console.log("✅ View toggle initialized successfully");
+}
+
+/**
+ * Get current active view
+ * @returns {string} 'card' or 'table'
+ */
+function getCurrentView() {
+  const cardView = document.getElementById("cardView");
+  const tableView = document.getElementById("tableView");
+
+  if (cardView && cardView.classList.contains("active")) {
+    return "card";
+  } else if (tableView && tableView.classList.contains("active")) {
+    return "table";
+  }
+
+  return "card"; // default
+}
+
+/**
+ * Add keyboard shortcuts for view switching
+ */
+function addViewKeyboardShortcuts() {
+  document.addEventListener("keydown", function (e) {
+    // Ctrl+1 = Card view
+    if (e.ctrlKey && e.key === "1") {
+      e.preventDefault();
+      switchView("card");
+      console.log("Keyboard shortcut: Switched to Card view");
+    }
+
+    // Ctrl+2 = Table view
+    if (e.ctrlKey && e.key === "2") {
+      e.preventDefault();
+      switchView("table");
+      console.log("Keyboard shortcut: Switched to Table view");
+    }
+  });
+
+  console.log("✅ Keyboard shortcuts added (Ctrl+1: Card, Ctrl+2: Table)");
+}
+
+/**
+ * Listen for view change events
+ */
+function setupViewChangeListeners() {
+  document.addEventListener("viewChanged", function (e) {
+    console.log("View changed to:", e.detail.viewType);
+
+    // Reinitialize interactions if needed
+    if (typeof reinitializeInteractions === "function") {
+      setTimeout(() => {
+        reinitializeInteractions();
+      }, 100);
+    }
+  });
 }
 
 /**
@@ -179,7 +311,7 @@ function handleFormError(error) {
 }
 
 /**
- * Refresh statistics (for auto-refresh)
+ * Refresh statistics
  */
 function refreshStats() {
   fetch("../actions/karyawan/get_stats.php")
@@ -210,7 +342,7 @@ function updateStatElement(id, value) {
 }
 
 /**
- * Add new employee card dynamically (without reload)
+ * Add new employee card dynamically
  */
 function addEmployeeCard(employee) {
   const cardsGrid = document.querySelector(".cards-grid");
@@ -311,23 +443,56 @@ function createEmployeeCardHTML(employee) {
 }
 
 /**
- * Initialize page
+ * Debug view toggle status
  */
+function debugViewToggle() {
+  console.log("🔍 Debugging view toggle...");
+
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const cardView = document.getElementById("cardView");
+  const tableView = document.getElementById("tableView");
+
+  console.log("Toggle buttons:", toggleButtons.length);
+  console.log("Card view:", cardView ? "✅ Found" : "❌ Missing");
+  console.log("Table view:", tableView ? "✅ Found" : "❌ Missing");
+  console.log("Current view:", getCurrentView());
+
+  if (cardView) console.log("Card view classes:", cardView.className);
+  if (tableView) console.log("Table view classes:", tableView.className);
+}
+
+// ================================================
+// INITIALIZE ON PAGE LOAD
+// ================================================
+
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("Employee Management System Loaded");
+  console.log("🚀 Employee Management System Loading...");
 
-  // Load saved view preference
-  const savedView = localStorage.getItem("preferredView") || "card";
-  switchView(savedView);
+  // Small delay to ensure DOM is fully ready
+  setTimeout(() => {
+    // Initialize view toggle
+    initializeViewToggle();
 
-  // Auto-refresh stats every 5 minutes
-  setInterval(refreshStats, 300000);
+    // Add keyboard shortcuts
+    addViewKeyboardShortcuts();
 
-  console.log("✅ Page initialized successfully");
+    // Setup event listeners
+    setupViewChangeListeners();
+
+    // Auto-refresh stats every 5 minutes
+    setInterval(refreshStats, 300000);
+
+    console.log("✅ Employee Management System Loaded Successfully");
+  }, 100);
 });
 
-// Expose functions to global scope
+// ================================================
+// EXPOSE FUNCTIONS TO GLOBAL SCOPE
+// ================================================
+
 window.switchView = switchView;
+window.initializeViewToggle = initializeViewToggle;
+window.getCurrentView = getCurrentView;
 window.formatDate = formatDate;
 window.showLoading = showLoading;
 window.showToast = showToast;
@@ -335,3 +500,6 @@ window.handleFormSubmit = handleFormSubmit;
 window.handleFormError = handleFormError;
 window.refreshStats = refreshStats;
 window.addEmployeeCard = addEmployeeCard;
+window.debugViewToggle = debugViewToggle;
+
+console.log("✅ Main.js module loaded");

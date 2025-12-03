@@ -20,7 +20,7 @@
   height: 100vh !important;
 
   /* Layering */
-  z-index: 999999 !important;
+  z-index: 9999;
 
   /* Visual */
   background: rgba(0, 102, 204, 0.1) !important;
@@ -55,7 +55,7 @@
 .modal-box {
   /* Positioning */
   position: relative !important;
-  z-index: 1000000 !important;
+  z-index: 9999;
 
   /* Sizing */
   max-width: 600px;
@@ -558,7 +558,7 @@ body.modal-open {
 #modalEdit,
 #modalDelete,
 #modalDetail {
-  z-index: 999999 !important;
+  z-index: 9999;
 }
 
 /* ===========================

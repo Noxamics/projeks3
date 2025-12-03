@@ -1,13 +1,8 @@
-// ===========================
-// MODAL MANAGEMENT - COMPLETE FIX
+// Modal Management
 // File: js/karyawan/modal.js
-// ===========================
 
 let currentEmployee = null;
 
-/**
- * Prevent body scroll
- */
 function preventBodyScroll(prevent) {
   if (prevent) {
     document.body.style.overflow = "hidden";
@@ -18,11 +13,28 @@ function preventBodyScroll(prevent) {
   }
 }
 
-/**
- * Open Add Modal - FIXED VERSION
- */
+function showModal(modal) {
+  if (!modal) return;
+
+  modal.style.display = "flex";
+  modal.style.top = "0";
+  modal.style.left = "0";
+  modal.style.width = "100vw";
+  modal.style.height = "100vh";
+  modal.style.zIndex = "9999";
+
+  preventBodyScroll(true);
+}
+
+function hideModal(modal) {
+  if (!modal) return;
+  modal.style.display = "none";
+  preventBodyScroll(false);
+}
+
+// ADD MODAL
 function openAddModal() {
-  console.log("openAddModal called");
+  console.log("Opening Add Modal...");
 
   const modal = document.getElementById("modalAdd");
 
@@ -34,20 +46,6 @@ function openAddModal() {
     return;
   }
 
-  console.log("Opening modal...");
-
-  // Force modal to show as overlay
-  modal.style.display = "flex";
-  modal.style.position = "fixed";
-  modal.style.top = "0";
-  modal.style.left = "0";
-  modal.style.width = "100vw";
-  modal.style.height = "100vh";
-  modal.style.zIndex = "999999";
-
-  // Prevent body scroll
-  preventBodyScroll(true);
-
   // Reset form
   const form = modal.querySelector("form");
   if (form) {
@@ -56,35 +54,54 @@ function openAddModal() {
     // Reset photo preview
     const preview = document.getElementById("add_photo_preview");
     if (preview) preview.style.display = "none";
+
+    // Set default values
+    const joinDateInput = document.getElementById("add_join_date");
+    if (joinDateInput) {
+      joinDateInput.value = new Date().toISOString().split("T")[0];
+    }
+
+    const statusInput = document.getElementById("add_status");
+    if (statusInput) {
+      statusInput.value = "Non-Aktif";
+    }
+
+    // Reset password field
+    const passwordInput = document.getElementById("add_password");
+    if (passwordInput) {
+      passwordInput.value = "";
+      passwordInput.type = "password";
+    }
+
+    // Reset password toggle icon
+    const passwordToggle = modal.querySelector(".password-toggle-btn img");
+    if (passwordToggle) {
+      passwordToggle.src = "projeks3/a/svg/eye-off.svg";
+    }
   }
 
-  // Focus first input after a delay
+  // Generate employee code
+  generateEmployeeCode();
+
+  showModal(modal);
+
   setTimeout(() => {
-    const firstInput = modal.querySelector('input[type="text"]');
+    const firstInput = modal.querySelector("#add_name");
     if (firstInput) firstInput.focus();
   }, 100);
 
-  console.log("Modal opened successfully");
+  console.log("Add Modal opened");
 }
 
-/**
- * Close Add Modal
- */
 function closeAddModal() {
-  console.log("closeAddModal called");
-
+  console.log("Closing Add Modal...");
   const modal = document.getElementById("modalAdd");
-  if (modal) {
-    modal.style.display = "none";
-    preventBodyScroll(false);
-  }
+  hideModal(modal);
 }
 
-/**
- * Open Edit Modal - FIXED VERSION
- */
+// EDIT MODAL
 function openEditModal(data) {
-  console.log("openEditModal called");
+  console.log("Opening Edit Modal...");
 
   const modal = document.getElementById("modalEdit");
 
@@ -94,16 +111,19 @@ function openEditModal(data) {
     return;
   }
 
-  // Parse data
   const obj = typeof data === "string" ? JSON.parse(data) : data;
   console.log("Employee data:", obj);
 
-  // Populate basic fields
   const fields = {
     edit_id: obj.id_employee,
     edit_employee_code: obj.employee_code || "",
     edit_name: obj.name || "",
     edit_phone: obj.phone || "",
+    edit_email: obj.email || "",
+    edit_address: obj.address || "",
+    edit_birth_date: obj.birth_date || "",
+    edit_emergency_contact: obj.emergency_contact || "",
+    edit_base_salary: obj.base_salary || "0.00",
     edit_join_date: obj.join_date || "",
     edit_status: obj.status || "Aktif",
   };
@@ -112,12 +132,10 @@ function openEditModal(data) {
     const element = document.getElementById(fieldId);
     if (element) {
       element.value = value;
-    } else {
-      console.warn(`Field ${fieldId} not found`);
     }
   }
 
-  // Handle roles checkboxes
+  // Handle roles
   if (obj.roles) {
     const roles = obj.roles.split(",").map((r) => r.trim());
     console.log("Roles:", roles);
@@ -130,7 +148,7 @@ function openEditModal(data) {
     });
   }
 
-  // Show current photo if exists
+  // Show current photo
   if (obj.photo) {
     const photoPath = `../uploads/employee/${obj.photo}`;
     const currentPhotoImg = document.getElementById("edit_current_photo_img");
@@ -142,40 +160,22 @@ function openEditModal(data) {
     }
   }
 
-  // Show modal as overlay
-  modal.style.display = "flex";
-  modal.style.position = "fixed";
-  modal.style.top = "0";
-  modal.style.left = "0";
-  modal.style.width = "100vw";
-  modal.style.height = "100vh";
-  modal.style.zIndex = "999999";
-
-  preventBodyScroll(true);
-
-  console.log("Modal Edit opened successfully");
+  showModal(modal);
+  console.log("Edit Modal opened");
 }
 
-/**
- * Close Edit Modal
- */
 function closeEditModal() {
+  console.log("Closing Edit Modal...");
   const modal = document.getElementById("modalEdit");
-  if (modal) {
-    modal.style.display = "none";
-    preventBodyScroll(false);
+  hideModal(modal);
 
-    // Hide photo preview
-    const preview = document.getElementById("edit_photo_preview");
-    if (preview) preview.style.display = "none";
-  }
+  const preview = document.getElementById("edit_photo_preview");
+  if (preview) preview.style.display = "none";
 }
 
-/**
- * Open Delete Modal - FIXED VERSION
- */
+// DELETE MODAL
 function openDeleteModal(id, name) {
-  console.log("openDeleteModal called", { id, name });
+  console.log("Opening Delete Modal...", { id, name });
 
   const modal = document.getElementById("modalDelete");
 
@@ -185,48 +185,29 @@ function openDeleteModal(id, name) {
     return;
   }
 
-  // Set employee ID
   const idField = document.getElementById("delete_id");
   if (idField) {
     idField.value = id;
   }
 
-  // Set confirmation text
   const textElement = document.getElementById("delete_text");
   if (textElement) {
-    textElement.textContent = `Yakin menghapus: ${name}?`;
+    textElement.textContent = `Yakin menghapus karyawan: ${name}?`;
   }
 
-  // Show modal as overlay
-  modal.style.display = "flex";
-  modal.style.position = "fixed";
-  modal.style.top = "0";
-  modal.style.left = "0";
-  modal.style.width = "100vw";
-  modal.style.height = "100vh";
-  modal.style.zIndex = "999999";
-
-  preventBodyScroll(true);
-
-  console.log("Modal Delete opened successfully");
+  showModal(modal);
+  console.log("Delete Modal opened");
 }
 
-/**
- * Close Delete Modal
- */
 function closeDeleteModal() {
+  console.log("Closing Delete Modal...");
   const modal = document.getElementById("modalDelete");
-  if (modal) {
-    modal.style.display = "none";
-    preventBodyScroll(false);
-  }
+  hideModal(modal);
 }
 
-/**
- * Open Detail Modal - FIXED VERSION
- */
+// DETAIL MODAL
 function openDetailModal(data) {
-  console.log("openDetailModal called");
+  console.log("Opening Detail Modal...");
 
   const modal = document.getElementById("modalDetail");
 
@@ -236,7 +217,6 @@ function openDetailModal(data) {
     return;
   }
 
-  // Parse data
   const obj = typeof data === "string" ? JSON.parse(data) : data;
   currentEmployee = obj;
   console.log("Employee data:", obj);
@@ -256,20 +236,17 @@ function openDetailModal(data) {
     photoElement.src = photoPath;
   }
 
-  // Set employee info
   setElementText("detail_name", obj.name);
   setElementText("detail_code", `Kode: ${obj.employee_code}`);
   setElementText("detail_phone", `HP: ${obj.phone}`);
   setElementText("detail_join", `Bergabung: ${formatDate(obj.join_date)}`);
 
-  // Set status badge
   const statusElement = document.getElementById("detail_status");
   if (statusElement) {
     statusElement.textContent = obj.status;
     statusElement.className = `status-badge status-${obj.status.toLowerCase()}`;
   }
 
-  // Set roles
   const rolesElement = document.getElementById("detail_roles");
   if (rolesElement && obj.roles) {
     const roles = obj.roles.split(",");
@@ -283,98 +260,186 @@ function openDetailModal(data) {
       .join("");
   }
 
-  // Update info tab
   if (typeof updateDetailModalContent === "function") {
     updateDetailModalContent(obj);
   }
 
-  // Set employee ID for attendance
-  const attendanceIdField = document.getElementById("attendance_employee_id");
-  if (attendanceIdField) {
-    attendanceIdField.value = obj.id_employee;
-  }
-
-  // Load attendance history
-  if (typeof loadAttendanceHistory === "function") {
-    loadAttendanceHistory(obj.id_employee);
-  }
-
-  // Update time display
-  if (typeof updateTimeDisplay === "function") {
-    updateTimeDisplay();
-    const timeInterval = setInterval(updateTimeDisplay, 1000);
-    modal.dataset.timeInterval = timeInterval;
-  }
-
-  // Reset to first tab
   switchTab("info");
 
-  // Show modal as overlay
-  modal.style.display = "flex";
-  modal.style.position = "fixed";
-  modal.style.top = "0";
-  modal.style.left = "0";
-  modal.style.width = "100vw";
-  modal.style.height = "100vh";
-  modal.style.zIndex = "999999";
-
-  preventBodyScroll(true);
-
-  console.log("Modal Detail opened successfully");
+  showModal(modal);
+  console.log("Detail Modal opened");
 }
 
-/**
- * Close Detail Modal
- */
 function closeDetailModal() {
+  console.log("Closing Detail Modal...");
   const modal = document.getElementById("modalDetail");
-  if (modal) {
-    // Clear time interval
-    if (modal.dataset.timeInterval) {
-      clearInterval(parseInt(modal.dataset.timeInterval));
-    }
-
-    modal.style.display = "none";
-    preventBodyScroll(false);
-    currentEmployee = null;
-  }
+  hideModal(modal);
+  currentEmployee = null;
 }
 
-/**
- * Open Attendance Modal (alias for detail modal with attendance tab)
- */
+// ATTENDANCE MODAL
 function openAttendanceModal(data) {
-  openDetailModal(data);
+  console.log("Opening Attendance Modal...");
 
-  // Switch to attendance tab after modal opens
-  setTimeout(() => {
-    switchTab("attendance");
-  }, 100);
+  const modal = document.getElementById("modalAttendance");
+
+  if (!modal) {
+    console.error("Modal Attendance not found!");
+    alert("Error: Modal Attendance tidak ditemukan.");
+    return;
+  }
+
+  const obj = typeof data === "string" ? JSON.parse(data) : data;
+  console.log("Employee data:", obj);
+
+  setElementText("attendance_name", obj.name);
+  setElementText("attendance_code", `Kode: ${obj.employee_code}`);
+
+  const photo = document.getElementById("attendance_photo");
+  if (photo) {
+    if (obj.photo) {
+      photo.src = `../uploads/employee/${obj.photo}`;
+    } else {
+      const initial = obj.name.substring(0, 2).toUpperCase();
+      photo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        initial
+      )}&size=300&background=0066cc&color=fff&bold=true`;
+    }
+  }
+
+  const roles = obj.roles ? obj.roles.split(",").map((r) => r.trim()) : [];
+  console.log("Employee roles:", roles);
+
+  if (typeof startAttendanceClock === "function") {
+    startAttendanceClock();
+  }
+
+  fetch("../actions/attendance/check_status.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "employee_id=" + obj.id_employee,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Attendance status received:", data);
+
+      const checkinSection = document.getElementById("checkin-section");
+      const checkoutSection = document.getElementById("checkout-section");
+
+      if (data.has_checked_in && !data.has_checked_out) {
+        console.log("Show CHECK OUT form");
+
+        if (checkinSection) checkinSection.style.display = "none";
+        if (checkoutSection) checkoutSection.style.display = "block";
+
+        const checkoutEmployeeId = document.getElementById(
+          "checkout_employee_id"
+        );
+        if (checkoutEmployeeId) {
+          checkoutEmployeeId.value = obj.id_employee;
+        }
+
+        setElementText("summary_shoes", data.today_shoes || "0");
+        setElementText("summary_duration", data.work_hours || "0");
+        setElementText("summary_role", data.role_today || "-");
+        setElementText("summary_score", data.today_score || "0");
+      } else if (data.has_checked_out) {
+        console.log("Employee already checked out today");
+
+        alert(
+          "Anda sudah melakukan check out hari ini!\n\nCheck In: " +
+            data.check_in_time +
+            "\nCheck Out: " +
+            data.check_out_time
+        );
+        return;
+      } else {
+        console.log("Show CHECK IN form");
+
+        if (checkinSection) checkinSection.style.display = "block";
+        if (checkoutSection) checkoutSection.style.display = "none";
+
+        const checkinEmployeeId = document.getElementById(
+          "checkin_employee_id"
+        );
+        if (checkinEmployeeId) {
+          checkinEmployeeId.value = obj.id_employee;
+        }
+
+        const roleSelect = document.getElementById("checkin_role");
+        if (roleSelect) {
+          roleSelect.innerHTML = '<option value="">-- Pilih Role --</option>';
+
+          roles.forEach((role) => {
+            const option = document.createElement("option");
+            option.value = role.toLowerCase();
+            option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+            roleSelect.appendChild(option);
+          });
+
+          if (roles.length === 1) {
+            roleSelect.value = roles[0].toLowerCase();
+            console.log("Auto-selected single role:", roles[0]);
+          }
+        }
+      }
+
+      showModal(modal);
+      console.log("Attendance Modal opened");
+    })
+    .catch((error) => {
+      console.error("Error checking attendance status:", error);
+      alert("Gagal memeriksa status absensi. Coba lagi.");
+    });
 }
 
-/**
- * Switch tabs in detail modal
- */
+function closeAttendanceModal() {
+  console.log("Closing Attendance Modal...");
+
+  const modal = document.getElementById("modalAttendance");
+  hideModal(modal);
+
+  if (typeof stopAttendanceClock === "function") {
+    stopAttendanceClock();
+  }
+
+  const formCheckIn = document.getElementById("formCheckIn");
+  const formCheckOut = document.getElementById("formCheckOut");
+
+  if (formCheckIn) formCheckIn.reset();
+  if (formCheckOut) formCheckOut.reset();
+
+  const checkinSection = document.getElementById("checkin-section");
+  const checkoutSection = document.getElementById("checkout-section");
+
+  if (checkinSection) checkinSection.style.display = "block";
+  if (checkoutSection) checkoutSection.style.display = "none";
+
+  const alertDiv = document.getElementById("attendance_alert");
+  if (alertDiv) alertDiv.style.display = "none";
+
+  console.log("Attendance Modal closed");
+}
+
+// HELPER FUNCTIONS
 function switchTab(tabName) {
   console.log("Switching to tab:", tabName);
 
-  // Hide all tab contents
   document.querySelectorAll(".tab-content").forEach((tab) => {
     tab.classList.remove("active");
   });
 
-  // Remove active from all buttons
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
 
-  // Show selected tab
   const selectedTab = document.getElementById(`tab-${tabName}`);
   if (selectedTab) {
     selectedTab.classList.add("active");
   }
 
-  // Set button active
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     const btnText = btn.textContent.toLowerCase();
     if (btnText.includes(tabName)) {
@@ -383,9 +448,6 @@ function switchTab(tabName) {
   });
 }
 
-/**
- * Helper: Set element text safely
- */
 function setElementText(id, text) {
   const element = document.getElementById(id);
   if (element) {
@@ -395,258 +457,80 @@ function setElementText(id, text) {
   }
 }
 
-/**
- * Helper: Format date to Indonesian format
- */
 function formatDate(dateString) {
   if (!dateString) return "-";
+
   const date = new Date(dateString);
   const options = { year: "numeric", month: "long", day: "numeric" };
+
   return date.toLocaleDateString("id-ID", options);
 }
 
-// ===========================
-// FORM SUBMISSION HANDLERS - AUTO RELOAD
-// ===========================
-
-/**
- * Initialize all form submission handlers
- */
-function initializeFormHandlers() {
-  console.log("Initializing form handlers...");
-
-  // ========== ADD FORM HANDLER ==========
-  const addForm = document.querySelector("#modalAdd form");
-  if (addForm) {
-    // Remove existing listeners
-    const newAddForm = addForm.cloneNode(true);
-    addForm.parentNode.replaceChild(newAddForm, addForm);
-
-    newAddForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      console.log("Add form submitted");
-
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn ? submitBtn.innerHTML : "";
-
-      // Show loading
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = "⏳ Menyimpan...";
+// Generate employee code
+function generateEmployeeCode() {
+  fetch("../actions/karyawan/generate_code.php")
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("HTTP error! status: " + res.status);
       }
-
-      const formData = new FormData(this);
-
-      fetch("../actions/karyawan/add.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("✅ Add success");
-            alert("✅ Karyawan berhasil ditambahkan!");
-            closeAddModal();
-
-            // CRITICAL: Reload page to show new data
-            window.location.reload();
-          } else {
-            console.error("❌ Add failed:", data.message);
-            alert(
-              "❌ Error: " + (data.message || "Gagal menambahkan karyawan")
-            );
-
-            // Restore button
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = originalText;
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("❌ Terjadi kesalahan saat menambahkan karyawan");
-
-          // Restore button
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }
-        });
-    });
-
-    console.log("✅ Add form handler initialized");
-  } else {
-    console.warn("⚠️ Add form not found");
-  }
-
-  // ========== EDIT FORM HANDLER ==========
-  const editForm = document.querySelector("#modalEdit form");
-  if (editForm) {
-    // Remove existing listeners
-    const newEditForm = editForm.cloneNode(true);
-    editForm.parentNode.replaceChild(newEditForm, editForm);
-
-    newEditForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      console.log("Edit form submitted");
-
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn ? submitBtn.innerHTML : "";
-
-      // Show loading
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = "⏳ Menyimpan...";
+      return res.json();
+    })
+    .then((data) => {
+      const codeInput = document.getElementById("add_employee_code");
+      if (codeInput) {
+        if (data.success && data.code) {
+          codeInput.value = data.code;
+        } else {
+          console.error("Generate code failed:", data.message);
+          codeInput.value = data.code || "EMP001";
+        }
       }
-
-      const formData = new FormData(this);
-
-      fetch("../actions/karyawan/edit.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("✅ Edit success");
-            alert("✅ Data karyawan berhasil diupdate!");
-            closeEditModal();
-
-            // CRITICAL: Reload page to show updated data
-            window.location.reload();
-          } else {
-            console.error("❌ Edit failed:", data.message);
-            alert("❌ Error: " + (data.message || "Gagal mengupdate karyawan"));
-
-            // Restore button
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = originalText;
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("❌ Terjadi kesalahan saat mengupdate karyawan");
-
-          // Restore button
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }
-        });
-    });
-
-    console.log("✅ Edit form handler initialized");
-  } else {
-    console.warn("⚠️ Edit form not found");
-  }
-
-  // ========== DELETE FORM HANDLER ==========
-  const deleteForm = document.querySelector("#modalDelete form");
-  if (deleteForm) {
-    // Remove existing listeners
-    const newDeleteForm = deleteForm.cloneNode(true);
-    deleteForm.parentNode.replaceChild(newDeleteForm, deleteForm);
-
-    newDeleteForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      console.log("Delete form submitted");
-
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn ? submitBtn.innerHTML : "";
-
-      // Show loading
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = "⏳ Menghapus...";
+    })
+    .catch((err) => {
+      console.error("Error generating code:", err);
+      alert("Gagal membuat kode otomatis! Error: " + err.message);
+      const codeInput = document.getElementById("add_employee_code");
+      if (codeInput) {
+        codeInput.value = "EMP001";
       }
-
-      const formData = new FormData(this);
-
-      fetch("../actions/karyawan/delete.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("✅ Delete success");
-            alert("✅ Karyawan berhasil dihapus!");
-            closeDeleteModal();
-
-            // CRITICAL: Reload page to remove deleted data
-            window.location.reload();
-          } else {
-            console.error("❌ Delete failed:", data.message);
-            alert("❌ Error: " + (data.message || "Gagal menghapus karyawan"));
-
-            // Restore button
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = originalText;
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("❌ Terjadi kesalahan saat menghapus karyawan");
-
-          // Restore button
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }
-        });
     });
-
-    console.log("✅ Delete form handler initialized");
-  } else {
-    console.warn("⚠️ Delete form not found");
-  }
 }
 
-/**
- * Initialize modal event listeners
- */
+// EVENT LISTENERS
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Initializing modal event listeners...");
 
-  // Initialize form handlers
-  initializeFormHandlers();
-
-  // Close modal on background click
   document.querySelectorAll(".modal").forEach((modal) => {
     modal.addEventListener("click", function (e) {
-      // Only close if clicking the backdrop (not the modal-box)
       if (e.target === this) {
         console.log("Backdrop clicked, closing modal");
-        this.style.display = "none";
-        preventBodyScroll(false);
+        hideModal(this);
 
-        // Clear time interval if detail modal
-        if (this.id === "modalDetail" && this.dataset.timeInterval) {
-          clearInterval(parseInt(this.dataset.timeInterval));
+        if (
+          this.id === "modalAttendance" &&
+          typeof stopAttendanceClock === "function"
+        ) {
+          stopAttendanceClock();
         }
       }
     });
   });
 
-  // Close modal on Escape key
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       const openModals = document.querySelectorAll(
         '.modal[style*="display: flex"], .modal[style*="display:flex"]'
       );
+
       openModals.forEach((modal) => {
         console.log("Escape pressed, closing modal");
-        modal.style.display = "none";
-        preventBodyScroll(false);
+        hideModal(modal);
 
-        // Clear time interval if detail modal
-        if (modal.id === "modalDetail" && modal.dataset.timeInterval) {
-          clearInterval(parseInt(modal.dataset.timeInterval));
+        if (
+          modal.id === "modalAttendance" &&
+          typeof stopAttendanceClock === "function"
+        ) {
+          stopAttendanceClock();
         }
       });
     }
@@ -655,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("Modal event listeners initialized");
 });
 
-// Expose functions to global scope
+// EXPOSE TO GLOBAL SCOPE
 window.openAddModal = openAddModal;
 window.closeAddModal = closeAddModal;
 window.openEditModal = openEditModal;
@@ -665,7 +549,10 @@ window.closeDeleteModal = closeDeleteModal;
 window.openDetailModal = openDetailModal;
 window.closeDetailModal = closeDetailModal;
 window.openAttendanceModal = openAttendanceModal;
+window.closeAttendanceModal = closeAttendanceModal;
 window.switchTab = switchTab;
-window.initializeFormHandlers = initializeFormHandlers;
+window.setElementText = setElementText;
+window.formatDate = formatDate;
+window.generateEmployeeCode = generateEmployeeCode;
 
-console.log("✅ Modal functions loaded and exposed to window");
+console.log("Modal.js loaded successfully");
