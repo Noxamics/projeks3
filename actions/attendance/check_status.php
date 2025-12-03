@@ -5,6 +5,15 @@
  * DESKRIPSI: Check if employee has checked in today
  * ============================================= */
 
+// Clean output buffer
+ob_start();
+
+// Disable error display
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Set response header
 header('Content-Type: application/json; charset=utf-8');
 
 $response = [
@@ -87,6 +96,9 @@ try {
 if (isset($conn) && $conn instanceof mysqli) {
     $conn->close();
 }
+
+// Clean output buffer
+ob_end_clean();
 
 echo json_encode($response, JSON_UNESCAPED_UNICODE);
 exit;
