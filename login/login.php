@@ -39,7 +39,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="login-page">
         <div class="login-box">
             <img src="../a/img/Logo Sengku.png" alt="SengkuClean Logo" class="logo-login" />
-
+            <img src="../a/img/BG1.jpg" class="background"/>
             <h2 style="text-align:center; margin-bottom:20px;">LOGIN</h2>
 
             <!-- Pesan Error/Success -->

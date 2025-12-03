@@ -243,18 +243,18 @@ include_once "../partials/header-lp.php";
   </div>
 </section>
 
-<section class="catalog-section" id="catalog">
+<section class="service-section" id="service">
   <h2>Services</h2>
   <div class="divider"></div>
   <p class="desc">
-    Tidak hanya sepatu saja, Kami juga melanyani pencucian untuk <strong>Tas</strong> dan juga
+    Tidak hanya sepatu, Kami juga melanyani pencucian untuk <strong>Tas</strong> dan juga
     <strong>Topi</strong>. <br />Berikut jasa yang kami tawarkan:
   </p>
 
-  <div class="catalog">
-    <a href="Service.html?category=sepatu" class="catalog-box-link">
-      <div class="catalog-box">
-        <div class="catalog-img-wrapper">
+  <div class="service">
+    <a href="Service.html?category=sepatu" class="service-box-link">
+      <div class="service-box">
+        <div class="service-img-wrapper">
           <img src="../a/catalog/Sepatu 10.png" alt="Sepatu" />
           <div class="overlay">
             <span class="zoom-icon">
@@ -269,9 +269,9 @@ include_once "../partials/header-lp.php";
       </div>
     </a>
 
-    <a href="Service.html?category=tas" class="catalog-box-link">
-      <div class="catalog-box">
-        <div class="catalog-img-wrapper">
+    <a href="Service.html?category=tas" class="service-box-link">
+      <div class="service-box">
+        <div class="service-img-wrapper">
           <img src="../a/catalog/Sepatu 10.png" alt="Sepatu" />
           <div class="overlay">
             <span class="zoom-icon">
@@ -287,9 +287,9 @@ include_once "../partials/header-lp.php";
       </div>
     </a>
 
-    <a href="Service.html?category=topi" class="catalog-box-link">
-      <div class="catalog-box">
-        <div class="catalog-img-wrapper">
+    <a href="Service.html?category=topi" class="service-box-link">
+      <div class="service-box">
+        <div class="service-img-wrapper">
           <img src="../a/catalog/Sepatu 10.png" alt="Sepatu" />
           <div class="overlay">
             <span class="zoom-icon">
