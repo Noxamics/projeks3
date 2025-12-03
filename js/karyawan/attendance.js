@@ -1,7 +1,8 @@
 /**
  * =============================================
  * FILE: js/karyawan/attendance.js
- * DESKRIPSI: Attendance System with Real-time Clock
+ * DESKRIPSI: Attendance System with Real-time Clock & Form Handlers
+ * UPDATED: Added kasir stat refresh after check-in/check-out
  * ============================================= */
 
 // ============================================
@@ -47,7 +48,7 @@ function updateAttendanceClock() {
   if (dateEl) dateEl.textContent = dateString;
 }
 
-// Start clock interval
+// Clock interval
 let clockInterval = null;
 
 function startAttendanceClock() {
@@ -57,7 +58,6 @@ function startAttendanceClock() {
   console.log("Attendance clock started");
 }
 
-// Stop clock when modal closes
 function stopAttendanceClock() {
   if (clockInterval) {
     clearInterval(clockInterval);
@@ -69,7 +69,7 @@ function stopAttendanceClock() {
 // ============================================
 // CHECK IN FORM HANDLER
 // ============================================
-document.addEventListener("DOMContentLoaded", function () {
+function initCheckInHandler() {
   const formCheckIn = document.getElementById("formCheckIn");
 
   if (formCheckIn) {
@@ -108,36 +108,71 @@ document.addEventListener("DOMContentLoaded", function () {
               if (data.data.role_today) {
                 message += "\nRole Hari Ini: " + data.data.role_today;
               }
-              // Info tambahan jika mendapat role kasir otomatis
               if (data.data.kasir_auto_added) {
                 message +=
                   "\n\n✨ Anda mendapatkan role KASIR (pasif) karena check in pertama kali!";
               }
             }
 
-            showNotification(
-              "success",
-              "Check In Berhasil!",
-              message,
-              function () {
-                closeAttendanceModal();
-                window.location.reload();
+            if (typeof showNotification === "function") {
+              showNotification(
+                "success",
+                "Check In Berhasil!",
+                message,
+                function () {
+                  if (typeof closeAttendanceModal === "function") {
+                    closeAttendanceModal();
+                  }
+
+                  // Update stat cards
+                  if (typeof updateStatCards === "function") {
+                    updateStatCards();
+                  }
+
+                  // Update kasir stat (IMPORTANT!)
+                  if (typeof updateKasirStat === "function") {
+                    updateKasirStat();
+                  }
+
+                  // Reload page to reflect new status
+                  window.location.reload();
+                }
+              );
+            } else {
+              alert(message);
+
+              // Update kasir stat even without notification
+              if (typeof updateKasirStat === "function") {
+                updateKasirStat();
               }
-            );
+
+              window.location.reload();
+            }
           } else {
-            showNotification("error", "Check In Gagal", data.message, null);
+            if (typeof showNotification === "function") {
+              showNotification("error", "Check In Gagal", data.message, null);
+            } else {
+              alert("Check In Gagal: " + data.message);
+            }
+
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
           }
         })
         .catch((error) => {
           console.error("Check-in error:", error);
-          showNotification(
-            "error",
-            "Terjadi Kesalahan",
-            "Terjadi kesalahan saat check in. Silakan coba lagi.",
-            null
-          );
+
+          if (typeof showNotification === "function") {
+            showNotification(
+              "error",
+              "Terjadi Kesalahan",
+              "Terjadi kesalahan saat check in. Silakan coba lagi.",
+              null
+            );
+          } else {
+            alert("Terjadi kesalahan saat check in. Silakan coba lagi.");
+          }
+
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;
         });
@@ -145,12 +180,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("Check-in form handler initialized");
   }
-});
+}
 
 // ============================================
 // CHECK OUT FORM HANDLER
 // ============================================
-document.addEventListener("DOMContentLoaded", function () {
+function initCheckOutHandler() {
   const formCheckOut = document.getElementById("formCheckOut");
 
   if (formCheckOut) {
@@ -191,29 +226,65 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            showNotification(
-              "success",
-              "Check Out Berhasil!",
-              message,
-              function () {
-                closeAttendanceModal();
-                window.location.reload();
+            if (typeof showNotification === "function") {
+              showNotification(
+                "success",
+                "Check Out Berhasil!",
+                message,
+                function () {
+                  if (typeof closeAttendanceModal === "function") {
+                    closeAttendanceModal();
+                  }
+
+                  // Update stat cards
+                  if (typeof updateStatCards === "function") {
+                    updateStatCards();
+                  }
+
+                  // Update kasir stat (IMPORTANT!)
+                  if (typeof updateKasirStat === "function") {
+                    updateKasirStat();
+                  }
+
+                  // Reload page to reflect new status
+                  window.location.reload();
+                }
+              );
+            } else {
+              alert(message);
+
+              // Update kasir stat even without notification
+              if (typeof updateKasirStat === "function") {
+                updateKasirStat();
               }
-            );
+
+              window.location.reload();
+            }
           } else {
-            showNotification("error", "Check Out Gagal", data.message, null);
+            if (typeof showNotification === "function") {
+              showNotification("error", "Check Out Gagal", data.message, null);
+            } else {
+              alert("Check Out Gagal: " + data.message);
+            }
+
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
           }
         })
         .catch((error) => {
           console.error("Check-out error:", error);
-          showNotification(
-            "error",
-            "Terjadi Kesalahan",
-            "Terjadi kesalahan saat check out. Silakan coba lagi.",
-            null
-          );
+
+          if (typeof showNotification === "function") {
+            showNotification(
+              "error",
+              "Terjadi Kesalahan",
+              "Terjadi kesalahan saat check out. Silakan coba lagi.",
+              null
+            );
+          } else {
+            alert("Terjadi kesalahan saat check out. Silakan coba lagi.");
+          }
+
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;
         });
@@ -221,6 +292,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("Check-out form handler initialized");
   }
+}
+
+// ============================================
+// INITIALIZE ON DOM READY
+// ============================================
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("Initializing attendance handlers...");
+
+  initCheckInHandler();
+  initCheckOutHandler();
+
+  // Initial stat cards load if function exists
+  if (typeof updateStatCards === "function") {
+    updateStatCards();
+
+    // Auto-refresh stat cards every 30 seconds
+    setInterval(updateStatCards, 30000);
+  }
+
+  console.log("Attendance handlers initialized");
 });
 
 // ============================================
@@ -229,5 +320,6 @@ document.addEventListener("DOMContentLoaded", function () {
 window.startAttendanceClock = startAttendanceClock;
 window.stopAttendanceClock = stopAttendanceClock;
 window.updateAttendanceClock = updateAttendanceClock;
+window.updateStatCards = updateStatCards;
 
 console.log("Attendance.js loaded successfully");

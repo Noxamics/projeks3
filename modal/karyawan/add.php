@@ -184,4 +184,3 @@
 </div>
 
 <script src="../js/karyawan/notification.js"></script>
-<script src="../js/karyawan/modal_karyawan.js"></script>

@@ -2,7 +2,8 @@
 /**
  * =============================================
  * FILE: actions/attendance/check_status.php
- * DESKRIPSI: Check if employee has checked in today
+ * DESKRIPSI: Check employee attendance status for today
+ * FIXED: Properly detect active status from employees table
  * ============================================= */
 
 // Clean output buffer
@@ -19,8 +20,15 @@ header('Content-Type: application/json; charset=utf-8');
 $response = [
     'success' => false,
     'has_checked_in' => false,
-    'message' => '',
-    'summary' => null
+    'has_checked_out' => false,
+    'check_in_time' => null,
+    'check_out_time' => null,
+    'role_today' => null,
+    'work_hours' => '0',
+    'today_shoes' => '0',
+    'today_score' => '0',
+    'current_status' => 'Non-Aktif',
+    'message' => ''
 ];
 
 try {
@@ -30,11 +38,28 @@ try {
         throw new Exception('Database connection failed');
     }
 
-    $employee_id = isset($_GET['employee_id']) ? intval($_GET['employee_id']) : 0;
+    // Get employee_id from POST
+    $employee_id = isset($_POST['employee_id']) ? intval($_POST['employee_id']) : 0;
 
     if ($employee_id <= 0) {
         throw new Exception('Invalid employee ID');
     }
+
+    // FIRST: Get employee's current status from employees table
+    $statusStmt = $conn->prepare("SELECT status FROM employees WHERE id_employee = ?");
+    if (!$statusStmt) {
+        throw new Exception('Database error: ' . $conn->error);
+    }
+
+    $statusStmt->bind_param("i", $employee_id);
+    $statusStmt->execute();
+    $statusResult = $statusStmt->get_result();
+
+    if ($statusResult->num_rows > 0) {
+        $employeeData = $statusResult->fetch_assoc();
+        $response['current_status'] = $employeeData['status']; // Get actual status from DB
+    }
+    $statusStmt->close();
 
     // Check today's attendance
     $today = date('Y-m-d');
@@ -42,12 +67,18 @@ try {
         SELECT 
             id_attendance,
             check_in,
+            check_out,
             role_today,
-            TIMESTAMPDIFF(HOUR, check_in, NOW()) as work_hours
+            notes_check_in,
+            notes_check_out,
+            work_hours,
+            DATE_FORMAT(check_in, '%H:%i:%s') as check_in_time,
+            DATE_FORMAT(check_out, '%H:%i:%s') as check_out_time
         FROM attendance 
         WHERE id_employee = ? 
-        AND DATE(check_in) = ? 
-        AND check_out IS NULL
+        AND DATE(check_in) = ?
+        ORDER BY check_in DESC
+        LIMIT 1
     ");
 
     if (!$stmt) {
@@ -61,25 +92,76 @@ try {
     if ($result->num_rows > 0) {
         $attendance = $result->fetch_assoc();
 
-        // Get work summary (you can expand this with actual data)
-        $response = [
-            'success' => true,
-            'has_checked_in' => true,
-            'message' => 'Employee has checked in today',
-            'summary' => [
-                'shoes_completed' => 0, // This should be fetched from actual work records
-                'work_hours' => round($attendance['work_hours'], 1),
-                'role_today' => ucfirst($attendance['role_today']),
-                'score' => 0 // This should be calculated based on performance
-            ]
-        ];
+        // Employee has checked in today
+        $response['success'] = true;
+        $response['has_checked_in'] = true;
+        $response['check_in_time'] = $attendance['check_in_time'];
+        $response['role_today'] = ucfirst($attendance['role_today']);
+
+        // Check if already checked out
+        if ($attendance['check_out'] !== null) {
+            // ALREADY CHECKED OUT
+            $response['has_checked_out'] = true;
+            $response['check_out_time'] = $attendance['check_out_time'];
+            $response['work_hours'] = $attendance['work_hours'] ?: '0';
+            // Status should be Non-Aktif after checkout
+            $response['current_status'] = 'Non-Aktif';
+            $response['message'] = 'Employee has checked out today';
+        } else {
+            // STILL CHECKED IN (ACTIVE)
+            // This is the key: if check_out is NULL, employee is ACTIVE
+            $response['has_checked_out'] = false;
+
+            // IMPORTANT: Use the status from employees table
+            // If status is 'Aktif', show checkout form
+            if ($response['current_status'] === 'Aktif') {
+                // Calculate current work hours
+                $checkin_datetime = new DateTime($attendance['check_in']);
+                $now = new DateTime();
+                $interval = $checkin_datetime->diff($now);
+                $hours = $interval->h + ($interval->days * 24);
+                $minutes = $interval->i;
+                $response['work_hours'] = $hours . '.' . round(($minutes / 60) * 10);
+
+                $response['message'] = 'Employee is currently checked in';
+            }
+        }
+
+        // Get today's shoes completed
+        $stmt_shoes = $conn->prepare("
+            SELECT COALESCE(SUM(total_shoes_completed), 0) as total_shoes
+            FROM daily_performance
+            WHERE employee_id = ? 
+            AND DATE(date) = ?
+        ");
+
+        if ($stmt_shoes) {
+            $stmt_shoes->bind_param("is", $employee_id, $today);
+            $stmt_shoes->execute();
+            $shoes_result = $stmt_shoes->get_result();
+            if ($shoes_result->num_rows > 0) {
+                $shoes_data = $shoes_result->fetch_assoc();
+                $response['today_shoes'] = $shoes_data['total_shoes'];
+            }
+            $stmt_shoes->close();
+        }
+
+        // Calculate today's score
+        $target_shoes = 50;
+        if ($response['today_shoes'] > 0) {
+            $response['today_score'] = round(($response['today_shoes'] / $target_shoes) * 100, 1);
+            if ($response['today_score'] > 100) {
+                $response['today_score'] = 100;
+            }
+        }
+
     } else {
-        $response = [
-            'success' => true,
-            'has_checked_in' => false,
-            'message' => 'Employee has not checked in today',
-            'summary' => null
-        ];
+        // Employee has not checked in today
+        $response['success'] = true;
+        $response['has_checked_in'] = false;
+        $response['has_checked_out'] = false;
+        // Status should be from employees table
+        $response['message'] = 'Employee has not checked in today';
     }
 
     $stmt->close();
@@ -88,8 +170,9 @@ try {
     $response = [
         'success' => false,
         'has_checked_in' => false,
-        'message' => $e->getMessage(),
-        'summary' => null
+        'has_checked_out' => false,
+        'current_status' => 'Non-Aktif',
+        'message' => $e->getMessage()
     ];
 }
 

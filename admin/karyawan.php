@@ -6,7 +6,7 @@ require_once('../partials/headerAdmin.php');
 $stats = [
     'totalEmployees' => 0,
     'todayAttendance' => 0,
-    'todayKasir' => null
+    'todayKasir' => []
 ];
 
 try {
@@ -100,13 +100,13 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     <link rel="stylesheet" href="../css/karyawan/card-interactions.css">
     <link rel="stylesheet" href="../css/karyawan/notification.css">
     <link rel="stylesheet" href="../css/karyawan/view-toogle.css">
+    <link rel="stylesheet" href="../css/karyawan/kasir-stat.css">
 </head>
 
 <body>
     <main class="employee-page">
         <div class="container">
 
-            <!-- HEADER - Replace the duplicate <div class="header-controls"> section with this -->
             <!-- HEADER CONTROLS -->
             <div class="header-controls">
                 <div class="left-section">
@@ -220,40 +220,37 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                             <div class="stat-content">
                                 <h3 class="stat-number">
                                     <?php
-                                    echo (is_array($stats['todayKasir']) && isset($stats['todayKasir']['employee_code']))
+                                    echo (!empty($stats['todayKasir']['employee_code']))
                                         ? htmlspecialchars($stats['todayKasir']['employee_code'])
                                         : '-';
                                     ?>
                                 </h3>
+
                                 <p class="stat-label">
                                     <?php echo (!empty($stats['todayKasir'])) ? 'Karyawan Check-in' : 'Belum Ada Check-in'; ?>
                                 </p>
                             </div>
+
                             <div class="stat-footer">
                                 <span class="stat-info">
+                                    <!-- ICON SVG -->
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
-                                            stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path
-                                            d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-                                            stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
+                                        <path d="M20 21V19C20 17.9391 19.5786 16.9217 ..." stroke="#f59e0b"
+                                            stroke-width="2" />
+                                        <path d="M12 11C14.2091 11 16 9.20914 ..." stroke="#f59e0b" stroke-width="2" />
                                     </svg>
-                                    <?php
-                                    if (is_array($stats['todayKasir']) && isset($stats['todayKasir']['name'])) {
-                                        echo htmlspecialchars($stats['todayKasir']['name']);
 
-                                        // Show role if available
-                                        if (isset($stats['todayKasir']['role_today'])) {
-                                            echo ' <span style="font-size: 11px; opacity: 0.8;">('
-                                                . htmlspecialchars(ucfirst($stats['todayKasir']['role_today']))
-                                                . ')</span>';
-                                        }
-                                    } else {
-                                        echo 'Belum ada karyawan check-in';
+                                    <?php
+                                    echo (!empty($stats['todayKasir']['name']))
+                                        ? htmlspecialchars($stats['todayKasir']['name'])
+                                        : 'Belum ada karyawan check-in';
+
+                                    // Role
+                                    if (!empty($stats['todayKasir']['role_today'])) {
+                                        echo ' <span style="font-size: 11px; opacity: 0.8;">(' .
+                                            htmlspecialchars(ucfirst($stats['todayKasir']['role_today'])) .
+                                            ')</span>';
                                     }
                                     ?>
                                 </span>
@@ -577,13 +574,25 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     ?>
 
     <!-- JAVASCRIPT FILES -->
-    <script src="../js/karyawan/filter.js"></script>
-    <script src="../js/karyawan/modal.js"></script>
-    <script src="../js/karyawan/modal-form.js"></script>
-    <script src="../js/karyawan/attendance.js"></script>
-    <script src="../js/karyawan/card-interactions.js"></script>
+    <!-- Core utilities dulu -->
     <script src="../js/karyawan/notification.js"></script>
-    <script src="../js/karyawan/modal_karyawan.js"></script>
+
+    <!-- Modal management (butuh notification) -->
+    <script src="../js/karyawan/modal.js"></script>
+
+    <!-- Attendance (butuh modal untuk clock) -->
+    <script src="../js/karyawan/attendance.js"></script>
+    <script src="../js/karyawan/kasir-stat.js"></script>
+
+    <!-- Form handlers (butuh modal & notification) -->
+    <script src="../js/karyawan/modal-form.js"></script>
+
+    <!-- UI interactions -->
+    <script src="../js/karyawan/filter.js"></script>
+    <script src="../js/karyawan/view-toogle.js"></script>
+    <script src="../js/karyawan/card-interactions.js"></script>
+
+    <!-- Main initialization terakhir -->
     <script src="../js/karyawan/main.js"></script>
 
 </body>

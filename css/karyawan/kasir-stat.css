@@ -1,0 +1,90 @@
+/**
+ * =============================================
+ * FILE: css/karyawan/kasir-stat.css
+ * DESKRIPSI: Styling for Active Kasir Stat Card
+ * ============================================= */
+
+/* ============================================
+   KASIR STAT CARD ACTIVE STATE
+   ============================================ */
+
+.stat-card.stat-warning.stat-active {
+  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+  }
+}
+
+/* Badge States */
+.stat-badge.badge-active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+.stat-badge.badge-standby {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  opacity: 0.7;
+}
+
+@keyframes badge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Stat Info Animation */
+.stat-card.stat-active .stat-info {
+  animation: slide-in 0.5s ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Stat Number Highlight */
+.stat-card.stat-active .stat-number {
+  color: #f59e0b;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+/* Icon Animation */
+.stat-card.stat-active .stat-icon {
+  animation: icon-bounce 1s ease-in-out infinite;
+}
+
+@keyframes icon-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card.stat-warning.stat-active {
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+  }
+}
