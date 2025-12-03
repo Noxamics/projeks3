@@ -1,233 +1,277 @@
-/**
- * =============================================
- * FILE: js/karyawan/attendance.js
- * DESKRIPSI: Attendance System with Real-time Clock
- * ============================================= */
+// ================================================
+// Attendance Modal Handler
+// File: js/karyawan/attendance.js
+// ================================================
 
-// ============================================
-// REAL-TIME CLOCK
-// ============================================
-function updateAttendanceClock() {
-  const now = new Date();
-
-  // Format time
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-  const timeString = `${hours}:${minutes}:${seconds}`;
-
-  // Format date
-  const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const dayName = days[now.getDay()];
-  const date = now.getDate();
-  const monthName = months[now.getMonth()];
-  const year = now.getFullYear();
-  const dateString = `${dayName}, ${date} ${monthName} ${year}`;
-
-  // Update displays
-  const timeEl = document.getElementById("current_time");
-  const dateEl = document.getElementById("current_date");
-
-  if (timeEl) timeEl.textContent = timeString;
-  if (dateEl) dateEl.textContent = dateString;
-}
-
-// Start clock interval
+// Clock interval variable (declare once)
 let clockInterval = null;
 
-function startAttendanceClock() {
-  updateAttendanceClock(); // Update immediately
-  if (clockInterval) clearInterval(clockInterval);
-  clockInterval = setInterval(updateAttendanceClock, 1000);
-  console.log("Attendance clock started");
+// Start real-time clock
+function startClock() {
+    // Clear existing interval if any
+    if (clockInterval) {
+        clearInterval(clockInterval);
+    }
+
+    updateClock(); // Update immediately
+    clockInterval = setInterval(updateClock, 1000);
+}
+
+// Update clock display
+function updateClock() {
+    const now = new Date();
+    
+    // Format date: Senin, 03 Desember 2024
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    
+    const dayName = days[now.getDay()];
+    const date = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    
+    const dateStr = `${dayName}, ${date} ${month} ${year}`;
+    
+    // Format time: HH:MM:SS
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    const timeStr = `${hours}:${minutes}:${seconds}`;
+    
+    // Update DOM
+    const dateEl = document.getElementById('current_date');
+    const timeEl = document.getElementById('current_time');
+    
+    if (dateEl) dateEl.textContent = dateStr;
+    if (timeEl) timeEl.textContent = timeStr;
 }
 
 // Stop clock when modal closes
-function stopAttendanceClock() {
-  if (clockInterval) {
-    clearInterval(clockInterval);
-    clockInterval = null;
-    console.log("Attendance clock stopped");
-  }
+function stopClock() {
+    if (clockInterval) {
+        clearInterval(clockInterval);
+        clockInterval = null;
+    }
 }
 
-// ============================================
-// CHECK IN FORM HANDLER
-// ============================================
-document.addEventListener("DOMContentLoaded", function () {
-  const formCheckIn = document.getElementById("formCheckIn");
+// Open attendance modal
+function openAttendanceModal(employee) {
+    console.log('Opening attendance modal for:', employee);
+    
+    const modal = document.getElementById('modalAttendance');
+    if (!modal) {
+        console.error('Attendance modal not found');
+        return;
+    }
 
-  if (formCheckIn) {
-    formCheckIn.addEventListener("submit", function (e) {
-      e.preventDefault();
+    // Set employee info
+    document.getElementById('attendance_name').textContent = employee.name;
+    document.getElementById('attendance_code').textContent = employee.employee_code;
+    
+    // Set photo
+    const photoEl = document.getElementById('attendance_photo');
+    if (employee.photo && employee.photo.trim() !== '') {
+        photoEl.src = '../uploads/employee/' + employee.photo;
+    } else {
+        const initial = employee.name.substring(0, 2).toUpperCase();
+        photoEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&size=400&background=667eea&color=fff&bold=true`;
+    }
 
-      const formData = new FormData(this);
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
+    // Set employee ID in forms
+    document.getElementById('checkin_employee_id').value = employee.id_employee;
+    document.getElementById('checkout_employee_id').value = employee.id_employee;
 
-      // Disable button
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = "Memproses...";
+    // Populate role dropdown
+    populateRoleDropdown(employee);
 
-      console.log("Submitting check-in...");
+    // Check attendance status and show appropriate section
+    checkAttendanceStatus(employee.id_employee);
 
-      fetch("../actions/attendance/checkin.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Check-in response:", data);
+    // Start clock
+    startClock();
 
-          if (data.success) {
-            // Build success message
-            let message = data.message;
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
 
-            if (data.data) {
-              if (data.data.new_status) {
-                message += "\n\nStatus: " + data.data.new_status;
-              }
-              if (data.data.check_in_time) {
-                message += "\nWaktu Check In: " + data.data.check_in_time;
-              }
-              if (data.data.role_today) {
-                message += "\nRole Hari Ini: " + data.data.role_today;
-              }
-              // Info tambahan jika mendapat role kasir otomatis
-              if (data.data.kasir_auto_added) {
-                message +=
-                  "\n\n✨ Anda mendapatkan role KASIR (pasif) karena check in pertama kali!";
-              }
-            }
+// Populate role dropdown from employee roles
+function populateRoleDropdown(employee) {
+    const roleSelect = document.getElementById('checkin_role');
+    if (!roleSelect) return;
 
-            showNotification(
-              "success",
-              "Check In Berhasil!",
-              message,
-              function () {
-                closeAttendanceModal();
-                window.location.reload();
-              }
-            );
-          } else {
-            showNotification("error", "Check In Gagal", data.message, null);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }
-        })
-        .catch((error) => {
-          console.error("Check-in error:", error);
-          showNotification(
-            "error",
-            "Terjadi Kesalahan",
-            "Terjadi kesalahan saat check in. Silakan coba lagi.",
-            null
-          );
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalText;
+    // Clear existing options except the first one
+    roleSelect.innerHTML = '<option value="">-- Pilih Role --</option>';
+
+    // Get roles from employee data
+    const roles = employee.roles ? employee.roles.split(',') : [];
+    
+    if (roles.length > 0) {
+        roles.forEach(role => {
+            const roleValue = role.trim().toLowerCase();
+            const roleLabel = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
+            
+            const option = document.createElement('option');
+            option.value = roleValue;
+            option.textContent = roleLabel;
+            roleSelect.appendChild(option);
         });
-    });
+    } else {
+        // Fallback jika tidak ada role
+        const option = document.createElement('option');
+        option.value = 'cleaning';
+        option.textContent = 'Cleaning';
+        roleSelect.appendChild(option);
+    }
+}
 
-    console.log("Check-in form handler initialized");
-  }
+// Check if employee has checked in today
+async function checkAttendanceStatus(employeeId) {
+    try {
+        const response = await fetch('../actions/karyawan/check_attendance_status.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `employee_id=${employeeId}`
+        });
+
+        const data = await response.json();
+        
+        if (data.hasCheckedIn) {
+            // Show checkout section
+            document.getElementById('checkin-section').style.display = 'none';
+            document.getElementById('checkout-section').style.display = 'block';
+            
+            // Update summary
+            updateWorkSummary(data.summary);
+        } else {
+            // Show checkin section
+            document.getElementById('checkin-section').style.display = 'block';
+            document.getElementById('checkout-section').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error checking attendance:', error);
+        // Default to checkin
+        document.getElementById('checkin-section').style.display = 'block';
+        document.getElementById('checkout-section').style.display = 'none';
+    }
+}
+
+// Update work summary in checkout section
+function updateWorkSummary(summary) {
+    if (!summary) return;
+
+    document.getElementById('summary_shoes').textContent = summary.shoes_done || 0;
+    document.getElementById('summary_duration').textContent = summary.work_hours || '0';
+    document.getElementById('summary_role').textContent = summary.role_today || '-';
+    document.getElementById('summary_score').textContent = summary.score || 0;
+}
+
+// Close attendance modal
+function closeAttendanceModal() {
+    const modal = document.getElementById('modalAttendance');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        
+        // Stop clock
+        stopClock();
+        
+        // Reset forms
+        document.getElementById('formCheckIn').reset();
+        document.getElementById('formCheckOut').reset();
+    }
+}
+
+// Handle Check In form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInForm = document.getElementById('formCheckIn');
+    
+    if (checkInForm) {
+        checkInForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Memproses...';
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('../actions/karyawan/checkin.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('success', 'Check In Berhasil!', data.message);
+                    closeAttendanceModal();
+                    
+                    // Refresh page after 1 second
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification('error', 'Check In Gagal', data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error', 'Terjadi kesalahan saat check in');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    }
+    
+    // Handle Check Out form submission
+    const checkOutForm = document.getElementById('formCheckOut');
+    
+    if (checkOutForm) {
+        checkOutForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Memproses...';
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('../actions/karyawan/checkout.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('success', 'Check Out Berhasil!', data.message);
+                    closeAttendanceModal();
+                    
+                    // Refresh page after 1 second
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showNotification('error', 'Check Out Gagal', data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('error', 'Error', 'Terjadi kesalahan saat check out');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    }
 });
 
-// ============================================
-// CHECK OUT FORM HANDLER
-// ============================================
-document.addEventListener("DOMContentLoaded", function () {
-  const formCheckOut = document.getElementById("formCheckOut");
-
-  if (formCheckOut) {
-    formCheckOut.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-
-      // Disable button
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = "Memproses...";
-
-      console.log("Submitting check-out...");
-
-      fetch("../actions/attendance/checkout.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Check-out response:", data);
-
-          if (data.success) {
-            // Build success message
-            let message = data.message;
-
-            if (data.data) {
-              if (data.data.work_hours) {
-                message += "\n\nJam Kerja: " + data.data.work_hours + " jam";
-              }
-              if (data.data.check_out_time) {
-                message += "\nWaktu Check Out: " + data.data.check_out_time;
-              }
-              if (data.data.new_status) {
-                message += "\nStatus: " + data.data.new_status;
-              }
-            }
-
-            showNotification(
-              "success",
-              "Check Out Berhasil!",
-              message,
-              function () {
-                closeAttendanceModal();
-                window.location.reload();
-              }
-            );
-          } else {
-            showNotification("error", "Check Out Gagal", data.message, null);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-          }
-        })
-        .catch((error) => {
-          console.error("Check-out error:", error);
-          showNotification(
-            "error",
-            "Terjadi Kesalahan",
-            "Terjadi kesalahan saat check out. Silakan coba lagi.",
-            null
-          );
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalText;
-        });
-    });
-
-    console.log("Check-out form handler initialized");
-  }
-});
-
-// ============================================
-// EXPOSE TO GLOBAL SCOPE
-// ============================================
-window.startAttendanceClock = startAttendanceClock;
-window.stopAttendanceClock = stopAttendanceClock;
-window.updateAttendanceClock = updateAttendanceClock;
-
-console.log("Attendance.js loaded successfully");
+console.log('Attendance.js loaded successfully');

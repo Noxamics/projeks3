@@ -6,7 +6,7 @@ require_once('../partials/headerAdmin.php');
 $stats = [
     'totalEmployees' => 0,
     'todayAttendance' => 0,
-    'todayKasir' => null
+    'todayKasir' => []
 ];
 
 try {
@@ -100,13 +100,13 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     <link rel="stylesheet" href="../css/karyawan/card-interactions.css">
     <link rel="stylesheet" href="../css/karyawan/notification.css">
     <link rel="stylesheet" href="../css/karyawan/view-toogle.css">
+    <link rel="stylesheet" href="../css/karyawan/kasir-stat.css">
 </head>
 
 <body>
     <main class="employee-page">
         <div class="container">
 
-            <!-- HEADER - Replace the duplicate <div class="header-controls"> section with this -->
             <!-- HEADER CONTROLS -->
             <div class="header-controls">
                 <div class="left-section">
@@ -220,17 +220,20 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                             <div class="stat-content">
                                 <h3 class="stat-number">
                                     <?php
-                                    echo (is_array($stats['todayKasir']) && isset($stats['todayKasir']['employee_code']))
+                                    echo (!empty($stats['todayKasir']['employee_code']))
                                         ? htmlspecialchars($stats['todayKasir']['employee_code'])
                                         : '-';
                                     ?>
                                 </h3>
+
                                 <p class="stat-label">
                                     <?php echo (!empty($stats['todayKasir'])) ? 'Karyawan Check-in' : 'Belum Ada Check-in'; ?>
                                 </p>
                             </div>
+
                             <div class="stat-footer">
                                 <span class="stat-info">
+                                    <!-- ICON SVG - FIXED -->
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path
@@ -242,18 +245,17 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                             stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" />
                                     </svg>
-                                    <?php
-                                    if (is_array($stats['todayKasir']) && isset($stats['todayKasir']['name'])) {
-                                        echo htmlspecialchars($stats['todayKasir']['name']);
 
-                                        // Show role if available
-                                        if (isset($stats['todayKasir']['role_today'])) {
-                                            echo ' <span style="font-size: 11px; opacity: 0.8;">('
-                                                . htmlspecialchars(ucfirst($stats['todayKasir']['role_today']))
-                                                . ')</span>';
-                                        }
-                                    } else {
-                                        echo 'Belum ada karyawan check-in';
+                                    <?php
+                                    echo (!empty($stats['todayKasir']['name']))
+                                        ? htmlspecialchars($stats['todayKasir']['name'])
+                                        : 'Belum ada karyawan check-in';
+
+                                    // Role
+                                    if (!empty($stats['todayKasir']['role_today'])) {
+                                        echo ' <span style="font-size: 11px; opacity: 0.8;">(' .
+                                            htmlspecialchars(ucfirst($stats['todayKasir']['role_today'])) .
+                                            ')</span>';
                                     }
                                     ?>
                                 </span>
@@ -515,12 +517,28 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                                 <button class="btn-table btn-edit"
                                                     onclick="event.stopPropagation(); openEditModal(<?php echo $json; ?>)"
                                                     title="Edit Karyawan">
-                                                    ✏️
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7">
+                                                        </path>
+                                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z">
+                                                        </path>
+                                                    </svg>
                                                 </button>
                                                 <button class="btn-table btn-delete"
                                                     onclick="event.stopPropagation(); openDeleteModal(<?php echo $emp['id_employee']; ?>, '<?php echo htmlspecialchars($emp['name'], ENT_QUOTES); ?>')"
                                                     title="Hapus Karyawan">
-                                                    🗑️
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                        <path
+                                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                        </path>
+                                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                    </svg>
                                                 </button>
                                             </div>
                                         </td>
@@ -577,13 +595,25 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     ?>
 
     <!-- JAVASCRIPT FILES -->
-    <script src="../js/karyawan/filter.js"></script>
-    <script src="../js/karyawan/modal.js"></script>
-    <script src="../js/karyawan/modal-form.js"></script>
-    <script src="../js/karyawan/attendance.js"></script>
-    <script src="../js/karyawan/card-interactions.js"></script>
+    <!-- Core utilities dulu -->
     <script src="../js/karyawan/notification.js"></script>
-    <script src="../js/karyawan/modal_karyawan.js"></script>
+
+    <!-- Modal management (butuh notification) -->
+    <script src="../js/karyawan/modal.js"></script>
+
+    <!-- Attendance (butuh modal untuk clock) -->
+    <script src="../js/karyawan/attendance.js"></script>
+    <script src="../js/karyawan/kasir-stat.js"></script>
+
+    <!-- Form handlers (butuh modal & notification) -->
+    <script src="../js/karyawan/modal-form.js"></script>
+
+    <!-- UI interactions -->
+    <script src="../js/karyawan/filter.js"></script>
+    <script src="../js/karyawan/view-toogle.js"></script>
+    <script src="../js/karyawan/card-interactions.js"></script>
+
+    <!-- Main initialization terakhir -->
     <script src="../js/karyawan/main.js"></script>
 
 </body>
