@@ -263,18 +263,22 @@ $customerId = $userData['id'];
 
         </div>
 
+        <form id="wa-form">
+            <input type="text" id="name" placeholder="Full Name" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <textarea id="message" placeholder="Comment or message" required></textarea>
 
-        <div class="contact-form">
-            <h3>Send Your Message</h3>
-            <form id="wa-form">
-                <input type="text" name="name" id="name" placeholder="Full Name" required />
-                <input type="email" name="email" id="email" placeholder="Email" required />
-                <textarea name="message" id="message" placeholder="Comment or message" required></textarea>
-                <button type="submit" class="wa-button">
-                    <img src="../a/assets/WA Putih.png" alt="Send via WhatsApp" />
-                </button>
-            </form>
+            <button type="submit" class="wa-button">
+                <img src="../a/assets/WA Putih.png" width="30">
+            </button>
+        </form>
+
+        <div id="loading" style="display:none; margin-top:10px; font-weight:bold;">
+            Loading...
         </div>
+
+        <script src="../js/customer/submit-whatsapp.js"></script>
+
 
         <div class="info-box">
             <h3>ℹ️ Informasi Login</h3>
