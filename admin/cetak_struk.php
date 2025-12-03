@@ -1,11 +1,11 @@
 <?php
 include('../db.php');
 
-$id = intval($_GET['id'] ?? 0);
+$id = $_GET['id'] ?? 0;
 
 $query = $conn->prepare("
     SELECT d.order_code, c.name, c.phone, s.service_name, di.brand, di.price, 
-           p.amount_paid, p.payment_method, p.status, d.trans_date, d.note
+           p.amount_paid, p.payment_method, p.status, d.trans_date
     FROM drops d
     JOIN customers c ON d.customer_id = c.id_customer
     JOIN drop_items di ON di.drop_id = d.id_drop
@@ -26,10 +26,10 @@ $price = $result['price'];
 $amount_paid = $result['amount_paid'];
 $kembalian = $amount_paid - $price;
 
-// Format nomor telepon ke format internasional (Indonesia)
+// 🔹 Format nomor telepon ke format internasional (Indonesia)
 $phone = preg_replace('/^0/', '62', $result['phone']);
 
-// Pesan WhatsApp
+// 🔹 Pesan WhatsApp
 $link_struk = "http://localhost/PROJEKS3/admin/cetak_struk.php?id=" . $id;
 $pesan =
     "Halo *{$result['name']}*, 👋
@@ -60,6 +60,7 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Cetak Struk</title>
@@ -67,14 +68,18 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
     <script>
         function sendWhatsApp() {
             const waUrl = "<?= $wa_url ?>";
+            // 🔹 Cetak otomatis
             window.print();
+            // 🔹 Setelah cetak, buka WhatsApp
             setTimeout(() => {
                 window.open(waUrl, '_blank');
             }, 1500);
         }
     </script>
 </head>
+
 <body onload="sendWhatsApp()">
+
     <div class="struk-container">
         <div class="struk-header">
             <h2>SengkuClean</h2>
@@ -120,14 +125,6 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
 
         <hr class="divider">
 
-        <!-- NOTE PELANGGAN -->
-        <div style="margin:10px 0;">
-            <strong>Catatan Pelanggan:</strong><br>
-            <?= nl2br(htmlspecialchars($result['note'] ?? '-')) ?>
-        </div>
-
-        <hr class="divider">
-
         <div class="price-section">
             <p><span>Harga</span><span>Rp<?= number_format($price, 0, ',', '.') ?></span></p>
             <p><span>Dibayar</span><span>Rp<?= number_format($amount_paid, 0, ',', '.') ?></span></p>
@@ -143,5 +140,7 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
             <p class="small">Struk ini sah tanpa tanda tangan</p>
         </div>
     </div>
+
 </body>
+
 </html>
