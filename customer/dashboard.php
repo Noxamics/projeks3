@@ -15,6 +15,7 @@ $customerId = $userData['id'];
     <link rel="icon" type="image/png" href="../public/img/logo.png">
     <link rel="stylesheet" href="../css/cs_dashboard.css">
     <script src="../js/customer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -221,6 +222,21 @@ $customerId = $userData['id'];
 
         <!-- <== Testimoni Page Customer ==> -->
 
+        <?php if (isset($_GET['testimonial_success'])): ?>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Swal.fire({
+                        title: "Terima Kasih!",
+                        text: "Telah menggunakan layanan kami dan mengirimkan testimoni 😊",
+                        icon: "success",
+                        confirmButtonColor: "#154283",
+                        confirmButtonText: "OK"
+                    });
+                });
+            </script>
+        <?php endif; ?>
+
+
         <div class="testimonial-section">
 
             <h2 class="testimonial-title">Berikan Testimoni Anda</h2>
@@ -247,18 +263,22 @@ $customerId = $userData['id'];
 
         </div>
 
+        <form id="wa-form">
+            <input type="text" id="name" placeholder="Full Name" required />
+            <input type="email" id="email" placeholder="Email" required />
+            <textarea id="message" placeholder="Comment or message" required></textarea>
 
-        <div class="contact-form">
-            <h3>Send Your Message</h3>
-            <form id="wa-form">
-                <input type="text" name="name" id="name" placeholder="Full Name" required />
-                <input type="email" name="email" id="email" placeholder="Email" required />
-                <textarea name="message" id="message" placeholder="Comment or message" required></textarea>
-                <button type="submit" class="wa-button">
-                    <img src="../a/assets/WA Putih.png" alt="Send via WhatsApp" />
-                </button>
-            </form>
+            <button type="submit" class="wa-button">
+                <img src="../a/assets/WA Putih.png" width="30">
+            </button>
+        </form>
+
+        <div id="loading" style="display:none; margin-top:10px; font-weight:bold;">
+            Loading...
         </div>
+
+        <script src="../js/customer/submit-whatsapp.js"></script>
+
 
         <div class="info-box">
             <h3>ℹ️ Informasi Login</h3>

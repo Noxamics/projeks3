@@ -107,6 +107,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
         <div class="container">
 
             <!-- HEADER - Replace the duplicate <div class="header-controls"> section with this -->
+            <!-- HEADER CONTROLS -->
             <div class="header-controls">
                 <div class="left-section">
                     <div class="header-section">
@@ -194,7 +195,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                             </div>
                         </div>
 
-                        <!-- KASIR AKTIF -->
+                        <!-- KASIR AKTIF (UPDATED) -->
                         <div class="stat-card stat-warning">
                             <div class="stat-header">
                                 <div class="stat-icon">
@@ -212,11 +213,21 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                             stroke-linejoin="round" />
                                     </svg>
                                 </div>
-                                <span class="stat-badge">On Duty</span>
+                                <span class="stat-badge">
+                                    <?php echo (!empty($stats['todayKasir'])) ? 'On Duty' : 'Standby'; ?>
+                                </span>
                             </div>
                             <div class="stat-content">
-                                <h3 class="stat-number"><?= $stats['todayKasir']['employee_code'] ?? '-' ?></h3>
-                                <p class="stat-label">Kasir Aktif</p>
+                                <h3 class="stat-number">
+                                    <?php
+                                    echo (is_array($stats['todayKasir']) && isset($stats['todayKasir']['employee_code']))
+                                        ? htmlspecialchars($stats['todayKasir']['employee_code'])
+                                        : '-';
+                                    ?>
+                                </h3>
+                                <p class="stat-label">
+                                    <?php echo (!empty($stats['todayKasir'])) ? 'Karyawan Check-in' : 'Belum Ada Check-in'; ?>
+                                </p>
                             </div>
                             <div class="stat-footer">
                                 <span class="stat-info">
@@ -231,7 +242,20 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                             stroke="#f59e0b" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" />
                                     </svg>
-                                    <?= $stats['todayKasir']['name'] ?? 'Belum ada kasir' ?>
+                                    <?php
+                                    if (is_array($stats['todayKasir']) && isset($stats['todayKasir']['name'])) {
+                                        echo htmlspecialchars($stats['todayKasir']['name']);
+
+                                        // Show role if available
+                                        if (isset($stats['todayKasir']['role_today'])) {
+                                            echo ' <span style="font-size: 11px; opacity: 0.8;">('
+                                                . htmlspecialchars(ucfirst($stats['todayKasir']['role_today']))
+                                                . ')</span>';
+                                        }
+                                    } else {
+                                        echo 'Belum ada karyawan check-in';
+                                    }
+                                    ?>
                                 </span>
                             </div>
                         </div>

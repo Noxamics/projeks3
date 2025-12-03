@@ -67,7 +67,7 @@ function stopAttendanceClock() {
 }
 
 // ============================================
-// CHECK IN FORM HANDLER (UPDATED WITH DEBUG)
+// CHECK IN FORM HANDLER
 // ============================================
 document.addEventListener("DOMContentLoaded", function () {
   const formCheckIn = document.getElementById("formCheckIn");
@@ -84,87 +84,58 @@ document.addEventListener("DOMContentLoaded", function () {
       submitBtn.disabled = true;
       submitBtn.innerHTML = "Memproses...";
 
-      console.log("=== CHECK IN DEBUG ===");
-      console.log("Employee ID:", formData.get('employee_id'));
-      console.log("Role Today:", formData.get('role_today'));
-      console.log("Has Password:", formData.get('password') ? 'Yes' : 'No');
+      console.log("Submitting check-in...");
 
       fetch("../actions/attendance/checkin.php", {
         method: "POST",
         body: formData,
       })
-        .then((response) => {
-          console.log("Response status:", response.status);
-          return response.text(); // Get as text first
-        })
-        .then((text) => {
-          console.log("Raw response:", text);
-          
-          try {
-            const data = JSON.parse(text);
-            console.log("Parsed response:", data);
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Check-in response:", data);
 
-            // Show debug info if available
-            if (data.debug && data.debug.length > 0) {
-              console.log("=== DEBUG INFO ===");
-              data.debug.forEach(msg => console.log(msg));
+          if (data.success) {
+            // Build success message
+            let message = data.message;
+
+            if (data.data) {
+              if (data.data.new_status) {
+                message += "\n\nStatus: " + data.data.new_status;
+              }
+              if (data.data.check_in_time) {
+                message += "\nWaktu Check In: " + data.data.check_in_time;
+              }
+              if (data.data.role_today) {
+                message += "\nRole Hari Ini: " + data.data.role_today;
+              }
+              // Info tambahan jika mendapat role kasir otomatis
+              if (data.data.kasir_auto_added) {
+                message +=
+                  "\n\n✨ Anda mendapatkan role KASIR (pasif) karena check in pertama kali!";
+              }
             }
 
-            if (data.success) {
-              // Build success message
-              let message = data.message;
-              
-              if (data.data) {
-                if (data.data.new_status) {
-                  message += "\n\nStatus: " + data.data.new_status;
-                }
-                if (data.data.check_in_time) {
-                  message += "\nWaktu Check In: " + data.data.check_in_time;
-                }
-                if (data.data.role_today) {
-                  message += "\nRole Hari Ini: " + data.data.role_today;
-                }
-                // Info tambahan jika mendapat role kasir otomatis
-                if (data.data.kasir_auto_added) {
-                  message += "\n\n✨ Anda mendapatkan role KASIR (pasif) karena check in pertama kali!";
-                }
-              }
-
-              showNotification("success", "Check In Berhasil!", message, function () {
+            showNotification(
+              "success",
+              "Check In Berhasil!",
+              message,
+              function () {
                 closeAttendanceModal();
                 window.location.reload();
-              });
-            } else {
-              // Show error with debug info if available
-              let errorMsg = data.message;
-              if (data.debug && data.debug.length > 0) {
-                errorMsg += "\n\nDebug Info:\n" + data.debug.join("\n");
               }
-              
-              showNotification("error", "Check In Gagal", errorMsg, null);
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = originalText;
-            }
-          } catch (parseError) {
-            console.error("JSON Parse Error:", parseError);
-            console.error("Response was:", text);
-            
-            showNotification(
-              "error",
-              "Terjadi Kesalahan",
-              "Server response tidak valid. Periksa console untuk detail.",
-              null
             );
+          } else {
+            showNotification("error", "Check In Gagal", data.message, null);
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
           }
         })
         .catch((error) => {
-          console.error("Fetch error:", error);
+          console.error("Check-in error:", error);
           showNotification(
             "error",
             "Terjadi Kesalahan",
-            "Tidak dapat terhubung ke server: " + error.message,
+            "Terjadi kesalahan saat check in. Silakan coba lagi.",
             null
           );
           submitBtn.disabled = false;
