@@ -131,3 +131,518 @@ header.scrolled .login-btn a {
 header.scrolled .login-btn a:hover {
   background-color: #e7e7e7;
 }
+
+/* =============================
+   HEADER RESPONSIVE STYLES
+   Tambahkan ke file style.css Anda
+============================= */
+
+/* ===== BASIC HEADER STYLES ===== */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  transition: all 0.3s ease;
+}
+
+/* Logo Styles */
+.logo a {
+  display: block;
+  line-height: 0;
+}
+
+#logo-img {
+  height: 60px;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+header.scrolled #logo-img {
+  height: 40px;
+}
+
+/* Desktop Navigation */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-right a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.nav-right a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+
+.nav-right a:hover::after,
+.nav-right a.active::after {
+  width: 100%;
+}
+
+header.scrolled .nav-right a {
+  color: #1d56a7;
+}
+
+header.scrolled .nav-right a::after {
+  background-color: #1d56a7;
+}
+
+/* =============================
+   RESPONSIVE BREAKPOINTS
+============================= */
+
+/* Tablet - 1024px */
+@media (max-width: 1024px) {
+  header .container {
+    padding: 15px 30px;
+  }
+
+  .nav-right {
+    gap: 25px;
+  }
+
+  .nav-right a {
+    font-size: 12px;
+  }
+
+  #logo-img {
+    height: 55px;
+  }
+
+  header.scrolled #logo-img {
+    height: 38px;
+  }
+}
+
+/* Tablet/Mobile - 768px */
+@media (max-width: 768px) {
+  header .container {
+    padding: 12px 20px;
+  }
+
+  #logo-img {
+    height: 50px;
+  }
+
+  header.scrolled #logo-img {
+    height: 35px;
+  }
+
+  /* Hide desktop navigation */
+  .nav-right {
+    display: none !important;
+  }
+}
+
+/* Mobile - 480px */
+@media (max-width: 480px) {
+  header .container {
+    padding: 10px 15px;
+  }
+
+  #logo-img {
+    height: 45px;
+  }
+
+  header.scrolled #logo-img {
+    height: 30px;
+  }
+}
+
+/* Extra Small Mobile - 360px */
+@media (max-width: 360px) {
+  header .container {
+    padding: 8px 12px;
+  }
+
+  #logo-img {
+    height: 40px;
+  }
+
+  header.scrolled #logo-img {
+    height: 28px;
+  }
+}
+
+/* =============================
+   MOBILE MENU ENHANCEMENTS
+============================= */
+
+/* Smooth scrollbar for mobile menu */
+.nav-mobile::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-mobile::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.nav-mobile::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.nav-mobile::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* =============================
+   ACCESSIBILITY IMPROVEMENTS
+============================= */
+
+/* Focus styles for keyboard navigation */
+.nav-right a:focus,
+.nav-mobile a:focus,
+.mobile-menu-toggle:focus,
+.nav-mobile-close:focus {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+header.scrolled .nav-right a:focus,
+header.scrolled .mobile-menu-toggle:focus {
+  outline-color: #1d56a7;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =============================
+   PRINT STYLES
+============================= */
+@media print {
+  header {
+    position: static;
+  }
+
+  .mobile-menu-toggle,
+  .nav-mobile,
+  .nav-mobile-overlay {
+    display: none !important;
+  }
+
+  .nav-right {
+    display: none !important;
+  }
+}
+
+/* =============================
+   HIGH CONTRAST MODE
+============================= */
+@media (prefers-contrast: high) {
+  .nav-right a,
+  .nav-mobile a {
+    font-weight: 700;
+  }
+
+  .nav-right a::after {
+    height: 3px;
+  }
+}
+
+/* =============================
+   LANDSCAPE ORIENTATION
+============================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  .nav-mobile {
+    padding: 60px 20px 20px;
+  }
+
+  .nav-mobile a {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  .nav-mobile-close {
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+  }
+}
+
+/* =============================
+   DARK MODE SUPPORT (OPTIONAL)
+============================= */
+@media (prefers-color-scheme: dark) {
+  /* Jika Anda ingin support dark mode, 
+     tambahkan styles di sini */
+}
+
+/* =============================
+   ANIMATION HELPERS
+============================= */
+
+/* Fade animation class */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide animation class */
+.slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* =============================
+   UTILITY CLASSES
+============================= */
+
+/* Prevent scrolling when menu is open */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Safe area for notched devices (iPhone X, etc) */
+@supports (padding: max(0px)) {
+  header .container {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* =============================
+   LOADING STATE (OPTIONAL)
+============================= */
+.header-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.header-loading * {
+  cursor: wait !important;
+}
+
+/* =============================
+   FIX ACTIVE NAVIGATION STATE
+   Tambahkan/replace di header.css atau style.css
+============================= */
+
+/* ===== DESKTOP NAVIGATION ===== */
+.nav-right a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 8px 0;
+  transition: all 0.3s ease;
+}
+
+/* Default underline (hidden) */
+.nav-right a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #fff;
+  transition: width 0.3s ease;
+}
+
+/* Hover effect */
+.nav-right a:hover::after {
+  width: 100%;
+}
+
+/* ACTIVE state - Show underline */
+.nav-right a.active {
+  font-weight: 700;
+}
+
+.nav-right a.active::after {
+  width: 100%;
+  background-color: #fff;
+}
+
+/* Scrolled header styles */
+header.scrolled .nav-right a {
+  color: #1d56a7;
+}
+
+header.scrolled .nav-right a::after {
+  background-color: #1d56a7;
+}
+
+header.scrolled .nav-right a.active::after {
+  background-color: #1d56a7;
+}
+
+/* ===== MOBILE NAVIGATION ===== */
+.nav-mobile a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 15px 20px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+/* Mobile hover effect */
+.nav-mobile a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-left-color: #fff;
+  transform: translateX(5px);
+}
+
+/* Mobile ACTIVE state */
+.nav-mobile a.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-left-color: #fff;
+  font-weight: 700;
+  transform: translateX(5px);
+}
+
+/* ===== CATALOG LINK SPECIAL STYLE ===== */
+.nav-mobile .catalog-link {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-mobile .catalog-link a {
+  background: rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-weight: 700;
+}
+
+.nav-mobile .catalog-link a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(0) scale(1.05);
+}
+
+.nav-mobile .catalog-link a.active {
+  background: rgba(255, 255, 255, 0.25);
+  border-left-color: transparent;
+  transform: translateX(0) scale(1.05);
+}
+
+/* ===== ENSURE NO DEFAULT ACTIVE ===== */
+/* Remove any default active state on page load */
+.nav-right a:not(.active)::after,
+.nav-mobile a:not(.active) {
+  /* Reset styles for non-active links */
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+  .nav-mobile a {
+    font-size: 15px;
+    padding: 14px 18px;
+  }
+
+  .nav-mobile a.active {
+    border-left-width: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-mobile a {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+/* ===== DEBUG MODE (OPTIONAL) ===== */
+/* Uncomment untuk melihat active state dengan warna berbeda */
+/*
+.nav-right a.active {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+.nav-mobile a.active {
+  background: rgba(255, 0, 0, 0.3) !important;
+  border: 2px solid red;
+}
+*/
+
+/* ===== ACCESSIBILITY ===== */
+/* Ensure active state is visible for keyboard navigation */
+.nav-right a:focus,
+.nav-mobile a:focus {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.nav-right a.active:focus,
+.nav-mobile a.active:focus {
+  outline-color: #ffeb3b;
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+.nav-right a,
+.nav-mobile a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-right a::after {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .nav-right a.active,
+  .nav-mobile a.active {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+}

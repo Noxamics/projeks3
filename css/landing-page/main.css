@@ -9,8 +9,8 @@
 /* Layout Components */
 @import url("header.css");
 @import url("hero.css");
-@import url("sections.css");
-@import url("catalog.css");
+@import url("section.css");
+@import url("service.css");
 @import url("take-care.css");
 @import url("footer.css");
 
