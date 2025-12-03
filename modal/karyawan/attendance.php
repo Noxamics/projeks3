@@ -1,8 +1,13 @@
-<!-- modal/karyawan/attendance.php -->
+<!-- ================================================
+        Attendance Modal - UPDATED VERSION (Role Auto-populated)
+        File: modal/karyawan/attendance.php
+        ================================================ -->
+
+<link rel="stylesheet" href="../css/karyawan/notification.css">
+
 <div id="modalAttendance" class="modal">
     <div class="modal-box modal-attendance">
         <h3>
-            <span class="modal-icon">⏰</span>
             Absensi Karyawan
         </h3>
 
@@ -18,15 +23,14 @@
 
             <!-- Current Time Display -->
             <div class="time-display-big">
-                <div class="date-display" id="current_date"></div>
-                <div class="time-display" id="current_time"></div>
+                <div class="date-display" id="current_date">Loading...</div>
+                <div class="time-display" id="current_time">00:00:00</div>
             </div>
 
             <!-- Check In Section -->
             <div class="attendance-section" id="checkin-section">
                 <div class="section-header">
                     <h4>
-                        <span class="icon">🟢</span>
                         Check In
                     </h4>
                     <span class="section-subtitle">Masuk Kerja</span>
@@ -35,44 +39,31 @@
                 <form id="formCheckIn" class="attendance-form">
                     <input type="hidden" id="checkin_employee_id" name="employee_id">
 
-                    <!-- Role Selection -->
+                    <!-- Role Selection - AUTO POPULATED FROM DATABASE -->
                     <div class="form-group">
                         <label for="checkin_role">
-                            <span class="label-icon">👔</span>
                             Pilih Role Hari Ini
                         </label>
-                        <select id="checkin_role" name="role_today" required class="role-select">
+                        <select id="checkin_role" name="role_today" class="role-select" required>
                             <option value="">-- Pilih Role --</option>
-                            <!-- Options will be populated dynamically based on employee roles -->
+                            <!-- Options will be populated by JavaScript from employee's roles -->
                         </select>
-                        <p class="field-note">Role yang dipilih akan menentukan tugas hari ini</p>
-                    </div>
-
-                    <!-- Kasir Auto Assignment Notice -->
-                    <div id="kasir_notice" class="info-notice" style="display:none;">
-                        <span class="notice-icon">💰</span>
-                        <div class="notice-content">
-                            <strong>Anda akan menjadi KASIR hari ini!</strong>
-                            <p>Sebagai karyawan pertama yang absen, Anda otomatis ditugaskan sebagai kasir untuk hari
-                                ini.</p>
-                        </div>
+                        <p class="field-note">Role yang tersedia sesuai dengan role Anda di sistem</p>
                     </div>
 
                     <!-- Password -->
                     <div class="form-group">
                         <label for="checkin_password">
-                            <span class="label-icon">🔒</span>
                             Password
                         </label>
                         <input type="password" id="checkin_password" name="password" required
-                            placeholder="Masukkan password Anda" class="password-input">
+                            placeholder="Masukkan password Anda" class="password-input" autocomplete="off">
                         <p class="field-note">Gunakan password pribadi Anda</p>
                     </div>
 
                     <!-- Notes -->
                     <div class="form-group">
                         <label for="checkin_notes">
-                            <span class="label-icon">📝</span>
                             Catatan (Opsional)
                         </label>
                         <textarea id="checkin_notes" name="notes" rows="3" placeholder="Catatan tambahan..."></textarea>
@@ -80,7 +71,7 @@
 
                     <div class="modal-actions">
                         <button type="submit" class="btn-checkin">
-                            <span>✅</span> Check In Sekarang
+                            Check In Sekarang
                         </button>
                         <button type="button" class="btn-cancel" onclick="closeAttendanceModal()">Batal</button>
                     </div>
@@ -138,17 +129,15 @@
                     <!-- Password -->
                     <div class="form-group">
                         <label for="checkout_password">
-                            <span class="label-icon">🔒</span>
                             Password
                         </label>
                         <input type="password" id="checkout_password" name="password" required
-                            placeholder="Masukkan password Anda" class="password-input">
+                            placeholder="Masukkan password Anda" class="password-input" autocomplete="off">
                     </div>
 
                     <!-- Notes -->
                     <div class="form-group">
                         <label for="checkout_notes">
-                            <span class="label-icon">📝</span>
                             Catatan Penutup (Opsional)
                         </label>
                         <textarea id="checkout_notes" name="notes" rows="3"
@@ -157,37 +146,11 @@
 
                     <div class="modal-actions">
                         <button type="submit" class="btn-checkout">
-                            <span>🏁</span> Check Out Sekarang
+                            Check Out Sekarang
                         </button>
                         <button type="button" class="btn-cancel" onclick="closeAttendanceModal()">Batal</button>
                     </div>
                 </form>
-            </div>
-
-            <!-- Alert Messages -->
-            <div id="attendance_alert" class="alert" style="display:none;"></div>
-
-            <!-- Today's Attendance Info -->
-            <div class="attendance-info" id="today_attendance_info">
-                <h5>Status Absensi Hari Ini</h5>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Check In:</span>
-                        <strong id="info_checkin">-</strong>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Check Out:</span>
-                        <strong id="info_checkout">-</strong>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Role:</span>
-                        <strong id="info_role">-</strong>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Status:</span>
-                        <span id="info_status" class="status-badge">-</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -256,32 +219,6 @@
         box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
     }
 
-    .info-notice {
-        display: flex;
-        gap: 15px;
-        padding: 15px;
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
-        border-radius: 8px;
-        margin: 15px 0;
-    }
-
-    .notice-icon {
-        font-size: 24px;
-    }
-
-    .notice-content strong {
-        color: #856404;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    .notice-content p {
-        color: #856404;
-        font-size: 14px;
-        margin: 0;
-    }
-
     .work-summary {
         background: #f8fbff;
         padding: 20px;
@@ -331,32 +268,7 @@
         margin-top: 5px;
         font-style: italic;
     }
-
-    .attendance-info {
-        background: #f8fbff;
-        padding: 20px;
-        border-radius: 12px;
-        border: 2px solid #e3f2fd;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        margin-top: 15px;
-    }
-
-    .info-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        background: white;
-        border-radius: 8px;
-    }
-
-    .info-label {
-        color: #666;
-        font-size: 14px;
-    }
 </style>
+
+<script src="../js/karyawan/notification.js"></script>
+<script src="../js/karyawan/attendance.js"></script>
