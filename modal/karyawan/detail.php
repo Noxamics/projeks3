@@ -138,6 +138,3 @@
         </div>
     </div>
 </div>
-
-<script src="../js/karyawan/notification.js"></script>
-<script src="../js/karyawan/modal_detail_karyawan.js"></script>
