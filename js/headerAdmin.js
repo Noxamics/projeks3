@@ -41,3 +41,13 @@ if (darkToggle) {
     localStorage.setItem("darkMode", darkToggle.checked);
   });
 }
+
+// Scroll effect untuk header
+window.addEventListener("scroll", function () {
+  const header = document.querySelector(".admin-header-wrapper");
+  if (window.scrollY > 50) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+});

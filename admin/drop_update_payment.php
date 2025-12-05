@@ -22,13 +22,13 @@ if (empty($payment_status)) {
 
 try {
     $conn->begin_transaction();
-    
+
     // Cek apakah payment sudah ada
     $stmt_check = $conn->prepare("SELECT id_payment FROM payments WHERE drop_id = ?");
     $stmt_check->bind_param("i", $drop_id);
     $stmt_check->execute();
     $result = $stmt_check->get_result();
-    
+
     if ($result->num_rows > 0) {
         // UPDATE payment yang sudah ada
         if ($payment_date === null) {
@@ -54,17 +54,17 @@ try {
             $stmt->bind_param("iss", $drop_id, $payment_status, $payment_date);
         }
     }
-    
+
     if ($stmt->execute()) {
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Status pembayaran berhasil diupdate']);
     } else {
         throw new Exception($stmt->error);
     }
-    
+
     $stmt->close();
     $stmt_check->close();
-    
+
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
