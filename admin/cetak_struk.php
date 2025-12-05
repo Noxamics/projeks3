@@ -183,6 +183,7 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
 
         <!-- NEW: DETAIL ITEMS (HANYA JIKA MULTI-ITEM) -->
         <?php if (count($items) > 1): ?>
+<<<<<<< HEAD
             <div style="margin: 15px 0;">
                 <strong style="font-size: 14px; color: #004d9d;">Detail Pesanan (<?= count($items) ?> Items):</strong>
                 <table style="width: 100%; margin-top: 10px; font-size: 12px;">
@@ -215,6 +216,40 @@ $wa_url = (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') !== false) ? $wa_deskto
             </table>
 
             <hr class="divider">
+=======
+        <div style="margin: 15px 0;">
+            <strong style="font-size: 14px; color: #004d9d;">Detail Pesanan (<?= count($items) ?> Items):</strong>
+            <table style="width: 100%; margin-top: 10px; font-size: 12px;">
+                <?php foreach ($items as $index => $item): ?>
+                <tr style="border-bottom: 1px dashed #ddd;">
+                    <td style="padding: 5px 0; width: 60%;">
+                        <?= $index + 1 ?>. <?= htmlspecialchars($item['brand']) ?><br>
+                        <small style="color: #666;"><?= ucfirst(htmlspecialchars($item['category'])) ?> - <?= ucfirst(htmlspecialchars($item['service_name'])) ?></small>
+                    </td>
+                    <td style="padding: 5px 0; text-align: right; font-weight: 600;">
+                        Rp<?= number_format($item['price'], 0, ',', '.') ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+
+        <hr class="divider">
+        <?php else: ?>
+        <!-- SINGLE ITEM - TAMPILAN ASLI DIPERTAHANKAN -->
+        <table class="struk-table">
+            <tr>
+                <td>Barang</td>
+                <td>: <?= htmlspecialchars($result['brand']) ?></td>
+            </tr>
+            <tr>
+                <td>Layanan</td>
+                <td>: <?= htmlspecialchars($result['service_name']) ?></td>
+            </tr>
+        </table>
+
+        <hr class="divider">
+>>>>>>> 26dc444d809b3c354eb1202ab5d76090d7319252
         <?php endif; ?>
 
         <!-- HARGA - DESAIN ASLI DIPERTAHANKAN -->
