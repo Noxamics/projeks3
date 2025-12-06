@@ -1,5 +1,8 @@
 <?php
-include('../db.php');
+// File: /actions/drop/get_item_note.php
+// Get note from specific item
+
+include('../../db.php');
 header('Content-Type: application/json');
 
 error_reporting(E_ALL);
@@ -24,13 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE drop_id = ? AND item_order = 1
             LIMIT 1
         ");
-        
-        if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
-        
+
+        if (!$stmt)
+            throw new Exception("Prepare failed: " . $conn->error);
+
         $stmt->bind_param("i", $drop_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         $item_note = '';
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
@@ -46,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         error_log("ERROR: " . $e->getMessage());
-        
+
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()
@@ -60,4 +64,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'message' => 'Invalid request method'
     ]);
 }
-?>

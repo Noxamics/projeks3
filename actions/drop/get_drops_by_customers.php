@@ -1,8 +1,8 @@
 <?php
-// FILE: get_drops_by_customers.php
+// File: /actions/drop/get_drops_by_customers.php
 // Helper untuk mendapatkan semua drop_id dari customer_ids (untuk cetak & delete)
 
-include('../db.php');
+include('../../db.php');
 header('Content-Type: application/json');
 
 error_reporting(E_ALL);
@@ -22,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Parse customer IDs
         $ids_array = array_map('intval', explode(',', $customer_ids));
-        $ids_array = array_filter($ids_array, function($id) { return $id > 0; });
+        $ids_array = array_filter($ids_array, function ($id) {
+            return $id > 0; });
 
         if (empty($ids_array)) {
             throw new Exception("Tidak ada customer ID yang valid");
@@ -37,12 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE customer_id IN ($id_list) AND status_id != 6
             ORDER BY id_drop DESC
         ");
-        
-        if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
-        
+
+        if (!$stmt)
+            throw new Exception("Prepare failed: " . $conn->error);
+
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         $drop_ids = [];
         while ($row = $result->fetch_assoc()) {
             $drop_ids[] = $row['id_drop'];
@@ -61,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         error_log("ERROR: " . $e->getMessage());
-        
+
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()
@@ -75,4 +77,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'message' => 'Invalid request method'
     ]);
 }
-?>

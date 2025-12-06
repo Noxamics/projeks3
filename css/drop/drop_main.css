@@ -1,0 +1,253 @@
+/* =========================================================
+   drop_main.css - Base & Layout
+   ========================================================= */
+
+/* Font Import */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+
+/* Base Page Styling */
+.drop-page {
+  font-family: "Inter", sans-serif;
+  background-color: #f8fbfd;
+  color: #004d9d;
+  padding: 20px 30px;
+}
+
+/* Page Title */
+.drop-page .title {
+  font-weight: 800;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.left-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.right-tools {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Add Button */
+.drop-page .add-btn {
+  background-color: #004d9d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 400;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.drop-page .add-btn:hover {
+  background-color: #143c99;
+}
+
+/* Search Box */
+.drop-page .search-box {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1.5px solid #004d9d;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 220px;
+}
+
+.drop-page .search-box input {
+  flex: 1;
+  border: none;
+  padding: 7px 10px;
+  outline: none;
+  font-size: 12px;
+  color: #004d9d;
+}
+
+/* Search Button */
+.search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  transition: background 0.2s ease;
+}
+
+.search-btn:hover {
+  color: #3561c6;
+}
+
+.search-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Filter Select */
+.filter-select {
+  width: 180px;
+  padding: 8px 6px;
+  font-size: 11px;
+  font-family: "Inter", sans-serif;
+  border: 1px solid #3561c6;
+  border-radius: 8px;
+  background-color: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg fill='%23999' height='16' viewBox='0 0 20 20' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 8l5 5 5-5H5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+  color: #ccc;
+}
+
+.filter-select:not([value=""]) {
+  color: #000;
+}
+
+.filter-select:hover {
+  border-color: #3561c6;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3561c6;
+  box-shadow: 0 0 6px rgba(53, 97, 198, 0.3);
+}
+
+.filter-select option {
+  padding: 12px 10px;
+  color: #000;
+}
+
+/* Print & Delete Buttons */
+.print-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+}
+
+.print-btn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+  transform: translateY(-2px);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+}
+
+.delete-icon {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+/* Button Container */
+.button-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Save Button */
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  background: #004d9d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #0056b3;
+}
+
+/* Remove Item Button */
+.remove-item-btn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-item-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: scale(1.05);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Footer */
+footer {
+  background: #333;
+  color: #fff;
+  padding: 7px;
+  text-align: center;
+}

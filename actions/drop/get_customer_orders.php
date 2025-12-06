@@ -1,5 +1,8 @@
 <?php
-include('../db.php');
+// File: /actions/drop/get_customer_orders.php
+// Get all orders by customer ID
+
+include('../../db.php');
 header('Content-Type: application/json');
 
 error_reporting(E_ALL);
@@ -19,16 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // ===== AMBIL DATA CUSTOMER =====
         $stmt_cust = $conn->prepare("SELECT name, phone FROM customers WHERE id_customer = ?");
-        if (!$stmt_cust) throw new Exception("Prepare customer failed: " . $conn->error);
-        
+        if (!$stmt_cust)
+            throw new Exception("Prepare customer failed: " . $conn->error);
+
         $stmt_cust->bind_param("i", $customer_id);
         $stmt_cust->execute();
         $result_cust = $stmt_cust->get_result();
-        
+
         if ($result_cust->num_rows === 0) {
             throw new Exception("Customer tidak ditemukan");
         }
-        
+
         $customer = $result_cust->fetch_assoc();
         $stmt_cust->close();
 
@@ -56,13 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE d.customer_id = ?
             ORDER BY d.trans_date DESC
         ");
-        
-        if (!$stmt_orders) throw new Exception("Prepare orders failed: " . $conn->error);
-        
+
+        if (!$stmt_orders)
+            throw new Exception("Prepare orders failed: " . $conn->error);
+
         $stmt_orders->bind_param("i", $customer_id);
         $stmt_orders->execute();
         $result_orders = $stmt_orders->get_result();
-        
+
         $orders = [];
         while ($row = $result_orders->fetch_assoc()) {
             $orders[] = [
@@ -87,11 +92,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // ===== AMBIL DAFTAR STATUS =====
         $stmt_status = $conn->prepare("SELECT id_status, status_name FROM statuses ORDER BY id_status ASC");
-        if (!$stmt_status) throw new Exception("Prepare status failed: " . $conn->error);
-        
+        if (!$stmt_status)
+            throw new Exception("Prepare status failed: " . $conn->error);
+
         $stmt_status->execute();
         $result_status = $stmt_status->get_result();
-        
+
         $statuses = [];
         while ($row = $result_status->fetch_assoc()) {
             $statuses[] = [
@@ -110,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         error_log("ERROR: " . $e->getMessage());
-        
+
         echo json_encode([
             'success' => false,
             'message' => $e->getMessage()
@@ -124,4 +130,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'message' => 'Invalid request method'
     ]);
 }
-?>

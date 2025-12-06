@@ -1,5 +1,8 @@
 <?php
-include('../db.php');
+// File: /actions/drop/get_service_info.php
+// Get service information (price, duration)
+
+include('../../db.php');
 header('Content-Type: application/json');
 
 $id = intval($_GET['id_service'] ?? 0);
@@ -26,4 +29,3 @@ if ($result->num_rows > 0) {
 }
 
 $stmt->close();
-?>
