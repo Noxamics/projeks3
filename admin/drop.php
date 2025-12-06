@@ -411,6 +411,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <script src="../js/drop/drop_delete.js"></script>
     <script src="../js/drop/drop_toggle.js"></script>
     <script src="../js/drop/drop_status_change.js"></script>
+    <script src="../js/drop/print_handler.js"></script>
 
 </body>
 

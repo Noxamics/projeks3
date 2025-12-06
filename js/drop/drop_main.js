@@ -1,5 +1,5 @@
 // File: /js/drop/drop_main.js
-// Main functionality untuk Drop Management
+// Main functionality untuk Drop Management - FIXED PRINT PATHS
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop main module loaded");
@@ -79,11 +79,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // ===== HELPER: GET BASE URL =====
+  function getBaseUrl() {
+    const pathArray = window.location.pathname.split("/");
+    const projectIndex = pathArray.indexOf("PROJEKS3");
+
+    if (projectIndex !== -1) {
+      const basePath = pathArray.slice(0, projectIndex + 1).join("/");
+      return window.location.origin + basePath;
+    }
+
+    // Fallback
+    return window.location.origin + "/PROJEKS3";
+  }
+
   // ===== PRINT SELECTED BUTTON =====
   const printBtn = document.getElementById("printSelectedBtn");
   if (printBtn) {
     printBtn.addEventListener("click", function () {
-      console.log("🖨️ Print button clicked!");
+      console.log("🖨️ Print Selected button clicked!");
       const checked = document.querySelectorAll(".item-checkbox:checked");
 
       if (checked.length === 0) {
@@ -102,23 +116,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log("Selected Drop IDs:", dropIds);
 
-      const url = "cetak_struk.php?id=" + dropIds.join(",");
-      console.log("Opening URL:", url);
-      window.open(url, "_blank", "width=800,height=600");
+      // 🔧 FIXED: Open each struk separately
+      if (dropIds.length === 0) {
+        showNotification("⚠️ Tidak ada pesanan yang dipilih.", "error");
+        return;
+      }
+
+      const confirmMsg = `Akan mencetak ${dropIds.length} struk.\n\nLanjutkan?`;
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      const baseUrl = getBaseUrl();
+      let delay = 0;
+
+      dropIds.forEach((dropId) => {
+        setTimeout(() => {
+          const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
+          console.log("Opening:", url);
+          window.open(
+            url,
+            "Struk_" + dropId,
+            "width=800,height=900,scrollbars=yes"
+          );
+        }, delay);
+        delay += 500;
+      });
+
+      showNotification(
+        `✅ Membuka ${dropIds.length} jendela cetak...`,
+        "success"
+      );
     });
   }
 
-  // ===== PRINT ALL BUTTON =====
+  // ===== PRINT ALL BUTTON (PER CUSTOMER) =====
   document.querySelectorAll(".print-all-btn").forEach((btn) => {
     btn.addEventListener("click", function (e) {
+      e.preventDefault();
       e.stopPropagation();
-      const customerId = this.getAttribute("data-customer-id");
 
-      console.log(`🖨️ Printing all orders for customer ${customerId}`);
+      const customerId = this.getAttribute("data-customer-id");
+      console.log(`🖨️ Print All clicked for customer ${customerId}`);
 
       const itemsForCustomer = document.querySelectorAll(
         `.item-checkbox[data-customer-id="${customerId}"]`
       );
+
       const dropIds = [
         ...new Set(
           Array.from(itemsForCustomer).map((cb) =>
@@ -127,14 +171,84 @@ document.addEventListener("DOMContentLoaded", function () {
         ),
       ];
 
+      console.log("Drop IDs for customer:", dropIds);
+
       if (dropIds.length === 0) {
         showNotification("⚠️ Tidak ada pesanan untuk dicetak.", "error");
         return;
       }
 
-      const url = "cetak_struk.php?id=" + dropIds.join(",");
-      window.open(url, "_blank", "width=800,height=600");
+      const confirmMsg = `Akan mencetak ${dropIds.length} struk untuk customer ini.\n\nLanjutkan?`;
+      if (!confirm(confirmMsg)) {
+        return;
+      }
+
+      // 🔧 FIXED: Use correct path
+      const baseUrl = getBaseUrl();
+      console.log("Base URL:", baseUrl);
+
+      let delay = 0;
+      dropIds.forEach((dropId) => {
+        setTimeout(() => {
+          const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
+          console.log("Opening:", url);
+          window.open(
+            url,
+            "Struk_" + dropId,
+            "width=800,height=900,scrollbars=yes"
+          );
+        }, delay);
+        delay += 500;
+      });
+
+      showNotification(
+        `✅ Membuka ${dropIds.length} jendela cetak...`,
+        "success"
+      );
     });
+  });
+
+  // ===== PRINT ITEM BUTTON (PER ITEM) =====
+  document.addEventListener("click", function (e) {
+    const printItemBtn = e.target.closest(".print-item-btn");
+
+    if (printItemBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropId = printItemBtn.getAttribute("data-drop-id");
+      console.log("🖨️ Print Item clicked for drop_id:", dropId);
+
+      if (!dropId) {
+        showNotification("❌ ID pesanan tidak ditemukan", "error");
+        return;
+      }
+
+      // 🔧 FIXED: Use correct path
+      const baseUrl = getBaseUrl();
+      const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
+
+      console.log("Opening:", url);
+
+      const printWindow = window.open(
+        url,
+        "Struk_" + dropId,
+        "width=800,height=900,scrollbars=yes,resizable=yes"
+      );
+
+      if (
+        !printWindow ||
+        printWindow.closed ||
+        typeof printWindow.closed == "undefined"
+      ) {
+        showNotification(
+          "❌ Popup diblokir! Izinkan popup untuk situs ini.",
+          "error"
+        );
+      } else {
+        console.log("✅ Print window opened");
+      }
+    }
   });
 
   // ===== DELETE BUTTON - FULL ORDER (MULTI-SELECT) =====

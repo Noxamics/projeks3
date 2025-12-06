@@ -1,4 +1,4 @@
-// File: /js/drop/drop_modal.js - FIXED VERSION
+// File: /js/drop/drop_modal.js - FIXED VERSION with correct print path
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop modal module loaded");
 
@@ -515,11 +515,12 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            // Open print window
+            // 🔧 FIXED: Open print window with correct path
+            const baseUrl = window.location.origin + "/PROJEKS3";
             window.open(
-              `cetak_struk.php?id=${data.drop_id}`,
+              `${baseUrl}/actions/drop/cetak_struk.php?id=${data.drop_id}`,
               "CetakStruk",
-              "width=600,height=800"
+              "width=800,height=900,scrollbars=yes"
             );
 
             // Show success and reload
