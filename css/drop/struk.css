@@ -1,0 +1,379 @@
+/* =========================================================
+   STRUK PAGE - Modern & Professional Receipt Design
+   File: /css/drop/struk.css
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #f0f4f8, #e0e7ef);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #333;
+}
+
+.struk-container {
+  background: #fff;
+  width: 100%;
+  max-width: 320px;
+  border: 2px solid #d6dee9;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Header */
+.struk-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.struk-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #004d9d;
+  letter-spacing: 0.5px;
+}
+
+.struk-header p {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #777;
+  font-style: italic;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 2px dashed #ccc;
+  margin: 16px 0;
+}
+
+/* Basic Info Table */
+.struk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.struk-table td {
+  padding: 5px 0;
+  vertical-align: top;
+  color: #333;
+  line-height: 1.5;
+}
+
+.struk-table td:first-child {
+  font-weight: 600;
+  color: #555;
+  width: 42%;
+}
+
+.struk-table td:last-child {
+  color: #222;
+}
+
+/* Items Section */
+.items-section {
+  margin: 16px 0;
+}
+
+.items-section h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #004d9d;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-row {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.item-number {
+  background: #004d9d;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.item-brand {
+  font-weight: 700;
+  color: #222;
+  font-size: 13px;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.item-service {
+  color: #555;
+}
+
+.item-status {
+  display: inline-block;
+  background: #10b981;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.item-price {
+  font-weight: 700;
+  color: #004d9d;
+  font-size: 13px;
+  text-align: right;
+}
+
+.item-notes {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #d6dee9;
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Order Notes */
+.order-notes {
+  background: #fff9e6;
+  border: 1px solid #ffd966;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 12px 0;
+  font-size: 11px;
+  color: #666;
+}
+
+.order-notes strong {
+  color: #b45309;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Price Section */
+.price-section {
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+.price-section p {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  padding: 4px 0;
+}
+
+.price-section p span:last-child {
+  font-weight: 600;
+  color: #222;
+}
+
+.price-section .kembalian {
+  font-weight: 700;
+  color: #2ecc71;
+  font-size: 14px;
+  padding: 8px 0;
+  border-top: 2px solid #e8eef5;
+  margin-top: 8px;
+}
+
+.payment-status {
+  background: #f0f9ff;
+  padding: 6px 8px !important;
+  border-radius: 6px;
+  margin-top: 6px !important;
+}
+
+.payment-status.lunas {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.payment-status.belum.lunas {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.payment-status.pending {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 11px;
+  color: #666;
+}
+
+.footer p {
+  margin: 4px 0;
+}
+
+.footer strong {
+  color: #004d9d;
+  font-weight: 700;
+}
+
+.footer .small {
+  font-size: 9px;
+  color: #999;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Action Buttons (Not printed) */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-print {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-print:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.btn-close {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .struk-container {
+    border: none;
+    box-shadow: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+  }
+
+  .divider {
+    border-top: 1px dashed #000;
+  }
+
+  .no-print,
+  .action-buttons {
+    display: none !important;
+  }
+
+  .item-row {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure colors print */
+  .item-number,
+  .item-status,
+  .payment-status {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .struk-container {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}
