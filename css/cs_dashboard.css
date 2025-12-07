@@ -394,116 +394,72 @@ tbody tr:hover {
   color: #856404;
 }
 
-.contact-form {
-  flex: 1 1 400px;
-  background: #fff;
-  padding: 8px 20px;
-  border-radius: 20px;
-  text-align: center;
-  margin-top: 40px;
-  margin-bottom: 30px;
-}
-
-.contact-form h3 {
-  color: var(--color-navy);
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 30px;
-}
-
+/* === WRAPPER FORM === */
 #wa-form {
-  width: 100%;
-  max-width: 420px;
-  margin: 20px auto;
-  padding: 20px;
+  /* width: 100%;
+  max-width: 650px;  */
+  margin: 40px auto;
+  padding: 25px 30px;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-family: "Poppins", sans-serif;
-}
-
-HEAD .contact-form input,
-.contact-form textarea {
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  gap: 18px;
   font-family: "Inter", sans-serif;
-  resize: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
-.contact-form input:focus,
-.contact-form textarea:focus {
-  border-color: var(--color-medium-blue);
-  outline: none;
-  box-shadow: 0 0 5px rgba(58, 152, 255, 0.4);
-  color: var(--color-navy);
-}
-
-.contact-form button {
-  background: var(--color-navy);
-  color: white;
-  padding: 12px 20px;
-  border: none;
-}
-
+/* === INPUT & TEXTAREA === */
 #wa-form input,
 #wa-form textarea {
   width: 100%;
-  padding: 12px 15px;
+  padding: 14px 16px;
   border: 1.5px solid #dcdcdc;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
-  outline: none;
+  background: #fafafa;
   transition: all 0.25s ease;
-  resize: none;
 }
 
-.contact-form button:hover {
-  background: #154283;
-}
-
-/* Fokus/border highlight */
 #wa-form input:focus,
 #wa-form textarea:focus {
-  border-color: #25d366;
-  box-shadow: 0 0 6px rgba(37, 211, 102, 0.3);
+  border-color: #1d4c9d; /* biru navy seperti tombol Kirim Testimoni */
+  box-shadow: 0 0 6px rgba(29, 76, 157, 0.25);
+  background: #fff;
+  outline: none;
 }
 
 /* === WHATSAPP BUTTON === */
 .wa-button {
-  width: 55px;
-  height: 55px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
-  background: #25d366;
-  color: white;
-  cursor: pointer;
+  background: #25d366; /* warna WhatsApp */
   border: none;
-  margin: 0 auto;
+  cursor: pointer;
+  margin: 10px auto 0 auto;
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: 0.25s ease;
+  justify-content: center;
+  transition: all 0.25s ease;
 }
 
 .wa-button:hover {
+  transform: scale(1.1);
   background: #1ebe5d;
-  transform: scale(1.08);
 }
 
 .wa-button img {
-  width: 28px;
+  width: 32px;
+  height: 32px;
 }
 
 /* === LOADING TEXT === */
 #loading {
   text-align: center;
-  color: #25d366;
   font-size: 16px;
+  color: #1d4c9d;
 }
 
 .info-box {

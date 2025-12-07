@@ -6,91 +6,127 @@ include('../partials/headerAdmin.php');
 <?php
 // KONEKSI DATABASE (sudah disediakan di db.php)
 include('../db.php'); // Sesuaikan path jika perlu
+date_default_timezone_set('Asia/Jakarta');
+// === METRIK BULANAN ===
+// Filter SQL: YEAR(d.trans_date) = YEAR(CURDATE()) AND MONTH(d.trans_date) = MONTH(CURDATE())
+// Logika ini sudah benar, mengambil data dari tanggal 1 bulan ini hingga saat ini.
 
-// === HARI INI ===
-$today = date('Y-m-d');
-$yesterday = date('Y-m-d', strtotime('-1 day'));
-
-// === 1. TODAY'S SALES ===
-$total_sales = $conn->query("
-    SELECT COALESCE(SUM(di.price), 0) as total 
+## 💰 Total Penjualan Bulan Ini
+$total_sales_month = $conn->query("
+    SELECT COALESCE(SUM(di.subtotal), 0) as total 
     FROM drop_items di
     JOIN drops d ON di.drop_id = d.id_drop
     JOIN payments p ON d.id_drop = p.drop_id
-    WHERE DATE(d.trans_date) = '$today' 
+    WHERE YEAR(d.trans_date) = YEAR(CURDATE()) 
+      AND MONTH(d.trans_date) = MONTH(CURDATE()) 
       AND p.status = 'Lunas'
 ")->fetch_assoc()['total'] ?? 0;
 
-$total_order = $conn->query("
-    SELECT COUNT(*) as count 
+/* CATATAN PENTING: Saya mengubah SUM(di.price) menjadi SUM(di.subtotal) 
+   berdasarkan skema database Anda, di mana 'subtotal' adalah kolom 
+   GENERATED ('quantity' * 'price'). Ini memastikan perhitungan 
+   total penjualan yang akurat jika kuantitas item lebih dari satu.
+   SUM(di.price) hanya akan mengambil harga satuan.
+*/
+
+## 🛒 Total Pesanan Bulan Ini
+$total_order_month = $conn->query("
+    SELECT COUNT(DISTINCT d.id_drop) as count 
     FROM drops d 
     JOIN payments p ON d.id_drop = p.drop_id 
-    WHERE DATE(p.payment_date) = '$today' AND p.status = 'Lunas'
+    WHERE YEAR(p.payment_date) = YEAR(CURDATE()) 
+      AND MONTH(p.payment_date) = MONTH(CURDATE()) 
+      AND p.status = 'Lunas'
 ")->fetch_assoc()['count'] ?? 0;
 
-$service_completed = $conn->query("
-    SELECT COALESCE(SUM(di.quantity), 0) as total 
-    FROM drop_items di 
-    JOIN drops d ON di.drop_id = d.id_drop 
-    WHERE DATE(d.trans_date) = '$today' 
-      AND d.status_id = 4
+/* CATATAN PENTING: Saya menambahkan COUNT(DISTINCT d.id_drop) untuk 
+   memastikan bahwa satu pesanan (drop) tidak dihitung lebih dari sekali 
+   jika ada multiple payment/drop_items, meskipun 'drops' harusnya unik.
+*/
+
+// === SERVICE COMPLETED (Bulanan) ===
+## ✅ Layanan Selesai Bulan Ini (Jumlah barang/kuantitas)
+$service_completed_month = $conn->query("
+    SELECT COALESCE(SUM(di.quantity), 0) as total
+    FROM status_history sh
+    JOIN drops d ON sh.drop_id = d.id_drop
+    JOIN drop_items di ON d.id_drop = di.drop_id
+    WHERE YEAR(sh.changed_at) = YEAR(CURDATE())
+      AND MONTH(sh.changed_at) = MONTH(CURDATE())
+      AND sh.status_id >= 4 
 ")->fetch_assoc()['total'] ?? 0;
 
-$new_customers = $conn->query("
+## 🆕 Pelanggan Baru Bulan Ini
+$new_customers_month = $conn->query("
     SELECT COUNT(*) as count 
     FROM customers 
-    WHERE DATE(created_at) = '$today'
-")->fetch_assoc()['count'];
+    WHERE YEAR(created_at) = YEAR(CURDATE())
+      AND MONTH(created_at) = MONTH(CURDATE())
+")->fetch_assoc()['count'] ?? 0;
 
-// === PERUBAHAN DARI KEMARIN ===
-$yesterday_sales = $conn->query("
-    SELECT COALESCE(SUM(di.price), 0) as total 
+
+// ---
+// === PERUBAHAN DARI BULAN LALU ===
+// Mengambil data untuk BULAN LALU (LFM: Last Full Month)
+
+## 📉 Penjualan Bulan Lalu
+$last_month_sales = $conn->query("
+    SELECT COALESCE(SUM(di.subtotal), 0) as total 
     FROM drop_items di
     JOIN drops d ON di.drop_id = d.id_drop
     JOIN payments p ON d.id_drop = p.drop_id
-    WHERE DATE(d.trans_date) = '$yesterday' 
+    WHERE YEAR(d.trans_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
+      AND MONTH(d.trans_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
       AND p.status = 'Lunas'
 ")->fetch_assoc()['total'] ?? 0;
 
-$sales_change = $yesterday_sales > 0
-    ? round((($total_sales - $yesterday_sales) / $yesterday_sales) * 100, 1)
-    : ($total_sales > 0 ? 100 : 0);
+$sales_change_month = $last_month_sales > 0
+    ? round((($total_sales_month - $last_month_sales) / $last_month_sales) * 100, 1)
+    : ($total_sales_month > 0 ? 100 : 0);
 
-$yesterday_orders = $conn->query("
-    SELECT COUNT(*) FROM drops d 
+## 📦 Pesanan Bulan Lalu
+$last_month_orders = $conn->query("
+    SELECT COUNT(DISTINCT d.id_drop) as count 
+    FROM drops d 
     JOIN payments p ON d.id_drop = p.drop_id 
-    WHERE DATE(p.payment_date) = '$yesterday' AND p.status = 'Lunas'
+    WHERE YEAR(p.payment_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
+      AND MONTH(p.payment_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
+      AND p.status = 'Lunas'
 ")->fetch_assoc()['count'] ?? 0;
 
-$order_change = $yesterday_orders > 0
-    ? round((($total_order - $yesterday_orders) / $yesterday_orders) * 100, 1)
-    : ($total_order > 0 ? 100 : 0);
+$order_change_month = $last_month_orders > 0
+    ? round((($total_order_month - $last_month_orders) / $last_month_orders) * 100, 1)
+    : ($total_order_month > 0 ? 100 : 0);
 
-$yesterday_products = $conn->query("
-    SELECT COALESCE(SUM(di.quantity), 0) as total 
-    FROM drop_items di 
-    JOIN drops d ON di.drop_id = d.id_drop 
-    JOIN payments p ON d.id_drop = p.drop_id 
-    WHERE DATE(p.payment_date) = '$yesterday' AND p.status = 'Lunas'
+## 🔄 Layanan Selesai Bulan Lalu
+$last_month_completed = $conn->query("
+    SELECT COUNT(sh.id) as total
+    FROM status_history sh
+    WHERE 
+      -- Status Selesai atau lebih tinggi (4: COMPLETED, 5: READY, 6: PICKED)
+      sh.status_id >= 4
+      
+      -- Filter untuk bulan lalu (lebih aman daripada membandingkan YEAR dan MONTH)
+      AND sh.changed_at >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+      AND sh.changed_at < DATE_FORMAT(CURDATE(), '%Y-%m-01')
 ")->fetch_assoc()['total'] ?? 0;
 
-$product_change = $yesterday_products > 0
-    ? round((($service_completed - $yesterday_products) / $yesterday_products) * 100, 1)
-    : ($service_completed > 0 ? 100 : 0);
+// Perubahan persentase Layanan Selesai (Logika ini tetap sama)
+$completed_change_month = $last_month_completed > 0
+    ? round((($service_completed_month - $last_month_completed) / $last_month_completed) * 100, 1)
+    : ($service_completed_month > 0 ? 100 : 0);
 
-$yesterday_customers = $conn->query("
-    SELECT COUNT(DISTINCT c.id_customer) as count 
-    FROM customers c 
-    JOIN drops d ON c.id_customer = d.customer_id 
-    JOIN payments p ON d.id_drop = p.drop_id 
-    WHERE DATE(p.payment_date) = '$yesterday' 
-      AND p.status = 'Lunas'
-      AND DATE(c.created_at) = '$yesterday'
+## 🧑‍🤝‍🧑 Pelanggan Baru Bulan Lalu
+$last_month_customers = $conn->query("
+    SELECT COUNT(*) as count 
+    FROM customers 
+    WHERE YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+      AND MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
 ")->fetch_assoc()['count'] ?? 0;
 
-$customer_change = $yesterday_customers > 0
-    ? round((($new_customers - $yesterday_customers) / $yesterday_customers) * 100, 1)
-    : ($new_customers > 0 ? 100 : 0);
+$customer_change_month = $last_month_customers > 0
+    ? round((($new_customers_month - $last_month_customers) / $last_month_customers) * 100, 1)
+    : ($new_customers_month > 0 ? 100 : 0);
 
 // === REVENUE 7 HARI TERAKHIR (FIXED) ===
 $revenue_data = [];
@@ -113,18 +149,27 @@ for ($i = 6; $i >= 0; $i--) {
     ];
 }
 
-// === 3. STATUS ORDER REAL-TIME (DARI TABEL STATUSES) ===
+// === STATUS ORDER BULAN INI ===
+$this_month = date('Y-m');
+$first_day = $this_month . '-01';
+$last_day = date('Y-m-t', strtotime($first_day)); // tanggal terakhir bulan ini
+
 $status_data = $conn->query("
     SELECT 
         s.id_status,
         s.status_name,
         s.status_code,
-        COALESCE(COUNT(d.id_drop), 0) as total_orders,
-        COALESCE(SUM(di.quantity), 0) as total_items
+        s.status_order,
+        -- Menghitung jumlah *unique* order (drops) yang memiliki item di status ini
+        COALESCE(COUNT(DISTINCT d.id_drop), 0) AS total_orders, 
+        -- Menjumlahkan kuantitas item yang *saat ini* berada di status ini
+        COALESCE(SUM(di.quantity), 0) AS total_items
     FROM statuses s
-    LEFT JOIN drops d ON s.id_status = d.status_id 
-        AND DATE(d.trans_date) = '$today'
-    LEFT JOIN drop_items di ON d.id_drop = di.drop_id
+    LEFT JOIN drop_items di ON s.id_status = di.status_id
+    -- Join ke drops untuk filter tanggal transaksi
+    LEFT JOIN drops d ON di.drop_id = d.id_drop
+        AND d.trans_date >= '$first_day'
+        AND d.trans_date <= '$last_day 23:59:59'
     GROUP BY s.id_status, s.status_name, s.status_code, s.status_order
     ORDER BY s.status_order ASC
 ")->fetch_all(MYSQLI_ASSOC);
@@ -148,16 +193,12 @@ $top_services = $conn->query("
 ?>
 <main class="analisis-container">
     <h1 class="page-title">Dashboard</h1>
-
-    <!-- Today's Sales Section -->
     <div class="sales-section">
         <div class="section-header">
-            <h2>Today' Sales</h2>
-            <p class="subtitle">Sales Summery</p>
+            <h2>This Month's Sales</h2>
+            <p class="subtitle">Sales Summary</p>
         </div>
-
         <div class="stats-grid">
-            <!-- Total Sales Card -->
             <div class="stat-card pink">
                 <div class="stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -165,59 +206,70 @@ $top_services = $conn->query("
                         <path d="M16 3H8C6.9 3 6 3.9 6 5V7H18V5C18 3.9 17.1 3 16 3Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="stat-value">Rp. <?php echo number_format($total_sales ?? 0, 0, ',', '.'); ?></div>
+                <div class="stat-value">Rp. <?php echo number_format($total_sales_month ?? 0, 0, ',', '.'); ?></div>
                 <div class="stat-label">Total Sales</div>
-                <div class="stat-change <?php echo ($sales_change ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
-                    <?php echo ($sales_change ?? 0) >= 0 ? '+' : ''; ?><?php echo $sales_change ?? 0; ?>% from yesterday
+                <div class="stat-change <?php echo ($sales_change_month ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
+                    <?php echo ($sales_change_month ?? 0) >= 0 ? '+' : ''; ?><?php echo $sales_change_month ?? 0; ?>% from last month
                 </div>
             </div>
-
-            <!-- Total Order Card -->
             <div class="stat-card yellow">
                 <div class="stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="stat-value"><?php echo $total_order ?? 0; ?></div>
+                <div class="stat-value"><?php echo $total_order_month ?? 0; ?></div>
                 <div class="stat-label">Total Order</div>
-                <div class="stat-change <?php echo ($order_change ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
-                    <?php echo ($order_change ?? 0) >= 0 ? '+' : ''; ?><?php echo $order_change ?? 0; ?>% from yesterday
+                <div class="stat-change <?php echo ($order_change_month ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
+                    <?php echo ($order_change_month ?? 0) >= 0 ? '+' : ''; ?><?php echo $order_change_month ?? 0; ?>% from last month
                 </div>
             </div>
-
-            <!-- Service Completed -->
             <div class="stat-card green">
                 <div class="stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.4 13.98 8.4 12C8.4 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="stat-value"><?php echo $service_completed ?? 0; ?></div>
+                <div class="stat-value"><?php echo $service_completed_month ?? 0; ?></div>
                 <div class="stat-label">Service Completed</div>
-                <div class="stat-change <?php echo ($product_change ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
-                    <?php echo ($product_change ?? 0) >= 0 ? '+' : ''; ?><?php echo $product_change ?? 0; ?>% from yesterday
+                <div class="stat-change <?php echo ($completed_change_month ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
+                    <?php echo ($completed_change_month ?? 0) >= 0 ? '+' : ''; ?><?php echo $completed_change_month ?? 0; ?>% from last month
                 </div>
             </div>
-
-            <!-- New Customers Card -->
             <div class="stat-card purple">
                 <div class="stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="stat-value"><?php echo $new_customers ?? 0; ?></div>
+                <div class="stat-value"><?php echo $new_customers_month ?? 0; ?></div>
                 <div class="stat-label">New Customers</div>
-                <div class="stat-change <?php echo ($customer_change ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
-                    <?php echo ($customer_change ?? 0) >= 0 ? '+' : ''; ?><?php echo $customer_change ?? 0; ?>% from yesterday
+                <div class="stat-change <?php echo ($customer_change_month ?? 0) >= 0 ? 'positive' : 'negative'; ?>">
+                    <?php echo ($customer_change_month ?? 0) >= 0 ? '+' : ''; ?><?php echo $customer_change_month ?? 0; ?>% from last month
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-grid">
-        <!-- Total Revenue Chart -->
+    <div class="powerbi-section" style="margin: 30px 0;">
+        <div class="section-header">
+            <h2>Power BI Analytics</h2>
+            <p class="subtitle">Advanced Business Intelligence</p>
+        </div>
+        <div class="powerbi-container" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <iframe
+                title="Sengkuclean"
+                width="100%"
+                height="600"
+                src="https://app.powerbi.com/view?r=eyJrIjoiY2QxYzdlN2EtOTgwNC00ZWUzLWIxOGItNWIyMWU0NmE2MGRlIiwidCI6ImE2OWUxOWU4LWYwYTQtNGU3Ny1iZmY2LTk1NjRjODgxOWIxNCJ9"
+                frameborder="0"
+                allowFullScreen="true"
+                style="border-radius: 8px;">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- <div class="dashboard-grid">
         <div class="chart-card">
             <h2>Total Revenue</h2>
             <div class="chart-container">
@@ -226,18 +278,18 @@ $top_services = $conn->query("
             <div class="chart-legend">
                 <span class="legend-label">Offline Sales</span>
             </div>
-        </div>
+        </div> -->
 
-        <!-- STATUS ORDER REAL-TIME (RAPI & TANPA TEKS DUPLIKAT) -->
+    <!--         
         <div class="chart-card">
-            <h2>Status Order Hari Ini</h2>
+            <h2>Status Order Bulan Ini</h2>
             <div class="chart-container" style="height: 320px; position: relative;">
                 <canvas id="statusChart"></canvas>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <!-- Top Services Table -->
+    <!--   
     <div class="table-card">
         <h2>Top Services</h2>
         <table class="services-table">
@@ -280,7 +332,7 @@ $top_services = $conn->query("
                 ?>
             </tbody>
         </table>
-    </div>
+    </div> -->
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
