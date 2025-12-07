@@ -10,12 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let message = document.getElementById("message").value;
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let message = document.getElementById("message").value.trim();
 
-    // Nomor WhatsApp Admin (GANTI KE NOMOR ADMIN)
-    let adminNumber = "6282143248201";
+    // Validasi
+    if (!name || !email || !message) {
+      alert("Harap isi semua kolom sebelum mengirim.");
+      return;
+    }
+
+    // Nomor WhatsApp Admin
+    let adminNumber = "6287765967190";
 
     let text =
       "*New Message from Customer*\n\n" +
@@ -31,7 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let waUrl =
       "https://wa.me/" + adminNumber + "?text=" + encodeURIComponent(text);
 
-    // Tampilkan loading
     loading.style.display = "block";
     loading.innerHTML = "Loading...";
 
@@ -42,8 +47,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (openWA) {
         alert("Pesan berhasil dibuka di WhatsApp Admin!");
+
+        // 🔥 Bersihkan semua input setelah sukses
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("message").value = "";
       } else {
-        alert("Gagal membuka WhatsApp. Periksa pop-up browser.");
+        alert("Gagal membuka WhatsApp. Aktifkan pop-up browser.");
       }
     }, 1000);
   });
