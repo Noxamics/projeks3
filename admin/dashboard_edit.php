@@ -17,18 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amount_paid = floatval($_POST['amount_paid'] ?? 0);
     
     // Parse harga fix dengan benar
-$fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0'));
+    $fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0'));
 
     error_log("=== DASHBOARD EDIT DEBUG ===");
     error_log("POST Data: " . print_r($_POST, true));
     error_log("ID Drop: $id_drop");
     error_log("Service ID: $service_id");
     error_log("Fixed Price: $fixed_price");
+    error_log("Status ID: $status_id");
 
     // Cek koneksi database
     if (!$conn) {
         error_log("Database connection failed: " . mysqli_connect_error());
-        header("Location: timeline_pesanan.php");
+        header("Location: timeline_pesanan.php?error=Koneksi database gagal");
         exit();
     }
 
@@ -68,26 +69,33 @@ $fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0
         if (!mysqli_query($conn, $update_customer)) {
             throw new Exception("Gagal update customer: " . mysqli_error($conn));
         }
+        error_log("✓ Customer updated");
 
-        // Update drops
+        // ✅ FIX: Update drops TANPA status_id (karena status ada di tabel deadlines)
         $update_drop = "UPDATE drops SET 
-        trans_date = '$trans_date',
-        est_finish_date = '$est_finish_date',
-        status_id = '$status_id',
-        employee_id = '$employee_id'
-        WHERE id_drop = '$id_drop'";
+            trans_date = '$trans_date',
+            est_finish_date = '$est_finish_date',
+            employee_id = $employee_id
+            WHERE id_drop = $id_drop";
         
         error_log("Update drop query: $update_drop");
         
         if (!mysqli_query($conn, $update_drop)) {
             throw new Exception("Gagal update drops: " . mysqli_error($conn));
         }
+        error_log("✓ Drops updated");
 
-        // Update drop_items - TAMBAHKAN fixed_price
-        $update_items = "UPDATE drop_items SET service_id = $service_id, brand = '$brand', fixed_price = $fixed_price WHERE drop_id = $id_drop";
+        // Update drop_items dengan fixed_price
+        $update_items = "UPDATE drop_items SET 
+            service_id = $service_id, 
+            brand = '$brand', 
+            fixed_price = $fixed_price 
+            WHERE drop_id = $id_drop";
+        
         if (!mysqli_query($conn, $update_items)) {
             throw new Exception("Gagal update drop_items: " . mysqli_error($conn));
         }
+        error_log("✓ Drop items updated");
 
         // Handle payments
         $check_payment = "SELECT id_payment FROM payments WHERE drop_id = $id_drop";
@@ -114,6 +122,7 @@ $fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0
             if (!mysqli_query($conn, $update_payment)) {
                 throw new Exception("Gagal update payment: " . mysqli_error($conn));
             }
+            error_log("✓ Payment updated");
         } else {
             // Insert payment baru
             if ($payment_date === null) {
@@ -127,25 +136,35 @@ $fixed_price = floatval(preg_replace('/[^0-9]/', '', $_POST['fixed_price'] ?? '0
             if (!mysqli_query($conn, $insert_payment)) {
                 throw new Exception("Gagal insert payment: " . mysqli_error($conn));
             }
+            error_log("✓ Payment inserted");
         }
 
-        // Update deadlines
-        $update_deadline = "UPDATE deadlines SET deadline_date = '$est_finish_date', status_id = $status_id WHERE drop_id = $id_drop";
+        // ✅ FIX: Update deadlines (status_id ada di sini)
+        $update_deadline = "UPDATE deadlines SET 
+            deadline_date = '$est_finish_date', 
+            status_id = $status_id 
+            WHERE drop_id = $id_drop";
+        
+        error_log("Update deadline query: $update_deadline");
+        
         if (!mysqli_query($conn, $update_deadline)) {
-            error_log("Warning: Gagal update deadline - " . mysqli_error($conn));
+            throw new Exception("Gagal update deadline: " . mysqli_error($conn));
         }
+        error_log("✓ Deadline updated");
 
+        // Cleanup old deadlines
         $delete_old_deadline = "DELETE FROM deadlines WHERE deadline_date < CURDATE()";
         mysqli_query($conn, $delete_old_deadline);
         
         mysqli_commit($conn);
+        error_log("✓✓✓ Transaction committed successfully");
         
         header("Location: timeline_pesanan.php?success=1");
         exit();
 
     } catch (Exception $e) {
         mysqli_rollback($conn);
-        error_log("Error: " . $e->getMessage());
+        error_log("❌ Error: " . $e->getMessage());
         
         $error_message = urlencode($e->getMessage());
         header("Location: timeline_pesanan.php?error=" . $error_message);

@@ -27,7 +27,7 @@ if (isset($_GET['error'])) {
 ?>
 
 <?php
-// Query untuk mendapatkan semua deadline dalam bulan ini
+// ✅ FILTER: Query deadline TANPA status "Barang Telah Diambil"
 $currentMonth = date('Y-m');
 $deadlines_query = "
     SELECT 
@@ -35,13 +35,16 @@ $deadlines_query = "
         d.order_code,
         c.name as customer_name,
         s.service_name,
-        di.brand
+        di.brand,
+        st.status_name
     FROM deadlines dl
     JOIN drops d ON dl.drop_id = d.id_drop
     JOIN customers c ON d.customer_id = c.id_customer
     JOIN services s ON d.service_id = s.id_service
     JOIN drop_items di ON d.id_drop = di.drop_id
+    JOIN statuses st ON dl.status_id = st.id_status
     WHERE DATE_FORMAT(dl.deadline_date, '%Y-%m') = '$currentMonth'
+    AND st.status_name != 'Barang Telah Diambil'
     ORDER BY dl.deadline_date
 ";
 $deadlines_result = mysqli_query($conn, $deadlines_query);
@@ -54,9 +57,10 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
 <link rel="stylesheet" href="../css/timeline_pesanan.css">
 <link rel="stylesheet" href="../css/timeline_pesanan-responsive.css">
+<link rel="stylesheet" href="../css/drop/drop_modal.css">
+<link rel="stylesheet" href="../css/drop/drop_form.css">
 
 <main class="dashboard-container">
-
 
     <div class="dashboard-content">
         <!-- TIMELINE SECTION -->
@@ -91,13 +95,14 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
             <div class="timeline-body" id="orderTimeline">
                 <?php
+                // ✅ FILTER: Query timeline TANPA status "Barang Telah Diambil"
                 $timeline_query = "
                 SELECT 
                     d.id_drop,
                     d.order_code,
                     d.trans_date,
                     d.est_finish_date,
-                    dl.status_id,  -- ✅ AMBIL DARI DEADLINES
+                    dl.status_id,
                     d.employee_id,
                     c.id_customer,
                     c.name as customer_name,
@@ -117,17 +122,17 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
                     p.payment_date,
                     p.amount_paid,
                     e.name as employee_name,
-                    -- Gunakan fixed_price jika ada, jika tidak gunakan price_min
                     COALESCE(di.fixed_price, s.price_min) as actual_price
                 FROM drops d
                 JOIN customers c ON d.customer_id = c.id_customer
                 JOIN drop_items di ON d.id_drop = di.drop_id
                 JOIN services s ON di.service_id = s.id_service
-                JOIN deadlines dl ON d.id_drop = dl.drop_id  -- ✅ TAMBAHKAN JOIN KE DEADLINES
-                JOIN statuses st ON dl.status_id = st.id_status  -- ✅ UBAH DARI d.status_id KE dl.status_id
+                JOIN deadlines dl ON d.id_drop = dl.drop_id
+                JOIN statuses st ON dl.status_id = st.id_status
                 LEFT JOIN payments p ON d.id_drop = p.drop_id
                 LEFT JOIN employees e ON d.employee_id = e.id_employee
                 WHERE d.est_finish_date >= CURDATE()
+                AND st.status_name != 'Barang Telah Diambil'
                 ORDER BY d.trans_date DESC 
                 LIMIT 10
             ";
@@ -271,7 +276,6 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
                     <input type="text" id="edit_fixed_price" name="fixed_price" placeholder="Rp 0">
                 </div>
 
-
                 <div>
                     <label>Estimasi Selesai</label>
                     <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari"
@@ -350,6 +354,9 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
 </main>
 
+<!-- INCLUDE MODAL EDIT -->
+<?php include('../modal/drop/modal_edit_item.php'); ?>
+
 <script>
     // Data deadlines
     const deadlinesData = <?php echo json_encode($deadlines); ?>;
@@ -366,250 +373,16 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         return parseInt(rupiah.replace(/[^0-9]/g, '')) || 0;
     }
 
-    // ✅ FUNGSI OPEN EDIT MODAL
-    function openEditModal(orderElement) {
-        console.log('Opening edit modal...');
-
-        const data = {
-            id_drop: orderElement.dataset.idDrop,
-            customer_name: orderElement.dataset.customer,
-            phone_number: orderElement.dataset.phone,
-            brand: orderElement.dataset.brand,
-            service_id: orderElement.dataset.serviceId,
-            trans_date: orderElement.dataset.transDate,
-            est_date: orderElement.dataset.estDate,
-            status_id: orderElement.dataset.statusId,
-            fixed_price: orderElement.dataset.fixedPrice,
-            duration: orderElement.dataset.duration,
-            payment_status: orderElement.dataset.paymentStatus || 'Belum Lunas',
-            payment_method: orderElement.dataset.paymentMethod || 'Tunai',
-            payment_date: orderElement.dataset.paymentDate || '',
-            amount_paid: orderElement.dataset.amountPaid || '0',
-            employee_id: orderElement.dataset.employeeId || '',
-            employee_name: orderElement.dataset.employeeName || ''
-        };
-
-        console.log('Processed Data:', data);
-
-        // ISI SEMUA FIELD FORM
-        document.getElementById('edit_id_drop').value = data.id_drop;
-        document.getElementById('edit_customer_name').value = data.customer_name;
-        document.getElementById('edit_customer_phone').value = data.phone_number;
-        document.getElementById('edit_brand').value = data.brand;
-
-        const serviceSelect = document.getElementById('edit_service_id');
-        if (data.service_id && data.service_id !== 'null' && data.service_id !== '') {
-            serviceSelect.value = data.service_id;
-        }
-
-        // ISI HARGA FIX
-        const fixedPriceInput = document.getElementById('edit_fixed_price');
-        if (fixedPriceInput) {
-            fixedPriceInput.value = formatRupiah(data.fixed_price);
-        }
-
-        // Isi tanggal
-        document.getElementById('edit_tanggal_masuk').value = data.trans_date;
-        document.getElementById('edit_tanggal_selesai').value = data.est_date;
-        document.getElementById('edit_statusSelect').value = data.status_id;
-        // Pastikan format "X hari"
-        let durationText = data.duration;
-        if (durationText && !durationText.toLowerCase().includes('hari')) {
-            durationText = durationText + ' hari';
-        }
-        document.getElementById('edit_estimate_desc').value = durationText;
-
-        // Isi pembayaran
-        document.getElementById('edit_payment_status').value = data.payment_status;
-        document.getElementById('edit_payment_method').value = data.payment_method;
-        document.getElementById('edit_payment_date').value = data.payment_date ? data.payment_date.split(' ')[0] : '';
-        document.getElementById('edit_amount_paid').value = data.amount_paid;
-        document.getElementById('edit_amount_paid_display').value = formatRupiah(data.amount_paid);
-
-        // Isi karyawan
-        if (data.employee_id && data.employee_id !== 'null') {
-            document.getElementById('edit_employee_id').value = data.employee_id;
-        }
-
-        // Tampilkan modal
-        document.getElementById('editModal').style.display = 'block';
-    }
-
-    // Update service info
-    function updateServiceInfo(serviceId) {
-        if (!serviceId || serviceId === 'null') {
-            return;
-        }
-
-        fetch(`get_service_info.php?id_service=${serviceId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error:', data.error);
-                    return;
-                }
-                // Auto tambah "hari" jika belum ada
-                let durationText = data.duration || '';
-                if (durationText && !durationText.toLowerCase().includes('hari')) {
-                    durationText = durationText + ' hari';
-                }
-                document.getElementById('edit_estimate_desc').value = durationText;
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
     // Tutup modal
     function closeEditModal() {
         document.getElementById('editModal').style.display = 'none';
     }
-
-    // Tambahkan script ini di dalam timeline_pesanan.php, setelah DOM Content Loaded
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ Setting up payment status handler...');
-        
-        // Event listener untuk perubahan status pembayaran
-        const paymentStatusSelect = document.getElementById('edit_payment_status');
-        const paymentDateInput = document.getElementById('edit_payment_date');
-        
-        if (paymentStatusSelect && paymentDateInput) {
-            // Simpan nilai awal saat modal dibuka
-            let originalPaymentStatus = '';
-            let originalPaymentDate = '';
-            
-            // Ketika modal dibuka, simpan status awal
-            const editModal = document.getElementById('editModal');
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'style') {
-                        if (editModal.style.display === 'block') {
-                            // Modal dibuka - simpan nilai awal
-                            originalPaymentStatus = paymentStatusSelect.value;
-                            originalPaymentDate = paymentDateInput.value;
-                            console.log('Modal opened - Original status:', originalPaymentStatus, 'Date:', originalPaymentDate);
-                        }
-                    }
-                });
-            });
-            
-            observer.observe(editModal, {
-                attributes: true,
-                attributeFilter: ['style']
-            });
-            
-            // Handler untuk perubahan status pembayaran
-            paymentStatusSelect.addEventListener('change', function() {
-                const newStatus = this.value;
-                console.log('Payment status changed to:', newStatus);
-                console.log('Original status was:', originalPaymentStatus);
-                console.log('Current payment date:', paymentDateInput.value);
-                
-                // Jika diubah menjadi "Lunas" DAN sebelumnya "Belum Lunas" DAN tanggal pembayaran kosong
-                if (newStatus === 'Lunas' && 
-                    originalPaymentStatus === 'Belum Lunas' && 
-                    (!originalPaymentDate || originalPaymentDate === '')) {
-                    
-                    // Set tanggal hari ini
-                    const today = new Date();
-                    const formattedDate = today.toISOString().split('T')[0];
-                    paymentDateInput.value = formattedDate;
-                    
-                    console.log('✅ Auto-filled payment date:', formattedDate);
-                    
-                    // Tampilkan notifikasi kecil
-                    showNotification('📅 Tanggal pembayaran diisi otomatis: ' + formatDateDisplay(formattedDate));
-                }
-                // Jika diubah kembali ke "Belum Lunas" dan tanggal baru saja diisi otomatis
-                else if (newStatus === 'Belum Lunas' && 
-                        originalPaymentStatus === 'Belum Lunas' &&
-                        paymentDateInput.value !== originalPaymentDate) {
-                    
-                    // Kosongkan tanggal pembayaran
-                    paymentDateInput.value = '';
-                    console.log('✅ Cleared payment date');
-                    
-                    showNotification('🗑️ Tanggal pembayaran dikosongkan');
-                }
-            });
-            
-            console.log('✅ Payment status handler ready!');
-        }
-    });
-
-    // Fungsi untuk format tanggal ke display Indonesia
-    function formatDateDisplay(dateString) {
-        const date = new Date(dateString);
-        const options = { day: '2-digit', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('id-ID', options);
-    }
-
-    // Fungsi untuk menampilkan notifikasi sementara
-    function showNotification(message) {
-        // Hapus notifikasi lama jika ada
-        const oldNotif = document.querySelector('.auto-payment-notification');
-        if (oldNotif) {
-            oldNotif.remove();
-        }
-        
-        // Buat notifikasi baru
-        const notification = document.createElement('div');
-        notification.className = 'auto-payment-notification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            font-size: 14px;
-            font-weight: 500;
-            animation: slideInRight 0.3s ease-out;
-        `;
-        notification.textContent = message;
-        
-        // Tambahkan ke body
-        document.body.appendChild(notification);
-        
-        // Hapus setelah 3 detik
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    // Tambahkan CSS untuk animasi notifikasi
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
     
 </script>
 
 <!-- Load external JavaScript -->
 <script src="../js/timeline_pesanan.js"></script>
+<script src="../js/drop/drop_helpers.js"></script>
+<script src="../js/drop/drop_modal_edit.js"></script>
 
 <?php include_once "../partials/footer.php"; ?>
