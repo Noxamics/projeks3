@@ -309,12 +309,12 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
 
     <main class="drop-page">
         <div class="drop-container">
-            <h1 class="title">📦 Manajemen Drop</h1>
+            <h1 class="title">Manajemen Drop</h1>
 
             <!-- TOP BAR -->
             <div class="top-bar">
                 <div class="left-bar">
-                    <button class="add-btn" id="openAddModal">➕ Tambah Pesanan</button>
+                    <button class="add-btn" id="openAddModal">Tambah Pesanan</button>
                     <form method="GET" action="" class="search-box">
                         <input type="text" name="search" placeholder="Cari data..."
                             value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
