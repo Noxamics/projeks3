@@ -1,40 +1,33 @@
 /* =========================================================
-   drop_modal.css - Modern Modal Styling
-   Fixed: Modal z-index to appear above header
+   MODAL EDIT - FIXED: Centered & Proper Size
+   Tambahkan CSS ini ke drop_modal.css atau file CSS terpisah
    ========================================================= */
 
-/* =========================================================
-   BASE MODAL - MODERN BACKDROP
-   ========================================================= */
+/* ===== BASE MODAL - ENSURE CENTERING ===== */
 .modal {
   display: none;
   position: fixed;
-  z-index: 10000; /* Increased from 999999 to be above header (1000) */
-  inset: 0;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   overflow-y: auto;
+  /* CRITICAL: Flex untuk centering */
+  display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-in-out;
+  padding: 20px; /* Spacing dari edge */
 }
 
 .modal.show {
   display: flex !important;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* =========================================================
-   MODAL CONTENT - GLASSMORPHISM CARD
-   ========================================================= */
+/* ===== MODAL CONTENT - CONTROLLED SIZE ===== */
 .modal-content {
   position: relative;
   background: linear-gradient(
@@ -43,17 +36,106 @@
     rgba(255, 255, 255, 0.95) 100%
   );
   backdrop-filter: blur(20px);
-  padding: var(--spacing-xxl) var(--spacing-xl);
-  border-radius: var(--radius-xl);
-  width: 85%;
-  max-width: 900px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 16px;
+
+  /* FIXED: Controlled width */
+  width: 90%;
+  max-width: 900px; /* Maximum width */
+
+  /* FIXED: Controlled height */
   max-height: 85vh;
   overflow-y: auto;
-  box-sizing: border-box;
-  margin: 20px auto;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* CRITICAL: Remove margin auto since flex handles centering */
+  margin: 0;
+}
+
+/* ===== LARGE MODAL (for edit) - OPTIMIZED SIZE ===== */
+.modal-content.large {
+  width: 95%;
+  max-width: 1100px; /* Slightly larger but controlled */
+  max-height: 90vh;
+}
+
+/* ===== MODAL HEADER ===== */
+.modal-content h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 24px 0;
+  padding-bottom: 16px;
+  border-bottom: 3px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-content h2 i {
+  color: #3b82f6;
+  font-size: 28px;
+}
+
+/* ===== CLOSE BUTTON - PROPER POSITIONING ===== */
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.close:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  transform: rotate(90deg) scale(1.1);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -67,627 +149,139 @@
   }
 }
 
-.modal-content.large {
-  width: 90%;
-  max-width: 1100px;
-  max-height: 90vh;
-}
-
-/* Modal Header Gradient Bar */
-.modal-content::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, #00d4ff 100%);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
-/* =========================================================
-   CLOSE BUTTON - MODERN FLOATING
-   ========================================================= */
-.close {
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  color: var(--color-text-light);
-  transition: var(--transition-base);
-  border: 2px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.close:hover {
-  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
-  color: white;
-  transform: rotate(90deg) scale(1.1);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-}
-
-/* =========================================================
-   CONFIRM DELETE MODAL - CENTERED CARD
-   ========================================================= */
-.confirm-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 10001; /* Higher than base modal */
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.confirm-content {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 255, 255, 0.95) 100%
-  );
-  backdrop-filter: blur(20px);
-  color: var(--color-text);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xxl);
-  width: 420px;
-  max-width: 90%;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  position: relative;
-  overflow: hidden;
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1400px) {
+  .modal-content.large {
+    width: 95%;
+    max-width: 1000px;
   }
 }
 
-/* Warning Icon */
-.confirm-content::before {
-  content: "⚠️";
-  display: block;
-  font-size: 64px;
-  margin-bottom: var(--spacing-lg);
-  animation: shake 0.5s ease-in-out;
-}
+@media (max-width: 1200px) {
+  .modal-content {
+    width: 92%;
+    max-width: 800px;
+    padding: 24px;
+  }
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-10px);
-  }
-  75% {
-    transform: translateX(10px);
+  .modal-content.large {
+    width: 95%;
+    max-width: 900px;
   }
 }
 
-.confirm-content h3 {
-  margin-bottom: var(--spacing-md);
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -0.3px;
-}
-
-.warning-text {
-  color: var(--color-danger);
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: var(--spacing-xl);
-  line-height: 1.5;
-}
-
-.confirm-actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-lg);
-}
-
-/* =========================================================
-   CONFIRM BUTTONS - MODERN GRADIENTS
-   ========================================================= */
-.btn-ok,
-.btn-cancel {
-  padding: 12px 32px;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-base);
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-ok::before,
-.btn-cancel::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-ok:hover::before,
-.btn-cancel:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.btn-ok {
-  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
-  color: white;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-}
-
-.btn-ok:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
-}
-
-.btn-cancel {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: var(--color-text);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-cancel:hover {
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* =========================================================
-   SUCCESS MODAL - CELEBRATION
-   ========================================================= */
-#successModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 10000;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-#successModal .modal-content {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 255, 255, 0.95) 100%
-  );
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xxl);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 400px;
-  animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-#successModal .modal-content::before {
-  background: linear-gradient(90deg, var(--color-success) 0%, #059669 100%);
-}
-
-#successModal .modal-content::after {
-  content: "✓";
-  display: block;
-  font-size: 72px;
-  color: var(--color-success);
-  margin-bottom: var(--spacing-lg);
-  animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-@keyframes successPop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* =========================================================
-   ITEM EDIT MODAL - MODERN CARD
-   ========================================================= */
-.item-edit-modal {
-  display: none;
-  position: fixed;
-  z-index: 10000; /* Same as base modal */
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.item-edit-content {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: 0;
-  width: 90%;
-  max-width: 700px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  max-height: 85vh;
-  overflow-y: auto;
-  margin: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* =========================================================
-   EDIT MODAL HEADER - GRADIENT
-   ========================================================= */
-.item-edit-header {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  padding: var(--spacing-xl) var(--spacing-xxl);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  font-size: 20px;
-  font-weight: 800;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.item-edit-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.item-edit-header:hover::before {
-  left: 100%;
-}
-
-.close-edit {
-  font-size: 32px;
-  cursor: pointer;
-  line-height: 1;
-  transition: var(--transition-base);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.close-edit:hover {
-  transform: rotate(90deg) scale(1.2);
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* =========================================================
-   EDIT FORM - MODERN GRID
-   ========================================================= */
-.item-edit-form {
-  padding: var(--spacing-xxl);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-lg);
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-}
-
-.item-edit-form label {
-  display: block;
-  margin-bottom: var(--spacing-sm);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.item-edit-form input,
-.item-edit-form select,
-.item-edit-form textarea {
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  border: 2px solid #e2e8f0;
-  border-radius: var(--radius-md);
-  background: white;
-  box-sizing: border-box;
-  transition: var(--transition-base);
-  color: var(--color-text);
-}
-
-.item-edit-form input:focus,
-.item-edit-form select:focus,
-.item-edit-form textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
-  transform: translateY(-2px);
-}
-
-.item-edit-form textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: "Inter", sans-serif;
-}
-
-/* =========================================================
-   EDIT MODAL ACTIONS - MODERN BUTTONS
-   ========================================================= */
-.item-edit-actions {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
-  grid-column: 1 / -1;
-}
-
-.btn-save-edit,
-.btn-cancel-edit {
-  flex: 1;
-  padding: 14px 24px;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-base);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-save-edit::before,
-.btn-cancel-edit::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-save-edit:hover::before,
-.btn-cancel-edit:hover::before {
-  width: 400px;
-  height: 400px;
-}
-
-.btn-save-edit {
-  background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
-  color: white;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-}
-
-.btn-save-edit:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-}
-
-.btn-cancel-edit {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: var(--color-text);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-cancel-edit:hover {
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* =========================================================
-   NOTE MODAL - CLEAN PREVIEW
-   ========================================================= */
-.note-modal {
-  display: none;
-  position: fixed;
-  z-index: 10000;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.note-modal-content {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(255, 255, 255, 0.95) 100%
-  );
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xxl);
-  max-width: 600px;
-  width: 90%;
-  margin: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.note-modal-header {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-lg);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: var(--spacing-md);
-  border-bottom: 3px solid #e2e8f0;
-}
-
-.note-content {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  border-left: 4px solid var(--color-primary);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--color-text);
-  white-space: pre-wrap;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.note-empty {
-  color: var(--color-text-light);
-  font-style: italic;
-  text-align: center;
-}
-
-/* =========================================================
-   CUSTOM SCROLLBAR FOR MODALS
-   ========================================================= */
-.modal-content::-webkit-scrollbar,
-.item-edit-content::-webkit-scrollbar,
-.note-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track,
-.item-edit-content::-webkit-scrollbar-track,
-.note-content::-webkit-scrollbar-track {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb,
-.item-edit-content::-webkit-scrollbar-thumb,
-.note-content::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #0056b3 100%);
-  border-radius: 10px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover,
-.item-edit-content::-webkit-scrollbar-thumb:hover,
-.note-content::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #004080 100%);
-}
-
-/* =========================================================
-   RESPONSIVE MODAL DESIGN
-   ========================================================= */
 @media (max-width: 768px) {
+  .modal {
+    padding: 10px;
+    align-items: flex-start; /* Allow scrolling on mobile */
+  }
+
   .modal-content {
     width: 95%;
-    padding: var(--spacing-xl) var(--spacing-lg);
+    max-width: 100%;
+    padding: 20px;
+    margin: 20px 0; /* Add margin for mobile scrolling */
   }
 
-  .confirm-content {
-    width: 95%;
-    padding: var(--spacing-xl);
+  .modal-content.large {
+    width: 98%;
   }
 
-  .confirm-content::before {
-    font-size: 48px;
+  .modal-content h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
   }
 
-  .confirm-content h3 {
-    font-size: 18px;
-  }
-
-  .confirm-actions {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .btn-ok,
-  .btn-cancel {
-    width: 100%;
-  }
-
-  .item-edit-form {
-    grid-template-columns: 1fr;
-    padding: var(--spacing-xl);
-  }
-
-  .item-edit-header {
-    padding: var(--spacing-lg) var(--spacing-xl);
-    font-size: 18px;
-  }
-
-  .note-modal-content {
-    padding: var(--spacing-xl);
-  }
-}
-
-@media (max-width: 480px) {
   .close {
     width: 32px;
     height: 32px;
     font-size: 20px;
+    top: 15px;
+    right: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 16px;
   }
 
-  .item-edit-form {
-    padding: var(--spacing-lg);
+  .modal-content h2 {
+    font-size: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ===== PREVENT BODY SCROLL WHEN MODAL OPEN ===== */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ===== FORM SECTIONS INSIDE MODAL - COMPACT ===== */
+.modal-content .customer-info-section,
+.modal-content .payment-section,
+.modal-content .order-summary {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+}
+
+.modal-content .item-group {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+}
+
+/* ===== BUTTON CONTAINER - OPTIMIZED ===== */
+.modal-content .button-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.modal-content .button-container button {
+  flex: 1;
+  min-width: 180px;
+  max-width: 250px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .modal-content .button-container {
+    flex-direction: column;
   }
 
-  .btn-save-edit,
-  .btn-cancel-edit {
-    padding: 12px 20px;
-    font-size: 14px;
+  .modal-content .button-container button {
+    width: 100%;
+    max-width: 100%;
   }
+}
+
+/* ===== ENSURE EDIT MODAL SHOWS PROPERLY ===== */
+#editModal.show {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#editModal .modal-content {
+  position: relative;
+  /* Remove any absolute positioning that might interfere */
+  top: auto;
+  left: auto;
+  transform: none;
 }

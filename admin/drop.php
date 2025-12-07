@@ -388,17 +388,14 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                 }
                 ?>
             </div>
-
-            <!-- MODALS -->
-            <?php
-            include('../modal/drop/modal_add.php');
-            include('../modal/drop/modal_edit_item.php');
-            include('../modal/drop/modal_confirm_delete.php');
-            include('../modal/drop/modal_succes.php');
-            ?>
         </div>
     </main>
 
+    <?php
+    include('../modal/drop/modal_add.php');
+    include('../modal/drop/modal_edit_item.php');
+    include('../modal/drop/modal_confirm_delete.php');
+    ?>
     <?php include_once "../partials/footer.php"; ?>
 
     <!-- SCRIPTS -->

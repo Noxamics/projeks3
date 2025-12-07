@@ -460,7 +460,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                 </div>
             </div>
 
-            <!-- TABLE VIEW -->
+            <!-- TABLE VIEW - FIXED VERSION -->
             <div id="tableView" class="view-content">
                 <div class="table-wrapper">
                     <table class="employee-table">
@@ -512,8 +512,9 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                                 <?php endforeach; ?>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td onclick="event.stopPropagation();">
                                             <div class="table-actions">
+                                                <!-- FIXED: Added onclick inline handlers -->
                                                 <button class="btn-table btn-edit"
                                                     onclick="event.stopPropagation(); openEditModal(<?php echo $json; ?>)"
                                                     title="Edit Karyawan">
@@ -526,6 +527,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                                         </path>
                                                     </svg>
                                                 </button>
+
                                                 <button class="btn-table btn-delete"
                                                     onclick="event.stopPropagation(); openDeleteModal(<?php echo $emp['id_employee']; ?>, '<?php echo htmlspecialchars($emp['name'], ENT_QUOTES); ?>')"
                                                     title="Hapus Karyawan">

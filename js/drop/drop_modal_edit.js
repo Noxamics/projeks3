@@ -1,13 +1,76 @@
 // File: /js/drop/drop_modal_edit.js
-// PERBAIKAN: Path API yang benar
+// FIXED VERSION - Separate session storage for drop and timeline pages
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop edit modal module loaded");
 
-  // KONFIGURASI PATH - SESUAIKAN DENGAN STRUKTUR FOLDER ANDA
-  const API_BASE_PATH = "/PROJEKS3/actions/drop/"; // Ganti sesuai root project Anda
+  // ===== DETECT CURRENT PAGE =====
+  const currentPage = window.location.pathname;
+  const isTimelinePage = currentPage.includes("timeline_pesanan.php");
+  const isDropPage = currentPage.includes("drop.php");
+
+  // ===== CONFIGURE API PATH BASED ON PAGE =====
+  const API_BASE_PATH = isTimelinePage
+    ? "../actions/drop/" // Timeline page
+    : "../actions/drop/"; // Drop page
+
+  console.log(
+    `📍 Current page: ${
+      isTimelinePage ? "Timeline" : isDropPage ? "Drop" : "Unknown"
+    }`
+  );
+  console.log(`🔗 API Base Path: ${API_BASE_PATH}`);
 
   let editItemCounter = 1;
+
+  // ===== GET SERVICES AND STATUSES OPTIONS HTML =====
+  function getServicesOptionsHTML() {
+    // Try timeline template first
+    const timelineTemplate = document.querySelector(
+      "#timeline_services_template"
+    );
+    if (timelineTemplate) {
+      console.log("✅ Using timeline services template");
+      return timelineTemplate.innerHTML;
+    }
+
+    // Fallback to modal add template (for drop.php)
+    const firstItem = document.querySelector("#itemsContainer .item-group");
+    if (firstItem) {
+      const serviceSelect = firstItem.querySelector(".item-service");
+      if (serviceSelect) {
+        console.log("✅ Using modal add services template");
+        return serviceSelect.innerHTML;
+      }
+    }
+
+    console.error("❌ No services template found!");
+    return '<option value="">-- Pilih Layanan --</option>';
+  }
+
+  function getStatusesOptionsHTML() {
+    // Try timeline template first
+    const timelineTemplate = document.querySelector(
+      "#timeline_statuses_template"
+    );
+    if (timelineTemplate) {
+      console.log("✅ Using timeline statuses template");
+      return timelineTemplate.innerHTML;
+    }
+
+    // Fallback to modal add template (for drop.php)
+    const firstItem = document.querySelector("#itemsContainer .item-group");
+    if (firstItem) {
+      const statusSelect = firstItem.querySelector(".item-status");
+      if (statusSelect) {
+        console.log("✅ Using modal add statuses template");
+        return statusSelect.innerHTML;
+      }
+    }
+
+    console.error("❌ No statuses template found!");
+    return '<option value="">Pilih Status</option>';
+  }
 
   // ===== UPDATE REMOVE BUTTONS VISIBILITY (EDIT) =====
   function updateEditRemoveButtons() {
@@ -22,26 +85,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ===== CREATE NEW EDIT ITEM HTML =====
   function createEditItemHTML(itemIndex, itemData = {}) {
-    const firstItem = document.querySelector("#itemsContainer .item-group");
-    const servicesOptions = firstItem
-      ? firstItem.querySelector(".item-service").innerHTML
-      : "";
-    const statusOptions = firstItem
-      ? firstItem.querySelector(".item-status").innerHTML
-      : "";
+    const servicesOptions = getServicesOptionsHTML();
+    const statusOptions = getStatusesOptionsHTML();
 
     return `
             <div class="item-group" data-item-index="${itemIndex}">
                 <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
                     <span class="item-badge">Item #${itemIndex}</span>
-                    <button type="button" class="remove-item-btn" data-item="${itemIndex}">✕ Hapus</button>
+                    <button type="button" class="remove-item-btn" data-item="${itemIndex}">
+                        <i class="bi bi-x-lg"></i> Hapus
+                    </button>
                 </div>
 
                 <input type="hidden" name="items[${itemIndex}][item_id]" value="${itemData.item_id || ""}">
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
                     <div>
-                        <label>🏷️ Brand / Merk</label>
+                        <label><i class="bi bi-tag"></i> Brand / Merk</label>
                         <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required
                             placeholder="Contoh: Nike, Adidas" value="${
                               itemData.brand || ""
@@ -49,14 +109,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div>
-                        <label>🛠️ Layanan</label>
+                        <label><i class="bi bi-tools"></i> Layanan</label>
                         <select name="items[${itemIndex}][service_id]" class="item-service" required>
                             ${servicesOptions}
                         </select>
                     </div>
 
                     <div>
-                        <label>💰 Harga</label>
+                        <label><i class="bi bi-cash-coin"></i> Harga</label>
                         <input type="text" class="item-price-display" readonly value="Rp ${
                           itemData.price
                             ? Number(itemData.price).toLocaleString("id-ID")
@@ -67,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div>
-                        <label>⏱️ Estimasi Selesai</label>
+                        <label><i class="bi bi-clock-history"></i> Estimasi Selesai</label>
                         <input type="text" class="item-estimate" readonly value="${
                           itemData.duration ? itemData.duration + " Hari" : "-"
                         }"
@@ -76,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div>
-                        <label>📅 Tgl. Transaksi</label>
+                        <label><i class="bi bi-calendar-event"></i> Tgl. Transaksi</label>
                         <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date"
                             value="${
                               itemData.trans_date ||
@@ -85,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div>
-                        <label>📆 Tanggal Estimasi Selesai</label>
+                        <label><i class="bi bi-calendar-check"></i> Tanggal Estimasi Selesai</label>
                         <input type="date" name="items[${itemIndex}][est_finish_date]" class="item-est-date" readonly
                             style="background: #f1f5f9;" value="${
                               itemData.est_finish_date || ""
@@ -93,14 +153,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div style="grid-column: 1 / -1;">
-                        <label>📊 Status</label>
+                        <label><i class="bi bi-bar-chart-steps"></i> Status</label>
                         <select name="items[${itemIndex}][status_id]" class="item-status" required>
                             ${statusOptions}
                         </select>
                     </div>
 
                     <div style="grid-column: 1 / -1;">
-                        <label>📝 Catatan Item</label>
+                        <label><i class="bi bi-pencil-square"></i> Catatan Item</label>
                         <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2"
                             placeholder="Catatan khusus untuk item ini..."
                             style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;">${
@@ -278,7 +338,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.loadEditModal = function (dropId) {
     console.log(`📝 Loading edit modal for drop ID: ${dropId}`);
 
-    // PERBAIKAN: Gunakan nama file yang benar
     const apiUrl = `${API_BASE_PATH}get_order_detail.php?drop_id=${dropId}`;
     console.log(`🔗 Fetching from: ${apiUrl}`);
 
@@ -286,7 +345,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => {
         console.log(`📡 Response status: ${response.status}`);
 
-        // Cek apakah response adalah JSON
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error(
@@ -369,12 +427,18 @@ document.addEventListener("DOMContentLoaded", function () {
             const serviceSelect = itemElement.querySelector(".item-service");
             if (serviceSelect) {
               serviceSelect.value = item.service_id;
+              console.log(
+                `✅ Set service ${item.service_id} for item ${idx + 1}`
+              );
             }
 
             // Set selected status
             const statusSelect = itemElement.querySelector(".item-status");
             if (statusSelect) {
               statusSelect.value = item.status_id;
+              console.log(
+                `✅ Set status ${item.status_id} for item ${idx + 1}`
+              );
             }
 
             attachEditItemListeners(itemElement);
@@ -400,40 +464,44 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   };
 
-  // ===== DOUBLE-CLICK TO EDIT =====
-  document.querySelectorAll(".order-item-row").forEach((row) => {
-    row.addEventListener("dblclick", function (e) {
-      if (e.target.type === "checkbox" || e.target.tagName === "SELECT") {
-        return;
-      }
+  // ===== DOUBLE-CLICK TO EDIT (Only for drop.php page) =====
+  if (!isTimelinePage && isDropPage) {
+    document.querySelectorAll(".order-item-row").forEach((row) => {
+      row.addEventListener("dblclick", function (e) {
+        if (e.target.type === "checkbox" || e.target.tagName === "SELECT") {
+          return;
+        }
 
-      const dropId = this.getAttribute("data-drop-id");
-      console.log(
-        `✏️ Double-click detected - Opening edit modal for Drop ${dropId}`
-      );
+        const dropId = this.getAttribute("data-drop-id");
+        console.log(
+          `✏️ Double-click detected - Opening edit modal for Drop ${dropId}`
+        );
 
-      loadEditModal(dropId);
+        loadEditModal(dropId);
+      });
     });
-  });
+  }
 
-  // ===== CLICK NOTE CELL TO EDIT =====
-  document.querySelectorAll(".note-cell").forEach((noteCell) => {
-    noteCell.addEventListener("click", function (e) {
-      e.stopPropagation();
+  // ===== CLICK NOTE CELL TO EDIT (Only for drop.php page) =====
+  if (!isTimelinePage && isDropPage) {
+    document.querySelectorAll(".note-cell").forEach((noteCell) => {
+      noteCell.addEventListener("click", function (e) {
+        e.stopPropagation();
 
-      const dropId = this.getAttribute("data-drop-id");
-      console.log(
-        `📝 Note cell clicked - Opening edit modal for Drop ${dropId}`
-      );
+        const dropId = this.getAttribute("data-drop-id");
+        console.log(
+          `📝 Note cell clicked - Opening edit modal for Drop ${dropId}`
+        );
 
-      loadEditModal(dropId);
+        loadEditModal(dropId);
 
-      setTimeout(() => {
-        const notesField = document.getElementById("edit_note");
-        if (notesField) notesField.focus();
-      }, 300);
+        setTimeout(() => {
+          const notesField = document.getElementById("edit_note");
+          if (notesField) notesField.focus();
+        }, 300);
+      });
     });
-  });
+  }
 
   // ===== ADD ITEM BUTTON (EDIT) =====
   const editAddItemBtn = document.getElementById("editAddItemBtn");
@@ -491,13 +559,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const formData = new FormData(form);
 
-      // PERBAIKAN: Gunakan path yang sudah dikonfigurasi
       fetch(`${API_BASE_PATH}drop_edit.php`, {
         method: "POST",
         body: formData,
       })
         .then((response) => {
-          // Cek apakah response adalah JSON
           const contentType = response.headers.get("content-type");
           if (!contentType || !contentType.includes("application/json")) {
             return response.text().then((text) => {
@@ -512,11 +578,22 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((data) => {
           if (data.success) {
             hideModal("editModal");
-            sessionStorage.setItem("showSuccess", "true");
-            sessionStorage.setItem(
-              "successMessage",
-              "✅ Pesanan berhasil diperbarui!"
-            );
+
+            // 🔧 FIXED: Gunakan key yang berbeda untuk setiap halaman
+            if (isTimelinePage) {
+              sessionStorage.setItem("timeline_showSuccess", "true");
+              sessionStorage.setItem(
+                "timeline_successMessage",
+                data.message || "✅ Pesanan berhasil diperbarui!"
+              );
+            } else if (isDropPage) {
+              sessionStorage.setItem("drop_showSuccess", "true");
+              sessionStorage.setItem(
+                "drop_successMessage",
+                data.message || "✅ Pesanan berhasil diperbarui!"
+              );
+            }
+
             setTimeout(() => window.location.reload(), 500);
           } else {
             alert(
@@ -524,13 +601,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 (data.message || "Unknown error")
             );
             this.disabled = false;
-            this.innerHTML = "💾 Simpan Perubahan";
+            this.innerHTML = "<i class='bi bi-save'></i> Simpan";
           }
         })
         .catch((error) => {
           alert("❌ Terjadi kesalahan: " + error.message);
           this.disabled = false;
-          this.innerHTML = "💾 Simpan Perubahan";
+          this.innerHTML = "<i class='bi bi-save'></i> Simpan";
         });
     });
   }
@@ -558,13 +635,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new FormData(form);
       const dropId = document.getElementById("edit_drop_id").value;
 
-      // PERBAIKAN: Gunakan path yang sudah dikonfigurasi
       fetch(`${API_BASE_PATH}drop_edit.php`, {
         method: "POST",
         body: formData,
       })
         .then((response) => {
-          // Cek apakah response adalah JSON
           const contentType = response.headers.get("content-type");
           if (!contentType || !contentType.includes("application/json")) {
             return response.text().then((text) => {
@@ -587,15 +662,34 @@ document.addEventListener("DOMContentLoaded", function () {
             hideModal("editModal");
 
             setTimeout(() => {
-              const cetak_url = `cetak_struk.php?id=${dropId}`;
+              // Get base URL
+              const pathArray = window.location.pathname.split("/");
+              const projectIndex = pathArray.indexOf("PROJEKS3");
+              const basePath =
+                projectIndex !== -1
+                  ? pathArray.slice(0, projectIndex + 1).join("/")
+                  : "/PROJEKS3";
+              const baseUrl = window.location.origin + basePath;
+
+              const cetak_url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
               window.open(cetak_url, "CetakStruk", "width=600,height=800");
 
-              setTimeout(() => {
-                sessionStorage.setItem("showSuccess", "true");
+              // 🔧 FIXED: Gunakan key yang berbeda untuk setiap halaman
+              if (isTimelinePage) {
+                sessionStorage.setItem("timeline_showSuccess", "true");
                 sessionStorage.setItem(
-                  "successMessage",
-                  "✅ Pesanan berhasil diperbarui!"
+                  "timeline_successMessage",
+                  data.message || "✅ Pesanan berhasil diperbarui dan dicetak!"
                 );
+              } else if (isDropPage) {
+                sessionStorage.setItem("drop_showSuccess", "true");
+                sessionStorage.setItem(
+                  "drop_successMessage",
+                  data.message || "✅ Pesanan berhasil diperbarui dan dicetak!"
+                );
+              }
+
+              setTimeout(() => {
                 window.location.reload();
               }, 1000);
             }, 500);
@@ -605,14 +699,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 (data.message || "Unknown error")
             );
             this.disabled = false;
-            this.innerHTML = "🖨️ Simpan & Cetak";
+            this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
           }
         })
         .catch((error) => {
           console.error("❌ Network error:", error);
           alert("❌ Terjadi kesalahan: " + error.message);
           this.disabled = false;
-          this.innerHTML = "🖨️ Simpan & Cetak";
+          this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
         });
     });
   }
@@ -625,6 +719,8 @@ document.addEventListener("DOMContentLoaded", function () {
   window.closeEditModal = closeEditModal;
 
   console.log("✅ Edit modal event listeners initialized");
-  console.log("🖱️ Double-click row to edit full order");
-  console.log("📝 Click note cell to edit order");
+  if (!isTimelinePage && isDropPage) {
+    console.log("🖱️ Double-click row to edit full order");
+    console.log("📝 Click note cell to edit order");
+  }
 });

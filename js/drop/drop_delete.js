@@ -1,4 +1,4 @@
-// drop_delete.js - FINAL FIX (No conflict with drop_main.js)
+// drop_delete.js - FIXED SESSION STORAGE
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("🔰 Drop Delete Script Loaded");
@@ -150,7 +150,12 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((res) => {
         hideLoading();
         if (res.success) {
-          showSuccessMessage(res.message || "Semua pesanan customer terhapus!");
+          // 🔧 FIXED: Gunakan key khusus untuk drop page
+          sessionStorage.setItem("drop_showSuccess", "true");
+          sessionStorage.setItem(
+            "drop_successMessage",
+            res.message || "✅ Semua pesanan customer berhasil dihapus!"
+          );
           setTimeout(() => location.reload(), 1000);
         } else {
           showErrorMessage("Gagal menghapus: " + res.message);
@@ -184,6 +189,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Jika item terakhir → reload full
           if (res.last_item) {
+            // 🔧 FIXED: Gunakan key khusus untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
+            sessionStorage.setItem(
+              "drop_successMessage",
+              res.message || "✅ Item berhasil dihapus!"
+            );
             return setTimeout(() => location.reload(), 900);
           }
 
@@ -227,6 +238,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 350);
           } else {
             // Fallback: reload if row not found
+            // 🔧 FIXED: Gunakan key khusus untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
+            sessionStorage.setItem(
+              "drop_successMessage",
+              res.message || "✅ Item berhasil dihapus!"
+            );
             location.reload();
           }
         } else {

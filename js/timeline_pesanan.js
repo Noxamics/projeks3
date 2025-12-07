@@ -1,4 +1,84 @@
-// Data deadlinesData sudah di-load dari PHP di file utama
+// File: /js/timeline/timeline_pesanan.js
+// Timeline Dashboard - FIXED SESSION STORAGE
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("✅ Timeline Dashboard initialized");
+
+  // ===== SUCCESS MESSAGE HANDLER (TIMELINE PAGE ONLY) =====
+  // 🔧 FIXED: Gunakan key "timeline_showSuccess" untuk halaman timeline
+  if (sessionStorage.getItem("timeline_showSuccess") === "true") {
+    const message =
+      sessionStorage.getItem("timeline_successMessage") ||
+      "✅ Operasi berhasil!";
+
+    const alertDiv = document.createElement("div");
+    alertDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+    `;
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.style.animation = "slideOut 0.3s ease-out";
+      setTimeout(() => alertDiv.remove(), 300);
+    }, 3000);
+
+    // 🔧 FIXED: Clear timeline-specific session storage
+    sessionStorage.removeItem("timeline_showSuccess");
+    sessionStorage.removeItem("timeline_successMessage");
+
+    console.log("✅ Timeline success message displayed:", message);
+  }
+
+  // Add CSS animation styles
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Backup semua order items saat pertama kali load
+  allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  console.log("✅ Total order items loaded:", allOrderItems.length);
+
+  generateCalendar();
+  generateDeadlineList();
+  setupRealTimeSearch();
+  setupTimelineEditHandlers(); // Setup edit handlers
+  setupModalHandlers();
+
+  console.log("🖱️ Double-click any order to open EDIT modal");
+});
 
 // ✅ BACKUP SEMUA ORDER ITEMS (penting untuk switching filter)
 let allOrderItems = [];
@@ -82,8 +162,8 @@ function sortOrders() {
     showSortMessage(sortBy);
   }
 
-  // Re-attach double click handlers (sesuai dengan PHP Anda)
-  setupDoubleClickHandlers();
+  // Re-attach double click handlers untuk EDIT MODAL
+  setupTimelineEditHandlers();
 }
 
 // Fungsi untuk menampilkan pesan filter deadline
@@ -568,24 +648,66 @@ function setupModalHandlers() {
   });
 }
 
-// ✅ Setup double click handler (untuk edit modal - sesuai file PHP Anda)
-function setupDoubleClickHandlers() {
+// ✅ Setup double click handler untuk EDIT MODAL (bukan detail)
+function setupTimelineEditHandlers() {
   const orderItems = document.querySelectorAll(".order-item");
-  orderItems.forEach((item) => {
-    item.style.cursor = "pointer";
+  console.log(`📋 Setting up edit handlers for ${orderItems.length} items`);
 
+  orderItems.forEach((item) => {
     // Remove old listeners untuk avoid duplicate
     const newItem = item.cloneNode(true);
     item.parentNode.replaceChild(newItem, item);
 
-    // Attach double click untuk edit modal
-    newItem.addEventListener("dblclick", function () {
-      if (typeof openEditModal === "function") {
-        openEditModal(this);
+    // Style untuk cursor pointer
+    newItem.style.cursor = "pointer";
+    newItem.style.transition = "transform 0.2s ease, box-shadow 0.2s ease";
+
+    // Attach double click untuk EDIT MODAL
+    newItem.addEventListener("dblclick", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropId =
+        this.getAttribute("data-drop-id") || this.getAttribute("data-id-drop");
+
+      if (!dropId) {
+        console.error("❌ Drop ID not found");
+        alert("Error: ID pesanan tidak ditemukan");
+        return;
+      }
+
+      console.log(
+        `✏️ Double-click detected - Opening EDIT modal for Drop ${dropId}`
+      );
+
+      // Panggil fungsi loadEditModal yang ada di drop_modal_edit.js
+      if (typeof loadEditModal === "function") {
+        loadEditModal(dropId);
+      } else {
+        console.error("❌ loadEditModal function not found");
+        alert(
+          "Error: Fungsi edit tidak tersedia. Pastikan drop_modal_edit.js sudah dimuat."
+        );
       }
     });
+
+    // Visual feedback on hover
+    newItem.addEventListener("mouseenter", function () {
+      this.style.transform = "translateY(-2px)";
+      this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    });
+
+    newItem.addEventListener("mouseleave", function () {
+      this.style.transform = "translateY(0)";
+      this.style.boxShadow = "none";
+    });
   });
+
+  console.log("✅ Edit handlers attached");
 }
+
+// Make setupTimelineEditHandlers global
+window.setupTimelineEditHandlers = setupTimelineEditHandlers;
 
 // Search functions
 function searchOrders() {
@@ -769,7 +891,7 @@ function showFilterMessage(category, searchTerm, foundResults) {
 
 // Initialize
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("Dashboard initialized");
+  console.log("✅ Timeline Dashboard initialized");
 
   // Backup semua order items saat pertama kali load
   allOrderItems = Array.from(document.querySelectorAll(".order-item"));
@@ -778,6 +900,8 @@ document.addEventListener("DOMContentLoaded", function () {
   generateCalendar();
   generateDeadlineList();
   setupRealTimeSearch();
-  setupDoubleClickHandlers();
+  setupTimelineEditHandlers(); // Setup edit handlers
   setupModalHandlers();
+
+  console.log("🖱️ Double-click any order to open EDIT modal");
 });
