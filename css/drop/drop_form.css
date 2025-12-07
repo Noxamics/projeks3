@@ -1,277 +1,674 @@
 /* =========================================================
-   drop_form.css - Form Styling & Inputs
+   drop_form.css - Modern Form Styling & Inputs
+   Redesigned with modern gradients & interactions
    ========================================================= */
 
-/* Status Dropdown */
-.status-dropdown {
-  padding: 6px 8px;
-  border: 2px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 500;
-  background: #ffffff;
-  color: #1e293b;
-  cursor: pointer;
-  transition: 0.25s ease;
-  outline: none;
-  width: 100%;
-  max-width: 100%;
-  text-align: left;
-  box-sizing: border-box;
+/* =========================================================
+   FORM SECTIONS - GRADIENT CARDS
+   ========================================================= */
+.customer-info-section,
+.payment-section,
+.order-summary {
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xxl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-base);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.status-dropdown:hover,
-.status-dropdown:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+.customer-info-section::before,
+.payment-section::before,
+.order-summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Item Group (Form Container) */
+.customer-info-section:hover::before,
+.payment-section:hover::before,
+.order-summary:hover::before {
+  transform: scaleX(1);
+}
+
+.customer-info-section:hover,
+.payment-section:hover,
+.order-summary:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Customer Info Section - Yellow/Amber Theme */
+.customer-info-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fcd34d;
+}
+
+.customer-info-section::before {
+  background: linear-gradient(90deg, var(--color-warning) 0%, #d97706 100%);
+}
+
+/* Payment Section - Purple Theme */
+.payment-section {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  border-color: #a78bfa;
+}
+
+.payment-section::before {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+/* Order Summary - Blue Theme */
+.order-summary {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #60a5fa;
+}
+
+.order-summary::before {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* =========================================================
+   SECTION HEADERS - MODERN TYPOGRAPHY
+   ========================================================= */
+.customer-info-section h3,
+.payment-section h3,
+.order-summary h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-xl);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.customer-info-section h3::before {
+  content: "👤";
+  font-size: 24px;
+}
+
+.payment-section h3::before {
+  content: "💳";
+  font-size: 24px;
+}
+
+.order-summary h3::before {
+  content: "📋";
+  font-size: 24px;
+}
+
+/* =========================================================
+   ITEM GROUP - MODERN CARD
+   ========================================================= */
 .item-group {
   position: relative;
-  background: #f8fafc;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.item-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-secondary) 0%, #4f46e5 100%);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-group:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
 }
 
+.item-group:hover::before {
+  transform: scaleX(1);
+}
+
+/* =========================================================
+   ITEM BADGE - MODERN GRADIENT PILL
+   ========================================================= */
 .item-badge {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #4f46e5 100%);
   color: white;
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 13px;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  display: inline-block;
+  margin-bottom: var(--spacing-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Grid Form Layout */
+/* =========================================================
+   GRID FORM LAYOUT - MODERN
+   ========================================================= */
 .grid-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px 20px;
+  gap: var(--spacing-lg) var(--spacing-xl);
   align-items: start;
 }
 
+.grid-form label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   FORM INPUTS - MODERN INTERACTIVE
+   ========================================================= */
 .grid-form input,
 .grid-form select,
 .grid-form textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   font-size: 14px;
-  border: 1.5px solid #d6dee9;
-  border-radius: 8px;
-  background: #fff;
+  font-weight: 500;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  background: white;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: var(--transition-base);
+  color: var(--color-text);
+  font-family: "Inter", sans-serif;
+}
+
+.grid-form input::placeholder,
+.grid-form textarea::placeholder {
+  color: var(--color-text-light);
+  font-weight: 400;
+}
+
+.grid-form input:hover,
+.grid-form select:hover,
+.grid-form textarea:hover {
+  border-color: #cbd5e1;
+  background: rgba(0, 102, 204, 0.02);
 }
 
 .grid-form input:focus,
 .grid-form select:focus,
 .grid-form textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+  transform: translateY(-2px);
+  background: white;
 }
 
-.grid-form label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #334155;
+.grid-form textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
 }
 
+.grid-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+/* Full Width Elements */
 .full-width {
   grid-column: 1 / -1;
   width: 100%;
 }
 
-/* Form Sections */
-.customer-info-section,
-.payment-section,
-.order-summary {
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.customer-info-section {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #fcd34d;
-}
-
-.payment-section {
-  background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
-  border: 2px solid #a78bfa;
-}
-
-.order-summary {
-  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
-  border: 2px solid #bae6fd;
-}
-
-/* Section Headers */
-.customer-info-section h3,
-.payment-section h3,
-.order-summary h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-/* Checkbox Styling */
-.customer-checkbox {
-  width: 18px;
-  height: 18px;
+/* =========================================================
+   STATUS DROPDOWN - ENHANCED
+   ========================================================= */
+.status-dropdown {
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  background: white;
+  color: var(--color-text);
   cursor: pointer;
-  accent-color: #6366f1;
+  transition: var(--transition-base);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
 }
 
-.item-checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #3b82f6;
+.status-dropdown:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(0, 102, 204, 0.05);
+  transform: translateY(-1px);
+}
+
+.status-dropdown:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
 }
 
 /* =========================================================
-   DELETE BUTTONS - Tombol Hapus
+   CHECKBOXES - MODERN STYLE
+   ========================================================= */
+.customer-checkbox,
+.item-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  transition: var(--transition-base);
+  border-radius: 4px;
+}
+
+.customer-checkbox:hover,
+.item-checkbox:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 4px rgba(0, 102, 204, 0.3));
+}
+
+/* =========================================================
+   DELETE BUTTONS - MODERN GRADIENTS
    ========================================================= */
 
-/* Tombol Hapus Semua di Customer Header */
+/* Delete Customer Button in Header */
 .delete-customer-btn {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-base);
   display: flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+  gap: var(--spacing-sm);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.delete-customer-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.delete-customer-btn:hover::before {
+  width: 200px;
+  height: 200px;
 }
 
 .delete-customer-btn:hover {
-  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
 }
 
 .delete-customer-btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-/* Tombol Hapus per Item */
+/* Delete Item Button */
 .delete-item-btn {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  padding: 6px 10px;
-  border-radius: 6px;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #fca5a5;
+  color: #991b1b;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition-base);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  gap: var(--spacing-xs);
 }
 
 .delete-item-btn:hover {
-  background: #fecaca;
-  border-color: #fca5a5;
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+  border-color: #f87171;
   transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .delete-item-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 .delete-item-btn img {
   filter: brightness(0) saturate(100%) invert(19%) sepia(98%) saturate(4689%)
     hue-rotate(350deg) brightness(91%) contrast(95%);
+  width: 16px;
+  height: 16px;
 }
 
 /* =========================================================
-   UPDATE GRID LAYOUT - Tambah Kolom Aksi
+   FORM FIELD GROUPING
    ========================================================= */
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
 
-/* Grid Headers - dengan kolom Aksi */
-.orders-grid-header {
-  display: grid;
-  grid-template-columns: 40px 110px 120px 100px 140px 90px 100px 100px 150px 90px 80px 70px;
-  gap: 8px;
-  background: #f8fafc;
-  padding: 12px 10px;
+.form-field-group.required label::after {
+  content: "*";
+  color: var(--color-danger);
+  margin-left: 4px;
+}
+
+/* Input with Icon */
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon input {
+  padding-left: 44px;
+}
+
+.input-with-icon::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* =========================================================
+   BUTTON CONTAINER - MODERN LAYOUT
+   ========================================================= */
+.button-container {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  margin-top: var(--spacing-xxl);
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   PRIMARY SAVE BUTTON - MODERN GRADIENT
+   ========================================================= */
+.save-btn {
+  width: 100%;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.save-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.save-btn:hover::before {
+  width: 500px;
+  height: 500px;
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004080 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 102, 204, 0.4);
+}
+
+.save-btn:active {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   REMOVE ITEM BUTTON - MODERN DANGER
+   ========================================================= */
+.remove-item-btn {
+  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
   font-weight: 700;
-  font-size: 11px;
-  color: #475569;
-  border-bottom: 2px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  z-index: 90;
-  min-width: 1270px;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* Order Item Grid - dengan kolom Aksi */
-.order-item-grid {
-  display: grid;
-  grid-template-columns: 40px 110px 120px 100px 140px 90px 100px 100px 150px 90px 80px 70px;
-  gap: 8px;
-  align-items: center;
-  padding: 12px 10px;
-  font-size: 11px;
-  min-width: 1270px;
+.remove-item-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.remove-item-btn:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.remove-item-btn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
 }
 
 /* =========================================================
-   RESPONSIVE DESIGN
+   FORM VALIDATION STATES
    ========================================================= */
+.grid-form input.error,
+.grid-form select.error,
+.grid-form textarea.error {
+  border-color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.05);
+}
 
-@media (max-width: 1400px) {
-  .orders-grid-header,
-  .order-item-grid {
-    grid-template-columns: 35px 100px 110px 95px 130px 85px 95px 95px 140px 85px 75px 65px;
-    font-size: 11px;
+.grid-form input.error:focus,
+.grid-form select.error:focus,
+.grid-form textarea.error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.grid-form input.success,
+.grid-form select.success,
+.grid-form textarea.success {
+  border-color: var(--color-success);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.grid-form input.success:focus,
+.grid-form select.success:focus,
+.grid-form textarea.success:focus {
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.error-message {
+  color: var(--color-danger);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-message::before {
+  content: "⚠";
+}
+
+/* =========================================================
+   DISABLED STATE
+   ========================================================= */
+.grid-form input:disabled,
+.grid-form select:disabled,
+.grid-form textarea:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =========================================================
+   RESPONSIVE FORM DESIGN
+   ========================================================= */
+@media (max-width: 1024px) {
+  .grid-form {
+    gap: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-form {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-lg);
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 18px;
+  }
+
+  .item-group {
+    padding: var(--spacing-lg);
+  }
+
+  .button-container {
+    flex-direction: column;
+  }
+
+  .save-btn {
+    width: 100%;
   }
 
   .delete-customer-btn {
-    padding: 6px 12px;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .item-badge {
     font-size: 12px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .orders-grid-header,
-  .order-item-grid {
-    grid-template-columns: 30px 90px 100px 90px 120px 80px 90px 90px 130px 80px 70px 60px;
-    font-size: 10px;
+    padding: 6px 16px;
   }
 
-  .customer-orders-container {
-    overflow-x: scroll;
-  }
-}
-
-@media (max-width: 992px) {
-  .customer-orders-container {
-    overflow-x: scroll;
+  .grid-form input,
+  .grid-form select,
+  .grid-form textarea {
+    padding: 10px 14px;
+    font-size: 13px;
   }
 
-  .orders-grid-header,
-  .order-item-grid {
-    min-width: 1100px;
+  .save-btn {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+
+  .remove-item-btn {
+    padding: 8px 16px;
+    font-size: 12px;
   }
 }

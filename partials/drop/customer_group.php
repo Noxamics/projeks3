@@ -188,10 +188,32 @@ $stmt_orders->close();
                     </div>
                 </div>
                 <div class='order-item-cell center'>
-                    <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
-                        data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' <?= $is_completed ? 'disabled' : '' ?>>
-                        <img src='../a/svg/trash.svg' alt='Hapus' style='width: 14px; height: 14px;'>
-                    </button>
+                    <div style='display: flex; gap: 6px; justify-content: center; align-items: center;'>
+                        <!-- Tombol Cetak Struk -->
+                        <button class='print-item-btn' data-drop-id='<?= $drop_id ?>' 
+                            title='Cetak Struk Pesanan Ini'
+                            style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
+                                   color: white; border: none; padding: 6px 10px; 
+                                   border-radius: 6px; cursor: pointer; 
+                                   font-size: 11px; font-weight: 600;
+                                   display: flex; align-items: center; gap: 4px;
+                                   transition: all 0.3s ease;'>
+                            🖨️ Cetak
+                        </button>
+                        
+                        <!-- Tombol Hapus -->
+                        <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
+                            data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' 
+                            <?= $is_completed ? 'disabled' : '' ?>
+                            style='background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
+                                   color: white; border: none; padding: 6px 10px; 
+                                   border-radius: 6px; cursor: pointer;
+                                   display: flex; align-items: center; justify-content: center;
+                                   transition: all 0.3s ease;'>
+                            <img src='../a/svg/trash.svg' alt='Hapus' 
+                                style='width: 14px; height: 14px; filter: brightness(0) invert(1);'>
+                        </button>
+                    </div>
                 </div>
             </div>
 
