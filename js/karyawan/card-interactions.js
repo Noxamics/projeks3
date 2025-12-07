@@ -2,6 +2,7 @@
 // ENHANCED CARD & TABLE INTERACTIONS JAVASCRIPT
 // File: js/karyawan/card-interactions.js
 // Fixed: Button table tidak berfungsi
+// Fixed: Modal detection and fallback
 // ================================================
 
 /**
@@ -201,6 +202,43 @@ function initializeTableDoubleClick() {
 }
 
 /**
+ * Check if modal functions are available
+ * @returns {boolean}
+ */
+function isModalAvailable() {
+  return typeof window.openDetailModal === "function";
+}
+
+/**
+ * Wait for modal function to be available
+ * @param {Function} callback - Function to call when modal is ready
+ * @param {number} maxAttempts - Maximum number of attempts
+ */
+function waitForModal(callback, maxAttempts = 20) {
+  let attempts = 0;
+
+  const checkInterval = setInterval(() => {
+    attempts++;
+
+    if (isModalAvailable()) {
+      console.log("✅ Modal function found!");
+      clearInterval(checkInterval);
+      callback();
+    } else if (attempts >= maxAttempts) {
+      console.error("❌ Modal function not found after", attempts, "attempts");
+      clearInterval(checkInterval);
+      alert(
+        "Error: Modal system tidak tersedia. Refresh halaman atau hubungi administrator."
+      );
+    } else {
+      console.log(
+        `⏳ Waiting for modal... (attempt ${attempts}/${maxAttempts})`
+      );
+    }
+  }, 100);
+}
+
+/**
  * Open detail modal from card
  * @param {HTMLElement} cardElement - The card element
  */
@@ -209,6 +247,7 @@ function openCardDetail(cardElement) {
 
   if (!employeeData) {
     console.error("No employee data found on card");
+    alert("Error: Data karyawan tidak ditemukan");
     return;
   }
 
@@ -217,15 +256,19 @@ function openCardDetail(cardElement) {
     console.log("Opening detail for employee:", employee.name);
 
     // Check if openDetailModal function exists
-    if (typeof openDetailModal === "function") {
-      openDetailModal(employee);
+    if (isModalAvailable()) {
+      window.openDetailModal(employee);
     } else {
-      console.error("openDetailModal function not found");
-      alert("Error: Modal function not available");
+      console.warn("Modal function not ready, waiting...");
+
+      // Wait for modal to be available
+      waitForModal(() => {
+        window.openDetailModal(employee);
+      });
     }
   } catch (error) {
     console.error("Failed to parse employee data:", error);
-    alert("Error: Invalid employee data");
+    alert("Error: Data karyawan tidak valid");
   }
 }
 
@@ -238,6 +281,7 @@ function openRowDetail(rowElement) {
 
   if (!employeeData) {
     console.error("No employee data found on row");
+    alert("Error: Data karyawan tidak ditemukan");
     return;
   }
 
@@ -246,15 +290,19 @@ function openRowDetail(rowElement) {
     console.log("Opening detail for employee:", employee.name);
 
     // Check if openDetailModal function exists
-    if (typeof openDetailModal === "function") {
-      openDetailModal(employee);
+    if (isModalAvailable()) {
+      window.openDetailModal(employee);
     } else {
-      console.error("openDetailModal function not found");
-      alert("Error: Modal function not available");
+      console.warn("Modal function not ready, waiting...");
+
+      // Wait for modal to be available
+      waitForModal(() => {
+        window.openDetailModal(employee);
+      });
     }
   } catch (error) {
     console.error("Failed to parse employee data:", error);
-    alert("Error: Invalid employee data");
+    alert("Error: Data karyawan tidak valid");
   }
 }
 
@@ -412,6 +460,22 @@ function debugTableButtons() {
   });
 }
 
+/**
+ * Debug modal availability
+ */
+function debugModalStatus() {
+  console.log("🔍 Modal Status Check:");
+  console.log("- openDetailModal available:", isModalAvailable());
+  console.log("- window.openDetailModal:", typeof window.openDetailModal);
+
+  if (isModalAvailable()) {
+    console.log("✅ Modal system is ready");
+  } else {
+    console.log("❌ Modal system is NOT ready");
+    console.log("💡 Make sure modal.js is loaded before card-interactions.js");
+  }
+}
+
 // ================================================
 // AUTO-INITIALIZE ON PAGE LOAD
 // ================================================
@@ -421,6 +485,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Wait a bit for other scripts to load
   setTimeout(() => {
+    // Check modal availability
+    debugModalStatus();
+
+    // Initialize interactions
     initializeCardTableInteractions();
     addKeyboardSupport();
     addMobileTouchSupport();
@@ -435,5 +503,7 @@ window.initializeCardTableInteractions = initializeCardTableInteractions;
 window.reinitializeInteractions = reinitializeInteractions;
 window.createRippleEffect = createRippleEffect;
 window.debugTableButtons = debugTableButtons;
+window.debugModalStatus = debugModalStatus;
+window.isModalAvailable = isModalAvailable;
 
 console.log("✅ Card/Table interactions module loaded");

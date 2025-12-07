@@ -441,6 +441,125 @@ function closeDeleteModal() {
 }
 
 // ============================================
+// DETAIL MODAL
+// ============================================
+function openDetailModal(data) {
+  console.log("Opening Detail Modal...");
+
+  const modal = document.getElementById("modalDetail");
+
+  if (!modal) {
+    console.error("Modal Detail not found!");
+    alert("Error: Modal Detail tidak ditemukan.");
+    return;
+  }
+
+  // Parse data jika berupa string
+  const employee = typeof data === "string" ? JSON.parse(data) : data;
+  console.log("Employee data:", employee);
+
+  // Store current employee data
+  currentEmployee = employee;
+
+  // Update header section
+  const photoElement = document.getElementById("detail_photo");
+  if (photoElement) {
+    const photoPath = employee.photo
+      ? `../uploads/employee/${employee.photo}`
+      : "../uploads/employee/default.jpg";
+    photoElement.src = photoPath;
+    photoElement.alt = employee.name || "Employee Photo";
+  }
+
+  setElementText("detail_name", employee.name || "-");
+  setElementText("detail_code", `Kode: ${employee.employee_code || "-"}`);
+  setElementText("detail_phone", `HP: ${employee.phone || "-"}`);
+  setElementText(
+    "detail_join",
+    `Bergabung: ${formatDate(employee.join_date) || "-"}`
+  );
+
+  // Update roles badges
+  const rolesContainer = document.getElementById("detail_roles");
+  if (rolesContainer && employee.roles) {
+    rolesContainer.innerHTML = "";
+    const roles = employee.roles.split(",").map((r) => r.trim());
+
+    const roleColors = {
+      cleaning: "#3498db",
+      reglue: "#2ecc71",
+      repaint: "#e74c3c",
+      kasir: "#f39c12",
+    };
+
+    roles.forEach((role) => {
+      const badge = document.createElement("span");
+      badge.textContent = role;
+      badge.style.cssText = `
+        display: inline-block;
+        padding: 4px 12px;
+        background: ${roleColors[role.toLowerCase()] || "#95a5a6"};
+        color: white;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+      `;
+      rolesContainer.appendChild(badge);
+    });
+  }
+
+  // Update status badge
+  const statusElement = document.getElementById("detail_status");
+  if (statusElement) {
+    const status = employee.status || "Non-Aktif";
+    statusElement.textContent = status;
+    statusElement.className = "status-badge";
+
+    if (status === "Aktif") {
+      statusElement.style.cssText = `
+        display: inline-block;
+        padding: 5px 15px;
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+      `;
+    } else {
+      statusElement.style.cssText = `
+        display: inline-block;
+        padding: 5px 15px;
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+      `;
+    }
+  }
+
+  // Update detail content using existing function
+  updateDetailModalContent(employee);
+
+  // Switch to Info tab by default
+  switchTab("info");
+
+  // Show modal
+  showModal(modal);
+
+  console.log("Detail Modal opened");
+}
+
+function closeDetailModal() {
+  console.log("Closing Detail Modal...");
+  const modal = document.getElementById("modalDetail");
+  hideModal(modal);
+  currentEmployee = null;
+}
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 function switchTab(tabName) {
@@ -586,6 +705,8 @@ window.openEditModal = openEditModal;
 window.closeEditModal = closeEditModal;
 window.openDeleteModal = openDeleteModal;
 window.closeDeleteModal = closeDeleteModal;
+window.openDetailModal = openDetailModal;
+window.closeDetailModal = closeDetailModal;
 window.switchTab = switchTab;
 window.setElementText = setElementText;
 window.formatDate = formatDate;
