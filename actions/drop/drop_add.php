@@ -1,6 +1,6 @@
 <?php
 // File: /actions/drop/drop_add.php
-// Handle adding new drop order with multiple items - FIXED STMT CLOSE ERROR
+// Handle adding new drop order with multiple items - SIMPLE 4-DIGIT ORDER CODE
 
 // ===== SETUP =====
 error_reporting(E_ALL);
@@ -82,7 +82,7 @@ try {
         $customer = $result->fetch_assoc();
         $customer_id = $customer['id_customer'];
         $stmt->close();
-        $stmt = null; // Mark as closed
+        $stmt = null;
 
         // Update name if different
         $stmt2 = $conn->prepare("UPDATE customers SET name = ? WHERE id_customer = ?");
@@ -92,7 +92,7 @@ try {
         $stmt2 = null;
     } else {
         $stmt->close();
-        $stmt = null; // Mark as closed
+        $stmt = null;
 
         // Create new customer
         $stmt3 = $conn->prepare("INSERT INTO customers (name, phone) VALUES (?, ?)");
@@ -140,37 +140,41 @@ try {
         $est_finish_date = $date->format('Y-m-d');
     }
 
-    // Generate unique order code
-    $date_code = date('ym');
-    $timestamp = time();
-    $random = mt_rand(100, 999);
-
-    // Try to get max number for sequential codes
-    $stmt4 = $conn->prepare("SELECT MAX(CAST(SUBSTRING(order_code, 8) AS UNSIGNED)) as max_num FROM drops WHERE order_code LIKE ?");
-    $pattern = "ORD{$date_code}-%";
-    $stmt4->bind_param("s", $pattern);
-    $stmt4->execute();
-    $result4 = $stmt4->get_result();
-    $row4 = $result4->fetch_assoc();
-    $next_num = ($row4['max_num'] ?? 0) + 1;
-    $stmt4->close();
-    $stmt4 = null;
-
-    // Create order code with fallback
-    $order_code = sprintf("ORD%s-%04d", $date_code, $next_num);
-
-    // Check if order code exists
-    $stmt5 = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
-    $stmt5->bind_param("s", $order_code);
-    $stmt5->execute();
-    $check_result5 = $stmt5->get_result();
-
-    // If duplicate, use timestamp-based code
-    if ($check_result5->num_rows > 0) {
-        $order_code = sprintf("ORD%s-%d%03d", $date_code, $timestamp % 100000, $random);
+    // === GENERATE ORDER CODE: ORD2512-XXXX (Random 4 Digits) ===
+    $date_code = date('ym'); // Format: 2512 (Year+Month)
+    $max_attempts = 10; // Maximum attempts to find unique code
+    $order_code = null;
+    
+    for ($attempt = 0; $attempt < $max_attempts; $attempt++) {
+        // Generate random 4-digit number (1000-9999)
+        $random_digits = mt_rand(1000, 9999);
+        $temp_order_code = "ORD{$date_code}-{$random_digits}";
+        
+        // Check if this order code already exists
+        $stmt4 = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
+        if (!$stmt4) {
+            throw new Exception("Database error: " . $conn->error);
+        }
+        
+        $stmt4->bind_param("s", $temp_order_code);
+        $stmt4->execute();
+        $check_result = $stmt4->get_result();
+        $stmt4->close();
+        $stmt4 = null;
+        
+        // If unique, use this code
+        if ($check_result->num_rows === 0) {
+            $order_code = $temp_order_code;
+            break;
+        }
     }
-    $stmt5->close();
-    $stmt5 = null;
+    
+    // Fallback: if still no unique code after max attempts, use timestamp
+    if ($order_code === null) {
+        $timestamp = time();
+        $fallback_num = ($timestamp % 9000) + 1000; // Ensures 4-digit number
+        $order_code = "ORD{$date_code}-{$fallback_num}";
+    }
 
     // === 3. INSERT DROP ORDER ===
     $total_items = count($items);

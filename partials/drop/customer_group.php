@@ -1,13 +1,12 @@
 <?php
 // File: /partials/drop/customer_group.php
-// Display customer group dengan semua items - INCLUDE ALL STATUS
+// Display customer group dengan semua items - IMPROVED VERSION
 
 $customer_id = $customer['id_customer'];
 $customer_name = htmlspecialchars($customer['name']);
 $customer_phone = htmlspecialchars($customer['phone']);
 
 // Query untuk mendapatkan semua orders dari customer ini
-// PENTING: TIDAK filter status_id != 6, ambil SEMUA status
 $sql_orders = "
     SELECT 
         di.id_item, di.drop_id, d.order_code, di.brand, di.price,
@@ -15,7 +14,7 @@ $sql_orders = "
         di.status_id,
         s.service_name, s.category,
         st.status_name,
-        d.trans_date, d.est_finish_date,
+        d.trans_date,
         p.status as payment_status,
         e.name as employee_name
     FROM drop_items di
@@ -26,9 +25,8 @@ $sql_orders = "
     LEFT JOIN employees e ON d.employee_id = e.id_employee
     WHERE d.customer_id = ?
 ";
-// ☝️ TIDAK ADA filter "AND di.status_id != 6" - ambil semua status!
 
-// Tambahkan sorting berdasarkan parameter dari GET
+// Tambahkan sorting
 $sort = isset($_GET['sort']) ? $_GET['sort'] : '';
 switch ($sort) {
     case 'tanggal_asc':
@@ -51,7 +49,6 @@ $stmt_orders->bind_param("i", $customer_id);
 $stmt_orders->execute();
 $result_orders = $stmt_orders->get_result();
 
-// Jika tidak ada order untuk customer ini, skip
 if ($result_orders->num_rows === 0) {
     $stmt_orders->close();
     return;
@@ -86,7 +83,7 @@ $stmt_orders->close();
             <button class='customer-action-btn delete-customer-btn' data-customer-id='<?= $customer_id ?>'
                 title='Hapus Semua Pesanan Customer Ini'>
                 <img src='../a/svg/trash.svg' alt='Hapus'
-                    style='width: 16px; height: 16px; filter: brightness(0) invert(1);'>
+                    style='width: 10px; height: 10px; filter: brightness(0) invert(1);'>
                 Hapus Semua
             </button>
         </div>
@@ -95,20 +92,18 @@ $stmt_orders->close();
 
 <!-- ORDERS CONTAINER -->
 <div class='customer-orders-container' data-customer-id='<?= $customer_id ?>'>
-    <!-- HEADER -->
+    <!-- HEADER (10 KOLOM) -->
     <div class='orders-grid-header'>
         <div class='header-cell center'>#</div>
-        <div class='header-cell'>ID Order</div>
-        <div class='header-cell'>Brand/Item</div>
-        <div class='header-cell'>Layanan</div>
-        <div class='header-cell center'>Harga</div>
-        <div class='header-cell center'>Tgl. Masuk</div>
-        <div class='header-cell center'>Est. Selesai</div>
-        <div class='header-cell center'>Status</div>
-        <div class='header-cell center'>Pembayaran</div>
-        <div class='header-cell center'>Karyawan</div>
-        <div class='header-cell'>Catatan</div>
-        <div class='header-cell center'>Aksi</div>
+        <div class='header-cell'>ID ORDER</div>
+        <div class='header-cell'>BRAND/ITEM</div>
+        <div class='header-cell'>LAYANAN</div>
+        <div class='header-cell center'>HARGA</div>
+        <div class='header-cell center'>TGL. MASUK</div>
+        <div class='header-cell center'>STATUS</div>
+        <div class='header-cell center'>PEMBAYARAN</div>
+        <div class='header-cell center'>KARYAWAN</div>
+        <div class='header-cell'>AKSI</div>
     </div>
 
     <?php foreach ($orders_data as $index => $order):
@@ -124,11 +119,10 @@ $stmt_orders->close();
         $note_class = !empty($item_note) ? 'note-cell' : 'note-cell empty';
         $price = number_format($order['price'], 0, ',', '.');
         $trans_date = date('d M Y', strtotime($order['trans_date']));
-        $est_date = date('d M Y', strtotime($order['est_finish_date']));
+        
         $payment_status = $order['payment_status'] ?? 'Belum Lunas';
         $employee_name = $order['employee_name'] ?? '-';
 
-        // Check if completed (status 6)
         $is_completed = ($order['status_id'] == 6);
         $completed_class = $is_completed ? 'item-completed' : '';
         $data_status = $is_completed ? 'completed' : 'active';
@@ -140,32 +134,67 @@ $stmt_orders->close();
         };
         ?>
 
-        <div class='order-item-row <?= $completed_class ?>' data-drop-id='<?= $drop_id ?>' data-item-id='<?= $id_item ?>'
-            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='<?= $data_status ?>'>
+        <div class='order-item-row <?= $completed_class ?>' 
+             data-drop-id='<?= $drop_id ?>' 
+             data-item-id='<?= $id_item ?>'
+             data-customer-id='<?= $customer_id ?>' 
+             data-price='<?= $order['price'] ?>' 
+             data-status='<?= $data_status ?>'>
             <div class='order-item-grid'>
+                
+                <!-- 1. CHECKBOX -->
                 <div class='order-item-cell center'>
-                    <input type='checkbox' class='item-checkbox' data-drop-id='<?= $drop_id ?>'
-                        data-customer-id='<?= $customer_id ?>'>
+                    <input type='checkbox' class='item-checkbox' 
+                           data-drop-id='<?= $drop_id ?>'
+                           data-customer-id='<?= $customer_id ?>'>
                 </div>
+                
+                <!-- 2. ID ORDER -->
                 <div class='order-item-cell'>
-                    <span class='item-number-badge'>#<?= $item_number ?></span><br>
-                    <small style='color: #6366f1; font-weight: 600;'><?= $order_code ?></small>
+                    <div style='display: flex; flex-direction: column; gap: 2px;'>
+                        <span class='item-number-badge'>#<?= $item_number ?></span>
+                        <small style='color: #6366f1; font-weight: 600; font-size: 10px;'><?= $order_code ?></small>
+                    </div>
                 </div>
-                <div class='order-item-cell'><?= $brand ?></div>
+                
+                <!-- 3. BRAND/ITEM -->
+                <div class='order-item-cell' title='<?= $brand ?>'>
+                    <?= $brand ?>
+                </div>
+                
+                <!-- 4. LAYANAN -->
                 <div class='order-item-cell'>
-                    <span style='font-size: 10px; color: #64748b;'><?= ucfirst($order['category']) ?></span><br>
-                    <span style='font-weight: 600;'><?= $order['service_name'] ?></span>
+                    <div style='display: flex; flex-direction: column; gap: 2px;'>
+                        <span style='font-size: 9px; color: #64748b; text-transform: uppercase;'>
+                            <?= ucfirst($order['category']) ?>
+                        </span>
+                        <span style='font-weight: 600; font-size: 11px;'>
+                            <?= $order['service_name'] ?>
+                        </span>
+                    </div>
                 </div>
-                <div class='order-item-cell center' style='font-weight: 700; color: #059669;' data-price-display>
+                
+                <!-- 5. HARGA -->
+                <div class='order-item-cell center' 
+                     style='font-weight: 700; color: #059669; font-size: 12px;' 
+                     data-price-display>
                     Rp<?= $price ?>
                 </div>
-                <div class='order-item-cell center' style='font-size: 11px;'><?= $trans_date ?></div>
-                <div class='order-item-cell center' style='font-size: 11px;'><?= $est_date ?></div>
+                
+                <!-- 6. TGL. MASUK -->
+                <div class='order-item-cell center' style='font-size: 11px;'>
+                    <?= $trans_date ?>
+                </div>
+                
+                <!-- 7. STATUS -->
                 <div class='order-item-cell center'>
-                    <!-- Status dropdown with proper data attributes -->
-                    <select class='item-status-select' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
-                        data-current-status='<?= $order['status_id'] ?>' data-old-status='<?= $order['status_id'] ?>'
-                        data-item-brand='<?= $brand ?>' <?= $is_completed ? 'disabled' : '' ?>>
+                    <select class='item-status-select' 
+                            data-item-id='<?= $id_item ?>' 
+                            data-drop-id='<?= $drop_id ?>'
+                            data-current-status='<?= $order['status_id'] ?>' 
+                            data-old-status='<?= $order['status_id'] ?>'
+                            data-item-brand='<?= $brand ?>' 
+                            <?= $is_completed ? 'disabled' : '' ?>>
                         <?php
                         $st2 = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
                         while ($s2 = $st2->fetch_assoc()) {
@@ -175,46 +204,39 @@ $stmt_orders->close();
                         ?>
                     </select>
                 </div>
+                
+                <!-- 8. PEMBAYARAN -->
                 <div class='order-item-cell center' style='<?= $paymentColor ?> font-size: 11px;'>
                     <?= $payment_status ?>
                 </div>
-                <div class='order-item-cell center' style='font-size: 10px;'>
+                
+                <!-- 9. KARYAWAN -->
+                <div class='order-item-cell center' style='font-size: 11px;'>
                     <?= $employee_name ?>
                 </div>
+                
+                <!-- 11. AKSI - SIMPLIFIED ICON BUTTONS -->
                 <div class='order-item-cell'>
-                    <div class='<?= $note_class ?>' title='<?= $item_note ?>' data-note='<?= $item_note ?>'
-                        data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'>
-                        <?= $note_display ?>
-                    </div>
-                </div>
-                <div class='order-item-cell center'>
-                    <div style='display: flex; gap: 6px; justify-content: center; align-items: center;'>
-                        <!-- Tombol Cetak Struk -->
-                        <button class='print-item-btn' data-drop-id='<?= $drop_id ?>' 
-                            title='Cetak Struk Pesanan Ini'
-                            style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
-                                   color: white; border: none; padding: 6px 10px; 
-                                   border-radius: 6px; cursor: pointer; 
-                                   font-size: 11px; font-weight: 600;
-                                   display: flex; align-items: center; gap: 4px;
-                                   transition: all 0.3s ease;'>
-                            🖨️ Cetak
+                    <div class='action-buttons-wrapper'>
+                        <!-- Tombol Cetak (Icon Only) -->
+                        <button class='print-item-btn' 
+                                data-drop-id='<?= $drop_id ?>' 
+                                title='Cetak Struk Pesanan Ini'>
+                            🖨️
                         </button>
                         
-                        <!-- Tombol Hapus -->
-                        <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
-                            data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' 
-                            <?= $is_completed ? 'disabled' : '' ?>
-                            style='background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
-                                   color: white; border: none; padding: 6px 10px; 
-                                   border-radius: 6px; cursor: pointer;
-                                   display: flex; align-items: center; justify-content: center;
-                                   transition: all 0.3s ease;'>
-                            <img src='../a/svg/trash.svg' alt='Hapus' 
-                                style='width: 14px; height: 14px; filter: brightness(0) invert(1);'>
+                        <!-- Tombol Hapus (Icon Only) -->
+                        <button class='delete-item-btn' 
+                                data-item-id='<?= $id_item ?>' 
+                                data-drop-id='<?= $drop_id ?>'
+                                data-customer-id='<?= $customer_id ?>' 
+                                title='Hapus Item Ini' 
+                                <?= $is_completed ? 'disabled' : '' ?>>
+                            <img src='../a/svg/trash.svg' alt='Hapus'>
                         </button>
                     </div>
                 </div>
+                
             </div>
 
             <?php if ($is_completed): ?>
