@@ -1,0 +1,10 @@
+[07-Dec-2025 08:27:39 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:203
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(203): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 203
+[07-Dec-2025 09:50:09 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:203
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(203): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 203
