@@ -120,7 +120,7 @@ include_once "../partials/header-lp.php";
   </p>
 </section>
 
-<section class="karyawan-section" id="karyawan">
+<!-- <section class="karyawan-section" id="karyawan">
   <h2>Employee</h2>
   <div class="divider-emp"></div>
   <div class="kotak-wrapper">
@@ -219,7 +219,7 @@ include_once "../partials/header-lp.php";
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 <section class="journey-section">
   <h2>Follow Our Journey</h2>

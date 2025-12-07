@@ -189,7 +189,7 @@
       <nav class="nav-right">
         <a href="#heroSection" class="active">HOME</a>
         <a href="#about">ABOUT</a>
-        <a href="#karyawan">EMPLOYEE</a>
+        <!-- <a href="#karyawan">EMPLOYEE</a> -->
         <a href="#service">SERVICE</a>
         <a href="#care">CARE</a>
         <a href="#member">MEMBER</a>
@@ -207,7 +207,7 @@
   <nav class="nav-mobile" id="navMobile">
     <a href="#heroSection">HOME</a>
     <a href="#about">ABOUT</a>
-    <a href="#karyawan">EMPLOYEE</a>
+    <!-- <a href="#karyawan">EMPLOYEE</a> -->
     <a href="#service">SERVICE</a>
     <a href="#care">CARE</a>
     <a href="#member">MEMBER</a>
