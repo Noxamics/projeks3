@@ -1,4 +1,4 @@
-<!-- File: /modal/drop/modal_add.php - FIXED FINAL v2 -->
+<!-- File: /modal/drop/modal_add.php - AUTO KASIR VERSION -->
 <div class="modal" id="addModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="addModal">&times;</span>
@@ -78,10 +78,8 @@
 
                         <div>
                             <label>📆 Tanggal Estimasi Selesai</label>
-                            <!-- Display field (readonly) -->
                             <input type="text" class="item-est-date-display" readonly value="-"
                                 style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
-                            <!-- Hidden field untuk kirim ke server -->
                             <input type="hidden" name="items[1][est_finish_date]" class="item-est-date-hidden" value="">
                         </div>
 
@@ -184,26 +182,60 @@
                         <input type="hidden" name="amount_paid" id="amount_paid">
                     </div>
 
+                    <!-- KARYAWAN SECTION - AUTO KASIR ONLY -->
                     <div style="grid-column: 1 / -1;">
-                        <label>👷 Karyawan</label>
+                        <label>👷 Karyawan (Kasir)</label>
                         <?php
-                        $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
-                        $employeeCount = $activeEmployees->num_rows;
+                        // Query untuk mendapatkan karyawan dengan role kasir yang aktif
+                        $kasirQuery = "
+                            SELECT DISTINCT e.id_employee, e.name, e.employee_code 
+                            FROM employees e
+                            INNER JOIN employee_roles er ON e.id_employee = er.employee_id
+                            WHERE e.status = 'Aktif' 
+                            AND er.role_type = 'kasir'
+                            ORDER BY e.name ASC
+                        ";
 
-                        if ($employeeCount === 0) {
-                            echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
-                        } elseif ($employeeCount === 1) {
-                            $emp = $activeEmployees->fetch_assoc();
-                            echo "<input type='hidden' name='employee_id' value='{$emp['id_employee']}'>
-                                  <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>";
+                        $kasirEmployees = $conn->query($kasirQuery);
+                        $kasirCount = $kasirEmployees->num_rows;
+
+                        if ($kasirCount === 0) {
+                            // Tidak ada kasir aktif
+                            echo "<div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
+                                    ⚠️ <strong>Tidak ada kasir aktif.</strong><br>
+                                    <span style='font-size: 13px;'>Pastikan ada karyawan yang sudah check-in hari ini.</span>
+                                  </div>";
+                            echo "<input type='hidden' name='employee_id' value=''>";
+
+                        } elseif ($kasirCount === 1) {
+                            // Hanya 1 kasir - auto select
+                            $kasir = $kasirEmployees->fetch_assoc();
+                            echo "<input type='hidden' name='employee_id' value='{$kasir['id_employee']}'>
+                                  <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
+                                        <span style='font-size: 24px;'>👤</span>
+                                        <div>
+                                            <div style='font-weight: 600; color: #15803d; font-size: 15px;'>{$kasir['name']}</div>
+                                            <div style='font-size: 12px; color: #16a34a;'>Kode: {$kasir['employee_code']} | Role: Kasir</div>
+                                        </div>
+                                        <div style='margin-left: auto; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;'>
+                                            AKTIF
+                                        </div>
+                                    </div>
+                                  </div>";
+
                         } else {
-                            echo "<select name='employee_id' required>
-                                <option value=''>-- Pilih Karyawan --</option>";
-                            $activeEmployees->data_seek(0);
-                            while ($emp = $activeEmployees->fetch_assoc()) {
-                                echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
+                            // Multiple kasir - show dropdown
+                            echo "<select name='employee_id' required style='padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;'>
+                                    <option value=''>-- Pilih Kasir --</option>";
+                            $kasirEmployees->data_seek(0); // Reset pointer
+                            while ($kasir = $kasirEmployees->fetch_assoc()) {
+                                echo "<option value='{$kasir['id_employee']}'>{$kasir['name']} ({$kasir['employee_code']})</option>";
                             }
                             echo "</select>";
+                            echo "<p style='margin: 8px 0 0 0; font-size: 12px; color: #64748b;'>
+                                    ℹ️ Menampilkan karyawan dengan role kasir yang sedang aktif
+                                  </p>";
                         }
                         ?>
                     </div>

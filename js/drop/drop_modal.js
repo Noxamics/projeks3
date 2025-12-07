@@ -1,4 +1,4 @@
-// File: /js/drop/drop_modal.js - FIXED VERSION with correct print path
+// File: /js/drop/drop_modal.js - ENHANCED WITH EMPLOYEE VALIDATION
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop modal module loaded");
 
@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ===== DATE HELPER FUNCTIONS =====
 
-  /**
-   * Format date object to DD/MM/YYYY string
-   */
   function formatDateToDDMMYYYY(date) {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, "0");
@@ -17,18 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${day}/${month}/${year}`;
   }
 
-  /**
-   * Add days to a date (expects YYYY-MM-DD) and return DD/MM/YYYY
-   */
   function addDaysToDate(dateStr, days) {
     const d = new Date(dateStr);
     d.setDate(d.getDate() + days);
     return formatDateToDDMMYYYY(d);
   }
 
-  /**
-   * Compare two DD/MM/YYYY dates
-   */
   function compareDDMMYYYY(date1, date2) {
     const d1 = date1.split("/");
     const d2 = date2.split("/");
@@ -37,8 +28,27 @@ document.addEventListener("DOMContentLoaded", function () {
     return dateObj1 - dateObj2;
   }
 
-  // ===== VALIDATION =====
+  // ===== VALIDATION WITH EMPLOYEE CHECK =====
   function validateForm() {
+    // Check if there's a valid employee selected
+    const employeeInput = document.querySelector('input[name="employee_id"]');
+    const employeeSelect = document.querySelector('select[name="employee_id"]');
+
+    let hasValidEmployee = false;
+
+    if (employeeInput && employeeInput.value) {
+      hasValidEmployee = true;
+    } else if (employeeSelect && employeeSelect.value) {
+      hasValidEmployee = true;
+    }
+
+    if (!hasValidEmployee) {
+      alert(
+        "❌ Tidak ada karyawan kasir yang aktif!\n\nPastikan ada karyawan yang sudah check-in hari ini sebelum menambah pesanan."
+      );
+      return false;
+    }
+
     const items = document.querySelectorAll(".item-group");
 
     for (let i = 0; i < items.length; i++) {
@@ -179,24 +189,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const price = parseFloat(selectedOption.dataset.price || 0);
       const duration = parseInt(selectedOption.dataset.duration || 0);
 
-      // Update price
       priceDisplay.value = `Rp ${price.toLocaleString("id-ID")}`;
       priceHidden.value = price;
 
-      // Update duration
       estimateDisplay.value = `${duration} Hari`;
       durationHidden.value = duration;
 
-      // Calculate estimated finish date
       if (transDateInput && transDateInput.value) {
         const estDateDDMMYYYY = addDaysToDate(transDateInput.value, duration);
 
-        // Update display (DD/MM/YYYY)
         if (estDateDisplay) {
           estDateDisplay.value = estDateDDMMYYYY;
         }
 
-        // Update hidden (DD/MM/YYYY - PHP akan convert)
         if (estDateHidden) {
           estDateHidden.value = estDateDDMMYYYY;
         }
@@ -208,7 +213,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       calculateOrderSummary();
     } else {
-      // Reset
       priceDisplay.value = "Rp 0";
       priceHidden.value = "0";
       estimateDisplay.value = "-";
@@ -254,7 +258,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Update UI
     const totalPriceInput = document.getElementById("totalPrice");
     if (totalPriceInput) totalPriceInput.value = totalAmount;
 
@@ -477,7 +480,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`  ${key}: ${value}`);
       }
 
-      // FIXED PATH
       fetch("../actions/drop/drop_add.php", {
         method: "POST",
         body: formData,
@@ -504,7 +506,6 @@ document.addEventListener("DOMContentLoaded", function () {
           if (data.success && data.drop_id) {
             console.log("✅ Success! Drop ID:", data.drop_id);
 
-            // Close modal immediately
             if (typeof hideModal === "function") {
               hideModal("addModal");
             } else {
@@ -515,7 +516,6 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            // 🔧 FIXED: Open print window with correct path
             const baseUrl = window.location.origin + "/PROJEKS3";
             window.open(
               `${baseUrl}/actions/drop/cetak_struk.php?id=${data.drop_id}`,
@@ -523,14 +523,12 @@ document.addEventListener("DOMContentLoaded", function () {
               "width=800,height=900,scrollbars=yes"
             );
 
-            // Show success and reload
             sessionStorage.setItem("showSuccess", "true");
             sessionStorage.setItem(
               "successMessage",
               `✅ Pesanan ${data.order_code} berhasil ditambahkan!`
             );
 
-            // Reload immediately
             setTimeout(() => {
               window.location.reload();
             }, 300);
@@ -566,7 +564,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const formData = new FormData(form);
 
-      // FIXED PATH
       fetch("../actions/drop/drop_add.php", {
         method: "POST",
         body: formData,
@@ -593,7 +590,6 @@ document.addEventListener("DOMContentLoaded", function () {
           if (data.success) {
             console.log("✅ Success! Reloading...");
 
-            // Close modal immediately
             if (typeof hideModal === "function") {
               hideModal("addModal");
             } else {
@@ -604,14 +600,12 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            // Show success and reload
             sessionStorage.setItem("showSuccess", "true");
             sessionStorage.setItem(
               "successMessage",
               `✅ Pesanan ${data.order_code || ""} berhasil ditambahkan!`
             );
 
-            // Reload immediately
             setTimeout(() => {
               window.location.reload();
             }, 300);

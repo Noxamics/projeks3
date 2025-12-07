@@ -1,12 +1,11 @@
 <?php
 // File: /actions/drop/drop_add.php
-// Handle adding new drop order with multiple items - FIXED VERSION
+// Handle adding new drop order with multiple items - FIXED STMT CLOSE ERROR
 
 // ===== SETUP =====
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../../error.log');
 
 session_start();
 
@@ -33,15 +32,6 @@ if (!isset($conn) || !$conn) {
     ]);
     exit;
 }
-
-// ===== CHECK LOGIN (OPTIONAL - comment jika tidak pakai login) =====
-// if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
-//     echo json_encode([
-//         'success' => false,
-//         'message' => 'Unauthorized access - Please login first'
-//     ]);
-//     exit;
-// }
 
 // ===== VALIDATE REQUEST METHOD =====
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -92,21 +82,25 @@ try {
         $customer = $result->fetch_assoc();
         $customer_id = $customer['id_customer'];
         $stmt->close();
+        $stmt = null; // Mark as closed
 
         // Update name if different
-        $stmt = $conn->prepare("UPDATE customers SET name = ? WHERE id_customer = ?");
-        $stmt->bind_param("si", $customer_name, $customer_id);
-        $stmt->execute();
-        $stmt->close();
+        $stmt2 = $conn->prepare("UPDATE customers SET name = ? WHERE id_customer = ?");
+        $stmt2->bind_param("si", $customer_name, $customer_id);
+        $stmt2->execute();
+        $stmt2->close();
+        $stmt2 = null;
     } else {
         $stmt->close();
+        $stmt = null; // Mark as closed
 
         // Create new customer
-        $stmt = $conn->prepare("INSERT INTO customers (name, phone) VALUES (?, ?)");
-        $stmt->bind_param("ss", $customer_name, $phone_number);
-        $stmt->execute();
+        $stmt3 = $conn->prepare("INSERT INTO customers (name, phone) VALUES (?, ?)");
+        $stmt3->bind_param("ss", $customer_name, $phone_number);
+        $stmt3->execute();
         $customer_id = $conn->insert_id;
-        $stmt->close();
+        $stmt3->close();
+        $stmt3 = null;
 
         if (!$customer_id) {
             throw new Exception("Gagal membuat customer baru");
@@ -146,40 +140,42 @@ try {
         $est_finish_date = $date->format('Y-m-d');
     }
 
-    // Generate unique order code with timestamp to prevent duplicates
+    // Generate unique order code
     $date_code = date('ym');
     $timestamp = time();
     $random = mt_rand(100, 999);
 
-    // Try to get max number for nice sequential codes
-    $stmt = $conn->prepare("SELECT MAX(CAST(SUBSTRING(order_code, 8) AS UNSIGNED)) as max_num FROM drops WHERE order_code LIKE ?");
+    // Try to get max number for sequential codes
+    $stmt4 = $conn->prepare("SELECT MAX(CAST(SUBSTRING(order_code, 8) AS UNSIGNED)) as max_num FROM drops WHERE order_code LIKE ?");
     $pattern = "ORD{$date_code}-%";
-    $stmt->bind_param("s", $pattern);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $next_num = ($row['max_num'] ?? 0) + 1;
-    $stmt->close();
+    $stmt4->bind_param("s", $pattern);
+    $stmt4->execute();
+    $result4 = $stmt4->get_result();
+    $row4 = $result4->fetch_assoc();
+    $next_num = ($row4['max_num'] ?? 0) + 1;
+    $stmt4->close();
+    $stmt4 = null;
 
-    // Create order code with fallback to timestamp if duplicate
+    // Create order code with fallback
     $order_code = sprintf("ORD%s-%04d", $date_code, $next_num);
 
-    // Check if order code already exists
-    $stmt = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
-    $stmt->bind_param("s", $order_code);
-    $stmt->execute();
-    $check_result = $stmt->get_result();
+    // Check if order code exists
+    $stmt5 = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
+    $stmt5->bind_param("s", $order_code);
+    $stmt5->execute();
+    $check_result5 = $stmt5->get_result();
 
     // If duplicate, use timestamp-based code
-    if ($check_result->num_rows > 0) {
+    if ($check_result5->num_rows > 0) {
         $order_code = sprintf("ORD%s-%d%03d", $date_code, $timestamp % 100000, $random);
     }
-    $stmt->close();
+    $stmt5->close();
+    $stmt5 = null;
 
     // === 3. INSERT DROP ORDER ===
     $total_items = count($items);
 
-    $stmt = $conn->prepare("
+    $stmt6 = $conn->prepare("
         INSERT INTO drops (
             order_code,
             customer_id, 
@@ -195,11 +191,11 @@ try {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     ");
 
-    if (!$stmt) {
+    if (!$stmt6) {
         throw new Exception("Database error: " . $conn->error);
     }
 
-    $stmt->bind_param(
+    $stmt6->bind_param(
         "siiissssis",
         $order_code,
         $customer_id,
@@ -213,12 +209,13 @@ try {
         $note
     );
 
-    if (!$stmt->execute()) {
-        throw new Exception("Gagal menyimpan pesanan: " . $stmt->error);
+    if (!$stmt6->execute()) {
+        throw new Exception("Gagal menyimpan pesanan: " . $stmt6->error);
     }
 
     $drop_id = $conn->insert_id;
-    $stmt->close();
+    $stmt6->close();
+    $stmt6 = null;
 
     if (!$drop_id) {
         throw new Exception('Gagal mendapatkan ID pesanan');
@@ -234,7 +231,7 @@ try {
         $status_id = intval($item['status_id']);
         $item_notes = trim($item['notes'] ?? '');
 
-        $stmt = $conn->prepare("
+        $stmt7 = $conn->prepare("
             INSERT INTO drop_items (
                 drop_id,
                 brand,
@@ -247,11 +244,11 @@ try {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
-        if (!$stmt) {
+        if (!$stmt7) {
             throw new Exception("Database error: " . $conn->error);
         }
 
-        $stmt->bind_param(
+        $stmt7->bind_param(
             "isidisi",
             $drop_id,
             $brand,
@@ -262,16 +259,17 @@ try {
             $item_order
         );
 
-        if (!$stmt->execute()) {
-            throw new Exception("Gagal menyimpan item: " . $stmt->error);
+        if (!$stmt7->execute()) {
+            throw new Exception("Gagal menyimpan item: " . $stmt7->error);
         }
 
-        $stmt->close();
+        $stmt7->close();
+        $stmt7 = null;
         $item_order++;
     }
 
     // === 5. INSERT PAYMENT ===
-    $stmt = $conn->prepare("
+    $stmt8 = $conn->prepare("
         INSERT INTO payments (
             drop_id,
             amount_paid,
@@ -282,11 +280,11 @@ try {
         ) VALUES (?, ?, ?, ?, ?, NOW())
     ");
 
-    if (!$stmt) {
+    if (!$stmt8) {
         throw new Exception("Database error: " . $conn->error);
     }
 
-    $stmt->bind_param(
+    $stmt8->bind_param(
         "idsss",
         $drop_id,
         $amount_paid,
@@ -295,15 +293,15 @@ try {
         $payment_status
     );
 
-    $stmt->execute();
-    $stmt->close();
+    $stmt8->execute();
+    $stmt8->close();
+    $stmt8 = null;
 
     // === 6. INSERT DEADLINE ===
     if ($est_finish_date) {
-        // Get first item status
         $first_status_id = intval($first_item['status_id']);
 
-        $stmt = $conn->prepare("
+        $stmt9 = $conn->prepare("
             INSERT INTO deadlines (
                 drop_id,
                 deadline_date,
@@ -312,13 +310,14 @@ try {
             ) VALUES (?, ?, ?, NOW())
         ");
 
-        if (!$stmt) {
+        if (!$stmt9) {
             throw new Exception("Database error: " . $conn->error);
         }
 
-        $stmt->bind_param("isi", $drop_id, $est_finish_date, $first_status_id);
-        $stmt->execute();
-        $stmt->close();
+        $stmt9->bind_param("isi", $drop_id, $est_finish_date, $first_status_id);
+        $stmt9->execute();
+        $stmt9->close();
+        $stmt9 = null;
     }
 
     // === 7. COMMIT TRANSACTION ===
@@ -349,11 +348,8 @@ try {
     ]);
 
 } finally {
-    if (isset($stmt)) {
-        $stmt->close();
-    }
-    if (isset($conn)) {
+    // Close connection only (stmt sudah di-close per section)
+    if (isset($conn) && $conn instanceof mysqli) {
         $conn->close();
     }
 }
-?>

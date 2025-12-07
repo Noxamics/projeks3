@@ -1,4 +1,4 @@
-<!-- File: /modal/drop/modal_edit_item.php -->
+<!-- File: /modal/drop/modal_edit_item.php - ACTIVE EMPLOYEES VERSION -->
 <div class="modal" id="editModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="editModal">&times;</span>
@@ -111,26 +111,61 @@
                         <input type="hidden" name="amount_paid" id="edit_amount_paid">
                     </div>
 
+                    <!-- KARYAWAN SECTION - ACTIVE EMPLOYEES DROPDOWN -->
                     <div style="grid-column: 1 / -1;">
-                        <label>👷 Karyawan</label>
+                        <label>👷 Karyawan yang Menangani</label>
                         <?php
-                        $activeEmployees = $conn->query("SELECT id_employee, name FROM employees WHERE status = 'Aktif'");
-                        $employeeCount = $activeEmployees->num_rows;
+                        // Query untuk mendapatkan SEMUA karyawan yang aktif (tidak hanya kasir)
+                        $activeEmployeesQuery = "
+                            SELECT id_employee, name, employee_code, status
+                            FROM employees 
+                            WHERE status = 'Aktif'
+                            ORDER BY name ASC
+                        ";
 
-                        if ($employeeCount === 0) {
-                            echo "<input type='text' value='Tidak ada karyawan aktif' readonly style='background:#f9f9f9; color:#888;'>";
-                        } elseif ($employeeCount === 1) {
+                        $activeEmployees = $conn->query($activeEmployeesQuery);
+                        $activeEmployeeCount = $activeEmployees->num_rows;
+
+                        if ($activeEmployeeCount === 0) {
+                            // Tidak ada karyawan aktif
+                            echo "<div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
+                                    ⚠️ <strong>Tidak ada karyawan aktif.</strong><br>
+                                    <span style='font-size: 13px;'>Tidak dapat mengubah karyawan saat tidak ada yang aktif.</span>
+                                  </div>";
+                            echo "<input type='hidden' name='employee_id' id='edit_employee_id' value=''>";
+
+                        } elseif ($activeEmployeeCount === 1) {
+                            // Hanya 1 karyawan aktif - auto select
                             $emp = $activeEmployees->fetch_assoc();
                             echo "<input type='hidden' name='employee_id' id='edit_employee_id' value='{$emp['id_employee']}'>
-                                  <input type='text' value='{$emp['name']}' readonly style='background:#f9f9f9;'>";
+                                  <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
+                                        <span style='font-size: 24px;'>👤</span>
+                                        <div>
+                                            <div style='font-weight: 600; color: #15803d; font-size: 15px;'>{$emp['name']}</div>
+                                            <div style='font-size: 12px; color: #16a34a;'>Kode: {$emp['employee_code']}</div>
+                                        </div>
+                                        <div style='margin-left: auto; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;'>
+                                            AKTIF
+                                        </div>
+                                    </div>
+                                  </div>";
+
                         } else {
-                            echo "<select name='employee_id' id='edit_employee_id' required>
-                                <option value=''>-- Pilih Karyawan --</option>";
-                            $activeEmployees->data_seek(0);
+                            // Multiple karyawan aktif - show dropdown
+                            echo "<select name='employee_id' id='edit_employee_id' required 
+                                    style='padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;'>
+                                    <option value=''>-- Pilih Karyawan --</option>";
+
+                            $activeEmployees->data_seek(0); // Reset pointer
                             while ($emp = $activeEmployees->fetch_assoc()) {
-                                echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
+                                echo "<option value='{$emp['id_employee']}'>{$emp['name']} ({$emp['employee_code']})</option>";
                             }
+
                             echo "</select>";
+                            echo "<p style='margin: 8px 0 0 0; font-size: 12px; color: #64748b;'>
+                                    ℹ️ Menampilkan semua karyawan yang sedang aktif (sudah check-in)
+                                  </p>";
                         }
                         ?>
                     </div>

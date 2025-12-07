@@ -1,19 +1,18 @@
 // ================================================
-// Attendance Modal Handler
+// Attendance Modal Handler - FIXED VERSION
 // File: js/karyawan/attendance.js
+// LOGIC: Status-aware section display
 // ================================================
 
-// Clock interval variable (declare once)
 let clockInterval = null;
 
 // Start real-time clock
 function startClock() {
-  // Clear existing interval if any
   if (clockInterval) {
     clearInterval(clockInterval);
   }
 
-  updateClock(); // Update immediately
+  updateClock();
   clockInterval = setInterval(updateClock, 1000);
 }
 
@@ -21,7 +20,6 @@ function startClock() {
 function updateClock() {
   const now = new Date();
 
-  // Format date: Senin, 03 Desember 2024
   const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   const months = [
     "Januari",
@@ -45,14 +43,12 @@ function updateClock() {
 
   const dateStr = `${dayName}, ${date} ${month} ${year}`;
 
-  // Format time: HH:MM:SS
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
   const seconds = String(now.getSeconds()).padStart(2, "0");
 
   const timeStr = `${hours}:${minutes}:${seconds}`;
 
-  // Update DOM
   const dateEl = document.getElementById("current_date");
   const timeEl = document.getElementById("current_time");
 
@@ -117,10 +113,8 @@ function populateRoleDropdown(employee) {
   const roleSelect = document.getElementById("checkin_role");
   if (!roleSelect) return;
 
-  // Clear existing options except the first one
   roleSelect.innerHTML = '<option value="">-- Pilih Role --</option>';
 
-  // Get roles from employee data
   const roles = employee.roles ? employee.roles.split(",") : [];
 
   if (roles.length > 0) {
@@ -134,7 +128,6 @@ function populateRoleDropdown(employee) {
       roleSelect.appendChild(option);
     });
   } else {
-    // Fallback jika tidak ada role
     const option = document.createElement("option");
     option.value = "cleaning";
     option.textContent = "Cleaning";
@@ -142,7 +135,7 @@ function populateRoleDropdown(employee) {
   }
 }
 
-// Check if employee has checked in today
+// Check attendance status - FIXED LOGIC
 async function checkAttendanceStatus(employeeId) {
   try {
     const response = await fetch("../actions/attendance/check_status.php", {
@@ -152,22 +145,35 @@ async function checkAttendanceStatus(employeeId) {
     });
 
     const data = await response.json();
+    console.log("Attendance status:", data);
 
-    if (data.hasCheckedIn) {
-      // Show checkout section
+    // LOGIC DECISION:
+    // 1. If status = 'Aktif' AND hasCheckedIn = true AND hasCheckedOut = false => SHOW CHECKOUT
+    // 2. Otherwise => SHOW CHECKIN
+
+    if (
+      data.currentStatus === "Aktif" &&
+      data.hasCheckedIn &&
+      !data.hasCheckedOut
+    ) {
+      // Employee is ACTIVE - show checkout section
+      console.log("Employee is ACTIVE - showing checkout section");
       document.getElementById("checkin-section").style.display = "none";
       document.getElementById("checkout-section").style.display = "block";
 
       // Update summary
-      updateWorkSummary(data.summary);
+      if (data.summary) {
+        updateWorkSummary(data.summary);
+      }
     } else {
-      // Show checkin section
+      // Employee is NOT active or hasn't checked in - show checkin section
+      console.log("Employee is NOT ACTIVE - showing checkin section");
       document.getElementById("checkin-section").style.display = "block";
       document.getElementById("checkout-section").style.display = "none";
     }
   } catch (error) {
     console.error("Error checking attendance:", error);
-    // Default to checkin
+    // Default to checkin on error
     document.getElementById("checkin-section").style.display = "block";
     document.getElementById("checkout-section").style.display = "none";
   }
@@ -193,10 +199,8 @@ function closeAttendanceModal() {
     modal.style.display = "none";
     document.body.style.overflow = "";
 
-    // Stop clock
     stopClock();
 
-    // Reset forms
     document.getElementById("formCheckIn").reset();
     document.getElementById("formCheckOut").reset();
   }
@@ -229,7 +233,6 @@ document.addEventListener("DOMContentLoaded", function () {
           showNotification("success", "Check In Berhasil!", data.message);
           closeAttendanceModal();
 
-          // Refresh page after 1 second
           setTimeout(() => {
             window.location.reload();
           }, 1000);
@@ -273,7 +276,6 @@ document.addEventListener("DOMContentLoaded", function () {
           showNotification("success", "Check Out Berhasil!", data.message);
           closeAttendanceModal();
 
-          // Refresh page after 1 second
           setTimeout(() => {
             window.location.reload();
           }, 1000);
