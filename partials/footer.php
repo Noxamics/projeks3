@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="../css/footer.css">
 <footer class="footer">
   <p>&copy; <?php echo date('Y'); ?> Sengkuclean - All rights reserved.</p>
 </footer>
