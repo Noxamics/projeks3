@@ -1,8 +1,8 @@
-<!-- File: /modal/drop/modal_edit_item.php - ACTIVE EMPLOYEES VERSION -->
+<!-- File: /modal/drop/modal_edit_item.php - Bootstrap Icons VERSION -->
 <div class="modal" id="editModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="editModal">&times;</span>
-        <h2>✏️ Edit Pesanan</h2>
+        <h2><i class="bi bi-pencil-square"></i> Edit Pesanan</h2>
 
         <form method="POST" action="../actions/drop/drop_edit.php" class="grid-form" id="editForm">
             <input type="hidden" name="drop_id" id="edit_drop_id">
@@ -11,7 +11,7 @@
             <!-- Customer Info Section (NOW EDITABLE) -->
             <div class="customer-info-section" style="grid-column: 1 / -1;">
                 <h3 style="margin: 0 0 16px 0; color: #b45309; font-size: 16px; font-weight: 700;">
-                    👤 Informasi Pelanggan
+                    <i class="bi bi-person-circle"></i> Informasi Pelanggan
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
@@ -26,7 +26,8 @@
                     </div>
                 </div>
                 <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">
-                    ℹ️ Perubahan nomor HP akan membuat customer baru jika nomor belum terdaftar
+                    <i class="bi bi-info-circle"></i> Perubahan nomor HP akan membuat customer baru jika nomor belum
+                    terdaftar
                 </p>
             </div>
 
@@ -39,14 +40,15 @@
             <div style="grid-column: 1 / -1; text-align: center; margin: 20px 0;">
                 <button type="button" id="editAddItemBtn"
                     style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                    ➕ Tambah Barang
+                    <i class="bi bi-plus-circle"></i> Tambah Barang
                 </button>
             </div>
 
             <!-- Order Summary Section -->
             <div class="order-summary" style="grid-column: 1 / -1;">
-                <h3 style="margin: 0 0 16px 0; color: #0369a1; font-size: 16px; font-weight: 700;">📋 Ringkasan
-                    Pesanan</h3>
+                <h3 style="margin: 0 0 16px 0; color: #0369a1; font-size: 16px; font-weight: 700;">
+                    <i class="bi bi-clipboard-check"></i> Ringkasan Pesanan
+                </h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                     <div>
                         <label>Total Item</label>
@@ -75,8 +77,9 @@
 
             <!-- Payment & Employee Section -->
             <div class="payment-section" style="grid-column: 1 / -1;">
-                <h3 style="margin: 0 0 16px 0; color: #7c3aed; font-size: 16px; font-weight: 700;">💳 Informasi
-                    Pembayaran</h3>
+                <h3 style="margin: 0 0 16px 0; color: #7c3aed; font-size: 16px; font-weight: 700;">
+                    <i class="bi bi-credit-card"></i> Informasi Pembayaran
+                </h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                     <div>
                         <label>Status Pembayaran</label>
@@ -97,11 +100,11 @@
                     <div>
                         <label>Metode Pembayaran</label>
                         <select name="payment_method" id="edit_payment_method" required>
-                            <option value="Tunai">💵 Tunai</option>
-                            <option value="Transfer">🏦 Transfer</option>
-                            <option value="QRIS">📱 QRIS</option>
-                            <option value="Debit">💳 Debit</option>
-                            <option value="Credit">💳 Credit</option>
+                            <option value="Tunai">Tunai</option>
+                            <option value="Transfer">Transfer</option>
+                            <option value="QRIS">QRIS</option>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
                         </select>
                     </div>
 
@@ -113,7 +116,7 @@
 
                     <!-- KARYAWAN SECTION - ACTIVE EMPLOYEES DROPDOWN -->
                     <div style="grid-column: 1 / -1;">
-                        <label>👷 Karyawan yang Menangani</label>
+                        <label><i class="bi bi-person-badge"></i> Karyawan yang Menangani</label>
                         <?php
                         // Query untuk mendapatkan SEMUA karyawan yang aktif (tidak hanya kasir)
                         $activeEmployeesQuery = "
@@ -129,7 +132,7 @@
                         if ($activeEmployeeCount === 0) {
                             // Tidak ada karyawan aktif
                             echo "<div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
-                                    ⚠️ <strong>Tidak ada karyawan aktif.</strong><br>
+                                    <i class='bi bi-exclamation-triangle'></i> <strong>Tidak ada karyawan aktif.</strong><br>
                                     <span style='font-size: 13px;'>Tidak dapat mengubah karyawan saat tidak ada yang aktif.</span>
                                   </div>";
                             echo "<input type='hidden' name='employee_id' id='edit_employee_id' value=''>";
@@ -140,7 +143,7 @@
                             echo "<input type='hidden' name='employee_id' id='edit_employee_id' value='{$emp['id_employee']}'>
                                   <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
                                     <div style='display: flex; align-items: center; gap: 10px;'>
-                                        <span style='font-size: 24px;'>👤</span>
+                                        <i class='bi bi-person-circle' style='font-size: 24px; color: #15803d;'></i>
                                         <div>
                                             <div style='font-weight: 600; color: #15803d; font-size: 15px;'>{$emp['name']}</div>
                                             <div style='font-size: 12px; color: #16a34a;'>Kode: {$emp['employee_code']}</div>
@@ -164,7 +167,7 @@
 
                             echo "</select>";
                             echo "<p style='margin: 8px 0 0 0; font-size: 12px; color: #64748b;'>
-                                    ℹ️ Menampilkan semua karyawan yang sedang aktif (sudah check-in)
+                                    <i class='bi bi-info-circle'></i> Menampilkan semua karyawan yang sedang aktif (sudah check-in)
                                   </p>";
                         }
                         ?>
@@ -173,17 +176,20 @@
             </div>
 
             <div class="full-width">
-                <label>📝 Catatan Umum Pesanan</label>
+                <label><i class="bi bi-pencil-square"></i> Catatan Umum Pesanan</label>
                 <textarea name="note" id="edit_note" rows="2" placeholder="Catatan umum untuk seluruh pesanan..."
                     style="width:100%; padding:12px; border-radius:8px; border:2px solid #e2e8f0; resize: vertical;"></textarea>
             </div>
 
             <div class="full-width">
                 <div class="button-container">
-                    <button type="submit" class="save-btn" id="editSaveOnlyBtn">💾 Simpan Perubahan</button>
+                    <button type="submit" class="save-btn" id="editSaveOnlyBtn">
+                        <i class="bi bi-save"></i> Simpan Perubahan
+                    </button>
                     <button type="button" class="print-btn save-and-print" id="editSaveAndPrintBtn"
-                        style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">🖨️ Simpan &
-                        Cetak</button>
+                        style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                        <i class="bi bi-printer"></i> Simpan & Cetak
+                    </button>
                 </div>
             </div>
         </form>

@@ -331,7 +331,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                         <?php endif; ?>
                         <select id="sort" name="sort" class="filter-select"
                             onchange="document.getElementById('filterForm').submit()">
-                            <option value="" disabled selected hidden>🔍 Filter Data</option>
+                            <option value="" disabled selected hidden>Filter Data</option>
                             <option value="nama_asc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_asc') ? 'selected' : '' ?>>Nama (A-Z)</option>
                             <option value="nama_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_desc') ? 'selected' : '' ?>>Nama (Z-A)</option>
                             <option value="tanggal_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'tanggal_desc') ? 'selected' : '' ?>>Tanggal Terbaru</option>
@@ -340,11 +340,11 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                     </form>
 
                     <button class="print-btn" id="printSelectedBtn" title="Cetak Struk Terpilih">
-                        🖨️ Cetak Struk
+                        Cetak Struk
                     </button>
 
                     <button class="delete-btn" id="deleteBtn" title="Hapus Data Terpilih">
-                        <img src="../a/svg/trash.svg" alt="Hapus" class="delete-icon">
+
                         Hapus
                     </button>
                 </div>
@@ -354,12 +354,10 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
             <div class="stats-bar">
                 <div class="stats-badges">
                     <div class="stat-badge stat-active">
-                        <span class="stat-icon">📋</span>
                         <span class="stat-number"><?= $active_count ?></span>
                         <span class="stat-label">Aktif</span>
                     </div>
                     <div class="stat-badge stat-completed">
-                        <span class="stat-icon">✓</span>
                         <span class="stat-number"><?= $completed_count ?></span>
                         <span class="stat-label">Selesai</span>
                     </div>
