@@ -191,7 +191,7 @@ $customerId = $userData['id'];
 
         <!-- ✅ FIXED: PROGRES PENGERJAAN SEPATU menggunakan drop_items.status_id -->
         <div class="progress-section">
-            <h2>Progres Pengerjaan Sepatu Anda</h2>
+            <h2>Progres Pengerjaan Pesanan Anda</h2>
 
             <?php
             // Query progress dari drop_items dengan subquery untuk deadline
