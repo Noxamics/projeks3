@@ -7,12 +7,12 @@
   <title>Sengkuclean</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../a/img/Logo.png">
-  
+
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <link rel="stylesheet" href="../css/style.css">
-  
+
   <style>
     /* ===== REMOVE TAP HIGHLIGHT ===== */
     * {
@@ -189,7 +189,7 @@
       <nav class="nav-right">
         <a href="#heroSection" class="active">HOME</a>
         <a href="#about">ABOUT</a>
-        <a href="#karyawan">EMPLOYEE</a>
+        <!-- <a href="#karyawan">EMPLOYEE</a> -->
         <a href="#service">SERVICE</a>
         <a href="#care">CARE</a>
         <a href="#member">MEMBER</a>
@@ -207,15 +207,16 @@
   <nav class="nav-mobile" id="navMobile">
     <a href="#heroSection">HOME</a>
     <a href="#about">ABOUT</a>
-    <a href="#karyawan">EMPLOYEE</a>
+    <!--<a href="#karyawan">EMPLOYEE</a>-->
     <a href="#service">SERVICE</a>
     <a href="#care">CARE</a>
     <a href="#member">MEMBER</a>
-    
+
     <div class="catalog-link">
       <a href="catalog.php">CATALOG</a>
     </div>
   </nav>
 
 </body>
+
 </html>

@@ -304,7 +304,7 @@ $customerId = $userData['id'];
             </script>
         <?php endif; ?>
 
-        <div class="testimonial-section">
+        <!--<div class="testimonial-section">
             <h2 class="testimonial-title">Berikan Testimoni Anda</h2>
 
             <form action="submit_testimonial.php" method="POST" class="testimonial-form">
@@ -327,7 +327,7 @@ $customerId = $userData['id'];
                 <button type="submit" class="testi-btn">Kirim Testimoni</button>
             </form>
         </div>
-
+            -->
         <form id="wa-form">
             <input type="text" id="name" placeholder="Full Name" required />
             <input type="email" id="email" placeholder="Email" required />
