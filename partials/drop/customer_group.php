@@ -71,19 +71,39 @@ $stmt_orders->close();
     <div class='customer-info-text'>
         <input type='checkbox' class='customer-checkbox' data-customer-id='<?= $customer_id ?>'>
         <span class='customer-name'><?= $customer_name ?></span>
-        <span class='customer-phone'>📱 <?= $customer_phone ?></span>
+        <span class='customer-phone'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-phone"
+                viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                <path
+                    d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+            </svg>
+            <?= $customer_phone ?>
+        </span>
     </div>
     <div style='display: flex; gap: 12px; align-items: center;'>
         <span class='order-count-badge'><?= $total_orders ?> Pesanan</span>
         <div class='customer-actions'>
             <button class='customer-action-btn print-all-btn' data-customer-id='<?= $customer_id ?>'
                 title='Cetak Semua Struk Customer Ini'>
-                🖨️ Cetak Semua
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer"
+                    viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                    <path
+                        d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
+                </svg>
+                Cetak Semua
             </button>
             <button class='customer-action-btn delete-customer-btn' data-customer-id='<?= $customer_id ?>'
                 title='Hapus Semua Pesanan Customer Ini'>
-                <img src='../a/svg/trash.svg' alt='Hapus'
-                    style='width: 10px; height: 10px; filter: brightness(0) invert(1);'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-trash"
+                    viewBox="0 0 16 16"
+                    style="vertical-align: middle; margin-right: 4px; filter: brightness(0) invert(1);">
+                    <path
+                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                    <path
+                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                </svg>
                 Hapus Semua
             </button>
         </div>
@@ -119,7 +139,7 @@ $stmt_orders->close();
         $note_class = !empty($item_note) ? 'note-cell' : 'note-cell empty';
         $price = number_format($order['price'], 0, ',', '.');
         $trans_date = date('d M Y', strtotime($order['trans_date']));
-        
+
         $payment_status = $order['payment_status'] ?? 'Belum Lunas';
         $employee_name = $order['employee_name'] ?? '-';
 
@@ -134,21 +154,16 @@ $stmt_orders->close();
         };
         ?>
 
-        <div class='order-item-row <?= $completed_class ?>' 
-             data-drop-id='<?= $drop_id ?>' 
-             data-item-id='<?= $id_item ?>'
-             data-customer-id='<?= $customer_id ?>' 
-             data-price='<?= $order['price'] ?>' 
-             data-status='<?= $data_status ?>'>
+        <div class='order-item-row <?= $completed_class ?>' data-drop-id='<?= $drop_id ?>' data-item-id='<?= $id_item ?>'
+            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='<?= $data_status ?>'>
             <div class='order-item-grid'>
-                
+
                 <!-- 1. CHECKBOX -->
                 <div class='order-item-cell center'>
-                    <input type='checkbox' class='item-checkbox' 
-                           data-drop-id='<?= $drop_id ?>'
-                           data-customer-id='<?= $customer_id ?>'>
+                    <input type='checkbox' class='item-checkbox' data-drop-id='<?= $drop_id ?>'
+                        data-customer-id='<?= $customer_id ?>'>
                 </div>
-                
+
                 <!-- 2. ID ORDER -->
                 <div class='order-item-cell'>
                     <div style='display: flex; flex-direction: column; gap: 2px;'>
@@ -156,12 +171,12 @@ $stmt_orders->close();
                         <small style='color: #6366f1; font-weight: 600; font-size: 10px;'><?= $order_code ?></small>
                     </div>
                 </div>
-                
+
                 <!-- 3. BRAND/ITEM -->
                 <div class='order-item-cell' title='<?= $brand ?>'>
                     <?= $brand ?>
                 </div>
-                
+
                 <!-- 4. LAYANAN -->
                 <div class='order-item-cell'>
                     <div style='display: flex; flex-direction: column; gap: 2px;'>
@@ -173,28 +188,23 @@ $stmt_orders->close();
                         </span>
                     </div>
                 </div>
-                
+
                 <!-- 5. HARGA -->
-                <div class='order-item-cell center' 
-                     style='font-weight: 700; color: #059669; font-size: 12px;' 
-                     data-price-display>
+                <div class='order-item-cell center' style='font-weight: 700; color: #059669; font-size: 12px;'
+                    data-price-display>
                     Rp<?= $price ?>
                 </div>
-                
+
                 <!-- 6. TGL. MASUK -->
                 <div class='order-item-cell center' style='font-size: 11px;'>
                     <?= $trans_date ?>
                 </div>
-                
+
                 <!-- 7. STATUS -->
                 <div class='order-item-cell center'>
-                    <select class='item-status-select' 
-                            data-item-id='<?= $id_item ?>' 
-                            data-drop-id='<?= $drop_id ?>'
-                            data-current-status='<?= $order['status_id'] ?>' 
-                            data-old-status='<?= $order['status_id'] ?>'
-                            data-item-brand='<?= $brand ?>' 
-                            <?= $is_completed ? 'disabled' : '' ?>>
+                    <select class='item-status-select' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
+                        data-current-status='<?= $order['status_id'] ?>' data-old-status='<?= $order['status_id'] ?>'
+                        data-item-brand='<?= $brand ?>' <?= $is_completed ? 'disabled' : '' ?>>
                         <?php
                         $st2 = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
                         while ($s2 = $st2->fetch_assoc()) {
@@ -204,44 +214,55 @@ $stmt_orders->close();
                         ?>
                     </select>
                 </div>
-                
+
                 <!-- 8. PEMBAYARAN -->
                 <div class='order-item-cell center' style='<?= $paymentColor ?> font-size: 11px;'>
                     <?= $payment_status ?>
                 </div>
-                
+
                 <!-- 9. KARYAWAN -->
                 <div class='order-item-cell center' style='font-size: 11px;'>
                     <?= $employee_name ?>
                 </div>
-                
-                <!-- 11. AKSI - SIMPLIFIED ICON BUTTONS -->
+
+                <!-- 10. AKSI - SIMPLIFIED ICON BUTTONS -->
                 <div class='order-item-cell'>
                     <div class='action-buttons-wrapper'>
                         <!-- Tombol Cetak (Icon Only) -->
-                        <button class='print-item-btn' 
-                                data-drop-id='<?= $drop_id ?>' 
-                                title='Cetak Struk Pesanan Ini'>
-                            🖨️
+                        <button class='print-item-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Struk Pesanan Ini'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-printer-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" />
+                                <path
+                                    d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                            </svg>
                         </button>
-                        
+
                         <!-- Tombol Hapus (Icon Only) -->
-                        <button class='delete-item-btn' 
-                                data-item-id='<?= $id_item ?>' 
-                                data-drop-id='<?= $drop_id ?>'
-                                data-customer-id='<?= $customer_id ?>' 
-                                title='Hapus Item Ini' 
-                                <?= $is_completed ? 'disabled' : '' ?>>
-                            <img src='../a/svg/trash.svg' alt='Hapus'>
+                        <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
+                            data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' <?= $is_completed ? 'disabled' : '' ?>>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                            </svg>
                         </button>
                     </div>
                 </div>
-                
+
             </div>
 
             <?php if ($is_completed): ?>
                 <!-- Completed Badge Overlay -->
-                <div class='completed-badge-overlay'>✓ DIAMBIL</div>
+                <div class='completed-badge-overlay'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg>
+                    DIAMBIL
+                </div>
             <?php endif; ?>
         </div>
 

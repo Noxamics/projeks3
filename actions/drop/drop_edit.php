@@ -1,6 +1,6 @@
 <?php
 // File: /actions/drop/drop_edit.php
-// FIXED VERSION - Proper statement cleanup
+// UPDATED VERSION - With actual_finish_date support
 
 // ===== SETUP =====
 error_reporting(E_ALL);
@@ -175,7 +175,22 @@ try {
         $est_finish_date = $date->format('Y-m-d');
     }
 
-    // === 4. UPDATE DROP ORDER ===
+    // === 4. CHECK IF ALL ITEMS ARE "DIAMBIL" (status_id = 6) ===
+    $all_items_taken = true;
+    foreach ($items as $item) {
+        if (intval($item['status_id'] ?? 1) != 6) {
+            $all_items_taken = false;
+            break;
+        }
+    }
+
+    // Set actual_finish_date if all items are taken
+    $actual_finish_date = NULL;
+    if ($all_items_taken) {
+        $actual_finish_date = date('Y-m-d');
+    }
+
+    // === 5. UPDATE DROP ORDER ===
     $total_items = count($items);
 
     $stmt6 = $conn->prepare("
@@ -186,6 +201,7 @@ try {
             brand = ?,
             trans_date = ?,
             est_finish_date = ?,
+            actual_finish_date = ?,
             total_amount = ?,
             total_items = ?,
             note = ?
@@ -197,13 +213,14 @@ try {
     }
 
     $stmt6->bind_param(
-        "iiisssdisi",
+        "iiissssdisi",
         $customer_id,
         $employee_id,
         $first_service_id,
         $first_brand,
         $trans_date,
         $est_finish_date,
+        $actual_finish_date,
         $total_amount,
         $total_items,
         $note,
@@ -217,14 +234,14 @@ try {
     $stmt6->close();
     $stmt6 = null;
 
-    // === 5. DELETE OLD ITEMS ===
+    // === 6. DELETE OLD ITEMS ===
     $stmt7 = $conn->prepare("DELETE FROM drop_items WHERE drop_id = ?");
     $stmt7->bind_param("i", $drop_id);
     $stmt7->execute();
     $stmt7->close();
     $stmt7 = null;
 
-    // === 6. INSERT NEW ITEMS ===
+    // === 7. INSERT NEW ITEMS ===
     $item_order = 1;
 
     foreach ($items as $item) {
@@ -270,7 +287,7 @@ try {
         $item_order++;
     }
 
-    // === 7. UPDATE PAYMENT ===
+    // === 8. UPDATE PAYMENT ===
     $stmt9 = $conn->prepare("SELECT id_payment FROM payments WHERE drop_id = ?");
     $stmt9->bind_param("i", $drop_id);
     $stmt9->execute();
@@ -311,7 +328,7 @@ try {
         $stmt11 = null;
     }
 
-    // === 8. UPDATE DEADLINE ===
+    // === 9. UPDATE DEADLINE ===
     if ($est_finish_date) {
         $first_status_id = intval($first_item['status_id'] ?? 1);
 
@@ -352,17 +369,24 @@ try {
         }
     }
 
-    // === 9. COMMIT TRANSACTION ===
+    // === 10. COMMIT TRANSACTION ===
     $conn->commit();
 
-    // === 10. SUCCESS RESPONSE ===
-    echo json_encode([
+    // === 11. SUCCESS RESPONSE ===
+    $response = [
         'success' => true,
         'message' => "Pesanan berhasil diupdate",
         'drop_id' => $drop_id,
         'customer_id' => $customer_id,
         'item_count' => count($items)
-    ]);
+    ];
+
+    if ($actual_finish_date) {
+        $response['message'] .= " (Tanggal selesai aktual: " . date('d M Y', strtotime($actual_finish_date)) . ")";
+        $response['actual_finish_date'] = $actual_finish_date;
+    }
+
+    echo json_encode($response);
 
 } catch (Exception $e) {
     // Rollback on error

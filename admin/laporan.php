@@ -2,7 +2,7 @@
 include_once('../partials/headerAdmin.php');
 include_once('../db.php');
 
-// 🔹 Query data laporan - UPDATED SESUAI STRUKTUR DB
+// 📹 Query data laporan - UPDATED SESUAI STRUKTUR DB
 $query = "
 SELECT 
     d.id_drop,
@@ -13,6 +13,7 @@ SELECT
     ANY_VALUE(s.service_name) AS layanan,
     ANY_VALUE(d.trans_date) AS tgl_transaksi,
     ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    ANY_VALUE(d.actual_finish_date) AS tanggal_selesai,
     ANY_VALUE(st.status_name) AS status_proses,
     ANY_VALUE(p.status) AS status_pembayaran,
     ANY_VALUE(e.name) AS karyawan,
@@ -35,7 +36,7 @@ ORDER BY d.trans_date ASC
 ";
 $result = mysqli_query($conn, $query);
 
-// 🔹 Ambil daftar kategori layanan unik
+// 📹 Ambil daftar kategori layanan unik
 $kategoriQuery = "SELECT DISTINCT category FROM services ORDER BY category ASC";
 $kategoriResult = mysqli_query($conn, $kategoriQuery);
 ?>
@@ -94,6 +95,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                         <th>Layanan</th>
                         <th>Tgl Transaksi</th>
                         <th>Estimasi Selesai</th>
+                        <th>Selesai</th>
                         <th>Status Proses</th>
                         <th>Pembayaran</th>
                         <th>Karyawan</th>
@@ -110,6 +112,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                             <td><?= htmlspecialchars($row['layanan']); ?></td>
                             <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
                             <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?></td>
+                            <td><?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?></td>
                             <td><?= htmlspecialchars($row['status_proses'] ?? '-'); ?></td>
                             <td
                                 class="<?= strtolower($row['status_pembayaran']) == 'lunas' ? 'text-green' : 'text-red'; ?>">
@@ -124,7 +127,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="10" style="text-align:right; font-weight:bold; color:#0b3d91;">
+                        <td colspan="11" style="text-align:right; font-weight:bold; color:#0b3d91;">
                             Total Pendapatan:
                         </td>
                         <td id="totalPendapatan" style="font-weight:bold; color:#0b3d91;">Rp 0</td>
@@ -141,8 +144,8 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         let total = 0;
         document.querySelectorAll("#laporanTable tbody tr").forEach(row => {
             const visible = row.style.display !== "none";
-            const status = row.cells[8].textContent.trim().toLowerCase();
-            const harga = parseInt(row.cells[10].dataset.harga || 0);
+            const status = row.cells[9].textContent.trim().toLowerCase();
+            const harga = parseInt(row.cells[11].dataset.harga || 0);
             if (visible) {
                 if (jenisTotal === "semua" || (jenisTotal === "lunas" && status === "lunas")) {
                     total += harga;
@@ -204,7 +207,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
         rows.forEach(row => {
             const dateText = row.cells[5].textContent.trim();
-            const status = row.cells[8].textContent.toLowerCase().trim();
+            const status = row.cells[9].textContent.toLowerCase().trim();
             const kategori = row.cells[3].textContent.toLowerCase().trim();
             const transDate = new Date(dateText);
             let show = true;
@@ -279,4 +282,3 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
     window.onload = hitungTotalPendapatan;
 </script>
-

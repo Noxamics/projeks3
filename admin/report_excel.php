@@ -33,6 +33,7 @@ SELECT
     ANY_VALUE(s.service_name) AS layanan,
     ANY_VALUE(d.trans_date) AS tgl_transaksi, 
     ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    ANY_VALUE(d.actual_finish_date) AS tanggal_selesai,
 
     ANY_VALUE(st.status_name) AS status_proses, 
     ANY_VALUE(p.status) AS status_pembayaran,
@@ -63,7 +64,7 @@ $result = mysqli_query($conn, $query);
 echo "<table border='1'>";
 echo "<tr style='background:#0b3d91;color:white;'>
 <th>No</th><th>Kode Order</th><th>Customer</th><th>Brand</th><th>Kategori</th>
-<th>Layanan</th><th>Tgl Transaksi</th><th>Estimasi</th>
+<th>Layanan</th><th>Tgl Transaksi</th><th>Estimasi</th><th>Selesai</th>
 <th>Status Proses</th><th>Status Pembayaran</th><th>Karyawan</th><th>Harga</th></tr>";
 
 $no = 1;
@@ -85,6 +86,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td>{$row['layanan']}</td>
         <td>{$row['tgl_transaksi']}</td>
         <td>{$row['estimasi_selesai']}</td>
+        <td>".($row['tanggal_selesai'] ?? '-')."</td>
         <td>{$row['status_proses']}</td>
         <td>{$row['status_pembayaran']}</td>
         <td>{$row['karyawan']}</td>
@@ -95,7 +97,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 $labelTotal = $jenisTotal === 'semua' ? 'Total Semua Transaksi' : 'Total Pendapatan (Lunas Saja)';
 echo "<tr style='background:#eef2ff;font-weight:bold;color:#0b3d91;'>
-<td colspan='11' align='right'>$labelTotal:</td>
+<td colspan='12' align='right'>$labelTotal:</td>
 <td>Rp ".number_format($totalPendapatan,0,',','.')."</td>
 </tr></table>";
 ?>

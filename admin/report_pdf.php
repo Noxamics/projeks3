@@ -34,6 +34,7 @@ SELECT
     ANY_VALUE(s.service_name) AS layanan,
     ANY_VALUE(d.trans_date) AS tgl_transaksi, 
     ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    ANY_VALUE(d.actual_finish_date) AS tanggal_selesai,
 
     ANY_VALUE(st.status_name) AS status_proses, 
     ANY_VALUE(p.status) AS status_pembayaran,
@@ -69,10 +70,10 @@ $dompdf = new Dompdf($options);
 $dateNow = date('d F Y');
 $html = '
 <style>
-body{font-family:DejaVu Sans;font-size:12px;}
+body{font-family:DejaVu Sans;font-size:10px;}
 h2{text-align:center;color:#0b3d91;margin-bottom:10px;}
 table{width:100%;border-collapse:collapse;}
-th,td{border:1px solid #ddd;padding:6px;}
+th,td{border:1px solid #ddd;padding:4px;font-size:9px;}
 th{background-color:#0b3d91;color:#fff;}
 tfoot td{background-color:#eef2ff;font-weight:bold;color:#0b3d91;border-top:2px solid #0b3d91;}
 .text-green{color:#16a34a;font-weight:bold;}
@@ -84,7 +85,7 @@ tfoot td{background-color:#eef2ff;font-weight:bold;color:#0b3d91;border-top:2px 
 <table>
 <thead><tr>
 <th>No</th><th>Kode Order</th><th>Customer</th><th>Brand</th><th>Kategori</th>
-<th>Layanan</th><th>Tgl Transaksi</th><th>Estimasi</th>
+<th>Layanan</th><th>Tgl Transaksi</th><th>Estimasi</th><th>Selesai</th>
 <th>Status Proses</th><th>Pembayaran</th><th>Karyawan</th><th>Harga</th>
 </tr></thead><tbody>';
 
@@ -103,6 +104,7 @@ while ($r = mysqli_fetch_assoc($result)) {
         <td>{$r['layanan']}</td>
         <td>".($r['tgl_transaksi'] ? date('d-m-Y', strtotime($r['tgl_transaksi'])) : '-')."</td>
         <td>".($r['estimasi_selesai'] ? date('d-m-Y', strtotime($r['estimasi_selesai'])) : '-')."</td>
+        <td>".($r['tanggal_selesai'] ? date('d-m-Y', strtotime($r['tanggal_selesai'])) : '-')."</td>
         <td>{$r['status_proses']}</td>
         <td class='".($isLunas ? 'text-green' : 'text-red')."'>{$r['status_pembayaran']}</td>
         <td>{$r['karyawan']}</td>
@@ -113,7 +115,7 @@ while ($r = mysqli_fetch_assoc($result)) {
 
 $labelTotal = $jenisTotal === 'semua' ? 'Total Semua Transaksi' : 'Total Pendapatan (Lunas Saja)';
 $html .= "</tbody><tfoot><tr>
-<td colspan='11' align='right'>{$labelTotal}:</td>
+<td colspan='12' align='right'>{$labelTotal}:</td>
 <td>Rp ".number_format($total,0,',','.')."</td>
 </tr></tfoot></table>";
 
