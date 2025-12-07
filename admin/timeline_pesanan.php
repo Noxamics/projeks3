@@ -5,6 +5,28 @@ include('../db.php');
 ?>
 
 <?php
+if (isset($_GET['success'])) {
+    echo '<div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+            ✅ Data berhasil diupdate!
+          </div>';
+
+    // AUTO-REDIRECT setelah 2 detik
+    echo '<script>
+            setTimeout(function() {
+                window.location.href = "timeline_pesanan.php";
+            }, 1500);
+          </script>';
+}
+
+if (isset($_GET['error'])) {
+    $error_message = urldecode($_GET['error']);
+    echo '<div class="alert alert-danger" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+            ❌ ' . htmlspecialchars($error_message) . '
+          </div>';
+}
+?>
+
+<?php
 // ✅ FILTER: Query deadline TANPA status "Barang Telah Diambil"
 $currentMonth = date('Y-m');
 $deadlines_query = "
@@ -248,47 +270,9 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         </div>
     </div>
 
-    <!-- ✅ HIDDEN CONTAINER: Load data untuk modal edit -->
-    <div style="display: none;" id="timelineModalData">
-        <!-- Services data untuk modal edit -->
-        <select id="timeline_services_template">
-            <option value="">-- Pilih Layanan --</option>
-            <?php
-            // Query services untuk modal edit
-            $services_modal_query = "SELECT id_service, category, service_name, price_min, duration 
-                                     FROM services 
-                                     ORDER BY FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
-            $services_modal_result = mysqli_query($conn, $services_modal_query);
-
-            while ($service = mysqli_fetch_assoc($services_modal_result)) {
-                $displayName = ucfirst($service['category']) . " - " . ucfirst($service['service_name']);
-                echo "<option value='{$service['id_service']}' 
-                              data-price='{$service['price_min']}' 
-                              data-duration='{$service['duration']}'>
-                        {$displayName}
-                      </option>";
-            }
-            ?>
-        </select>
-
-        <!-- Statuses data untuk modal edit -->
-        <select id="timeline_statuses_template">
-            <option value="">Pilih Status</option>
-            <?php
-            // Query statuses untuk modal edit
-            $statuses_modal_query = "SELECT id_status, status_name FROM statuses ORDER BY id_status ASC";
-            $statuses_modal_result = mysqli_query($conn, $statuses_modal_query);
-
-            while ($status = mysqli_fetch_assoc($statuses_modal_result)) {
-                echo "<option value='{$status['id_status']}'>{$status['status_name']}</option>";
-            }
-            ?>
-        </select>
-    </div>
-
 </main>
 
-<!-- ✅ INCLUDE MODAL EDIT - SAMA SEPERTI DI HALAMAN DROP -->
+<!-- INCLUDE MODAL EDIT DARI FOLDER MODAL/DROP -->
 <?php include('../modal/drop/modal_edit_item.php'); ?>
 
 <script>
@@ -311,7 +295,7 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         }
 
         const dropId = element.getAttribute('data-drop-id') || element.getAttribute('data-id-drop');
-
+        
         if (!dropId) {
             console.error('❌ Drop ID tidak ditemukan pada element:', element);
             alert('Error: ID pesanan tidak ditemukan');
@@ -319,14 +303,14 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         }
 
         console.log('✏️ Opening EDIT modal for Drop ID:', dropId);
-
+        
         // Pastikan fungsi loadEditModal sudah tersedia
         if (typeof loadEditModal === 'function') {
             // Tutup semua modal yang mungkin terbuka
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.style.display = 'none';
             });
-
+            
             // Buka modal edit
             loadEditModal(dropId);
         } else {
@@ -338,68 +322,70 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
     // Make it globally accessible
     window.openEditModal = openEditModal;
 
-    // ===== PREVENT ADD MODAL FROM OPENING =====
-    (function () {
-        'use strict';
+    // File: Tambahkan script ini di timeline_pesanan.php SEBELUM closing </body>
 
-        console.log('🛡 ADD Modal Prevention Script loaded');
-
-        // Function to force close ADD modal
-        function forceCloseAddModal() {
-            const addModal = document.getElementById('addModal');
-            if (addModal && addModal.style.display !== 'none') {
-                console.warn('⚠ ADD Modal detected - Force closing...');
-                addModal.style.display = 'none';
-                addModal.classList.remove('show');
-                document.body.style.overflow = '';
-            }
+// ===== PREVENT ADD MODAL FROM OPENING =====
+(function() {
+    'use strict';
+    
+    console.log('🛡️ ADD Modal Prevention Script loaded');
+    
+    // Function to force close ADD modal
+    function forceCloseAddModal() {
+        const addModal = document.getElementById('addModal');
+        if (addModal && addModal.style.display !== 'none') {
+            console.warn('⚠️ ADD Modal detected - Force closing...');
+            addModal.style.display = 'none';
+            addModal.classList.remove('show');
+            document.body.style.overflow = '';
         }
-
-        // Check on load
-        document.addEventListener('DOMContentLoaded', function () {
-            forceCloseAddModal();
-
-            // Monitor for ADD modal being opened
-            const addModalObserver = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                        const addModal = document.getElementById('addModal');
-                        if (addModal && addModal.style.display !== 'none') {
-                            console.warn('⚠ ADD Modal opened unexpectedly - Auto closing...');
-                            forceCloseAddModal();
-                        }
+    }
+    
+    // Check on load
+    document.addEventListener('DOMContentLoaded', function() {
+        forceCloseAddModal();
+        
+        // Monitor for ADD modal being opened
+        const addModalObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    const addModal = document.getElementById('addModal');
+                    if (addModal && addModal.style.display !== 'none') {
+                        console.warn('⚠️ ADD Modal opened unexpectedly - Auto closing...');
+                        forceCloseAddModal();
                     }
-                });
+                }
             });
-
-            // Start observing ADD modal
-            const addModal = document.getElementById('addModal');
-            if (addModal) {
-                addModalObserver.observe(addModal, {
-                    attributes: true,
-                    attributeFilter: ['style', 'class']
-                });
-                console.log('✅ ADD Modal observer active');
-            }
-
-            // Override showModal untuk addModal
-            const originalShowModal = window.showModal;
-            if (typeof originalShowModal === 'function') {
-                window.showModal = function (modalId) {
-                    if (modalId === 'addModal') {
-                        console.warn('⚠ Attempt to open ADD Modal blocked');
-                        return false;
-                    }
-                    return originalShowModal(modalId);
-                };
-            }
         });
-
-        // Check periodically (fallback)
-        setInterval(forceCloseAddModal, 1000);
-
-        console.log('✅ ADD Modal prevention active');
-    })();
+        
+        // Start observing ADD modal
+        const addModal = document.getElementById('addModal');
+        if (addModal) {
+            addModalObserver.observe(addModal, {
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+            console.log('✅ ADD Modal observer active');
+        }
+        
+        // Override showModal untuk addModal
+        const originalShowModal = window.showModal;
+        if (typeof originalShowModal === 'function') {
+            window.showModal = function(modalId) {
+                if (modalId === 'addModal') {
+                    console.warn('⚠️ Attempt to open ADD Modal blocked');
+                    return false;
+                }
+                return originalShowModal(modalId);
+            };
+        }
+    });
+    
+    // Check periodically (fallback)
+    setInterval(forceCloseAddModal, 1000);
+    
+    console.log('✅ ADD Modal prevention active');
+})();
 </script>
 
 <!-- Load external JavaScript - URUTAN PENTING! -->
@@ -409,95 +395,24 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 <!-- 2. Timeline pesanan -->
 <script src="../js/timeline_pesanan.js"></script>
 
-<script src="../js/drop/drop_modal.js"></script>
-<script src="../js/drop/drop_modal_edit.js"></script>
-<script src="../js/drop/drop_main.js"></script>
-<script src="../js/drop/drop_delete.js"></script>
-<script src="../js/drop/drop_status_change.js"></script>
+   
+    <script src="../js/drop/drop_modal.js"></script>
+    <script src="../js/drop/drop_modal_edit.js"></script>
+    <script src="../js/drop/drop_main.js"></script>
+    <script src="../js/drop/drop_status_change.js"></script>
 
-<!-- 4. Setup double-click handler untuk timeline -->
+<!-- 4. Pastikan tidak ada script yang membuka modal ADD -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('🎯 Setting up Timeline Edit Handler...');
-
-        // Setup double-click handler untuk order items
-        function setupTimelineEditHandlers() {
-            const orderItems = document.querySelectorAll('.order-item');
-            console.log(`Found ${orderItems.length} order items`);
-
-            orderItems.forEach((item) => {
-                // Remove existing listeners
-                const newItem = item.cloneNode(true);
-                item.parentNode.replaceChild(newItem, item);
-
-                // Add double-click event
-                newItem.addEventListener('dblclick', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    const dropId = this.getAttribute('data-drop-id') || this.getAttribute('data-id-drop');
-
-                    if (!dropId) {
-                        console.error('❌ Drop ID not found');
-                        alert('Error: ID pesanan tidak ditemukan');
-                        return;
-                    }
-
-                    console.log(`✏️ Double-click detected - Opening edit for Drop ${dropId}`);
-
-                    if (typeof loadEditModal === 'function') {
-                        loadEditModal(dropId);
-                    } else {
-                        console.error('❌ loadEditModal function not found');
-                        alert('Error: Fungsi edit tidak tersedia');
-                    }
-                });
-
-                // Visual feedback on hover
-                newItem.style.cursor = 'pointer';
-                newItem.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
-
-                newItem.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateY(-2px)';
-                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                });
-
-                newItem.addEventListener('mouseleave', function () {
-                    this.style.transform = 'translateY(0)';
-                    this.style.boxShadow = 'none';
-                });
-            });
-        }
-
-        // Initial setup
-        setupTimelineEditHandlers();
-
-        // Re-setup after filter/sort operations
-        const originalSortOrders = window.sortOrders;
-        if (typeof originalSortOrders === 'function') {
-            window.sortOrders = function () {
-                originalSortOrders();
-                setTimeout(setupTimelineEditHandlers, 100);
-            };
-        }
-
-        const originalFilterByCategory = window.filterByCategory;
-        if (typeof originalFilterByCategory === 'function') {
-            window.filterByCategory = function (category) {
-                originalFilterByCategory(category);
-                setTimeout(setupTimelineEditHandlers, 100);
-            };
-        }
-
+    // Prevent accidental ADD modal opening
+    document.addEventListener('DOMContentLoaded', function() {
         // Tutup semua modal saat load
         document.querySelectorAll('.modal').forEach(modal => {
-            if (modal.id !== 'orderDetailModal' && modal.id !== 'editModal') {
+            if (modal.id !== 'orderDetailModal') {
                 modal.style.display = 'none';
             }
         });
-
-        console.log('✅ Timeline edit handlers initialized');
-        console.log('🖱️ Double-click any order to edit');
+        
+        console.log('✅ Timeline page loaded - Only EDIT modal allowed');
     });
 </script>
 

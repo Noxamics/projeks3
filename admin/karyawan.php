@@ -279,13 +279,13 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                         <span>Tambah Karyawan</span>
                     </button>
 
-                    <button class="btn btn-secondary">
+                   <!-- <button class="btn btn-secondary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <span>Performance</span>
-                    </button>
+                    </button> -->
 
                     <div class="view-toggle">
                         <button class="toggle-btn active" data-view="card">
