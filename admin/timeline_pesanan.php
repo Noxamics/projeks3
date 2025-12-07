@@ -1,7 +1,19 @@
-<?php
-// Perbaikan path include
+<?php // <-- TIDAK ADA SPASI SEBELUM INI
+
+// 1. Require db.php dulu (ini akan start session)
+require_once '../db.php';
+
+// 2. Baru require check_auth
+require_once 'check_auth.php';
+
+// 3. Ambil data admin
+$adminData = getAdminData();
+$adminName = $adminData['name'];
+$adminEmail = $adminData['email'];
+$adminId = $adminData['id_admin'];
+
+// 4. Baru include header (yang mungkin ada output HTML)
 include('../partials/headerAdmin.php');
-include('../db.php');
 ?>
 
 <?php
@@ -295,7 +307,7 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         }
 
         const dropId = element.getAttribute('data-drop-id') || element.getAttribute('data-id-drop');
-        
+
         if (!dropId) {
             console.error('❌ Drop ID tidak ditemukan pada element:', element);
             alert('Error: ID pesanan tidak ditemukan');
@@ -303,14 +315,14 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         }
 
         console.log('✏️ Opening EDIT modal for Drop ID:', dropId);
-        
+
         // Pastikan fungsi loadEditModal sudah tersedia
         if (typeof loadEditModal === 'function') {
             // Tutup semua modal yang mungkin terbuka
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.style.display = 'none';
             });
-            
+
             // Buka modal edit
             loadEditModal(dropId);
         } else {
@@ -324,68 +336,68 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
     // File: Tambahkan script ini di timeline_pesanan.php SEBELUM closing </body>
 
-// ===== PREVENT ADD MODAL FROM OPENING =====
-(function() {
-    'use strict';
-    
-    console.log('🛡️ ADD Modal Prevention Script loaded');
-    
-    // Function to force close ADD modal
-    function forceCloseAddModal() {
-        const addModal = document.getElementById('addModal');
-        if (addModal && addModal.style.display !== 'none') {
-            console.warn('⚠️ ADD Modal detected - Force closing...');
-            addModal.style.display = 'none';
-            addModal.classList.remove('show');
-            document.body.style.overflow = '';
+    // ===== PREVENT ADD MODAL FROM OPENING =====
+    (function () {
+        'use strict';
+
+        console.log('🛡️ ADD Modal Prevention Script loaded');
+
+        // Function to force close ADD modal
+        function forceCloseAddModal() {
+            const addModal = document.getElementById('addModal');
+            if (addModal && addModal.style.display !== 'none') {
+                console.warn('⚠️ ADD Modal detected - Force closing...');
+                addModal.style.display = 'none';
+                addModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
         }
-    }
-    
-    // Check on load
-    document.addEventListener('DOMContentLoaded', function() {
-        forceCloseAddModal();
-        
-        // Monitor for ADD modal being opened
-        const addModalObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    const addModal = document.getElementById('addModal');
-                    if (addModal && addModal.style.display !== 'none') {
-                        console.warn('⚠️ ADD Modal opened unexpectedly - Auto closing...');
-                        forceCloseAddModal();
+
+        // Check on load
+        document.addEventListener('DOMContentLoaded', function () {
+            forceCloseAddModal();
+
+            // Monitor for ADD modal being opened
+            const addModalObserver = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const addModal = document.getElementById('addModal');
+                        if (addModal && addModal.style.display !== 'none') {
+                            console.warn('⚠️ ADD Modal opened unexpectedly - Auto closing...');
+                            forceCloseAddModal();
+                        }
                     }
-                }
+                });
             });
+
+            // Start observing ADD modal
+            const addModal = document.getElementById('addModal');
+            if (addModal) {
+                addModalObserver.observe(addModal, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+                console.log('✅ ADD Modal observer active');
+            }
+
+            // Override showModal untuk addModal
+            const originalShowModal = window.showModal;
+            if (typeof originalShowModal === 'function') {
+                window.showModal = function (modalId) {
+                    if (modalId === 'addModal') {
+                        console.warn('⚠️ Attempt to open ADD Modal blocked');
+                        return false;
+                    }
+                    return originalShowModal(modalId);
+                };
+            }
         });
-        
-        // Start observing ADD modal
-        const addModal = document.getElementById('addModal');
-        if (addModal) {
-            addModalObserver.observe(addModal, {
-                attributes: true,
-                attributeFilter: ['style', 'class']
-            });
-            console.log('✅ ADD Modal observer active');
-        }
-        
-        // Override showModal untuk addModal
-        const originalShowModal = window.showModal;
-        if (typeof originalShowModal === 'function') {
-            window.showModal = function(modalId) {
-                if (modalId === 'addModal') {
-                    console.warn('⚠️ Attempt to open ADD Modal blocked');
-                    return false;
-                }
-                return originalShowModal(modalId);
-            };
-        }
-    });
-    
-    // Check periodically (fallback)
-    setInterval(forceCloseAddModal, 1000);
-    
-    console.log('✅ ADD Modal prevention active');
-})();
+
+        // Check periodically (fallback)
+        setInterval(forceCloseAddModal, 1000);
+
+        console.log('✅ ADD Modal prevention active');
+    })();
 </script>
 
 <!-- Load external JavaScript - URUTAN PENTING! -->
@@ -395,23 +407,23 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 <!-- 2. Timeline pesanan -->
 <script src="../js/timeline_pesanan.js"></script>
 
-   
-    <script src="../js/drop/drop_modal.js"></script>
-    <script src="../js/drop/drop_modal_edit.js"></script>
-    <script src="../js/drop/drop_main.js"></script>
-    <script src="../js/drop/drop_status_change.js"></script>
+
+<script src="../js/drop/drop_modal.js"></script>
+<script src="../js/drop/drop_modal_edit.js"></script>
+<script src="../js/drop/drop_main.js"></script>
+<script src="../js/drop/drop_status_change.js"></script>
 
 <!-- 4. Pastikan tidak ada script yang membuka modal ADD -->
 <script>
     // Prevent accidental ADD modal opening
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Tutup semua modal saat load
         document.querySelectorAll('.modal').forEach(modal => {
             if (modal.id !== 'orderDetailModal') {
                 modal.style.display = 'none';
             }
         });
-        
+
         console.log('✅ Timeline page loaded - Only EDIT modal allowed');
     });
 </script>

@@ -1,7 +1,22 @@
-<?php
-require_once('../db.php');
-require_once('../partials/headerAdmin.php');
+<?php // <-- TIDAK ADA SPASI SEBELUM INI
 
+// 1. Require db.php dulu (ini akan start session)
+require_once '../db.php';
+
+// 2. Baru require check_auth
+require_once 'check_auth.php';
+
+// 3. Ambil data admin
+$adminData = getAdminData();
+$adminName = $adminData['name'];
+$adminEmail = $adminData['email'];
+$adminId = $adminData['id_admin'];
+
+// 4. Baru include header (yang mungkin ada output HTML)
+include('../partials/headerAdmin.php');
+?>
+
+<?php
 // Get statistics
 $stats = [
     'totalEmployees' => 0,
@@ -279,7 +294,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                         <span>Tambah Karyawan</span>
                     </button>
 
-                   <!-- <button class="btn btn-secondary">
+                    <!-- <button class="btn btn-secondary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18 20V10M12 20V4M6 20V14" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" />

@@ -1,7 +1,22 @@
-<?php
-include_once('../partials/headerAdmin.php');
-include_once('../db.php');
+<?php // <-- TIDAK ADA SPASI SEBELUM INI
 
+// 1. Require db.php dulu (ini akan start session)
+require_once '../db.php';
+
+// 2. Baru require check_auth
+require_once 'check_auth.php';
+
+// 3. Ambil data admin
+$adminData = getAdminData();
+$adminName = $adminData['name'];
+$adminEmail = $adminData['email'];
+$adminId = $adminData['id_admin'];
+
+// 4. Baru include header (yang mungkin ada output HTML)
+include('../partials/headerAdmin.php');
+?>
+
+<?php
 // 📹 Query data laporan - UPDATED SESUAI STRUKTUR DB
 $query = "
 SELECT 
@@ -102,26 +117,29 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                         <th>Harga</th>
                     </tr>
                 </thead>
+
+                <!-- Ganti bagian table body di laporan.php -->
                 <tbody>
                     <?php while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr>
                             <td><?= htmlspecialchars($row['kode_order']); ?></td>
                             <td><?= htmlspecialchars($row['customer_name']); ?></td>
                             <td><?= htmlspecialchars($row['brand']); ?></td>
-                            <td><?= htmlspecialchars($row['kategori']); ?></td>
-                            <td><?= htmlspecialchars($row['layanan']); ?></td>
+                            <td><?= htmlspecialchars($row['kategori'] ?? '-'); ?></td>
+                            <td><?= htmlspecialchars($row['layanan'] ?? '-'); ?></td>
                             <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
-                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?></td>
-                            <td><?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?></td>
+                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?>
+                            </td>
+                            <td><?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?>
+                            </td>
                             <td><?= htmlspecialchars($row['status_proses'] ?? '-'); ?></td>
                             <td
-                                class="<?= strtolower($row['status_pembayaran']) == 'lunas' ? 'text-green' : 'text-red'; ?>">
+                                class="<?= strtolower($row['status_pembayaran'] ?? 'belum') == 'lunas' ? 'text-green' : 'text-red'; ?>">
                                 <?= htmlspecialchars($row['status_pembayaran'] ?? 'Belum Lunas'); ?>
                             </td>
                             <td><?= htmlspecialchars($row['karyawan'] ?? '-'); ?></td>
                             <td data-harga="<?= $row['total_harga'] ?>">Rp
-                                <?= number_format($row['total_harga'], 0, ',', '.'); ?>
-                            </td>
+                                <?= number_format($row['total_harga'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -252,8 +270,8 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 
     document.getElementById("jenisTotal").addEventListener("change", function () {
         hitungTotalPendapatan();
-        showAlert(this.value === "lunas" ? 
-            "Menampilkan total pendapatan dari transaksi lunas saja" : 
+        showAlert(this.value === "lunas" ?
+            "Menampilkan total pendapatan dari transaksi lunas saja" :
             "Menampilkan total pendapatan dari semua transaksi"
         );
     });

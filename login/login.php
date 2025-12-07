@@ -19,7 +19,7 @@ if (isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | SengkuClean</title>
     <link rel="icon" type="image/png" href="../a/img/Logo.png">
-    <link rel="stylesheet" href="/projeks3/css/login.css" />
+    <link rel="stylesheet" href="../css/login.css" />
 </head>
 
 <body>
@@ -39,7 +39,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="login-page">
         <div class="login-box">
             <img src="../a/img/Logo Sengku.png" alt="SengkuClean Logo" class="logo-login" />
-            <img src="../a/img/BG1.jpg" class="background"/>
+            <img src="../a/img/BG1.jpg" class="background" />
             <h2 style="text-align:center; margin-bottom:20px;">LOGIN</h2>
 
             <!-- Pesan Error/Success -->

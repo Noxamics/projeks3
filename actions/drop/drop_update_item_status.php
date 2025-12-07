@@ -79,10 +79,10 @@ try {
 
     // Update item status
     $stmt = $conn->prepare("
-        UPDATE drop_items 
-        SET status_id = ? 
-        WHERE id_item = ?
-    ");
+            UPDATE drop_items 
+            SET status_id = ? 
+            WHERE id_item = ?
+        ");
 
     if (!$stmt) {
         throw new Exception("Database error: " . $conn->error);
@@ -103,10 +103,10 @@ try {
 
     // Update deadline status if exists
     $stmt = $conn->prepare("
-        UPDATE deadlines 
-        SET status_id = ? 
-        WHERE drop_id = ?
-    ");
+            UPDATE deadlines 
+            SET status_id = ? 
+            WHERE drop_id = ?
+        ");
 
     if ($stmt) {
         $stmt->bind_param("ii", $status_id, $drop_id);
@@ -116,11 +116,11 @@ try {
 
     // Check if all items have status "Diambil" (status_id = 6)
     $stmt = $conn->prepare("
-        SELECT COUNT(*) as total_items, 
-               SUM(CASE WHEN status_id = 6 THEN 1 ELSE 0 END) as taken_items
-        FROM drop_items 
-        WHERE drop_id = ?
-    ");
+            SELECT COUNT(*) as total_items, 
+                SUM(CASE WHEN status_id = 6 THEN 1 ELSE 0 END) as taken_items
+            FROM drop_items 
+            WHERE drop_id = ?
+        ");
 
     $stmt->bind_param("i", $drop_id);
     $stmt->execute();
@@ -135,10 +135,10 @@ try {
         $today = date('Y-m-d');
 
         $stmt = $conn->prepare("
-            UPDATE drops 
-            SET actual_finish_date = ?
-            WHERE id_drop = ?
-        ");
+                UPDATE drops 
+                SET actual_finish_date = ?
+                WHERE id_drop = ?
+            ");
 
         if ($stmt) {
             $stmt->bind_param("si", $today, $drop_id);
@@ -149,11 +149,11 @@ try {
 
         // Auto-update payment to Lunas if not already
         $stmt = $conn->prepare("
-            UPDATE payments 
-            SET status = 'Lunas', 
-                payment_date = COALESCE(payment_date, NOW())
-            WHERE drop_id = ? AND status = 'Belum Lunas'
-        ");
+                UPDATE payments 
+                SET status = 'Lunas', 
+                    payment_date = COALESCE(payment_date, NOW())
+                WHERE drop_id = ? AND status = 'Belum Lunas'
+            ");
 
         if ($stmt) {
             $stmt->bind_param("i", $drop_id);

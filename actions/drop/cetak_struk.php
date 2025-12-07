@@ -105,8 +105,14 @@ foreach ($items as $idx => $item) {
     $items_list .= "\n{$num}. {$item['brand']} - {$service_display}\n   Rp" . number_format($item['price'], 0, ',', '.');
 }
 
+// FIX: Dynamic URL for hosting environment
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'];
+
+// Build full URL for receipt - adjusted for hosting
+$link_struk = "{$protocol}://{$host}/actions/drop/cetak_struk.php?id={$id}";
+
 // WhatsApp message
-$link_struk = "http://localhost/PROJEKS3/actions/drop/cetak_struk.php?id=" . $id;
 $pesan = "Halo *{$result['customer_name']}*, 👋
 Terima kasih telah mempercayakan layanan kami di *SengkuClean*. Berikut detail pesanan Anda:
 

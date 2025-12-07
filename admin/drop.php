@@ -1,3 +1,19 @@
+<?php // <-- TIDAK ADA SPASI SEBELUM INI
+
+// 1. Require db.php dulu (ini akan start session)
+require_once '../db.php';
+
+// 2. Baru require check_auth
+require_once 'check_auth.php';
+
+// 3. Ambil data admin
+$adminData = getAdminData();
+$adminName = $adminData['name'];
+$adminEmail = $adminData['email'];
+$adminId = $adminData['id_admin'];
+
+?>
+
 <?php
 // File: admin/drop.php - COMPLETE VERSION
 // Handle AJAX requests untuk delete operations
@@ -236,9 +252,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ===== LOAD HEADER =====
+
+// ===== AUTENTIKASI ADMIN (HARUS DI PALING ATAS) =====
+require_once '../db.php';
+require_once 'check_auth.php';
+
+// Ambil data admin yang sedang login
+$adminData = getAdminData();
+$adminName = $adminData['name'];
+$adminEmail = $adminData['email'];
+$adminId = $adminData['id_admin'];
+
+// ===== HEADER =====
 include('../partials/headerAdmin.php');
-include('../db.php');
+
 
 // ===== QUERY DATA - INCLUDE SEMUA STATUS =====
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';

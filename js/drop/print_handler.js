@@ -1,5 +1,5 @@
 // File: /js/drop/print_handler.js
-// Handler untuk tombol cetak struk per item - DEBUG VERSION
+// Handler untuk tombol cetak struk per item - HOSTING VERSION
 
 console.log("🔄 print_handler.js is loading...");
 
@@ -12,6 +12,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   console.log(`📊 Found ${printButtons.length} print item buttons`);
   console.log(`📊 Found ${printAllButtons.length} print all buttons`);
+
+  // Helper function to build print URL for hosting environment
+  function buildPrintUrl(dropId) {
+    // For hosting: sengkuclean.mif.myhost.id
+    // Structure: /actions/drop/cetak_struk.php
+    const protocol = window.location.protocol; // http: or https:
+    const host = window.location.host; // sengkuclean.mif.myhost.id
+
+    const printUrl = `${protocol}//${host}/actions/drop/cetak_struk.php?id=${dropId}`;
+
+    console.log("🔗 Built URL:", printUrl);
+    return printUrl;
+  }
 
   // ===== CETAK STRUK PER ITEM =====
   document.addEventListener("click", function (e) {
@@ -36,26 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log("🖨️ Printing struk for drop_id:", dropId);
 
-      // Build absolute URL
-      const currentUrl = window.location.href;
-      console.log("🌐 Current URL:", currentUrl);
-
-      // Detect base path dynamically
-      const pathArray = window.location.pathname.split("/");
-      const projectIndex = pathArray.indexOf("PROJEKS3");
-
-      let baseUrl;
-      if (projectIndex !== -1) {
-        const basePath = pathArray.slice(0, projectIndex + 1).join("/");
-        baseUrl = window.location.origin + basePath;
-      } else {
-        // Fallback
-        baseUrl = window.location.origin + "/PROJEKS3";
-      }
-
-      const printUrl = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
-
-      console.log("📄 Base URL:", baseUrl);
+      const printUrl = buildPrintUrl(dropId);
       console.log("📄 Full Print URL:", printUrl);
 
       // Open print window
@@ -142,28 +136,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log(`📄 Opening ${dropIds.size} print windows...`);
 
-      // Detect base path dynamically
-      const pathArray = window.location.pathname.split("/");
-      const projectIndex = pathArray.indexOf("PROJEKS3");
-
-      let baseUrl;
-      if (projectIndex !== -1) {
-        const basePath = pathArray.slice(0, projectIndex + 1).join("/");
-        baseUrl = window.location.origin + basePath;
-      } else {
-        // Fallback
-        baseUrl = window.location.origin + "/PROJEKS3";
-      }
-
-      console.log("📄 Base URL for all:", baseUrl);
-
       // Open each struk with delay to prevent browser blocking
       let delay = 0;
       let successCount = 0;
 
       dropIds.forEach((dropId) => {
         setTimeout(() => {
-          const printUrl = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
+          const printUrl = buildPrintUrl(dropId);
           console.log(`📄 Opening [${delay / 500 + 1}]:`, printUrl);
 
           try {
