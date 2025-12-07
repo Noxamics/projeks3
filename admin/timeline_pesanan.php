@@ -53,6 +53,7 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 ?>
 
 <link rel="stylesheet" href="../css/timeline_pesanan.css">
+<link rel="stylesheet" href="../css/timeline_pesanan-responsive.css">
 
 <main class="dashboard-container">
 
@@ -91,44 +92,45 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
             <div class="timeline-body" id="orderTimeline">
                 <?php
                 $timeline_query = "
-                    SELECT 
-                        d.id_drop,
-                        d.order_code,
-                        d.trans_date,
-                        d.est_finish_date,
-                        d.status_id,
-                        d.employee_id,
-                        c.id_customer,
-                        c.name as customer_name,
-                        c.phone as phone_number,
-                        s.id_service,
-                        s.service_name,
-                        s.category,
-                        s.price_min,
-                        s.price_max,
-                        s.duration,
-                        di.brand,
-                        di.fixed_price,
-                        di.service_id as drop_item_service_id,
-                        st.status_name,
-                        p.status as payment_status,
-                        p.payment_method,
-                        p.payment_date,
-                        p.amount_paid,
-                        e.name as employee_name,
-                        -- Gunakan fixed_price jika ada, jika tidak gunakan price_min
-                        COALESCE(di.fixed_price, s.price_min) as actual_price
-                    FROM drops d
-                    JOIN customers c ON d.customer_id = c.id_customer
-                    JOIN drop_items di ON d.id_drop = di.drop_id
-                    JOIN services s ON di.service_id = s.id_service
-                    JOIN statuses st ON d.status_id = st.id_status
-                    LEFT JOIN payments p ON d.id_drop = p.drop_id
-                    LEFT JOIN employees e ON d.employee_id = e.id_employee
-                    WHERE d.est_finish_date >= CURDATE()
-                    ORDER BY d.trans_date DESC 
-                    LIMIT 10
-                ";
+                SELECT 
+                    d.id_drop,
+                    d.order_code,
+                    d.trans_date,
+                    d.est_finish_date,
+                    dl.status_id,  -- ✅ AMBIL DARI DEADLINES
+                    d.employee_id,
+                    c.id_customer,
+                    c.name as customer_name,
+                    c.phone as phone_number,
+                    s.id_service,
+                    s.service_name,
+                    s.category,
+                    s.price_min,
+                    s.price_max,
+                    s.duration,
+                    di.brand,
+                    di.fixed_price,
+                    di.service_id as drop_item_service_id,
+                    st.status_name,
+                    p.status as payment_status,
+                    p.payment_method,
+                    p.payment_date,
+                    p.amount_paid,
+                    e.name as employee_name,
+                    -- Gunakan fixed_price jika ada, jika tidak gunakan price_min
+                    COALESCE(di.fixed_price, s.price_min) as actual_price
+                FROM drops d
+                JOIN customers c ON d.customer_id = c.id_customer
+                JOIN drop_items di ON d.id_drop = di.drop_id
+                JOIN services s ON di.service_id = s.id_service
+                JOIN deadlines dl ON d.id_drop = dl.drop_id  -- ✅ TAMBAHKAN JOIN KE DEADLINES
+                JOIN statuses st ON dl.status_id = st.id_status  -- ✅ UBAH DARI d.status_id KE dl.status_id
+                LEFT JOIN payments p ON d.id_drop = p.drop_id
+                LEFT JOIN employees e ON d.employee_id = e.id_employee
+                WHERE d.est_finish_date >= CURDATE()
+                ORDER BY d.trans_date DESC 
+                LIMIT 10
+            ";
                 $timeline_result = mysqli_query($conn, $timeline_query);
 
                 if (mysqli_num_rows($timeline_result) > 0) {
@@ -604,11 +606,10 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         }
     `;
     document.head.appendChild(style);
+    
 </script>
 
 <!-- Load external JavaScript -->
 <script src="../js/timeline_pesanan.js"></script>
 
-<?php
-include('../partials/footer.php');
-?>
+<?php include_once "../partials/footer.php"; ?>

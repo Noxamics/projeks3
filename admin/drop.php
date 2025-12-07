@@ -500,7 +500,13 @@ WHERE
 </div>
 
 <?php include_once "../partials/footer.php"; ?>
+
 <script>
+// ============================================================
+// DROP.PHP - FIXED JAVASCRIPT SECTION
+// Ganti SELURUH bagian <script> di drop.php dengan kode ini
+// ============================================================
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("✅ Page loaded, initializing...");
 
@@ -583,6 +589,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('duration').value = '0';
         document.getElementById('tanggal_selesai').value = '';
         document.getElementById('amount_paid_display').value = ''; 
+        document.getElementById('amount_paid').value = '0';
         
         setPaymentDate('payment_date_display', 'payment_date_hidden', '');
         
@@ -736,40 +743,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== CEGAH EDIT MANUAL PAYMENT DATE =====
-    
-    const payDateDisplayAdd = document.getElementById('payment_date_display');
-    if (payDateDisplayAdd) {
-        payDateDisplayAdd.addEventListener('focus', function(e) {
-            e.preventDefault();
-            e.target.blur();
-            console.warn(`⚠️ Manual edit tidak diizinkan untuk payment date`);
-        });
-        
-        payDateDisplayAdd.addEventListener('change', function(e) {
-            const hidden = document.getElementById('payment_date_hidden');
-            const original = hidden ? hidden.dataset.originalDate : '';
-            e.target.value = original;
-            console.log(`🔒 Payment date reset to locked value: ${original}`);
-        });
-    }
-    
-    const payDateDisplayEdit = document.getElementById('edit_payment_date_display');
-    if (payDateDisplayEdit) {
-        payDateDisplayEdit.addEventListener('focus', function(e) {
-            e.preventDefault();
-            e.target.blur();
-            console.warn(`⚠️ Manual edit tidak diizinkan untuk payment date`);
-        });
-        
-        payDateDisplayEdit.addEventListener('change', function(e) {
-            const hidden = document.getElementById('edit_payment_date_hidden');
-            const original = hidden ? hidden.dataset.originalDate : '';
-            e.target.value = original;
-            console.log(`🔒 Payment date reset to locked value: ${original}`);
-        });
-    }
-
     // ===== EDIT MODAL - DOUBLE CLICK =====
 
     document.querySelectorAll('.data-row').forEach(function(row) {
@@ -844,37 +817,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ===== FORM SUBMIT VALIDATION =====
+    // ===== SAVE ONLY BUTTON =====
     
-    document.getElementById('addForm').addEventListener('submit', function(e) {
+    document.getElementById('saveOnlyBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log("=== SAVE ONLY CLICKED ===");
+        
+        const form = document.getElementById('addForm');
+        
+        if (!form.checkValidity()) {
+            console.error("❌ Form validation failed");
+            form.reportValidity();
+            return;
+        }
+        
+        console.log("✅ Form valid, submitting...");
+        
         const paymentStatus = document.getElementById('payment_status').value;
         const paymentDateHidden = document.getElementById('payment_date_hidden');
         
-        console.log("=== ADD FORM SUBMIT ===");
-        console.log("Payment Status:", paymentStatus);
-        
         if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
             const today = new Date().toISOString().split('T')[0];
-            setPaymentDate('payment_date_display', 'payment_date_hidden', today);
-            console.log("⚠️ FORCED set to:", today);
+            paymentDateHidden.value = today;
+            console.log("⚠️ Auto-set payment_date to today:", today);
         }
+        
+        const formData = new FormData(form);
+        
+        console.log("=== FORM DATA BEING SENT ===");
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        
+        fetch('drop_add.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log("📡 Response status:", response.status);
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error("❌ Response text:", text);
+                    throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("📥 Response data:", data);
+            
+            if (data.success && data.drop_id) {
+                console.log("✅ Pesanan berhasil disimpan!");
+                console.log("Drop ID:", data.drop_id);
+                console.log("Order Code:", data.order_code);
+                
+                hideModal('addModal');
+                
+                sessionStorage.setItem('showSuccess', 'true');
+                sessionStorage.setItem('successMessage', 'Pesanan berhasil ditambahkan!');
+                
+                setTimeout(() => {
+                    console.log("🔄 Refreshing page...");
+                    window.location.reload();
+                }, 500);
+                
+            } else {
+                console.error("❌ Server returned error:", data.message);
+                alert("Gagal menyimpan pesanan: " + (data.message || "Unknown error"));
+            }
+        })
+        .catch(error => {
+            console.error("❌ Error:", error);
+            alert("Terjadi kesalahan: " + error.message);
+        });
     });
     
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-        const paymentStatus = document.getElementById('edit_payment_status').value;
-        const paymentDateHidden = document.getElementById('edit_payment_date_hidden');
-        
-        console.log("=== EDIT FORM SUBMIT ===");
-        console.log("Payment Status:", paymentStatus);
-        
-        if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
-            const today = new Date().toISOString().split('T')[0];
-            setPaymentDate('edit_payment_date_display', 'edit_payment_date_hidden', today);
-            console.log("⚠️ FORCED set to:", today);
-        }
-    });
-    
-    // ===== CETAK STRUK - UPDATED (SAVE & PRINT) =====
+    // ===== SAVE & PRINT BUTTON =====
 
     document.getElementById('saveAndPrintBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -889,6 +908,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log("✅ Form valid, submitting...");
+        
+        const paymentStatus = document.getElementById('payment_status').value;
+        const paymentDateHidden = document.getElementById('payment_date_hidden');
+        
+        if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
+            const today = new Date().toISOString().split('T')[0];
+            paymentDateHidden.value = today;
+            console.log("⚠️ Auto-set payment_date to today:", today);
+        }
         
         const formData = new FormData(form);
         
@@ -905,7 +933,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("📍 Response status:", response.status);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return response.text().then(text => {
+                    console.error("❌ Response text:", text);
+                    throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+                });
             }
             return response.json();
         })
@@ -914,18 +945,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success && data.drop_id) {
                 console.log("✅ Pesanan berhasil disimpan!");
-                console.log("Drop ID:", data.drop_id);
-                console.log("Order Code:", data.order_code);
                 
                 hideModal('addModal');
-                console.log("✅ Modal ditutup");
                 
                 setTimeout(() => {
                     const drop_id = data.drop_id;
                     const cetak_url = `cetak_struk.php?id=${drop_id}`;
                     
-                    console.log("📄 Opening print window...");
-                    console.log("URL:", cetak_url);
+                    console.log("📄 Opening print window:", cetak_url);
                     
                     const printWindow = window.open(
                         cetak_url,
@@ -934,14 +961,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (printWindow) {
-                        console.log("✅ Print window opened successfully");
+                        console.log("✅ Print window opened");
                     } else {
-                        console.warn("⚠️ Print window blocked by browser");
-                        alert('Window cetak diblokir browser. Silakan buka manual atau allow popup.');
+                        console.warn("⚠️ Print window blocked");
+                        alert('Window cetak diblokir browser. Silakan allow popup.');
                     }
                     
                     setTimeout(() => {
-                        console.log("🔄 Refreshing page...");
                         sessionStorage.setItem('showSuccess', 'true');
                         sessionStorage.setItem('successMessage', 'Pesanan berhasil ditambahkan!');
                         window.location.reload();
@@ -950,90 +976,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 500);
                 
             } else {
-                console.error("❌ Server returned error:", data.message);
+                console.error("❌ Server error:", data.message);
                 alert("Gagal menyimpan pesanan: " + (data.message || "Unknown error"));
             }
         })
         .catch(error => {
-            console.error("❌ Network error:", error);
+            console.error("❌ Error:", error);
             alert("Terjadi kesalahan: " + error.message);
         });
     });
-
-document.getElementById('saveOnlyBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    console.log("=== SAVE ONLY CLICKED ===");
     
-    const form = document.getElementById('addForm');
+    // ===== PRINT SELECTED =====
     
-    // Validasi form
-    if (!form.checkValidity()) {
-        console.error("❌ Form validation failed");
-        form.reportValidity();
-        return;
-    }
-    
-    console.log("✅ Form valid, submitting...");
-    
-    // Pastikan payment_date diisi jika status Lunas
-    const paymentStatus = document.getElementById('payment_status').value;
-    const paymentDateHidden = document.getElementById('payment_date_hidden');
-    
-    if (paymentStatus === 'Lunas' && !paymentDateHidden.value) {
-        const today = new Date().toISOString().split('T')[0];
-        paymentDateHidden.value = today;
-        console.log("⚠️ Auto-set payment_date to today:", today);
-    }
-    
-    const formData = new FormData(form);
-    
-    console.log("=== FORM DATA BEING SENT ===");
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
-    
-    fetch('drop_add.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log("📡 Response status:", response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("📥 Response data:", data);
-        
-        if (data.success && data.drop_id) {
-            console.log("✅ Pesanan berhasil disimpan!");
-            console.log("Drop ID:", data.drop_id);
-            console.log("Order Code:", data.order_code);
-            
-            hideModal('addModal');
-            console.log("✅ Modal ditutup");
-            
-            // Tampilkan success message dan reload
-            sessionStorage.setItem('showSuccess', 'true');
-            sessionStorage.setItem('successMessage', 'Pesanan berhasil ditambahkan!');
-            
-            setTimeout(() => {
-                console.log("🔄 Refreshing page...");
-                window.location.reload();
-            }, 500);
-            
-        } else {
-            console.error("❌ Server returned error:", data.message);
-            alert("Gagal menyimpan pesanan: " + (data.message || "Unknown error"));
-        }
-    })
-    .catch(error => {
-        console.error("❌ Network error:", error);
-        alert("Terjadi kesalahan: " + error.message);
-    });
-});
     document.getElementById('printSelectedBtn').addEventListener('click', function() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const ids = Array.from(checked).map(cb => cb.value);
@@ -1046,7 +1000,7 @@ document.getElementById('saveOnlyBtn').addEventListener('click', function(e) {
         window.open('cetak_struk.php?id=' + ids.join(','), '_blank');
     });
 
-    // ===== NOTIFICATIONS =====
+    // ===== SUCCESS MODAL =====
 
     if (sessionStorage.getItem('showSuccess') === 'true') {
         document.getElementById('successMessage').textContent = sessionStorage.getItem('successMessage');
