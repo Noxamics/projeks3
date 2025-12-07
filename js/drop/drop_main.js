@@ -1,13 +1,14 @@
 // File: /js/drop/drop_main.js
-// Main functionality untuk Drop Management - FIXED PRINT PATHS
+// Main functionality untuk Drop Management - FIXED SESSION STORAGE
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop main module loaded");
 
-  // ===== SUCCESS MESSAGE HANDLER =====
-  if (sessionStorage.getItem("showSuccess") === "true") {
+  // ===== SUCCESS MESSAGE HANDLER (DROP PAGE ONLY) =====
+  // 🔧 FIXED: Gunakan key "drop_showSuccess" untuk halaman drop.php
+  if (sessionStorage.getItem("drop_showSuccess") === "true") {
     const message =
-      sessionStorage.getItem("successMessage") || "✅ Operasi berhasil!";
+      sessionStorage.getItem("drop_successMessage") || "✅ Operasi berhasil!";
 
     const alertDiv = document.createElement("div");
     alertDiv.style.cssText = `
@@ -31,8 +32,9 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(() => alertDiv.remove(), 300);
     }, 3000);
 
-    sessionStorage.removeItem("showSuccess");
-    sessionStorage.removeItem("successMessage");
+    // 🔧 FIXED: Clear drop-specific session storage
+    sessionStorage.removeItem("drop_showSuccess");
+    sessionStorage.removeItem("drop_successMessage");
 
     console.log("✅ Success message displayed:", message);
   }
@@ -116,7 +118,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log("Selected Drop IDs:", dropIds);
 
-      // 🔧 FIXED: Open each struk separately
       if (dropIds.length === 0) {
         showNotification("⚠️ Tidak ada pesanan yang dipilih.", "error");
         return;
@@ -183,7 +184,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // 🔧 FIXED: Use correct path
       const baseUrl = getBaseUrl();
       console.log("Base URL:", baseUrl);
 
@@ -224,7 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // 🔧 FIXED: Use correct path
       const baseUrl = getBaseUrl();
       const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
 
@@ -360,9 +359,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            sessionStorage.setItem("showSuccess", "true");
+            // 🔧 FIXED: Gunakan key yang berbeda untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
             sessionStorage.setItem(
-              "successMessage",
+              "drop_successMessage",
               data.message || "✅ Data berhasil dihapus."
             );
             window.location.reload();
@@ -407,9 +407,10 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            sessionStorage.setItem("showSuccess", "true");
+            // 🔧 FIXED: Gunakan key yang berbeda untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
             sessionStorage.setItem(
-              "successMessage",
+              "drop_successMessage",
               data.message || "✅ Status item berhasil diubah."
             );
             window.location.reload();

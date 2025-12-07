@@ -318,3 +318,35 @@ function closeDeleteModal() {
 }
 
 console.log("🟢 Delete modal handler ready");
+
+// =====================================================================
+// ====== CHECK SESSION STORAGE FOR NOTIFICATIONS ========
+// =====================================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Detect current page
+  const currentPage = window.location.pathname;
+  const isTimelinePage = currentPage.includes("timeline_pesanan.php");
+  const isDropPage = currentPage.includes("drop.php");
+
+  // Check for notification based on page
+  if (isDropPage) {
+    const notification = sessionStorage.getItem("dropNotification");
+    const notificationType = sessionStorage.getItem("dropNotificationType");
+
+    if (notification) {
+      showNotification(notification, notificationType || "success");
+      sessionStorage.removeItem("dropNotification");
+      sessionStorage.removeItem("dropNotificationType");
+    }
+  } else if (isTimelinePage) {
+    const notification = sessionStorage.getItem("timelineNotification");
+    const notificationType = sessionStorage.getItem("timelineNotificationType");
+
+    if (notification) {
+      showNotification(notification, notificationType || "success");
+      sessionStorage.removeItem("timelineNotification");
+      sessionStorage.removeItem("timelineNotificationType");
+    }
+  }
+});

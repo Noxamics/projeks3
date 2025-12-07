@@ -1,8 +1,13 @@
 // File: /js/drop/drop_status_change.js
-// Handler untuk perubahan status per item dengan CUSTOM POPUP
+// Handler untuk perubahan status per item dengan CUSTOM POPUP + sessionStorage
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Status change handler loaded with custom popup");
+
+  // ===== DETECT CURRENT PAGE =====
+  const currentPage = window.location.pathname;
+  const isTimelinePage = currentPage.includes("timeline_pesanan.php");
+  const isDropPage = currentPage.includes("drop.php");
 
   // ===== CREATE CUSTOM CONFIRM MODAL =====
   function createConfirmModal() {
@@ -303,9 +308,16 @@ document.addEventListener("DOMContentLoaded", function () {
           this.style.backgroundColor = "#10b981";
           this.style.color = "white";
 
-          // Show notification
-          if (typeof showNotification === "function") {
-            showNotification(`✅ ${data.message}`, "success");
+          // ===== SAVE TO SESSION STORAGE BASED ON PAGE =====
+          if (isDropPage) {
+            sessionStorage.setItem("dropNotification", `✅ ${data.message}`);
+            sessionStorage.setItem("dropNotificationType", "success");
+          } else if (isTimelinePage) {
+            sessionStorage.setItem(
+              "timelineNotification",
+              `✅ ${data.message}`
+            );
+            sessionStorage.setItem("timelineNotificationType", "success");
           }
 
           setTimeout(() => {
@@ -319,8 +331,8 @@ document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => {
               console.log("🔄 Reloading page to refresh data...");
               window.location.reload();
-            }, 800);
-          }, 500);
+            }, 500);
+          }, 300);
         } else {
           throw new Error(data.message || "Gagal update status");
         }
@@ -385,7 +397,9 @@ document.addEventListener("DOMContentLoaded", function () {
     subtree: true,
   });
 
-  console.log("✅ Status change handler initialized with custom popup");
+  console.log(
+    "✅ Status change handler initialized with custom popup + sessionStorage"
+  );
 });
 
 // Simple notification function (jika belum ada)

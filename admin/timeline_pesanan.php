@@ -5,28 +5,6 @@ include('../db.php');
 ?>
 
 <?php
-if (isset($_GET['success'])) {
-    echo '<div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
-            ✅ Data berhasil diupdate!
-          </div>';
-
-    // AUTO-REDIRECT setelah 2 detik
-    echo '<script>
-            setTimeout(function() {
-                window.location.href = "timeline_pesanan.php";
-            }, 1500);
-          </script>';
-}
-
-if (isset($_GET['error'])) {
-    $error_message = urldecode($_GET['error']);
-    echo '<div class="alert alert-danger" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
-            ❌ ' . htmlspecialchars($error_message) . '
-          </div>';
-}
-?>
-
-<?php
 // ✅ FILTER: Query deadline TANPA status "Barang Telah Diambil"
 $currentMonth = date('Y-m');
 $deadlines_query = "
@@ -57,6 +35,7 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
 <link rel="stylesheet" href="../css/timeline_pesanan.css">
 <link rel="stylesheet" href="../css/timeline_pesanan-responsive.css">
+<link rel="stylesheet" href="../css/drop/drop_base.css">
 <link rel="stylesheet" href="../css/drop/drop_modal.css">
 <link rel="stylesheet" href="../css/drop/drop_form.css">
 
@@ -166,6 +145,7 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
                         echo "
                         <div class='order-item' 
                             data-id-drop='" . htmlspecialchars($order['id_drop']) . "'
+                            data-drop-id='" . htmlspecialchars($order['id_drop']) . "'
                             data-category='" . strtolower($order['category']) . "' 
                             data-order-code='" . htmlspecialchars($order['order_code']) . "'
                             data-customer='" . htmlspecialchars($order['customer_name']) . "'
@@ -232,157 +212,295 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         </div>
     </div>
 
-    <!-- POPUP FORM EDIT BARANG -->
-    <div class="modal" id="editModal">
-        <div class="modal-content large">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Edit Barang</h2>
-
-            <form method="POST" action="dashboard_edit.php" class="grid-form" id="editForm">
-                <input type="hidden" name="id_drop" id="edit_id_drop">
-
-                <div>
-                    <label>Nama Pelanggan</label>
-                    <input type="text" id="edit_customer_name" name="customer_name" required>
-                </div>
-                <div>
-                    <label>No. Handphone</label>
-                    <input type="text" id="edit_customer_phone" name="phone_number" required>
-                </div>
-
-                <div>
-                    <label>Brand / Merk</label>
-                    <input type="text" id="edit_brand" name="brand" required>
-                </div>
-
-                <div>
-                    <label for="edit_service_id">Layanan</label>
-                    <select name="service_id" id="edit_service_id" required onchange="updateServiceInfo(this.value)">
-                        <option value="">-- Pilih Layanan --</option>
-                        <?php
-                        $order = "FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
-                        $query = "SELECT id_service, category, service_name FROM services ORDER BY $order";
-                        $result = mysqli_query($conn, $query);
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            $displayName = ucfirst($row['category']) . " - " . ucfirst($row['service_name']);
-                            echo "<option value='{$row['id_service']}' data-category='{$row['category']}' data-service='{$row['service_name']}'>{$displayName}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Harga</label>
-                    <input type="text" id="edit_fixed_price" name="fixed_price" placeholder="Rp 0">
-                </div>
-
-                <div>
-                    <label>Estimasi Selesai</label>
-                    <input type="text" id="edit_estimate_desc" name="estimate_desc" placeholder="Contoh: 2 Hari"
-                        readonly style="background:#f9f9f9;">
-                </div>
-
-                <div>
-                    <label>Tgl. Transaksi</label>
-                    <input type="date" id="edit_tanggal_masuk" name="tanggal_masuk" required>
-                </div>
-                <div>
-                    <label>Estimasi Selesai</label>
-                    <input type="date" id="edit_tanggal_selesai" name="tanggal_selesai" required>
-                </div>
-
-                <div>
-                    <label>Status</label>
-                    <select name="status_id" id="edit_statusSelect" required>
-                        <option value="">Pilih Status</option>
-                        <?php
-                        $st = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
-                        while ($s = $st->fetch_assoc()) {
-                            echo "<option value='{$s['id_status']}'>{$s['status_name']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-                <div>
-                    <label>Status Pembayaran</label>
-                    <select name="payment_status" id="edit_payment_status">
-                        <option value="Belum Lunas">Belum Lunas</option>
-                        <option value="Lunas">Lunas</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Tanggal Pembayaran</label>
-                    <input type="date" id="edit_payment_date" name="payment_date">
-                </div>
-
-                <div>
-                    <label>Metode Pembayaran</label>
-                    <select name="payment_method" id="edit_payment_method">
-                        <option value="Tunai">Tunai</option>
-                        <option value="Transfer">Transfer</option>
-                        <option value="QRIS">QRIS</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="edit_amount_paid">Nominal Pembayaran</label>
-                    <input type="text" id="edit_amount_paid_display" placeholder="Masukkan nominal pembayaran">
-                    <input type="hidden" name="amount_paid" id="edit_amount_paid">
-                </div>
-
-                <div>
-                    <label>Karyawan</label>
-                    <select name="employee_id" id="edit_employee_id" required>
-                        <option value="">-- Pilih Karyawan --</option>
-                        <?php
-                        $emp_query = "SELECT id_employee, name FROM employees WHERE status = 'Aktif' ORDER BY name";
-                        $emp_result = mysqli_query($conn, $emp_query);
-                        while ($emp = mysqli_fetch_assoc($emp_result)) {
-                            echo "<option value='{$emp['id_employee']}'>{$emp['name']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="full-width">
-                    <button type="submit" class="save-btn">💾 Simpan Perubahan</button>
-                </div>
-            </form>
+    <!-- ORDER DETAIL MODAL -->
+    <div id="orderDetailModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeOrderDetail()">&times;</span>
+            <h2>Detail Pesanan</h2>
+            <div style="padding: 20px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold; width: 40%;">Kode Order:</td>
+                        <td id="modal-order-code" style="padding: 10px;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold;">Pelanggan:</td>
+                        <td id="modal-customer" style="padding: 10px;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold;">Kategori:</td>
+                        <td id="modal-category" style="padding: 10px;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold;">Layanan:</td>
+                        <td id="modal-service" style="padding: 10px;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold;">Brand:</td>
+                        <td id="modal-brand" style="padding: 10px;">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: bold;">Estimasi Selesai:</td>
+                        <td id="modal-est-date" style="padding: 10px;">-</td>
+                    </tr>
+                </table>
+            </div>
         </div>
+    </div>
+
+    <!-- ✅ HIDDEN CONTAINER: Load data untuk modal edit -->
+    <div style="display: none;" id="timelineModalData">
+        <!-- Services data untuk modal edit -->
+        <select id="timeline_services_template">
+            <option value="">-- Pilih Layanan --</option>
+            <?php
+            // Query services untuk modal edit
+            $services_modal_query = "SELECT id_service, category, service_name, price_min, duration 
+                                     FROM services 
+                                     ORDER BY FIELD(category, 'cleaning', 'reglue', 'repaint', 'bag', 'cap'), service_name";
+            $services_modal_result = mysqli_query($conn, $services_modal_query);
+
+            while ($service = mysqli_fetch_assoc($services_modal_result)) {
+                $displayName = ucfirst($service['category']) . " - " . ucfirst($service['service_name']);
+                echo "<option value='{$service['id_service']}' 
+                              data-price='{$service['price_min']}' 
+                              data-duration='{$service['duration']}'>
+                        {$displayName}
+                      </option>";
+            }
+            ?>
+        </select>
+
+        <!-- Statuses data untuk modal edit -->
+        <select id="timeline_statuses_template">
+            <option value="">Pilih Status</option>
+            <?php
+            // Query statuses untuk modal edit
+            $statuses_modal_query = "SELECT id_status, status_name FROM statuses ORDER BY id_status ASC";
+            $statuses_modal_result = mysqli_query($conn, $statuses_modal_query);
+
+            while ($status = mysqli_fetch_assoc($statuses_modal_result)) {
+                echo "<option value='{$status['id_status']}'>{$status['status_name']}</option>";
+            }
+            ?>
+        </select>
     </div>
 
 </main>
 
-<!-- INCLUDE MODAL EDIT -->
+<!-- ✅ INCLUDE MODAL EDIT - SAMA SEPERTI DI HALAMAN DROP -->
 <?php include('../modal/drop/modal_edit_item.php'); ?>
 
 <script>
-    // Data deadlines
+    // Data deadlines dari PHP
     const deadlinesData = <?php echo json_encode($deadlines); ?>;
-    console.log('Deadlines loaded:', deadlinesData.length);
+    console.log('✅ Deadlines loaded:', deadlinesData.length);
 
-    // Format Rupiah
-    function formatRupiah(angka) {
-        if (!angka || angka == 0) return 'Rp 0';
-        return 'Rp ' + parseInt(angka).toLocaleString('id-ID');
+    // Tutup modal detail
+    function closeOrderDetail() {
+        const modal = document.getElementById('orderDetailModal');
+        if (modal) modal.style.display = 'none';
     }
 
-    // Parse Rupiah ke angka
-    function parseRupiah(rupiah) {
-        return parseInt(rupiah.replace(/[^0-9]/g, '')) || 0;
+    // ✅ FUNGSI UNTUK MEMBUKA EDIT MODAL - IMPROVED
+    function openEditModal(element) {
+        // Cegah modal ADD terbuka
+        const addModal = document.getElementById('addModal');
+        if (addModal) {
+            addModal.style.display = 'none';
+        }
+
+        const dropId = element.getAttribute('data-drop-id') || element.getAttribute('data-id-drop');
+
+        if (!dropId) {
+            console.error('❌ Drop ID tidak ditemukan pada element:', element);
+            alert('Error: ID pesanan tidak ditemukan');
+            return;
+        }
+
+        console.log('✏️ Opening EDIT modal for Drop ID:', dropId);
+
+        // Pastikan fungsi loadEditModal sudah tersedia
+        if (typeof loadEditModal === 'function') {
+            // Tutup semua modal yang mungkin terbuka
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+
+            // Buka modal edit
+            loadEditModal(dropId);
+        } else {
+            console.error('❌ Fungsi loadEditModal tidak ditemukan');
+            alert('Error: Fungsi edit modal tidak tersedia. Pastikan file drop_modal_edit.js sudah dimuat.');
+        }
     }
 
-    // Tutup modal
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-    
+    // Make it globally accessible
+    window.openEditModal = openEditModal;
+
+    // ===== PREVENT ADD MODAL FROM OPENING =====
+    (function () {
+        'use strict';
+
+        console.log('🛡 ADD Modal Prevention Script loaded');
+
+        // Function to force close ADD modal
+        function forceCloseAddModal() {
+            const addModal = document.getElementById('addModal');
+            if (addModal && addModal.style.display !== 'none') {
+                console.warn('⚠ ADD Modal detected - Force closing...');
+                addModal.style.display = 'none';
+                addModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Check on load
+        document.addEventListener('DOMContentLoaded', function () {
+            forceCloseAddModal();
+
+            // Monitor for ADD modal being opened
+            const addModalObserver = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const addModal = document.getElementById('addModal');
+                        if (addModal && addModal.style.display !== 'none') {
+                            console.warn('⚠ ADD Modal opened unexpectedly - Auto closing...');
+                            forceCloseAddModal();
+                        }
+                    }
+                });
+            });
+
+            // Start observing ADD modal
+            const addModal = document.getElementById('addModal');
+            if (addModal) {
+                addModalObserver.observe(addModal, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+                console.log('✅ ADD Modal observer active');
+            }
+
+            // Override showModal untuk addModal
+            const originalShowModal = window.showModal;
+            if (typeof originalShowModal === 'function') {
+                window.showModal = function (modalId) {
+                    if (modalId === 'addModal') {
+                        console.warn('⚠ Attempt to open ADD Modal blocked');
+                        return false;
+                    }
+                    return originalShowModal(modalId);
+                };
+            }
+        });
+
+        // Check periodically (fallback)
+        setInterval(forceCloseAddModal, 1000);
+
+        console.log('✅ ADD Modal prevention active');
+    })();
 </script>
 
-<!-- Load external JavaScript -->
+<!-- Load external JavaScript - URUTAN PENTING! -->
+<!-- 1. Drop helpers harus dimuat pertama -->
+<script src="../js/drop/drop_helpers.js"></script>
+
+<!-- 2. Timeline pesanan -->
 <script src="../js/timeline_pesanan.js"></script>
 <script src="../js/drop/drop_helpers.js"></script>
 <script src="../js/drop/drop_modal_edit.js"></script>
+
+<script src="../js/drop/drop_modal.js"></script>
+<script src="../js/drop/drop_modal_edit.js"></script>
+<script src="../js/drop/drop_main.js"></script>
+<script src="../js/drop/drop_delete.js"></script>
+<script src="../js/drop/drop_status_change.js"></script>
+
+<!-- 4. Setup double-click handler untuk timeline -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('🎯 Setting up Timeline Edit Handler...');
+
+        // Setup double-click handler untuk order items
+        function setupTimelineEditHandlers() {
+            const orderItems = document.querySelectorAll('.order-item');
+            console.log(`Found ${orderItems.length} order items`);
+
+            orderItems.forEach((item) => {
+                // Remove existing listeners
+                const newItem = item.cloneNode(true);
+                item.parentNode.replaceChild(newItem, item);
+
+                // Add double-click event
+                newItem.addEventListener('dblclick', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const dropId = this.getAttribute('data-drop-id') || this.getAttribute('data-id-drop');
+
+                    if (!dropId) {
+                        console.error('❌ Drop ID not found');
+                        alert('Error: ID pesanan tidak ditemukan');
+                        return;
+                    }
+
+                    console.log(`✏️ Double-click detected - Opening edit for Drop ${dropId}`);
+
+                    if (typeof loadEditModal === 'function') {
+                        loadEditModal(dropId);
+                    } else {
+                        console.error('❌ loadEditModal function not found');
+                        alert('Error: Fungsi edit tidak tersedia');
+                    }
+                });
+
+                // Visual feedback on hover
+                newItem.style.cursor = 'pointer';
+                newItem.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+
+                newItem.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                });
+
+                newItem.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        }
+
+        // Initial setup
+        setupTimelineEditHandlers();
+
+        // Re-setup after filter/sort operations
+        const originalSortOrders = window.sortOrders;
+        if (typeof originalSortOrders === 'function') {
+            window.sortOrders = function () {
+                originalSortOrders();
+                setTimeout(setupTimelineEditHandlers, 100);
+            };
+        }
+
+        const originalFilterByCategory = window.filterByCategory;
+        if (typeof originalFilterByCategory === 'function') {
+            window.filterByCategory = function (category) {
+                originalFilterByCategory(category);
+                setTimeout(setupTimelineEditHandlers, 100);
+            };
+        }
+
+        // Tutup semua modal saat load
+        document.querySelectorAll('.modal').forEach(modal => {
+            if (modal.id !== 'orderDetailModal' && modal.id !== 'editModal') {
+                modal.style.display = 'none';
+            }
+        });
+
+        console.log('✅ Timeline edit handlers initialized');
+        console.log('🖱️ Double-click any order to edit');
+    });
+</script>
 
 <?php include_once "../partials/footer.php"; ?>

@@ -132,11 +132,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </nav>
 
         <div class="header-right">
-            <span class="dark-label">Dark Mode</span>
+            <!--<span class="dark-label">Dark Mode</span>
             <label class="switch">
                 <input type="checkbox" id="darkModeToggle">
                 <span class="slider"></span>
-            </label>
+            </label> -->
 
             <!-- Logout Button -->
             <a href="../admin/logout.php" class="logout-button" title="Keluar">

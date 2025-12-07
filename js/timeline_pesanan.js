@@ -1,8 +1,84 @@
-<?php
-// Perbaikan path include
-include('../partials/headerAdmin.php');
-include('../db.php');
-?>
+// File: /js/timeline/timeline_pesanan.js
+// Timeline Dashboard - FIXED SESSION STORAGE
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("✅ Timeline Dashboard initialized");
+
+  // ===== SUCCESS MESSAGE HANDLER (TIMELINE PAGE ONLY) =====
+  // 🔧 FIXED: Gunakan key "timeline_showSuccess" untuk halaman timeline
+  if (sessionStorage.getItem("timeline_showSuccess") === "true") {
+    const message =
+      sessionStorage.getItem("timeline_successMessage") ||
+      "✅ Operasi berhasil!";
+
+    const alertDiv = document.createElement("div");
+    alertDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-weight: 600;
+      animation: slideIn 0.3s ease-out;
+    `;
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.style.animation = "slideOut 0.3s ease-out";
+      setTimeout(() => alertDiv.remove(), 300);
+    }, 3000);
+
+    // 🔧 FIXED: Clear timeline-specific session storage
+    sessionStorage.removeItem("timeline_showSuccess");
+    sessionStorage.removeItem("timeline_successMessage");
+
+    console.log("✅ Timeline success message displayed:", message);
+  }
+
+  // Add CSS animation styles
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Backup semua order items saat pertama kali load
+  allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  console.log("✅ Total order items loaded:", allOrderItems.length);
+
+  generateCalendar();
+  generateDeadlineList();
+  setupRealTimeSearch();
+  setupTimelineEditHandlers(); // Setup edit handlers
+  setupModalHandlers();
+
+  console.log("🖱️ Double-click any order to open EDIT modal");
+});
 
 <?php
 if (isset($_GET['success'])) {
@@ -50,8 +126,60 @@ $deadlines_query = "
 $deadlines_result = mysqli_query($conn, $deadlines_query);
 $deadlines = [];
 
-while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
-    $deadlines[] = $deadline;
+  // Jika belum ada backup, ambil semua order items dari DOM
+  if (allOrderItems.length === 0) {
+    allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  }
+
+  // Clone array untuk manipulasi
+  const ordersArray = [...allOrderItems];
+
+  // RESET: Set semua ke display block
+  ordersArray.forEach((order) => (order.style.display = "block"));
+
+  // Jika filter deadline, filter berdasarkan kriteria
+  if (sortBy.startsWith("deadline-")) {
+    const filteredOrders = ordersArray.filter((order) => {
+      const estDate = order.getAttribute("data-est-date");
+      const daysUntil = getDaysUntilDeadline(estDate);
+
+      if (sortBy === "deadline-critical") {
+        return daysUntil >= 0 && daysUntil <= 2;
+      } else if (sortBy === "deadline-warning") {
+        return daysUntil >= 3 && daysUntil <= 5;
+      } else if (sortBy === "deadline-safe") {
+        return daysUntil >= 6;
+      }
+      return false;
+    });
+
+    // Urutkan berdasarkan deadline terdekat
+    filteredOrders.sort((a, b) => {
+      const dateA = new Date(a.getAttribute("data-est-date"));
+      const dateB = new Date(b.getAttribute("data-est-date"));
+      return dateA - dateB;
+    });
+
+    // Tampilkan hasil filter
+    timelineBody.innerHTML = "";
+    filteredOrders.forEach((order) => timelineBody.appendChild(order));
+
+    showDeadlineFilterMessage(sortBy, filteredOrders.length);
+  } else {
+    // Sort berdasarkan tanggal (newest/oldest)
+    ordersArray.sort((a, b) => {
+      const dateA = new Date(a.getAttribute("data-est-date"));
+      const dateB = new Date(b.getAttribute("data-est-date"));
+      return sortBy === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    timelineBody.innerHTML = "";
+    ordersArray.forEach((order) => timelineBody.appendChild(order));
+    showSortMessage(sortBy);
+  }
+
+  // Re-attach double click handlers untuk EDIT MODAL
+  setupTimelineEditHandlers();
 }
 ?>
 
@@ -274,14 +402,156 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 <!-- INCLUDE MODAL EDIT DARI FOLDER MODAL/DROP -->
 <?php include('../modal/drop/modal_edit_item.php'); ?>
 
-<script>
-    // Data deadlines dari PHP
-    const deadlinesData = <?php echo json_encode($deadlines); ?>;
-    console.log('✅ Deadlines loaded:', deadlinesData.length);
+// ✅ Setup double click handler untuk EDIT MODAL (bukan detail)
+function setupTimelineEditHandlers() {
+  const orderItems = document.querySelectorAll(".order-item");
+  console.log(`📋 Setting up edit handlers for ${orderItems.length} items`);
 
-    // Tutup modal detail
-    function closeOrderDetail() {
-        document.getElementById('orderDetailModal').style.display = 'none';
+  orderItems.forEach((item) => {
+    // Remove old listeners untuk avoid duplicate
+    const newItem = item.cloneNode(true);
+    item.parentNode.replaceChild(newItem, item);
+
+    // Style untuk cursor pointer
+    newItem.style.cursor = "pointer";
+    newItem.style.transition = "transform 0.2s ease, box-shadow 0.2s ease";
+
+    // Attach double click untuk EDIT MODAL
+    newItem.addEventListener("dblclick", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropId =
+        this.getAttribute("data-drop-id") || this.getAttribute("data-id-drop");
+
+      if (!dropId) {
+        console.error("❌ Drop ID not found");
+        alert("Error: ID pesanan tidak ditemukan");
+        return;
+      }
+
+      console.log(
+        `✏️ Double-click detected - Opening EDIT modal for Drop ${dropId}`
+      );
+
+      // Panggil fungsi loadEditModal yang ada di drop_modal_edit.js
+      if (typeof loadEditModal === "function") {
+        loadEditModal(dropId);
+      } else {
+        console.error("❌ loadEditModal function not found");
+        alert(
+          "Error: Fungsi edit tidak tersedia. Pastikan drop_modal_edit.js sudah dimuat."
+        );
+      }
+    });
+
+    // Visual feedback on hover
+    newItem.addEventListener("mouseenter", function () {
+      this.style.transform = "translateY(-2px)";
+      this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    });
+
+    newItem.addEventListener("mouseleave", function () {
+      this.style.transform = "translateY(0)";
+      this.style.boxShadow = "none";
+    });
+  });
+
+  console.log("✅ Edit handlers attached");
+}
+
+// Make setupTimelineEditHandlers global
+window.setupTimelineEditHandlers = setupTimelineEditHandlers;
+
+// Search functions
+function searchOrders() {
+  const searchTerm = document
+    .getElementById("searchOrder")
+    .value.toLowerCase()
+    .trim();
+  if (searchTerm === "") return;
+
+  const orderItems = document.querySelectorAll(".order-item");
+  let foundResults = false;
+  const activeCategory = document
+    .querySelector(".filter-type button.active")
+    .textContent.toLowerCase();
+
+  orderItems.forEach((item) => {
+    const orderId = item.querySelector(".order-id").textContent.toLowerCase();
+    const customerName = item
+      .querySelector(".order-details strong")
+      .textContent.toLowerCase();
+    const serviceDetails = item
+      .querySelector(".order-details")
+      .textContent.toLowerCase();
+    const itemCategory = item.getAttribute("data-category");
+
+    const matchesSearch =
+      orderId.includes(searchTerm) ||
+      customerName.includes(searchTerm) ||
+      serviceDetails.includes(searchTerm);
+    const matchesCategory =
+      activeCategory === "all" || itemCategory === activeCategory;
+
+    if (matchesSearch && matchesCategory) {
+      item.style.display = "block";
+      foundResults = true;
+    } else {
+      item.style.display = "none";
+    }
+  });
+
+  showSearchMessage(searchTerm, foundResults, activeCategory);
+}
+
+function showSearchMessage(searchTerm, foundResults, activeCategory) {
+  const existingMessage = document.querySelector(".search-message");
+  if (existingMessage) existingMessage.remove();
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "search-message";
+  messageDiv.style.cssText = `
+        background: ${foundResults ? "#d4edda" : "#f8d7da"};
+        color: ${foundResults ? "#155724" : "#721c24"};
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 14px;
+        border: 1px solid ${foundResults ? "#c3e6cb" : "#f5c6cb"};
+    `;
+
+  if (foundResults) {
+    messageDiv.textContent =
+      activeCategory === "all"
+        ? `Ditemukan hasil untuk: "${searchTerm}"`
+        : `Ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
+  } else {
+    messageDiv.textContent =
+      activeCategory === "all"
+        ? `Tidak ditemukan hasil untuk: "${searchTerm}"`
+        : `Tidak ditemukan hasil untuk: "${searchTerm}" dalam kategori ${activeCategory}`;
+  }
+
+  const timelineBody = document.getElementById("orderTimeline");
+  timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
+  setTimeout(() => messageDiv.remove(), 3000);
+}
+
+function setupRealTimeSearch() {
+  const searchInput = document.getElementById("searchOrder");
+  let searchTimeout;
+
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase().trim();
+
+    if (searchTerm === "") {
+      const activeCategory = document
+        .querySelector(".filter-type button.active")
+        .textContent.toLowerCase();
+      filterByCategory(activeCategory);
+      return;
     }
 
     // Fungsi untuk membuka edit modal
@@ -316,4 +586,54 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 <!-- 3. Drop modal edit - untuk fungsi edit -->
 <script src="../js/drop/drop_modal_edit.js"></script>
 
-<?php include_once "../partials/footer.php"; ?>
+  showFilterMessage(category, searchTerm, foundResults);
+}
+
+function showFilterMessage(category, searchTerm, foundResults) {
+  const message =
+    category === "all"
+      ? searchTerm === ""
+        ? "Menampilkan semua pesanan"
+        : `Menampilkan semua kategori dengan pencarian: "${searchTerm}"`
+      : searchTerm === ""
+      ? `Menampilkan kategori: ${category}`
+      : `Menampilkan kategori: ${category} dengan pencarian: "${searchTerm}"`;
+
+  const existingMessage = document.querySelector(".filter-message");
+  if (existingMessage) existingMessage.remove();
+
+  const messageDiv = document.createElement("div");
+  messageDiv.className = "filter-message";
+  messageDiv.style.cssText = `
+        background: #e3f2fd;
+        color: #0d47a1;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 14px;
+        border: 1px solid #bbdefb;
+    `;
+  messageDiv.textContent = message;
+
+  const timelineBody = document.getElementById("orderTimeline");
+  timelineBody.insertBefore(messageDiv, timelineBody.firstChild);
+  setTimeout(() => messageDiv.remove(), 3000);
+}
+
+// Initialize
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("✅ Timeline Dashboard initialized");
+
+  // Backup semua order items saat pertama kali load
+  allOrderItems = Array.from(document.querySelectorAll(".order-item"));
+  console.log("✅ Total order items loaded:", allOrderItems.length);
+
+  generateCalendar();
+  generateDeadlineList();
+  setupRealTimeSearch();
+  setupTimelineEditHandlers(); // Setup edit handlers
+  setupModalHandlers();
+
+  console.log("🖱️ Double-click any order to open EDIT modal");
+});

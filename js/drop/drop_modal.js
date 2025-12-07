@@ -523,9 +523,10 @@ document.addEventListener("DOMContentLoaded", function () {
               "width=800,height=900,scrollbars=yes"
             );
 
-            sessionStorage.setItem("showSuccess", "true");
+            // 🔧 FIXED: Gunakan key khusus untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
             sessionStorage.setItem(
-              "successMessage",
+              "drop_successMessage",
               `✅ Pesanan ${data.order_code} berhasil ditambahkan!`
             );
 
@@ -600,9 +601,10 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }
 
-            sessionStorage.setItem("showSuccess", "true");
+            // 🔧 FIXED: Gunakan key khusus untuk drop page
+            sessionStorage.setItem("drop_showSuccess", "true");
             sessionStorage.setItem(
-              "successMessage",
+              "drop_successMessage",
               `✅ Pesanan ${data.order_code || ""} berhasil ditambahkan!`
             );
 
@@ -622,9 +624,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== SUCCESS MODAL =====
-  if (sessionStorage.getItem("showSuccess") === "true") {
-    const successMessage = sessionStorage.getItem("successMessage");
+  // ===== SUCCESS MODAL (DROP PAGE) =====
+  // 🔧 FIXED: Gunakan key khusus untuk drop page
+  if (sessionStorage.getItem("drop_showSuccess") === "true") {
+    const successMessage = sessionStorage.getItem("drop_successMessage");
     const successMessageEl = document.getElementById("successMessage");
     const successModalEl = document.getElementById("successModal");
 
@@ -637,8 +640,9 @@ document.addEventListener("DOMContentLoaded", function () {
       alert(successMessage);
     }
 
-    sessionStorage.removeItem("showSuccess");
-    sessionStorage.removeItem("successMessage");
+    // 🔧 FIXED: Clear drop-specific session storage
+    sessionStorage.removeItem("drop_showSuccess");
+    sessionStorage.removeItem("drop_successMessage");
   }
 
   const closeSuccessBtn = document.getElementById("closeSuccess");

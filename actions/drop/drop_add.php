@@ -5,7 +5,6 @@
 // ===== SETUP =====
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
-ini_set('log_errors', 1);
 
 session_start();
 
@@ -144,31 +143,31 @@ try {
     $date_code = date('ym'); // Format: 2512 (Year+Month)
     $max_attempts = 10; // Maximum attempts to find unique code
     $order_code = null;
-    
+
     for ($attempt = 0; $attempt < $max_attempts; $attempt++) {
         // Generate random 4-digit number (1000-9999)
         $random_digits = mt_rand(1000, 9999);
         $temp_order_code = "ORD{$date_code}-{$random_digits}";
-        
+
         // Check if this order code already exists
         $stmt4 = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
         if (!$stmt4) {
             throw new Exception("Database error: " . $conn->error);
         }
-        
+
         $stmt4->bind_param("s", $temp_order_code);
         $stmt4->execute();
         $check_result = $stmt4->get_result();
         $stmt4->close();
         $stmt4 = null;
-        
+
         // If unique, use this code
         if ($check_result->num_rows === 0) {
             $order_code = $temp_order_code;
             break;
         }
     }
-    
+
     // Fallback: if still no unique code after max attempts, use timestamp
     if ($order_code === null) {
         $timestamp = time();
