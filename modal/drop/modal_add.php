@@ -1,4 +1,31 @@
-<!-- File: /modal/drop/modal_add.php - Bootstrap Icons VERSION -->
+<!-- File: /modal/drop/modal_add.php - MODERN VERSION WITH SUCCESS POPUP -->
+
+<!-- Success Modal (Modern Design) -->
+<div class="modal-overlay" id="successModal" style="display: none;">
+    <div class="modal-container">
+        <!-- Close Button -->
+        <button class="modal-close" onclick="hideSuccessModal()"></button>
+
+        <!-- Success Icon with Checkmark -->
+        <div class="success-icon">
+            <div class="success-circle">
+                <div class="success-checkmark"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <h2 class="modal-title">Berhasil! 🎉</h2>
+        <p class="modal-message" id="successMessage">Pesanan berhasil ditambahkan</p>
+        <p class="modal-order-code" id="successOrderCode"></p>
+
+        <!-- Action Button -->
+        <button class="modal-btn" onclick="hideSuccessModal()">
+            OK, Mengerti
+        </button>
+    </div>
+</div>
+
+<!-- Add Order Modal -->
 <div class="modal" id="addModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="addModal">&times;</span>

@@ -426,6 +426,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <?php include_once "../partials/footer.php"; ?>
 
     <!-- SCRIPTS -->
+    <script src="../js/drop/modal_system.js"></script>
     <script src="../js/drop/drop_helpers.js"></script>
     <script src="../js/drop/drop_modal.js"></script>
     <script src="../js/drop/drop_modal_edit.js"></script>
@@ -434,6 +435,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <script src="../js/drop/drop_toggle.js"></script>
     <script src="../js/drop/drop_status_change.js"></script>
     <script src="../js/drop/print_handler.js"></script>
+
 
 </body>
 

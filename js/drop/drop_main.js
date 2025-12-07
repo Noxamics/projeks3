@@ -1,45 +1,35 @@
+// =====================================================================
 // File: /js/drop/drop_main.js
-// Main functionality untuk Drop Management - FIXED SESSION STORAGE
+// Main Drop Management - FIXED: All Print Opens in New Window
+// Version: 3.1 - Fixed Print Behavior
+// =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop main module loaded");
 
-  // ===== SUCCESS MESSAGE HANDLER (DROP PAGE ONLY) =====
-  // 🔧 FIXED: Gunakan key "drop_showSuccess" untuk halaman drop.php
+  // ==================== HELPER FUNCTIONS ====================
+
+  function getBaseUrl() {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    return `${protocol}//${host}`;
+  }
+
+  // ==================== SUCCESS MESSAGE HANDLER ====================
+
   if (sessionStorage.getItem("drop_showSuccess") === "true") {
     const message =
       sessionStorage.getItem("drop_successMessage") || "✅ Operasi berhasil!";
 
-    const alertDiv = document.createElement("div");
-    alertDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10000;
-      font-weight: 600;
-      animation: slideIn 0.3s ease-out;
-    `;
-    alertDiv.textContent = message;
-    document.body.appendChild(alertDiv);
-
-    setTimeout(() => {
-      alertDiv.style.animation = "slideOut 0.3s ease-out";
-      setTimeout(() => alertDiv.remove(), 300);
-    }, 3000);
-
-    // 🔧 FIXED: Clear drop-specific session storage
-    sessionStorage.removeItem("drop_showSuccess");
-    sessionStorage.removeItem("drop_successMessage");
-
-    console.log("✅ Success message displayed:", message);
+    customSuccess(message).then(() => {
+      sessionStorage.removeItem("drop_showSuccess");
+      sessionStorage.removeItem("drop_successMessage");
+    });
   }
 
-  // ===== CUSTOMER CHECKBOX =====
+  // ==================== CHECKBOX MANAGEMENT ====================
+
+  // Customer checkbox - select all items for customer
   document.querySelectorAll(".customer-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", function () {
       const customerId = this.getAttribute("data-customer-id");
@@ -59,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // ===== ITEM CHECKBOX =====
+  // Item checkbox - update customer checkbox if all items selected
   document.querySelectorAll(".item-checkbox").forEach((checkbox) => {
     checkbox.addEventListener("change", function () {
       const customerId = this.getAttribute("data-customer-id");
@@ -81,31 +71,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // ===== HELPER: GET BASE URL =====
-  function getBaseUrl() {
-    const pathArray = window.location.pathname.split("/");
-    const projectIndex = pathArray.indexOf("PROJEKS3");
+  // ==================== PRINT HANDLERS ====================
 
-    if (projectIndex !== -1) {
-      const basePath = pathArray.slice(0, projectIndex + 1).join("/");
-      return window.location.origin + basePath;
-    }
-
-    // Fallback
-    return window.location.origin + "/PROJEKS3";
-  }
-
-  // ===== PRINT SELECTED BUTTON =====
+  // Print selected items
   const printBtn = document.getElementById("printSelectedBtn");
   if (printBtn) {
-    printBtn.addEventListener("click", function () {
-      console.log("🖨️ Print Selected button clicked!");
+    printBtn.addEventListener("click", async function () {
       const checked = document.querySelectorAll(".item-checkbox:checked");
 
       if (checked.length === 0) {
-        showNotification(
-          "⚠️ Pilih setidaknya satu item untuk dicetak struknya.",
-          "error"
+        await customAlert(
+          "Pilih setidaknya satu item untuk dicetak",
+          "Tidak Ada Item Dipilih",
+          "⚠️"
         );
         return;
       }
@@ -116,50 +94,81 @@ document.addEventListener("DOMContentLoaded", function () {
         ),
       ];
 
-      console.log("Selected Drop IDs:", dropIds);
-
       if (dropIds.length === 0) {
-        showNotification("⚠️ Tidak ada pesanan yang dipilih.", "error");
+        await customAlert("Tidak ada pesanan yang dipilih", "Peringatan", "⚠️");
         return;
       }
 
-      const confirmMsg = `Akan mencetak ${dropIds.length} struk.\n\nLanjutkan?`;
-      if (!confirm(confirmMsg)) {
-        return;
-      }
+      const confirmed = await customConfirm(
+        `Akan membuka <strong>${dropIds.length}</strong> halaman cetak.\n\nLanjutkan?`,
+        "Cetak Struk Terpilih",
+        "🖨️"
+      );
+
+      if (!confirmed) return;
 
       const baseUrl = getBaseUrl();
-      let delay = 0;
+      showLoading(`Membuka ${dropIds.length} halaman cetak...`);
 
-      dropIds.forEach((dropId) => {
+      let delay = 0;
+      let successCount = 0;
+      let failedCount = 0;
+
+      dropIds.forEach((dropId, index) => {
         setTimeout(() => {
           const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
-          console.log("Opening:", url);
-          window.open(
-            url,
-            "Struk_" + dropId,
-            "width=800,height=900,scrollbars=yes"
-          );
+
+          try {
+            const printWindow = window.open(
+              url,
+              `CetakStruk_${dropId}`,
+              "width=800,height=900,scrollbars=yes,resizable=yes"
+            );
+
+            if (
+              !printWindow ||
+              printWindow.closed ||
+              typeof printWindow.closed == "undefined"
+            ) {
+              failedCount++;
+            } else {
+              successCount++;
+            }
+          } catch (error) {
+            failedCount++;
+          }
+
+          // Show result after last window
+          if (index === dropIds.length - 1) {
+            setTimeout(async () => {
+              hideLoading();
+
+              if (failedCount > 0) {
+                await customAlert(
+                  `✅ Berhasil: ${successCount} halaman\n❌ Gagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
+                  "Cetak Selesai",
+                  "📊"
+                );
+              } else {
+                await customSuccess(
+                  `Berhasil membuka ${successCount} halaman cetak!`
+                );
+              }
+            }, 500);
+          }
         }, delay);
         delay += 500;
       });
-
-      showNotification(
-        `✅ Membuka ${dropIds.length} jendela cetak...`,
-        "success"
-      );
     });
   }
 
-  // ===== PRINT ALL BUTTON (PER CUSTOMER) =====
+  // Print all items for customer
   document.querySelectorAll(".print-all-btn").forEach((btn) => {
-    btn.addEventListener("click", function (e) {
+    btn.addEventListener("click", async function (e) {
       e.preventDefault();
       e.stopPropagation();
 
       const customerId = this.getAttribute("data-customer-id");
-      console.log(`🖨️ Print All clicked for customer ${customerId}`);
-
       const itemsForCustomer = document.querySelectorAll(
         `.item-checkbox[data-customer-id="${customerId}"]`
       );
@@ -172,44 +181,79 @@ document.addEventListener("DOMContentLoaded", function () {
         ),
       ];
 
-      console.log("Drop IDs for customer:", dropIds);
-
       if (dropIds.length === 0) {
-        showNotification("⚠️ Tidak ada pesanan untuk dicetak.", "error");
+        await customAlert(
+          "Tidak ada pesanan untuk dicetak",
+          "Peringatan",
+          "⚠️"
+        );
         return;
       }
 
-      const confirmMsg = `Akan mencetak ${dropIds.length} struk untuk customer ini.\n\nLanjutkan?`;
-      if (!confirm(confirmMsg)) {
-        return;
-      }
+      const confirmed = await customConfirm(
+        `Akan membuka <strong>${dropIds.length}</strong> halaman cetak untuk customer ini.\n\nLanjutkan?`,
+        "Cetak Semua Struk",
+        "🖨️"
+      );
+
+      if (!confirmed) return;
 
       const baseUrl = getBaseUrl();
-      console.log("Base URL:", baseUrl);
+      showLoading(`Membuka ${dropIds.length} halaman cetak...`);
 
       let delay = 0;
-      dropIds.forEach((dropId) => {
+      let successCount = 0;
+      let failedCount = 0;
+
+      dropIds.forEach((dropId, index) => {
         setTimeout(() => {
           const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
-          console.log("Opening:", url);
-          window.open(
-            url,
-            "Struk_" + dropId,
-            "width=800,height=900,scrollbars=yes"
-          );
+
+          try {
+            const printWindow = window.open(
+              url,
+              `CetakStruk_${dropId}`,
+              "width=800,height=900,scrollbars=yes,resizable=yes"
+            );
+
+            if (
+              !printWindow ||
+              printWindow.closed ||
+              typeof printWindow.closed == "undefined"
+            ) {
+              failedCount++;
+            } else {
+              successCount++;
+            }
+          } catch (error) {
+            failedCount++;
+          }
+
+          if (index === dropIds.length - 1) {
+            setTimeout(async () => {
+              hideLoading();
+
+              if (failedCount > 0) {
+                await customAlert(
+                  `✅ Berhasil: ${successCount} halaman\n❌ Gagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
+                  "Cetak Selesai",
+                  "📊"
+                );
+              } else {
+                await customSuccess(
+                  `Berhasil membuka ${successCount} halaman cetak!`
+                );
+              }
+            }, 500);
+          }
         }, delay);
         delay += 500;
       });
-
-      showNotification(
-        `✅ Membuka ${dropIds.length} jendela cetak...`,
-        "success"
-      );
     });
   });
 
-  // ===== PRINT ITEM BUTTON (PER ITEM) =====
-  document.addEventListener("click", function (e) {
+  // Print single item - FIXED: Use window.open instead of window.location.href
+  document.addEventListener("click", async function (e) {
     const printItemBtn = e.target.closest(".print-item-btn");
 
     if (printItemBtn) {
@@ -217,52 +261,58 @@ document.addEventListener("DOMContentLoaded", function () {
       e.stopPropagation();
 
       const dropId = printItemBtn.getAttribute("data-drop-id");
-      console.log("🖨️ Print Item clicked for drop_id:", dropId);
 
       if (!dropId) {
-        showNotification("❌ ID pesanan tidak ditemukan", "error");
+        await customError("ID pesanan tidak ditemukan");
         return;
       }
 
       const baseUrl = getBaseUrl();
       const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
 
-      console.log("Opening:", url);
-
-      const printWindow = window.open(
-        url,
-        "Struk_" + dropId,
-        "width=800,height=900,scrollbars=yes,resizable=yes"
-      );
-
-      if (
-        !printWindow ||
-        printWindow.closed ||
-        typeof printWindow.closed == "undefined"
-      ) {
-        showNotification(
-          "❌ Popup diblokir! Izinkan popup untuk situs ini.",
-          "error"
+      // FIXED: Open in new window instead of redirecting
+      try {
+        const printWindow = window.open(
+          url,
+          `CetakStruk_${dropId}`,
+          "width=800,height=900,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no"
         );
-      } else {
-        console.log("✅ Print window opened");
+
+        if (
+          !printWindow ||
+          printWindow.closed ||
+          typeof printWindow.closed == "undefined"
+        ) {
+          console.error("❌ Popup blocked");
+          await customError(
+            "Popup diblokir oleh browser!\n\nSilakan izinkan popup untuk situs ini dan coba lagi.",
+            "Popup Diblokir"
+          );
+        } else {
+          console.log("✅ Print window opened successfully");
+        }
+      } catch (error) {
+        console.error("❌ Error opening window:", error);
+        await customError(`Error membuka halaman cetak: ${error.message}`);
       }
     }
   });
 
-  // ===== DELETE BUTTON - FULL ORDER (MULTI-SELECT) =====
+  // ==================== DELETE HANDLERS ====================
+
+  // Delete button - bulk delete
   const deleteBtn = document.getElementById("deleteBtn");
   if (deleteBtn) {
-    deleteBtn.addEventListener("click", function (e) {
+    deleteBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      console.log("🗑️ Delete button clicked!");
 
       const checked = document.querySelectorAll(".item-checkbox:checked");
 
       if (checked.length === 0) {
-        showNotification(
-          "⚠️ Pilih setidaknya satu pesanan untuk dihapus.",
-          "error"
+        await customAlert(
+          "Pilih setidaknya satu pesanan untuk dihapus",
+          "Tidak Ada Item Dipilih",
+          "⚠️"
         );
         return;
       }
@@ -276,202 +326,134 @@ document.addEventListener("DOMContentLoaded", function () {
       const totalItems = checked.length;
       const totalOrders = dropIds.length;
 
-      const confirmModal = document.getElementById("confirmDeleteModal");
-      if (confirmModal) {
-        // Update modal message
-        const modalMessage = confirmModal.querySelector(".modal-message");
-        if (modalMessage) {
-          modalMessage.innerHTML = `
-            <p style="margin-bottom: 12px;">Anda akan menghapus:</p>
-            <ul style="list-style: none; padding: 0; margin: 0 0 16px 0;">
-              <li>📦 <strong>${totalOrders}</strong> Pesanan</li>
-              <li>📋 <strong>${totalItems}</strong> Item</li>
-            </ul>
-            <p style="color: #dc2626; font-weight: 600;">⚠️ Data yang dihapus tidak dapat dikembalikan!</p>
-          `;
-        }
+      const confirmed = await customConfirm(
+        `Anda akan menghapus:\n\n📦 <strong>${totalOrders}</strong> Pesanan\n📋 <strong>${totalItems}</strong> Item\n\n<span style="color: #dc2626; font-weight: 600;">⚠️ Data yang dihapus tidak dapat dikembalikan!</span>`,
+        "Konfirmasi Hapus",
+        "🗑️"
+      );
 
-        showModal("confirmDeleteModal");
-
-        // Store data untuk bulk delete
-        confirmModal.dataset.deleteType = "bulk";
-        confirmModal.dataset.dropIds = dropIds.join(",");
-        confirmModal.dataset.itemCount = totalItems;
-      }
-    });
-  }
-
-  // ===== CONFIRM DELETE - CANCEL =====
-  const confirmCancelBtn = document.getElementById("confirmCancel");
-  if (confirmCancelBtn) {
-    confirmCancelBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      const confirmModal = document.getElementById("confirmDeleteModal");
-      hideModal("confirmDeleteModal");
-      if (confirmModal) {
-        delete confirmModal.dataset.deleteType;
-        delete confirmModal.dataset.dropIds;
-        delete confirmModal.dataset.itemCount;
-      }
-    });
-  }
-
-  // ===== CONFIRM DELETE - OK (UNTUK BULK DELETE) =====
-  const confirmOkBtn = document.getElementById("confirmOk");
-  if (confirmOkBtn) {
-    // Remove existing listener first (jika ada)
-    const newBtn = confirmOkBtn.cloneNode(true);
-    confirmOkBtn.parentNode.replaceChild(newBtn, confirmOkBtn);
-
-    newBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-
-      const confirmModal = document.getElementById("confirmDeleteModal");
-      const deleteType = confirmModal.dataset.deleteType;
-
-      // Jika ini bukan bulk delete, biarkan drop_delete.js handle
-      if (deleteType !== "bulk") {
-        console.log("⚠️ Not bulk delete, handled by drop_delete.js");
+      if (!confirmed) {
+        console.log("❌ User cancelled bulk delete");
         return;
       }
 
-      const dropIds = confirmModal.dataset.dropIds;
-      const itemCount = confirmModal.dataset.itemCount || "0";
+      showLoading("Menghapus data...");
 
-      if (!dropIds) {
-        console.error("⚠️ No drop IDs found");
-        hideModal("confirmDeleteModal");
-        return;
-      }
-
-      hideModal("confirmDeleteModal");
-
-      console.log("Deleting Drop IDs (bulk):", dropIds);
-
-      this.disabled = true;
-      this.textContent = "⏳ Menghapus...";
-
-      fetch("../actions/drop/drop_delete.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "ids=" + dropIds,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            // 🔧 FIXED: Gunakan key yang berbeda untuk drop page
-            sessionStorage.setItem("drop_showSuccess", "true");
-            sessionStorage.setItem(
-              "drop_successMessage",
-              data.message || "✅ Data berhasil dihapus."
-            );
-            window.location.reload();
-          } else {
-            showNotification(
-              "❌ Gagal menghapus: " + (data.message || "Unknown error"),
-              "error"
-            );
-            this.disabled = false;
-            this.textContent = "✓ Hapus";
-          }
-        })
-        .catch((error) => {
-          showNotification("❌ Error: " + error.message, "error");
-          this.disabled = false;
-          this.textContent = "✓ Hapus";
+      try {
+        const response = await fetch("../actions/drop/drop_delete.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "ids=" + dropIds.join(","),
         });
+
+        const data = await response.json();
+
+        hideLoading();
+
+        if (data.success) {
+          sessionStorage.setItem("drop_showSuccess", "true");
+          sessionStorage.setItem(
+            "drop_successMessage",
+            data.message || "✅ Data berhasil dihapus."
+          );
+          window.location.reload();
+        } else {
+          await customError(
+            data.message || "Terjadi kesalahan saat menghapus data",
+            "Gagal Menghapus"
+          );
+        }
+      } catch (error) {
+        hideLoading();
+        await customError(error.message, "Terjadi Kesalahan");
+      }
     });
   }
 
-  // ===== STATUS DROPDOWN (PER ITEM) =====
-  document.querySelectorAll(".status-dropdown").forEach((select) => {
-    select.addEventListener("change", function () {
-      const itemId = this.getAttribute("data-item-id");
-      const dropId = this.getAttribute("data-drop-id");
-      const newStatusId = this.value;
+  // ==================== STATUS UPDATE HANDLER ====================
 
-      if (!confirm("⚠️ Apakah Anda yakin ingin mengubah status item ini?")) {
-        this.value = this.dataset.oldValue || this.value;
+  document.querySelectorAll(".status-dropdown").forEach((select) => {
+    select.addEventListener("change", async function () {
+      const itemId = this.getAttribute("data-item-id");
+      const newStatusId = this.value;
+      const oldValue = this.dataset.oldValue || this.value;
+
+      const confirmed = await customConfirm(
+        "Ubah status item ini?",
+        "Konfirmasi Perubahan",
+        "⚠️"
+      );
+
+      if (!confirmed) {
+        this.value = oldValue;
         return;
       }
 
-      const oldValue = this.dataset.oldValue || this.value;
       this.dataset.oldValue = oldValue;
       this.disabled = true;
 
-      fetch("../actions/drop/drop_update_item_status.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `item_id=${itemId}&status_id=${newStatusId}`,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            // 🔧 FIXED: Gunakan key yang berbeda untuk drop page
-            sessionStorage.setItem("drop_showSuccess", "true");
-            sessionStorage.setItem(
-              "drop_successMessage",
-              data.message || "✅ Status item berhasil diubah."
-            );
-            window.location.reload();
-          } else {
-            showNotification(
-              "❌ Gagal mengubah status: " + (data.message || "Unknown error"),
-              "error"
-            );
-            this.value = oldValue;
-            this.disabled = false;
+      showLoading("Mengubah status...");
+
+      try {
+        const response = await fetch(
+          "../actions/drop/drop_update_item_status.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `item_id=${itemId}&status_id=${newStatusId}`,
           }
-        })
-        .catch((error) => {
-          showNotification("❌ Error: " + error.message, "error");
+        );
+
+        const data = await response.json();
+
+        hideLoading();
+
+        if (data.success) {
+          sessionStorage.setItem("drop_showSuccess", "true");
+          sessionStorage.setItem(
+            "drop_successMessage",
+            data.message || "✅ Status item berhasil diubah."
+          );
+          window.location.reload();
+        } else {
+          await customError(
+            data.message || "Gagal mengubah status",
+            "Gagal Update Status"
+          );
           this.value = oldValue;
           this.disabled = false;
-        });
+        }
+      } catch (error) {
+        hideLoading();
+        await customError(error.message, "Terjadi Kesalahan");
+        this.value = oldValue;
+        this.disabled = false;
+      }
     });
 
     select.dataset.oldValue = select.value;
   });
 
-  // ===== KEYBOARD SHORTCUTS =====
+  // ==================== KEYBOARD SHORTCUTS ====================
+
   document.addEventListener("keydown", function (e) {
-    // ESC to close modals
-    if (e.key === "Escape") {
-      const modals = document.querySelectorAll(
-        ".modal, .note-modal, .item-edit-modal"
-      );
-      modals.forEach((modal) => {
-        if (modal.style.display === "flex" || modal.style.display === "block") {
-          if (modal.id) {
-            hideModal(modal.id);
-          } else {
-            modal.style.display = "none";
-            document.body.style.overflow = "";
-          }
-        }
-      });
+    // ESC - Close modals (handled by modal_system.js)
 
-      const confirmModal = document.getElementById("confirmDeleteModal");
-      if (confirmModal && confirmModal.style.display === "flex") {
-        hideModal("confirmDeleteModal");
-      }
-    }
-
-    // Ctrl+N for new order
+    // Ctrl+N - New order
     if (e.ctrlKey && e.key === "n") {
       e.preventDefault();
       const openAddBtn = document.getElementById("openAddModal");
       if (openAddBtn) openAddBtn.click();
     }
 
-    // Ctrl+P for print selected
+    // Ctrl+P - Print selected
     if (e.ctrlKey && e.key === "p") {
       e.preventDefault();
       const printBtn = document.getElementById("printSelectedBtn");
       if (printBtn) printBtn.click();
     }
 
-    // Delete key for delete selected
+    // Delete - Delete selected
     if (e.key === "Delete") {
       const deleteBtn = document.getElementById("deleteBtn");
       if (
@@ -484,60 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // ===== NOTIFICATION HELPER =====
-  function showNotification(message, type = "success") {
-    const notification = document.createElement("div");
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 25px;
-      background: ${type === "success" ? "#059669" : "#dc2626"};
-      color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      z-index: 10000;
-      font-weight: 600;
-      animation: slideIn 0.3s ease;
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.style.animation = "slideOut 0.3s ease";
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
-  }
-
-  // ===== ADD CSS ANIMATIONS =====
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
+  // ==================== INITIALIZATION COMPLETE ====================
 
   console.log("✅ All event listeners initialized");
   console.log("📋 Keyboard shortcuts:");
@@ -547,4 +476,5 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("  - Delete: Delete selected");
   console.log("🖱️ Double-click row to edit order");
   console.log("📝 Click note cell to edit note");
+  console.log("✅ FIXED: All print buttons now open in NEW WINDOW");
 });

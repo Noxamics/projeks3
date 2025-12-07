@@ -1,17 +1,31 @@
+// =====================================================================
 // File: /js/drop/drop_status_change.js
-// Handler untuk perubahan status per item dengan CUSTOM POPUP + sessionStorage
+// Item Status Change Handler with Custom Confirmation Modal
+// Version: 3.0 - Optimized & Clean
+// Database: mifmyho2_sengkuclean
+// =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("✅ Status change handler loaded with custom popup");
+  console.log("🔄 Status Change Handler Initialized");
 
-  // ===== DETECT CURRENT PAGE =====
-  const currentPage = window.location.pathname;
-  const isTimelinePage = currentPage.includes("timeline_pesanan.php");
-  const isDropPage = currentPage.includes("drop.php");
+  // ==================== PAGE DETECTION ====================
+  const currentPath = window.location.pathname;
+  const isTimelinePage = currentPath.includes("timeline_pesanan.php");
+  const isDropPage = currentPath.includes("drop.php");
 
-  // ===== CREATE CUSTOM CONFIRM MODAL =====
+  console.log(
+    `📍 Current page: ${
+      isDropPage ? "Drop" : isTimelinePage ? "Timeline" : "Other"
+    }`
+  );
+
+  // ==================== CUSTOM CONFIRM MODAL ====================
+
+  /**
+   * Create custom confirmation modal
+   * Modal hanya dibuat sekali jika belum ada
+   */
   function createConfirmModal() {
-    // Check if modal already exists
     if (document.getElementById("statusConfirmModal")) {
       return;
     }
@@ -39,139 +53,168 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-    // Add CSS if not exists
-    if (!document.getElementById("statusConfirmStyles")) {
-      const styleHTML = `
-        <style id="statusConfirmStyles">
-          .status-confirm-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            animation: fadeIn 0.2s ease;
-          }
-
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-
-          @keyframes slideIn {
-            from {
-              transform: scale(0.9) translateY(-20px);
-              opacity: 0;
-            }
-            to {
-              transform: scale(1) translateY(0);
-              opacity: 1;
-            }
-          }
-
-          .status-confirm-modal {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 480px;
-            width: 90%;
-            animation: slideIn 0.3s ease;
-            overflow: hidden;
-          }
-
-          .status-confirm-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
-
-          .status-confirm-icon {
-            font-size: 32px;
-            line-height: 1;
-          }
-
-          .status-confirm-title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-          }
-
-          .status-confirm-body {
-            padding: 24px;
-          }
-
-          .status-confirm-body p {
-            margin: 0;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #334155;
-          }
-
-          .status-confirm-body strong {
-            color: #0369a1;
-            font-weight: 700;
-          }
-
-          .status-confirm-footer {
-            padding: 16px 24px 24px;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-          }
-
-          .status-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-          }
-
-          .status-btn-cancel {
-            background: #e2e8f0;
-            color: #475569;
-          }
-
-          .status-btn-cancel:hover {
-            background: #cbd5e1;
-            transform: translateY(-1px);
-          }
-
-          .status-btn-confirm {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-          }
-
-          .status-btn-confirm:hover {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-          }
-
-          .status-btn:active {
-            transform: scale(0.98);
-          }
-        </style>
-      `;
-      document.head.insertAdjacentHTML("beforeend", styleHTML);
-    }
+    injectModalStyles();
   }
 
-  // ===== CUSTOM CONFIRM FUNCTION =====
+  /**
+   * Inject modal styles
+   * Hanya inject sekali jika belum ada
+   */
+  function injectModalStyles() {
+    if (document.getElementById("statusConfirmStyles")) {
+      return;
+    }
+
+    const styles = `
+      <style id="statusConfirmStyles">
+        .status-confirm-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.65);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: scale(0.9) translateY(-20px);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+
+        .status-confirm-modal {
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+          max-width: 500px;
+          width: 90%;
+          animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          overflow: hidden;
+        }
+
+        .status-confirm-header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 24px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .status-confirm-icon {
+          font-size: 32px;
+          line-height: 1;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+
+        .status-confirm-title {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+        }
+
+        .status-confirm-body {
+          padding: 28px;
+        }
+
+        .status-confirm-body p {
+          margin: 0;
+          font-size: 16px;
+          line-height: 1.7;
+          color: #334155;
+        }
+
+        .status-confirm-body strong {
+          color: #0369a1;
+          font-weight: 700;
+        }
+
+        .status-confirm-footer {
+          padding: 16px 24px 24px;
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+          background: #f8fafc;
+        }
+
+        .status-btn {
+          padding: 12px 28px;
+          border: none;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          letter-spacing: -0.01em;
+        }
+
+        .status-btn-cancel {
+          background: #e2e8f0;
+          color: #475569;
+        }
+
+        .status-btn-cancel:hover {
+          background: #cbd5e1;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
+        }
+
+        .status-btn-confirm {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .status-btn-confirm:hover {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-btn:active {
+          transform: scale(0.96) !important;
+        }
+
+        .status-btn:focus {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+      </style>
+    `;
+
+    document.head.insertAdjacentHTML("beforeend", styles);
+  }
+
+  /**
+   * Show custom confirm dialog
+   * @param {string} message - HTML message to display
+   * @returns {Promise<boolean>} - True jika OK, false jika Cancel
+   */
   function customConfirm(message) {
     return new Promise((resolve) => {
       createConfirmModal();
@@ -184,38 +227,37 @@ document.addEventListener("DOMContentLoaded", function () {
       // Set message
       messageEl.innerHTML = message;
 
-      // Show modal
+      // Show modal with animation
       modal.style.display = "flex";
 
-      // Handle OK button
+      // Event handlers
       const handleOK = () => {
-        modal.style.display = "none";
-        cleanup();
+        closeModal();
         resolve(true);
       };
 
-      // Handle Cancel button
       const handleCancel = () => {
-        modal.style.display = "none";
-        cleanup();
+        closeModal();
         resolve(false);
       };
 
-      // Handle click outside modal
       const handleOverlayClick = (e) => {
         if (e.target === modal) {
           handleCancel();
         }
       };
 
-      // Handle Escape key
       const handleEscape = (e) => {
         if (e.key === "Escape") {
           handleCancel();
         }
       };
 
-      // Cleanup function
+      const closeModal = () => {
+        modal.style.display = "none";
+        cleanup();
+      };
+
       const cleanup = () => {
         btnOK.removeEventListener("click", handleOK);
         btnCancel.removeEventListener("click", handleCancel);
@@ -228,12 +270,20 @@ document.addEventListener("DOMContentLoaded", function () {
       btnCancel.addEventListener("click", handleCancel);
       modal.addEventListener("click", handleOverlayClick);
       document.addEventListener("keydown", handleEscape);
+
+      // Focus OK button
+      setTimeout(() => btnOK.focus(), 100);
     });
   }
 
-  // ===== ATTACH STATUS CHANGE LISTENER =====
+  // ==================== STATUS CHANGE HANDLER ====================
+
+  /**
+   * Attach status change listener ke select element
+   * @param {HTMLSelectElement} select - Status select element
+   */
   function attachStatusChangeListener(select) {
-    // Cek jika sudah attach listener
+    // Check jika listener sudah diattach
     if (select.dataset.listenerAttached === "true") {
       return;
     }
@@ -241,234 +291,324 @@ document.addEventListener("DOMContentLoaded", function () {
     select.addEventListener("change", async function (e) {
       e.stopPropagation(); // Prevent row click events
 
+      // Get data attributes
       const itemId = this.dataset.itemId;
       const dropId = this.dataset.dropId;
       const newStatusId = this.value;
       const oldStatusId = this.dataset.currentStatus || this.dataset.oldStatus;
       const itemBrand = this.dataset.itemBrand || "Item";
-
-      console.log(
-        `📊 Status change: Item #${itemId} (${itemBrand}) from status ${oldStatusId} to ${newStatusId}`
-      );
-
-      // Get new status text
       const newStatusText = this.options[this.selectedIndex].text;
 
-      // Show custom confirm dialog
+      console.log(`📊 Status change request:`, {
+        itemId,
+        itemBrand,
+        oldStatus: oldStatusId,
+        newStatus: newStatusId,
+        newStatusText,
+      });
+
+      // Show confirmation dialog
       const confirmed = await customConfirm(
         `Ubah status <strong>"${itemBrand}"</strong> menjadi <strong>"${newStatusText}"</strong>?`
       );
 
       if (!confirmed) {
+        console.log("❌ Status change cancelled by user");
         this.value = oldStatusId; // Revert
         return;
       }
 
-      // Disable select while updating
-      const originalBg = this.style.backgroundColor;
-      const originalColor = this.style.color;
-      this.disabled = true;
-      this.style.opacity = "0.6";
-      this.style.cursor = "wait";
-
-      const formData = new FormData();
-      formData.append("item_id", itemId);
-      formData.append("status_id", newStatusId);
-
-      console.log("📤 Sending request to update status...");
-
-      try {
-        const response = await fetch(
-          "../actions/drop/drop_update_item_status.php",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const text = await response.text();
-        console.log("📥 Response:", text);
-
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          console.error("❌ Invalid JSON:", text);
-          throw new Error("Server mengembalikan response tidak valid");
-        }
-
-        if (data.success) {
-          console.log("✅ Status updated successfully:", data);
-
-          // Update dataset
-          this.dataset.oldStatus = newStatusId;
-          this.dataset.currentStatus = newStatusId;
-
-          // Visual feedback - green flash
-          this.style.backgroundColor = "#10b981";
-          this.style.color = "white";
-
-          // ===== SAVE TO SESSION STORAGE BASED ON PAGE =====
-          if (isDropPage) {
-            sessionStorage.setItem("dropNotification", `✅ ${data.message}`);
-            sessionStorage.setItem("dropNotificationType", "success");
-          } else if (isTimelinePage) {
-            sessionStorage.setItem(
-              "timelineNotification",
-              `✅ ${data.message}`
-            );
-            sessionStorage.setItem("timelineNotificationType", "success");
-          }
-
-          setTimeout(() => {
-            this.style.backgroundColor = originalBg;
-            this.style.color = originalColor;
-            this.style.opacity = "1";
-            this.style.cursor = "";
-            this.disabled = false;
-
-            // Reload after short delay to update statistics
-            setTimeout(() => {
-              console.log("🔄 Reloading page to refresh data...");
-              window.location.reload();
-            }, 500);
-          }, 300);
-        } else {
-          throw new Error(data.message || "Gagal update status");
-        }
-      } catch (error) {
-        console.error("❌ Error updating status:", error);
-
-        // Show error notification
-        if (typeof showNotification === "function") {
-          showNotification(`❌ ${error.message}`, "error");
-        } else {
-          alert("❌ Gagal update status: " + error.message);
-        }
-
-        // Revert changes
-        this.value = oldStatusId;
-        this.style.backgroundColor = originalBg;
-        this.style.color = originalColor;
-        this.style.opacity = "1";
-        this.style.cursor = "";
-        this.disabled = false;
-      }
+      // Update status via API
+      await updateItemStatus(this, itemId, newStatusId, oldStatusId, itemBrand);
     });
 
     // Mark as attached
     select.dataset.listenerAttached = "true";
   }
 
-  // Attach to all existing status selects
-  const existingSelects = document.querySelectorAll(".item-status-select");
-  console.log(`🔍 Found ${existingSelects.length} status selects`);
+  /**
+   * Update item status via API
+   * @param {HTMLSelectElement} selectElement - Select element
+   * @param {number} itemId - Item ID
+   * @param {number} newStatusId - New status ID
+   * @param {number} oldStatusId - Old status ID
+   * @param {string} itemBrand - Item brand/name
+   */
+  async function updateItemStatus(
+    selectElement,
+    itemId,
+    newStatusId,
+    oldStatusId,
+    itemBrand
+  ) {
+    // Save original styles
+    const originalBg = selectElement.style.backgroundColor;
+    const originalColor = selectElement.style.color;
 
-  existingSelects.forEach((select, index) => {
-    console.log(`  Attaching listener to select #${index + 1}`, {
-      itemId: select.dataset.itemId,
-      currentStatus: select.dataset.currentStatus,
+    // Set loading state
+    selectElement.disabled = true;
+    selectElement.style.opacity = "0.6";
+    selectElement.style.cursor = "wait";
+
+    const formData = new FormData();
+    formData.append("item_id", itemId);
+    formData.append("status_id", newStatusId);
+
+    console.log("📤 Sending status update request...");
+
+    try {
+      const response = await fetch(
+        "../actions/drop/drop_update_item_status.php",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const text = await response.text();
+      console.log("📥 Response received:", text.substring(0, 200));
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error("❌ Invalid JSON response:", text);
+        throw new Error("Server mengembalikan response tidak valid");
+      }
+
+      if (data.success) {
+        console.log("✅ Status updated successfully");
+
+        // Update dataset
+        selectElement.dataset.oldStatus = newStatusId;
+        selectElement.dataset.currentStatus = newStatusId;
+
+        // Visual feedback - green flash
+        selectElement.style.backgroundColor = "#10b981";
+        selectElement.style.color = "white";
+        selectElement.style.transition = "all 0.3s ease";
+
+        // Save notification to session storage based on page
+        saveNotificationToSession(data.message);
+
+        // Restore styles and reload
+        setTimeout(() => {
+          selectElement.style.backgroundColor = originalBg;
+          selectElement.style.color = originalColor;
+          selectElement.style.opacity = "1";
+          selectElement.style.cursor = "";
+          selectElement.disabled = false;
+
+          // Reload page to refresh statistics
+          setTimeout(() => {
+            console.log("🔄 Reloading page to refresh data...");
+            window.location.reload();
+          }, 400);
+        }, 300);
+      } else {
+        throw new Error(data.message || "Gagal update status");
+      }
+    } catch (error) {
+      console.error("❌ Error updating status:", error);
+
+      // Show error notification
+      if (typeof showNotification === "function") {
+        showNotification(`❌ ${error.message}`, "error");
+      } else {
+        showFallbackNotification(
+          `❌ Gagal update status: ${error.message}`,
+          "error"
+        );
+      }
+
+      // Revert changes
+      selectElement.value = oldStatusId;
+      selectElement.style.backgroundColor = originalBg;
+      selectElement.style.color = originalColor;
+      selectElement.style.opacity = "1";
+      selectElement.style.cursor = "";
+      selectElement.disabled = false;
+    }
+  }
+
+  /**
+   * Save notification to session storage based on current page
+   * @param {string} message - Notification message
+   */
+  function saveNotificationToSession(message) {
+    if (isDropPage) {
+      sessionStorage.setItem("dropNotification", `✅ ${message}`);
+      sessionStorage.setItem("dropNotificationType", "success");
+      console.log("💾 Saved notification for Drop page");
+    } else if (isTimelinePage) {
+      sessionStorage.setItem("timelineNotification", `✅ ${message}`);
+      sessionStorage.setItem("timelineNotificationType", "success");
+      console.log("💾 Saved notification for Timeline page");
+    }
+  }
+
+  // ==================== INITIALIZATION ====================
+
+  /**
+   * Initialize status change handlers on all existing selects
+   */
+  function initializeStatusSelects() {
+    const existingSelects = document.querySelectorAll(".item-status-select");
+    console.log(`🔍 Found ${existingSelects.length} status select element(s)`);
+
+    existingSelects.forEach((select, index) => {
+      console.log(`  ✓ Attaching listener to select #${index + 1}`, {
+        itemId: select.dataset.itemId,
+        currentStatus: select.dataset.currentStatus,
+      });
+      attachStatusChangeListener(select);
     });
-    attachStatusChangeListener(select);
-  });
+  }
 
-  // Observer untuk element yang ditambahkan secara dinamis
+  // Initialize existing selects
+  initializeStatusSelects();
+
+  // ==================== MUTATION OBSERVER ====================
+
+  /**
+   * Observer untuk mendeteksi status select yang ditambahkan secara dinamis
+   */
   const observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       mutation.addedNodes.forEach(function (node) {
-        if (node.nodeType === 1) {
-          // Check the node itself
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // Check node itself
           if (node.classList && node.classList.contains("item-status-select")) {
+            console.log("🆕 New status select detected, attaching listener");
             attachStatusChangeListener(node);
           }
 
           // Check children
           const selects = node.querySelectorAll(".item-status-select");
-          selects.forEach((select) => {
-            attachStatusChangeListener(select);
-          });
+          if (selects.length > 0) {
+            console.log(`🆕 ${selects.length} new status select(s) detected`);
+            selects.forEach((select) => {
+              attachStatusChangeListener(select);
+            });
+          }
         }
       });
     });
   });
 
+  // Start observing
   observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
 
-  console.log(
-    "✅ Status change handler initialized with custom popup + sessionStorage"
-  );
+  console.log("✅ Status Change Handler Ready with Custom Modal");
+  console.log("📦 Database: mifmyho2_sengkuclean");
 });
 
-// Simple notification function (jika belum ada)
+// ==================== FALLBACK NOTIFICATION SYSTEM ====================
+
+/**
+ * Fallback notification function jika showNotification belum ada
+ * Integrated dengan drop_helpers.js notification system
+ */
 if (typeof showNotification === "undefined") {
-  window.showNotification = function (message, type = "info") {
+  window.showNotification = function (message, type = "success") {
+    console.log(`📢 Showing notification: ${message} (${type})`);
+
     let container = document.getElementById("notification-container");
     if (!container) {
       container = document.createElement("div");
       container.id = "notification-container";
       container.style.cssText =
-        "position: fixed; top: 20px; right: 20px; z-index: 9999;";
+        "position: fixed; top: 20px; right: 20px; z-index: 10000;";
       document.body.appendChild(container);
     }
+
+    const colors = {
+      success: "#10b981",
+      error: "#ef4444",
+      warning: "#f59e0b",
+      info: "#3b82f6",
+    };
 
     const notification = document.createElement("div");
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
-            background: ${
-              type === "success"
-                ? "#10b981"
-                : type === "error"
-                ? "#ef4444"
-                : "#3b82f6"
-            };
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            animation: slideIn 0.3s ease-out;
-            min-width: 250px;
-            font-weight: 500;
-        `;
-    notification.textContent = message;
+      background: ${colors[type] || colors.info};
+      color: white;
+      padding: 16px 24px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      animation: slideInRight 0.3s ease-out;
+      min-width: 280px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
+
+    const icons = {
+      success: "✓",
+      error: "✕",
+      warning: "⚠",
+      info: "ℹ",
+    };
+
+    notification.innerHTML = `
+      <span style="font-size: 18px;">${icons[type] || icons.info}</span>
+      <span>${message}</span>
+    `;
 
     container.appendChild(notification);
 
     setTimeout(() => {
-      notification.style.animation = "slideOut 0.3s ease-in";
+      notification.style.animation = "slideOutRight 0.3s ease-in";
       setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, 3500);
   };
 
-  // Add CSS animations
+  // Inject notification styles
   if (!document.getElementById("notification-styles")) {
     const style = document.createElement("style");
     style.id = "notification-styles";
     style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-            }
-        `;
+      @keyframes slideInRight {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+      }
+    `;
     document.head.appendChild(style);
+  }
+}
+
+/**
+ * Alternative fallback notification (inline version)
+ * @param {string} message - Message to show
+ * @param {string} type - Type of notification
+ */
+function showFallbackNotification(message, type = "success") {
+  if (typeof showNotification === "function") {
+    showNotification(message, type);
+  } else {
+    alert(message);
   }
 }

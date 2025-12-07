@@ -1,47 +1,40 @@
+// =====================================================================
 // File: /js/drop/drop_modal_edit.js
-// FIXED VERSION - Separate session storage for drop and timeline pages
+// Edit Modal Handler - FIXED: Save & Print Opens in New Window
+// Version: 3.1 - Fixed Print Behavior
+// =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("✅ Drop edit modal module loaded");
 
-  // ===== DETECT CURRENT PAGE =====
+  // ==================== PAGE DETECTION ====================
+
   const currentPage = window.location.pathname;
   const isTimelinePage = currentPage.includes("timeline_pesanan.php");
   const isDropPage = currentPage.includes("drop.php");
 
-  // ===== CONFIGURE API PATH BASED ON PAGE =====
-  const API_BASE_PATH = isTimelinePage
-    ? "../actions/drop/" // Timeline page
-    : "../actions/drop/"; // Drop page
+  const API_BASE_PATH = "../actions/drop/";
 
   console.log(
     `📍 Current page: ${
       isTimelinePage ? "Timeline" : isDropPage ? "Drop" : "Unknown"
     }`
   );
-  console.log(`🔗 API Base Path: ${API_BASE_PATH}`);
 
   let editItemCounter = 1;
 
-  // ===== GET SERVICES AND STATUSES OPTIONS HTML =====
+  // ==================== TEMPLATE FUNCTIONS ====================
+
   function getServicesOptionsHTML() {
-    // Try timeline template first
     const timelineTemplate = document.querySelector(
       "#timeline_services_template"
     );
-    if (timelineTemplate) {
-      console.log("✅ Using timeline services template");
-      return timelineTemplate.innerHTML;
-    }
+    if (timelineTemplate) return timelineTemplate.innerHTML;
 
-    // Fallback to modal add template (for drop.php)
     const firstItem = document.querySelector("#itemsContainer .item-group");
     if (firstItem) {
       const serviceSelect = firstItem.querySelector(".item-service");
-      if (serviceSelect) {
-        console.log("✅ Using modal add services template");
-        return serviceSelect.innerHTML;
-      }
+      if (serviceSelect) return serviceSelect.innerHTML;
     }
 
     console.error("❌ No services template found!");
@@ -49,33 +42,26 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getStatusesOptionsHTML() {
-    // Try timeline template first
     const timelineTemplate = document.querySelector(
       "#timeline_statuses_template"
     );
-    if (timelineTemplate) {
-      console.log("✅ Using timeline statuses template");
-      return timelineTemplate.innerHTML;
-    }
+    if (timelineTemplate) return timelineTemplate.innerHTML;
 
-    // Fallback to modal add template (for drop.php)
     const firstItem = document.querySelector("#itemsContainer .item-group");
     if (firstItem) {
       const statusSelect = firstItem.querySelector(".item-status");
-      if (statusSelect) {
-        console.log("✅ Using modal add statuses template");
-        return statusSelect.innerHTML;
-      }
+      if (statusSelect) return statusSelect.innerHTML;
     }
 
     console.error("❌ No statuses template found!");
     return '<option value="">Pilih Status</option>';
   }
 
-  // ===== UPDATE REMOVE BUTTONS VISIBILITY (EDIT) =====
+  // ==================== ITEM MANAGEMENT ====================
+
   function updateEditRemoveButtons() {
     const items = document.querySelectorAll("#editItemsContainer .item-group");
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       const removeBtn = item.querySelector(".remove-item-btn");
       if (removeBtn) {
         removeBtn.style.display = items.length > 1 ? "inline-block" : "none";
@@ -83,96 +69,84 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== CREATE NEW EDIT ITEM HTML =====
   function createEditItemHTML(itemIndex, itemData = {}) {
     const servicesOptions = getServicesOptionsHTML();
     const statusOptions = getStatusesOptionsHTML();
 
     return `
-            <div class="item-group" data-item-index="${itemIndex}">
-                <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
-                    <span class="item-badge">Item #${itemIndex}</span>
-                    <button type="button" class="remove-item-btn" data-item="${itemIndex}">
-                        <i class="bi bi-x-lg"></i> Hapus
-                    </button>
-                </div>
+      <div class="item-group" data-item-index="${itemIndex}">
+        <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
+          <span class="item-badge">Item #${itemIndex}</span>
+          <button type="button" class="remove-item-btn" data-item="${itemIndex}">
+            <i class="bi bi-x-lg"></i> Hapus
+          </button>
+        </div>
 
-                <input type="hidden" name="items[${itemIndex}][item_id]" value="${itemData.item_id || ""}">
+        <input type="hidden" name="items[${itemIndex}][item_id]" value="${itemData.item_id || ""}">
 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
-                    <div>
-                        <label><i class="bi bi-tag"></i> Brand / Merk</label>
-                        <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required
-                            placeholder="Contoh: Nike, Adidas" value="${
-                              itemData.brand || ""
-                            }">
-                    </div>
-
-                    <div>
-                        <label><i class="bi bi-tools"></i> Layanan</label>
-                        <select name="items[${itemIndex}][service_id]" class="item-service" required>
-                            ${servicesOptions}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label><i class="bi bi-cash-coin"></i> Harga</label>
-                        <input type="text" class="item-price-display" readonly value="Rp ${
-                          itemData.price
-                            ? Number(itemData.price).toLocaleString("id-ID")
-                            : "0"
-                        }"
-                            style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
-                        <input type="hidden" name="items[${itemIndex}][price]" class="item-price" value="${itemData.price || "0"}">
-                    </div>
-
-                    <div>
-                        <label><i class="bi bi-clock-history"></i> Estimasi Selesai</label>
-                        <input type="text" class="item-estimate" readonly value="${
-                          itemData.duration ? itemData.duration + " Hari" : "-"
-                        }"
-                            style="background: #f1f5f9; font-weight: 600;">
-                        <input type="hidden" name="items[${itemIndex}][duration]" class="item-duration" value="${itemData.duration || "0"}">
-                    </div>
-
-                    <div>
-                        <label><i class="bi bi-calendar-event"></i> Tgl. Transaksi</label>
-                        <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date"
-                            value="${
-                              itemData.trans_date ||
-                              new Date().toISOString().split("T")[0]
-                            }">
-                    </div>
-
-                    <div>
-                        <label><i class="bi bi-calendar-check"></i> Tanggal Estimasi Selesai</label>
-                        <input type="date" name="items[${itemIndex}][est_finish_date]" class="item-est-date" readonly
-                            style="background: #f1f5f9;" value="${
-                              itemData.est_finish_date || ""
-                            }">
-                    </div>
-
-                    <div style="grid-column: 1 / -1;">
-                        <label><i class="bi bi-bar-chart-steps"></i> Status</label>
-                        <select name="items[${itemIndex}][status_id]" class="item-status" required>
-                            ${statusOptions}
-                        </select>
-                    </div>
-
-                    <div style="grid-column: 1 / -1;">
-                        <label><i class="bi bi-pencil-square"></i> Catatan Item</label>
-                        <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2"
-                            placeholder="Catatan khusus untuk item ini..."
-                            style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;">${
-                              itemData.notes || ""
-                            }</textarea>
-                    </div>
-                </div>
-            </div>
-        `;
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
+          <div>
+            <label><i class="bi bi-tag"></i> Brand / Merk</label>
+            <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required
+              placeholder="Contoh: Nike, Adidas" value="${
+                itemData.brand || ""
+              }">
+          </div>
+          <div>
+            <label><i class="bi bi-tools"></i> Layanan</label>
+            <select name="items[${itemIndex}][service_id]" class="item-service" required>
+              ${servicesOptions}
+            </select>
+          </div>
+          <div>
+            <label><i class="bi bi-cash-coin"></i> Harga</label>
+            <input type="text" class="item-price-display" readonly value="Rp ${
+              itemData.price
+                ? Number(itemData.price).toLocaleString("id-ID")
+                : "0"
+            }" style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
+            <input type="hidden" name="items[${itemIndex}][price]" class="item-price" value="${itemData.price || "0"}">
+          </div>
+          <div>
+            <label><i class="bi bi-clock-history"></i> Estimasi Selesai</label>
+            <input type="text" class="item-estimate" readonly value="${
+              itemData.duration ? itemData.duration + " Hari" : "-"
+            }" style="background: #f1f5f9; font-weight: 600;">
+            <input type="hidden" name="items[${itemIndex}][duration]" class="item-duration" value="${itemData.duration || "0"}">
+          </div>
+          <div>
+            <label><i class="bi bi-calendar-event"></i> Tgl. Transaksi</label>
+            <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date"
+              value="${
+                itemData.trans_date || new Date().toISOString().split("T")[0]
+              }">
+          </div>
+          <div>
+            <label><i class="bi bi-calendar-check"></i> Tanggal Estimasi Selesai</label>
+            <input type="date" name="items[${itemIndex}][est_finish_date]" class="item-est-date" readonly
+              style="background: #f1f5f9;" value="${
+                itemData.est_finish_date || ""
+              }">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label><i class="bi bi-bar-chart-steps"></i> Status</label>
+            <select name="items[${itemIndex}][status_id]" class="item-status" required>
+              ${statusOptions}
+            </select>
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label><i class="bi bi-pencil-square"></i> Catatan Item</label>
+            <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2"
+              placeholder="Catatan khusus untuk item ini..."
+              style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;">${
+                itemData.notes || ""
+              }</textarea>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  // ===== ATTACH EVENT LISTENERS TO EDIT ITEM =====
   function attachEditItemListeners(itemElement) {
     const serviceSelect = itemElement.querySelector(".item-service");
     const transDateInput = itemElement.querySelector(".item-trans-date");
@@ -192,24 +166,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (removeBtn) {
-      removeBtn.addEventListener("click", function () {
+      removeBtn.addEventListener("click", async function () {
         const items = document.querySelectorAll(
           "#editItemsContainer .item-group"
         );
+
         if (items.length > 1) {
-          itemElement.remove();
-          calculateEditOrderSummary();
-          updateEditRemoveButtons();
-          reindexEditItems();
-          console.log(`🗑️ Edit item removed`);
+          const confirmed = await customConfirm(
+            "Hapus item ini dari pesanan?",
+            "Konfirmasi Hapus",
+            "🗑️"
+          );
+
+          if (confirmed) {
+            itemElement.remove();
+            calculateEditOrderSummary();
+            updateEditRemoveButtons();
+            reindexEditItems();
+          }
         } else {
-          alert("⚠️ Minimal harus ada 1 item dalam pesanan!");
+          await customAlert(
+            "Minimal harus ada 1 item dalam pesanan!",
+            "Peringatan",
+            "⚠️"
+          );
         }
       });
     }
   }
 
-  // ===== UPDATE ITEM SERVICE DATA (EDIT) =====
   async function updateEditItemServiceData(itemGroup) {
     const serviceSelect = itemGroup.querySelector(".item-service");
     const priceDisplay = itemGroup.querySelector(".item-price-display");
@@ -238,15 +223,6 @@ document.addEventListener("DOMContentLoaded", function () {
         durationInput.value = result.duration;
         estimateDisplay.value = result.estimate_desc;
         estDateInput.value = result.estimate_date;
-
-        if (result.queue_info) {
-          console.log(`📋 ${result.queue_info}`);
-        }
-        if (result.has_overdue) {
-          console.warn(
-            `⚠️ Ada ${result.overdue_count} pesanan overdue - queue direset`
-          );
-        }
       } else {
         const priceMin = parseFloat(
           selectedOption.getAttribute("data-price") || 0
@@ -274,7 +250,6 @@ document.addEventListener("DOMContentLoaded", function () {
     calculateEditOrderSummary();
   }
 
-  // ===== CALCULATE EDIT ORDER SUMMARY =====
   function calculateEditOrderSummary() {
     const items = document.querySelectorAll("#editItemsContainer .item-group");
     let totalPrice = 0;
@@ -289,14 +264,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const estDate = item.querySelector(".item-est-date").value;
 
       totalPrice += price;
-
-      if (duration > maxDuration) {
-        maxDuration = duration;
-      }
-
-      if (estDate && (!maxEstDate || estDate > maxEstDate)) {
+      if (duration > maxDuration) maxDuration = duration;
+      if (estDate && (!maxEstDate || estDate > maxEstDate))
         maxEstDate = estDate;
-      }
     });
 
     document.getElementById("editTotalItems").value = items.length + " Item";
@@ -309,7 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("editFinalEstDate").value = maxEstDate;
   }
 
-  // ===== REINDEX EDIT ITEMS =====
   function reindexEditItems() {
     const container = document.getElementById("editItemsContainer");
     const items = container.querySelectorAll(".item-group");
@@ -334,167 +303,133 @@ document.addEventListener("DOMContentLoaded", function () {
     editItemCounter = items.length;
   }
 
-  // ===== LOAD EDIT MODAL DATA =====
-  window.loadEditModal = function (dropId) {
-    console.log(`📝 Loading edit modal for drop ID: ${dropId}`);
+  // ==================== LOAD EDIT MODAL ====================
 
+  window.loadEditModal = async function (dropId) {
     const apiUrl = `${API_BASE_PATH}get_order_detail.php?drop_id=${dropId}`;
-    console.log(`🔗 Fetching from: ${apiUrl}`);
 
-    fetch(apiUrl)
-      .then((response) => {
-        console.log(`📡 Response status: ${response.status}`);
+    showLoading("Memuat data pesanan...");
 
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(
-            `Server mengembalikan ${contentType} bukan JSON. Cek path file PHP!`
-          );
+    try {
+      const response = await fetch(apiUrl);
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server mengembalikan bukan JSON. Cek path file PHP!");
+      }
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+
+      hideLoading();
+
+      if (data.success) {
+        // Set customer info
+        document.getElementById("edit_customer_name").value =
+          data.customer.name;
+        document.getElementById("edit_customer_phone").value =
+          data.customer.phone;
+        document.getElementById("edit_customer_id").value = data.customer.id;
+        document.getElementById("edit_drop_id").value = dropId;
+
+        // Set employee
+        const empSelect = document.getElementById("edit_employee_id");
+        if (empSelect && empSelect.tagName === "SELECT") {
+          empSelect.value = data.employee_id;
         }
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Set note
+        document.getElementById("edit_note").value = data.note || "";
 
-        return response.json();
-      })
-      .then((data) => {
-        if (data.success) {
-          console.log("✅ Data loaded successfully:", data);
+        // Set payment info
+        document.getElementById("edit_payment_status").value =
+          data.payment.status;
+        document.getElementById("edit_payment_method").value =
+          data.payment.method;
+        document.getElementById("edit_amount_paid").value =
+          data.payment.amount_paid;
+        document.getElementById("edit_amount_paid_display").value =
+          "Rp " + Number(data.payment.amount_paid).toLocaleString("id-ID");
 
-          // Set customer info (read-only)
-          document.getElementById("edit_customer_name").value =
-            data.customer.name;
-          document.getElementById("edit_customer_phone").value =
-            data.customer.phone;
-          document.getElementById("edit_customer_id").value = data.customer.id;
-          document.getElementById("edit_drop_id").value = dropId;
-
-          // Set employee
-          const empSelect = document.getElementById("edit_employee_id");
-          if (empSelect && empSelect.tagName === "SELECT") {
-            empSelect.value = data.employee_id;
-          }
-
-          // Set note
-          document.getElementById("edit_note").value = data.note || "";
-
-          // Set payment info
-          document.getElementById("edit_payment_status").value =
-            data.payment.status;
-          document.getElementById("edit_payment_method").value =
-            data.payment.method;
-          document.getElementById("edit_amount_paid").value =
-            data.payment.amount_paid;
-          document.getElementById("edit_amount_paid_display").value =
-            "Rp " + Number(data.payment.amount_paid).toLocaleString("id-ID");
-
-          if (data.payment.date) {
-            document.getElementById("edit_payment_date_display").value =
-              data.payment.date;
-            document.getElementById("edit_payment_date_hidden").value =
-              data.payment.date;
-            document.getElementById(
-              "edit_payment_date_display"
-            ).disabled = false;
-            document.getElementById(
-              "edit_payment_date_hidden"
-            ).dataset.originalDate = data.payment.date;
-          } else {
-            document.getElementById("edit_payment_date_display").value = "";
-            document.getElementById("edit_payment_date_hidden").value = "";
-            document.getElementById(
-              "edit_payment_date_display"
-            ).disabled = true;
-            document.getElementById(
-              "edit_payment_date_hidden"
-            ).dataset.originalDate = "";
-          }
-
-          // Load items
-          const container = document.getElementById("editItemsContainer");
-          container.innerHTML = "";
-
-          data.items.forEach((item, idx) => {
-            const itemHTML = createEditItemHTML(idx + 1, item);
-            container.insertAdjacentHTML("beforeend", itemHTML);
-
-            const itemElement = container.querySelector(
-              `[data-item-index="${idx + 1}"]`
-            );
-
-            // Set selected service
-            const serviceSelect = itemElement.querySelector(".item-service");
-            if (serviceSelect) {
-              serviceSelect.value = item.service_id;
-              console.log(
-                `✅ Set service ${item.service_id} for item ${idx + 1}`
-              );
-            }
-
-            // Set selected status
-            const statusSelect = itemElement.querySelector(".item-status");
-            if (statusSelect) {
-              statusSelect.value = item.status_id;
-              console.log(
-                `✅ Set status ${item.status_id} for item ${idx + 1}`
-              );
-            }
-
-            attachEditItemListeners(itemElement);
-          });
-
-          editItemCounter = data.items.length;
-
-          calculateEditOrderSummary();
-          updateEditRemoveButtons();
-
-          showModal("editModal");
-
-          console.log("✅ Edit modal opened successfully");
+        if (data.payment.date) {
+          document.getElementById("edit_payment_date_display").value =
+            data.payment.date;
+          document.getElementById("edit_payment_date_hidden").value =
+            data.payment.date;
+          document.getElementById("edit_payment_date_display").disabled = false;
+          document.getElementById(
+            "edit_payment_date_hidden"
+          ).dataset.originalDate = data.payment.date;
         } else {
-          alert("❌ Error: " + data.message);
+          document.getElementById("edit_payment_date_display").value = "";
+          document.getElementById("edit_payment_date_hidden").value = "";
+          document.getElementById("edit_payment_date_display").disabled = true;
+          document.getElementById(
+            "edit_payment_date_hidden"
+          ).dataset.originalDate = "";
         }
-      })
-      .catch((error) => {
-        console.error("❌ Error:", error);
-        alert(
-          `❌ Gagal memuat data pesanan: ${error.message}\n\nCek console browser untuk detail lebih lanjut.`
-        );
-      });
+
+        // Load items
+        const container = document.getElementById("editItemsContainer");
+        container.innerHTML = "";
+
+        data.items.forEach((item, idx) => {
+          const itemHTML = createEditItemHTML(idx + 1, item);
+          container.insertAdjacentHTML("beforeend", itemHTML);
+
+          const itemElement = container.querySelector(
+            `[data-item-index="${idx + 1}"]`
+          );
+
+          const serviceSelect = itemElement.querySelector(".item-service");
+          if (serviceSelect) serviceSelect.value = item.service_id;
+
+          const statusSelect = itemElement.querySelector(".item-status");
+          if (statusSelect) statusSelect.value = item.status_id;
+
+          attachEditItemListeners(itemElement);
+        });
+
+        editItemCounter = data.items.length;
+        calculateEditOrderSummary();
+        updateEditRemoveButtons();
+        showModal("editModal");
+      } else {
+        await customError(data.message || "Gagal memuat data", "Error");
+      }
+    } catch (error) {
+      hideLoading();
+      console.error("❌ Error:", error);
+      await customError(
+        `Gagal memuat data pesanan:\n\n${error.message}`,
+        "Error"
+      );
+    }
   };
 
-  // ===== DOUBLE-CLICK TO EDIT (Only for drop.php page) =====
+  // ==================== EVENT LISTENERS ====================
+
+  // Double-click to edit (drop.php only)
   if (!isTimelinePage && isDropPage) {
     document.querySelectorAll(".order-item-row").forEach((row) => {
       row.addEventListener("dblclick", function (e) {
-        if (e.target.type === "checkbox" || e.target.tagName === "SELECT") {
+        if (e.target.type === "checkbox" || e.target.tagName === "SELECT")
           return;
-        }
-
         const dropId = this.getAttribute("data-drop-id");
-        console.log(
-          `✏️ Double-click detected - Opening edit modal for Drop ${dropId}`
-        );
-
         loadEditModal(dropId);
       });
     });
   }
 
-  // ===== CLICK NOTE CELL TO EDIT (Only for drop.php page) =====
+  // Click note cell to edit
   if (!isTimelinePage && isDropPage) {
     document.querySelectorAll(".note-cell").forEach((noteCell) => {
       noteCell.addEventListener("click", function (e) {
         e.stopPropagation();
-
         const dropId = this.getAttribute("data-drop-id");
-        console.log(
-          `📝 Note cell clicked - Opening edit modal for Drop ${dropId}`
-        );
-
         loadEditModal(dropId);
-
         setTimeout(() => {
           const notesField = document.getElementById("edit_note");
           if (notesField) notesField.focus();
@@ -503,13 +438,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== ADD ITEM BUTTON (EDIT) =====
+  // Add item button
   const editAddItemBtn = document.getElementById("editAddItemBtn");
   if (editAddItemBtn) {
     editAddItemBtn.addEventListener("click", function () {
       editItemCounter++;
-      console.log(`➕ Adding edit item #${editItemCounter}`);
-
       const container = document.getElementById("editItemsContainer");
       const itemHTML = createEditItemHTML(editItemCounter);
       container.insertAdjacentHTML("beforeend", itemHTML);
@@ -524,10 +457,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== RUPIAH INPUT SETUP (EDIT) =====
+  // Rupiah input setup
   setupRupiahInput("edit_amount_paid_display", "edit_amount_paid");
 
-  // ===== PAYMENT STATUS CHANGE (EDIT) =====
+  // Payment status change
   const editPayStatus = document.getElementById("edit_payment_status");
   if (editPayStatus) {
     editPayStatus.addEventListener("change", function () {
@@ -541,14 +474,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ===== SAVE ONLY (EDIT) =====
+  // ==================== FORM SUBMISSION ====================
+
+  // Save only
   const editSaveOnlyBtn = document.getElementById("editSaveOnlyBtn");
   if (editSaveOnlyBtn) {
-    editSaveOnlyBtn.addEventListener("click", function (e) {
+    editSaveOnlyBtn.addEventListener("click", async function (e) {
       e.preventDefault();
 
       const form = document.getElementById("editForm");
-
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -556,169 +490,164 @@ document.addEventListener("DOMContentLoaded", function () {
 
       this.disabled = true;
       this.innerHTML = "⏳ Menyimpan...";
+      showLoading("Menyimpan perubahan...");
 
       const formData = new FormData(form);
 
-      fetch(`${API_BASE_PATH}drop_edit.php`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          const contentType = response.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            return response.text().then((text) => {
-              console.error("❌ Server response (bukan JSON):", text);
-              throw new Error(
-                "Server mengembalikan HTML/Error bukan JSON. Cek PHP error!"
-              );
-            });
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.success) {
-            hideModal("editModal");
+      try {
+        const response = await fetch(`${API_BASE_PATH}drop_edit.php`, {
+          method: "POST",
+          body: formData,
+        });
 
-            // 🔧 FIXED: Gunakan key yang berbeda untuk setiap halaman
-            if (isTimelinePage) {
-              sessionStorage.setItem("timeline_showSuccess", "true");
-              sessionStorage.setItem(
-                "timeline_successMessage",
-                data.message || "✅ Pesanan berhasil diperbarui!"
-              );
-            } else if (isDropPage) {
-              sessionStorage.setItem("drop_showSuccess", "true");
-              sessionStorage.setItem(
-                "drop_successMessage",
-                data.message || "✅ Pesanan berhasil diperbarui!"
-              );
-            }
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();
+          throw new Error("Server mengembalikan HTML/Error bukan JSON.");
+        }
 
-            setTimeout(() => window.location.reload(), 500);
-          } else {
-            alert(
-              "❌ Gagal menyimpan perubahan: " +
-                (data.message || "Unknown error")
+        const data = await response.json();
+
+        hideLoading();
+
+        if (data.success) {
+          hideModal("editModal");
+
+          if (isTimelinePage) {
+            sessionStorage.setItem("timeline_showSuccess", "true");
+            sessionStorage.setItem(
+              "timeline_successMessage",
+              data.message || "✅ Pesanan berhasil diperbarui!"
             );
-            this.disabled = false;
-            this.innerHTML = "<i class='bi bi-save'></i> Simpan";
+          } else if (isDropPage) {
+            sessionStorage.setItem("drop_showSuccess", "true");
+            sessionStorage.setItem(
+              "drop_successMessage",
+              data.message || "✅ Pesanan berhasil diperbarui!"
+            );
           }
-        })
-        .catch((error) => {
-          alert("❌ Terjadi kesalahan: " + error.message);
+
+          setTimeout(() => window.location.reload(), 500);
+        } else {
+          await customError(
+            data.message || "Gagal menyimpan perubahan",
+            "Gagal Menyimpan"
+          );
           this.disabled = false;
           this.innerHTML = "<i class='bi bi-save'></i> Simpan";
-        });
+        }
+      } catch (error) {
+        hideLoading();
+        await customError(`Terjadi kesalahan:\n\n${error.message}`, "Error");
+        this.disabled = false;
+        this.innerHTML = "<i class='bi bi-save'></i> Simpan";
+      }
     });
   }
 
-  // ===== SAVE & PRINT (EDIT) =====
+  // Save & print - FIXED: Open in new window instead of redirect
   const editSaveAndPrintBtn = document.getElementById("editSaveAndPrintBtn");
   if (editSaveAndPrintBtn) {
-    editSaveAndPrintBtn.addEventListener("click", function (e) {
+    editSaveAndPrintBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      console.log("=== EDIT SAVE & PRINT CLICKED ===");
 
       const form = document.getElementById("editForm");
-
       if (!form.checkValidity()) {
-        console.error("❌ Form validation failed");
         form.reportValidity();
         return;
       }
 
-      console.log("✅ Form valid, submitting...");
-
       this.disabled = true;
       this.innerHTML = "⏳ Menyimpan...";
+      showLoading("Menyimpan perubahan...");
 
       const formData = new FormData(form);
       const dropId = document.getElementById("edit_drop_id").value;
 
-      fetch(`${API_BASE_PATH}drop_edit.php`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          const contentType = response.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            return response.text().then((text) => {
-              console.error("❌ Server response (bukan JSON):", text);
-              throw new Error(
-                "Server mengembalikan HTML/Error bukan JSON. Cek PHP error!"
+      try {
+        const response = await fetch(`${API_BASE_PATH}drop_edit.php`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server mengembalikan HTML/Error bukan JSON.");
+        }
+
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+
+        hideLoading();
+
+        if (data.success) {
+          hideModal("editModal");
+
+          await customSuccess(
+            "Pesanan berhasil diperbarui!\n\nMembuka halaman cetak..."
+          );
+
+          // FIXED: Open in new window instead of redirect
+          const protocol = window.location.protocol;
+          const host = window.location.host;
+          const cetak_url = `${protocol}//${host}/actions/drop/cetak_struk.php?id=${dropId}`;
+
+          try {
+            const printWindow = window.open(
+              cetak_url,
+              `CetakStruk_${dropId}`,
+              "width=800,height=900,scrollbars=yes,resizable=yes,menubar=no,toolbar=no,location=no,status=no"
+            );
+
+            if (
+              !printWindow ||
+              printWindow.closed ||
+              typeof printWindow.closed == "undefined"
+            ) {
+              console.error("❌ Popup blocked");
+              await customError(
+                "Popup diblokir oleh browser!\n\nSilakan izinkan popup untuk situs ini dan coba lagi.",
+                "Popup Diblokir"
               );
-            });
-          }
+            } else {
+              console.log("✅ Print window opened successfully");
 
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.success) {
-            console.log("✅ Pesanan berhasil diperbarui!");
-
-            hideModal("editModal");
-
-            setTimeout(() => {
-              // Get base URL
-              const pathArray = window.location.pathname.split("/");
-              const projectIndex = pathArray.indexOf("PROJEKS3");
-              const basePath =
-                projectIndex !== -1
-                  ? pathArray.slice(0, projectIndex + 1).join("/")
-                  : "/PROJEKS3";
-              const baseUrl = window.location.origin + basePath;
-
-              const cetak_url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
-              window.open(cetak_url, "CetakStruk", "width=600,height=800");
-
-              // 🔧 FIXED: Gunakan key yang berbeda untuk setiap halaman
-              if (isTimelinePage) {
-                sessionStorage.setItem("timeline_showSuccess", "true");
-                sessionStorage.setItem(
-                  "timeline_successMessage",
-                  data.message || "✅ Pesanan berhasil diperbarui dan dicetak!"
-                );
-              } else if (isDropPage) {
-                sessionStorage.setItem("drop_showSuccess", "true");
-                sessionStorage.setItem(
-                  "drop_successMessage",
-                  data.message || "✅ Pesanan berhasil diperbarui dan dicetak!"
-                );
-              }
-
+              // Reload halaman utama setelah delay
               setTimeout(() => {
                 window.location.reload();
               }, 1000);
-            }, 500);
-          } else {
-            alert(
-              "❌ Gagal menyimpan perubahan: " +
-                (data.message || "Unknown error")
-            );
-            this.disabled = false;
-            this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
+            }
+          } catch (error) {
+            console.error("❌ Error opening window:", error);
+            await customError(`Error membuka halaman cetak: ${error.message}`);
           }
-        })
-        .catch((error) => {
-          console.error("❌ Network error:", error);
-          alert("❌ Terjadi kesalahan: " + error.message);
+        } else {
+          await customError(
+            data.message || "Gagal menyimpan perubahan",
+            "Gagal Menyimpan"
+          );
           this.disabled = false;
           this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
-        });
+        }
+      } catch (error) {
+        hideLoading();
+        console.error("❌ Error:", error);
+        await customError(`Terjadi kesalahan:\n\n${error.message}`, "Error");
+        this.disabled = false;
+        this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
+      }
     });
   }
 
-  // ===== CLOSE EDIT MODAL =====
-  function closeEditModal() {
+  // Close modal
+  window.closeEditModal = function () {
     hideModal("editModal");
-  }
-
-  window.closeEditModal = closeEditModal;
+  };
 
   console.log("✅ Edit modal event listeners initialized");
+  console.log("✅ FIXED: Save & Print now opens in NEW WINDOW");
   if (!isTimelinePage && isDropPage) {
     console.log("🖱️ Double-click row to edit full order");
     console.log("📝 Click note cell to edit order");
