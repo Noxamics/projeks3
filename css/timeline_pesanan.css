@@ -931,3 +931,20 @@
   box-shadow: 0 0 8px rgba(0, 200, 81, 0.7);
   border-color: #009933;
 }
+
+/* =============================
+   FOOTER
+============================= */
+
+footer {
+  background: #333;
+  color: #fff;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+footer p {
+  margin: 0;
+  line-height: 1.4;
+}

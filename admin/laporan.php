@@ -280,4 +280,3 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
     window.onload = hitungTotalPendapatan;
 </script>
 
-<?php include_once('../partials/footer.php'); ?>

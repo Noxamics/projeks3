@@ -1,0 +1,829 @@
+/* =============================
+   DASHBOARD RESPONSIVE DESIGN
+   Tambahkan/replace di dashboard.css
+============================= */
+
+/* ========== TABLET LANDSCAPE - 1024px ========== */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 20px;
+  }
+
+  /* Stats Grid - 2 kolom */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  /* Dashboard Content */
+  .dashboard-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .timeline-card {
+    flex: 1;
+  }
+
+  /* Right Sidebar - Horizontal */
+  .right-sidebar {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .calendar-card {
+    flex: 1;
+  }
+
+  /* Filter Row */
+  .filter-row select {
+    min-width: 180px;
+  }
+}
+
+/* ========== TABLET PORTRAIT - 768px ========== */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+  }
+
+  /* Stats Grid - 2 kolom tetap di tablet */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .stat-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .stat-info h3 {
+    font-size: 13px;
+  }
+
+  /* Dashboard Content - Stack Vertical */
+  .dashboard-content {
+    flex-direction: column;
+  }
+
+  .right-sidebar {
+    flex-direction: column;
+  }
+
+  /* Timeline Card */
+  .timeline-card {
+    padding: 15px;
+  }
+
+  .timeline-card h2 {
+    font-size: 20px;
+  }
+
+  /* Filter Row - Stack Vertical */
+  .filter-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-row select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .search-box {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .search-box input {
+    font-size: 13px;
+  }
+
+  /* Filter Type Buttons */
+  .filter-type {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .filter-type button {
+    font-size: 12px;
+    padding: 7px 14px;
+  }
+
+  /* Order Items */
+  .order-item {
+    padding: 12px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .order-id {
+    font-size: 13px;
+  }
+
+  .order-status {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .order-details {
+    font-size: 13px;
+  }
+
+  .order-time {
+    font-size: 11px;
+  }
+
+  /* Calendar Card */
+  .calendar-card {
+    padding: 15px;
+  }
+
+  .calendar-card h3 {
+    font-size: 18px;
+  }
+
+  .calendar-grid {
+    gap: 6px;
+  }
+
+  .calendar-grid .day {
+    font-size: 11px;
+  }
+
+  .calendar-grid .date {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  /* Deadline Section */
+  .deadline-section h4 {
+    font-size: 15px;
+  }
+
+  .deadline-item {
+    padding: 10px;
+  }
+
+  .deadline-item h4 {
+    font-size: 13px;
+  }
+
+  .deadline-item p {
+    font-size: 11px;
+  }
+
+  .deadline-item span {
+    font-size: 10px;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 90%;
+    padding: 20px;
+    max-height: 85vh;
+  }
+
+  .modal-content h2 {
+    font-size: 20px;
+  }
+
+  .grid-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ========== MOBILE LARGE - 480px ========== */
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  /* Stats Grid - Single Column */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* PERBAIKAN FILTER ROW - Tambahkan ini */
+  .filter-row {
+    flex-direction: column;
+    gap: 10px; /* Tambahkan gap yang lebih jelas */
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  .filter-row select {
+    width: 100%;
+    padding: 12px 35px 12px 12px; /* Lebih besar untuk touch */
+    font-size: 14px;
+    min-width: auto;
+    height: 48px; /* Fixed height untuk konsistensi */
+    box-sizing: border-box;
+  }
+
+  /* PERBAIKAN SEARCH BOX */
+  .search-box {
+    width: 100%;
+    margin: 0;
+    display: flex;
+  }
+
+  .search-box input {
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 8px 0 0 8px;
+    flex: 1;
+    height: 48px; /* Match dengan select */
+    box-sizing: border-box;
+    border: 1.5px solid #ccc;
+  }
+
+  .search-box button {
+    padding: 12px 16px;
+    height: 48px; /* Match dengan input */
+    min-width: 60px; /* Lebih lebar untuk touch */
+    border-radius: 0 8px 8px 0;
+    font-size: 16px;
+  }
+
+  /* Filter Type */
+  .filter-type {
+    gap: 6px;
+    justify-content: flex-start;
+    margin: 15px 0;
+    overflow-x: auto; /* Scroll horizontal jika perlu */
+    padding-bottom: 5px;
+    flex-wrap: nowrap; /* Biarkan scroll horizontal */
+  }
+
+  .filter-type::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .filter-type button {
+    font-size: 12px;
+    padding: 10px 14px;
+    white-space: nowrap; /* Hindari line break */
+    min-height: 38px;
+  }
+
+  /* Timeline Body */
+  .timeline-body {
+    min-height: 200px;
+    padding-top: 15px;
+  }
+
+  /* Order Items */
+  .order-item {
+    padding: 10px;
+    border-left-width: 3px;
+    margin-bottom: 12px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .order-id {
+    font-size: 12px;
+  }
+
+  .order-status {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .order-details {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .order-time {
+    font-size: 10px;
+  }
+
+  /* Calendar Card */
+  .calendar-card {
+    padding: 12px;
+  }
+
+  .calendar-header {
+    margin-bottom: 12px;
+  }
+
+  .calendar-card h3 {
+    font-size: 16px;
+  }
+
+  .calendar-nav {
+    gap: 8px;
+  }
+
+  .calendar-nav button {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+
+  /* Calendar Grid */
+  .calendar-grid {
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .calendar-grid .day {
+    font-size: 10px;
+    padding: 3px;
+  }
+
+  .calendar-grid .date {
+    padding: 5px 2px;
+    font-size: 10px;
+    border-radius: 4px;
+  }
+
+  .calendar-grid .date.active {
+    transform: scale(1.05);
+  }
+
+  .calendar-grid .date:hover {
+    background: #2a75e6;
+  }
+
+  /* Deadline Section */
+  .deadline-section {
+    margin-top: 15px;
+  }
+
+  .deadline-section h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .deadline-item {
+    padding: 8px;
+    margin-bottom: 8px;
+    border-left-width: 3px;
+    border-bottom-width: 2px;
+  }
+
+  .deadline-item:hover {
+    transform: translateX(3px);
+  }
+
+  .deadline-item h4 {
+    font-size: 12px;
+  }
+
+  .deadline-item p {
+    font-size: 10px;
+  }
+
+  .deadline-item span {
+    font-size: 9px;
+  }
+
+  /* Modal */
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 80vh;
+  }
+
+  .modal-content h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .grid-form {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .grid-form input,
+  .grid-form select,
+  .modal-content input,
+  .modal-content select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .full-width {
+    margin-top: 15px;
+  }
+
+  .full-width .save-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .close {
+    font-size: 20px;
+  }
+
+  /* Print Button */
+  .print-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Messages */
+  .info-message {
+    padding: 10px;
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .no-orders-message {
+    padding: 30px 15px;
+  }
+
+  .no-orders-message p {
+    font-size: 14px;
+  }
+
+  .no-orders-message small {
+    font-size: 11px;
+  }
+}
+
+/* ========== MOBILE SMALL - 360px ========== */
+@media (max-width: 360px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  /* Stats */
+  .stats-grid {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .stat-number {
+    font-size: 16px;
+  }
+
+  .stat-info h3 {
+    font-size: 11px;
+  }
+
+  /* Timeline */
+  .timeline-card {
+    padding: 10px;
+  }
+
+  .timeline-card h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .filter-row select {
+    padding: 7px 25px 7px 8px;
+    font-size: 12px;
+  }
+
+  .search-box input {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  .search-box button {
+    padding: 7px 10px;
+  }
+
+  .filter-type {
+    gap: 5px;
+    margin: 12px 0;
+  }
+
+  .filter-type button {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+
+  .timeline-body {
+    min-height: 180px;
+    padding-top: 12px;
+  }
+
+  /* Order Items */
+  .order-item {
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .order-id {
+    font-size: 11px;
+  }
+
+  .order-status {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .order-details {
+    font-size: 11px;
+  }
+
+  .order-time {
+    font-size: 9px;
+  }
+
+  /* Calendar */
+  .calendar-card {
+    padding: 10px;
+  }
+
+  .calendar-card h3 {
+    font-size: 14px;
+  }
+
+  .calendar-nav button {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+
+  .calendar-grid {
+    gap: 3px;
+  }
+
+  .calendar-grid .day {
+    font-size: 9px;
+    padding: 2px;
+  }
+
+  .calendar-grid .date {
+    padding: 4px 2px;
+    font-size: 9px;
+  }
+
+  /* Deadline */
+  .deadline-section {
+    margin-top: 12px;
+  }
+
+  .deadline-section h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .deadline-item {
+    padding: 6px;
+    margin-bottom: 6px;
+  }
+
+  .deadline-item h4 {
+    font-size: 11px;
+  }
+
+  .deadline-item p {
+    font-size: 9px;
+  }
+
+  .deadline-item span {
+    font-size: 8px;
+  }
+
+  /* Modal */
+  .modal-content {
+    padding: 12px;
+  }
+
+  .modal-content h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .grid-form {
+    gap: 8px;
+  }
+
+  .grid-form input,
+  .grid-form select {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+}
+
+/* ========== LANDSCAPE MODE (Mobile) ========== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  /* Stats - 2 columns in landscape */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  /* Dashboard content - side by side */
+  .dashboard-content {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .timeline-card {
+    flex: 2;
+    padding: 12px;
+  }
+
+  .right-sidebar {
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .calendar-card {
+    padding: 10px;
+  }
+
+  .calendar-grid .date {
+    padding: 4px 2px;
+    font-size: 9px;
+  }
+
+  /* Deadline scrollable */
+  .deadline-section {
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+
+  .deadline-section::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .deadline-section::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+  }
+
+  /* Timeline body */
+  .timeline-body {
+    min-height: 150px;
+  }
+}
+
+/* ========== TOUCH DEVICE OPTIMIZATIONS ========== */
+@media (hover: none) {
+  /* Remove hover effects on touch devices */
+  .order-item:hover {
+    transform: none;
+  }
+
+  .deadline-item:hover {
+    transform: none;
+  }
+
+  .filter-type button:hover {
+    background: none;
+    transform: none;
+  }
+
+  .calendar-grid .date:hover {
+    background: #1e63c4;
+  }
+
+  /* Add active/tap states */
+  .order-item:active {
+    transform: scale(0.98);
+    background: #f0f0f0;
+  }
+
+  .filter-type button:active {
+    transform: scale(0.95);
+  }
+
+  .calendar-grid .date:active {
+    transform: scale(0.95);
+  }
+
+  .deadline-item:active {
+    background: #f8f8f8;
+  }
+
+  /* Increase touch targets */
+  .filter-type button {
+    min-height: 36px;
+  }
+
+  .calendar-grid .date {
+    min-height: 32px;
+  }
+
+  .search-box button {
+    min-width: 44px;
+  }
+}
+
+/* ========== PRINT STYLES ========== */
+@media print {
+  .dashboard-container {
+    padding: 0;
+  }
+
+  .filter-row,
+  .filter-type,
+  .search-box,
+  .calendar-nav,
+  .print-btn,
+  .close {
+    display: none !important;
+  }
+
+  .dashboard-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .timeline-card,
+  .calendar-card {
+    border: 2px solid #000;
+    page-break-inside: avoid;
+  }
+
+  .order-item {
+    page-break-inside: avoid;
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .stat-card,
+  .timeline-card,
+  .calendar-card,
+  .order-item,
+  .deadline-item {
+    border-width: 2px;
+    border-color: #000;
+  }
+
+  .order-status {
+    border: 2px solid currentColor;
+  }
+}
