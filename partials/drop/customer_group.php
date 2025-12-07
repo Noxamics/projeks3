@@ -1,6 +1,6 @@
 <?php
 // File: /partials/drop/customer_group.php
-// Display customer group dengan semua items - IMPROVED VERSION
+// Display customer group dengan semua items - FIXED VERSION
 
 $customer_id = $customer['id_customer'];
 $customer_name = htmlspecialchars($customer['name']);
@@ -86,23 +86,21 @@ $stmt_orders->close();
         <div class='customer-actions'>
             <button class='customer-action-btn print-all-btn' data-customer-id='<?= $customer_id ?>'
                 title='Cetak Semua Struk Customer Ini'>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer"
-                    viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
-                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                    class="bi bi-printer-fill" viewBox="0 0 16 16">
                     <path
-                        d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
+                        d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" />
+                    <path
+                        d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
                 </svg>
                 Cetak Semua
             </button>
             <button class='customer-action-btn delete-customer-btn' data-customer-id='<?= $customer_id ?>'
                 title='Hapus Semua Pesanan Customer Ini'>
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-trash"
-                    viewBox="0 0 16 16"
-                    style="vertical-align: middle; margin-right: 4px; filter: brightness(0) invert(1);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                    class="bi bi-trash-fill" viewBox="0 0 16 16">
                     <path
-                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                    <path
-                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                        d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
                 </svg>
                 Hapus Semua
             </button>
@@ -123,7 +121,7 @@ $stmt_orders->close();
         <div class='header-cell center'>STATUS</div>
         <div class='header-cell center'>PEMBAYARAN</div>
         <div class='header-cell center'>KARYAWAN</div>
-        <div class='header-cell'>AKSI</div>
+        <div class='header-cell center'>AKSI</div>
     </div>
 
     <?php foreach ($orders_data as $index => $order):
@@ -225,10 +223,10 @@ $stmt_orders->close();
                     <?= $employee_name ?>
                 </div>
 
-                <!-- 10. AKSI - SIMPLIFIED ICON BUTTONS -->
-                <div class='order-item-cell'>
+                <!-- 10. AKSI - ICON BUTTONS -->
+                <div class='order-item-cell center'>
                     <div class='action-buttons-wrapper'>
-                        <!-- Tombol Cetak (Icon Only) -->
+                        <!-- Tombol Cetak -->
                         <button class='print-item-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Struk Pesanan Ini'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-printer-fill" viewBox="0 0 16 16">
@@ -239,7 +237,7 @@ $stmt_orders->close();
                             </svg>
                         </button>
 
-                        <!-- Tombol Hapus (Icon Only) -->
+                        <!-- Tombol Hapus - FIXED: Icon SVG -->
                         <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
                             data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' <?= $is_completed ? 'disabled' : '' ?>>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -254,10 +252,10 @@ $stmt_orders->close();
             </div>
 
             <?php if ($is_completed): ?>
-                <!-- Completed Badge Overlay -->
+                <!-- FIXED: Completed Badge - Single Icon -->
                 <div class='completed-badge-overlay'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
                         <path
                             d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                     </svg>
