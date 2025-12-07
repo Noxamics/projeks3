@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        // Query customer berdasarkan nomor HP
         $stmt = $conn->prepare("SELECT * FROM customers WHERE phone = ?");
         $stmt->bind_param("s", $phone);
         $stmt->execute();
@@ -26,7 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $user = $result->fetch_assoc();
 
-        // ✅ Verifikasi password hash
+        // Cek apakah user sudah punya password
+        if (empty($user['password'])) {
+            header("Location: login.php?error=no_password");
+            exit;
+        }
+
+        // Verifikasi password (plain text karena database menyimpan plain text)
         if ($password === $user['password']) {
             $_SESSION['user_id'] = $user['id_customer'];
             $_SESSION['user_name'] = $user['name'];
@@ -61,6 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $admin = $result->fetch_assoc();
+
+        // Verifikasi password hash untuk admin (menggunakan bcrypt)
+        if (password_verify($password, $admin['password'])) {
+            $_SESSION['user_id'] = $admin['id_admin'];
+            $_SESSION['user_name'] = $admin['full_name'];
+            $_SESSION['user_email'] = $admin['email'];
+            $_SESSION['user_type'] = 'admin';
+
+            header("Location: ../admin/dashboard.php");
+            exit;
+        } else {
+            header("Location: login.php?error=invalid");
+            exit;
+        }
 
     } else {
         header("Location: login.php?error=invalid");

@@ -26,7 +26,6 @@ $customerId = $userData['id'];
         </div>
         <nav class="header-nav">
             <a href="dashboard.php" class="nav-link">Dashboard</a>
-            <a href="../public/index.php" class="nav-link">Home</a>
             <a href="../admin/logout.php" class="nav-link btn-logout">Logout</a>
         </nav>
     </header>
@@ -41,10 +40,35 @@ $customerId = $userData['id'];
 
         <div class="stats-grid">
             <?php
-            // Query statistik customer
+            // ✅ FIXED: Query statistik customer menggunakan drop_items.status_id
+            
+            // Total Orders
             $totalOrders = $conn->query("SELECT COUNT(*) as total FROM drops WHERE customer_id = $customerId")->fetch_assoc()['total'];
-            $activeOrders = $conn->query("SELECT COUNT(*) as total FROM drops WHERE customer_id = $customerId AND status_id IN (1,2,3)")->fetch_assoc()['total'];
-            $completedOrders = $conn->query("SELECT COUNT(*) as total FROM drops WHERE customer_id = $customerId AND status_id = 4")->fetch_assoc()['total'];
+
+            // Active Orders - order yang masih memiliki item dengan status < 6
+            $activeOrders = $conn->query("
+                SELECT COUNT(DISTINCT d.id_drop) as total 
+                FROM drops d
+                INNER JOIN drop_items di ON d.id_drop = di.drop_id
+                WHERE d.customer_id = $customerId 
+                AND di.status_id < 6
+            ")->fetch_assoc()['total'];
+
+            // Completed Orders - order yang semua itemnya sudah status 6 (Barang Telah Diambil)
+            $completedOrders = $conn->query("
+                SELECT COUNT(DISTINCT d.id_drop) as total 
+                FROM drops d
+                WHERE d.customer_id = $customerId
+                AND NOT EXISTS (
+                    SELECT 1 FROM drop_items di 
+                    WHERE di.drop_id = d.id_drop 
+                    AND di.status_id < 6
+                )
+                AND EXISTS (
+                    SELECT 1 FROM drop_items di 
+                    WHERE di.drop_id = d.id_drop
+                )
+            ")->fetch_assoc()['total'];
 
             // Total pembayaran
             $totalPayment = $conn->query("
@@ -83,37 +107,77 @@ $customerId = $userData['id'];
                     <thead>
                         <tr>
                             <th>Order Code</th>
-                            <th>Service</th>
-                            <th>Brand</th>
+                            <th>Items</th>
                             <th>Tanggal</th>
                             <th>Status</th>
                             <th>Deadline</th>
+                            <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
+                        // ✅ FIXED: Query dengan subquery untuk menghindari GROUP BY error
                         $query = "
-                            SELECT d.order_code, s.service_name, d.brand, 
-                                   d.trans_date, st.status_name, dd.deadline_date
+                            SELECT 
+                                d.id_drop,
+                                d.order_code,
+                                d.trans_date,
+                                d.total_amount,
+                                (SELECT MAX(deadline_date) FROM deadlines WHERE drop_id = d.id_drop) as deadline_date,
+                                (SELECT COUNT(*) FROM drop_items WHERE drop_id = d.id_drop) as total_items,
+                                (SELECT COUNT(*) FROM drop_items WHERE drop_id = d.id_drop AND status_id = 6) as completed_items,
+                                (SELECT MIN(status_id) FROM drop_items WHERE drop_id = d.id_drop) as min_status,
+                                (SELECT MAX(status_id) FROM drop_items WHERE drop_id = d.id_drop) as max_status,
+                                (SELECT GROUP_CONCAT(DISTINCT CONCAT(s.service_name, ' (', di.brand, ')') SEPARATOR ', ')
+                                 FROM drop_items di
+                                 LEFT JOIN services s ON di.service_id = s.id_service
+                                 WHERE di.drop_id = d.id_drop
+                                 LIMIT 50) as services_list
                             FROM drops d
-                            LEFT JOIN services s ON d.service_id = s.id_service
-                            LEFT JOIN statuses st ON d.status_id = st.id_status
-                            LEFT JOIN deadlines dd ON d.id_drop = dd.drop_id
-                            WHERE d.customer_id = $customerId
+                            WHERE d.customer_id = ?
                             ORDER BY d.trans_date DESC
                             LIMIT 10
                         ";
-                        $result = $conn->query($query);
+
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param("i", $customerId);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
 
                         if ($result && $result->num_rows > 0) {
                             while ($row = $result->fetch_assoc()) {
+                                // Tentukan status keseluruhan order
+                                $status_display = '';
+                                $status_class = '';
+
+                                if ($row['completed_items'] == $row['total_items'] && $row['total_items'] > 0) {
+                                    $status_display = 'Selesai';
+                                    $status_class = 'status-completed';
+                                } elseif ($row['min_status'] >= 3) {
+                                    $status_display = 'Dalam Proses';
+                                    $status_class = 'status-processing';
+                                } elseif ($row['min_status'] >= 2) {
+                                    $status_display = 'Menunggu Antrian';
+                                    $status_class = 'status-queue';
+                                } else {
+                                    $status_display = 'Baru Masuk';
+                                    $status_class = 'status-new';
+                                }
+
                                 echo "<tr>";
                                 echo "<td><strong>" . htmlspecialchars($row['order_code']) . "</strong></td>";
-                                echo "<td>" . htmlspecialchars($row['service_name']) . "</td>";
-                                echo "<td>" . htmlspecialchars($row['brand']) . "</td>";
+
+                                // Potong services_list jika terlalu panjang
+                                $services_display = $row['services_list'] ?? 'N/A';
+                                if (strlen($services_display) > 50) {
+                                    $services_display = substr($services_display, 0, 50) . '...';
+                                }
+                                echo "<td><small>" . htmlspecialchars($services_display) . "</small></td>";
+
                                 echo "<td>" . date('d/m/Y', strtotime($row['trans_date'])) . "</td>";
-                                echo "<td><span class='status-badge'>" . htmlspecialchars($row['status_name']) . "</span></td>";
+                                echo "<td><span class='status-badge $status_class'>" . $status_display . " (" . $row['completed_items'] . "/" . $row['total_items'] . ")</span></td>";
                                 echo "<td>" . ($row['deadline_date'] ? date('d/m/Y', strtotime($row['deadline_date'])) : '-') . "</td>";
+                                echo "<td>Rp " . number_format($row['total_amount'], 0, ',', '.') . "</td>";
                                 echo "</tr>";
                             }
                         } else {
@@ -125,26 +189,29 @@ $customerId = $userData['id'];
             </div>
         </div>
 
-        <!-- PROGRES PENGERJAAN SEPATU — VERSI BERSIH (TANPA DESCRIPTION) -->
+        <!-- ✅ FIXED: PROGRES PENGERJAAN SEPATU menggunakan drop_items.status_id -->
         <div class="progress-section">
             <h2>Progres Pengerjaan Sepatu Anda</h2>
 
             <?php
+            // Query progress dari drop_items dengan subquery untuk deadline
             $progress_query = "
                 SELECT 
                     di.id_item,
                     d.order_code,
                     di.brand,
                     di.quantity,
+                    s.service_name,
                     st.status_name,
                     st.status_order,
                     DATE(d.trans_date) AS tanggal_masuk,
-                    dd.deadline_date
+                    (SELECT MAX(deadline_date) FROM deadlines WHERE drop_id = d.id_drop) as deadline_date
                 FROM drop_items di
                 JOIN drops d ON di.drop_id = d.id_drop
-                JOIN statuses st ON d.status_id = st.id_status
-                LEFT JOIN deadlines dd ON d.id_drop = dd.drop_id
+                JOIN statuses st ON di.status_id = st.id_status
+                JOIN services s ON di.service_id = s.id_service
                 WHERE d.customer_id = ?
+                AND di.status_id < 6
                 ORDER BY d.trans_date DESC, st.status_order ASC
             ";
             $stmt = $conn->prepare($progress_query);
@@ -157,19 +224,20 @@ $customerId = $userData['id'];
                 <div class="progress-grid">
                     <?php while ($shoe = $progress_result->fetch_assoc()):
                         $progressPercent = round(($shoe['status_order'] / 6) * 100);
-                    ?>
+                        ?>
                         <div class="progress-card">
                             <div class="progress-header">
                                 <div>
-                                    <strong><?php echo htmlspecialchars($shoe['brand'] ?: 'Sepatu'); ?></strong>
+                                    <strong><?php echo htmlspecialchars($shoe['service_name']); ?></strong>
+                                    <br><small><?php echo htmlspecialchars($shoe['brand'] ?: 'Sepatu'); ?></small>
                                     <?php if ($shoe['quantity'] > 1): ?>
-                                        <small> • <?php echo $shoe['quantity']; ?> pasang</small>
+                                        <small> • <?php echo $shoe['quantity']; ?> items</small>
                                     <?php endif; ?>
                                 </div>
                                 <div class="order-code">#<?php echo htmlspecialchars($shoe['order_code']); ?></div>
                             </div>
 
-                            <!-- STATUS SAAT INI — HANYA NAMA STATUS, LEBIH BERSIH -->
+                            <!-- STATUS SAAT INI -->
                             <div style="
                                 margin: 18px 0 10px;
                                 padding: 12px 16px;
@@ -185,7 +253,8 @@ $customerId = $userData['id'];
 
                             <!-- PROGRESS BAR -->
                             <div class="progress-bar-container">
-                                <div class="progress-bar-fill" style="width: <?php echo $progressPercent; ?>%; background: #45a049;"></div>
+                                <div class="progress-bar-fill"
+                                    style="width: <?php echo $progressPercent; ?>%; background: #45a049;"></div>
                             </div>
 
                             <div class="progress-percentage" style="color: #1a438a; font-weight: 700;">
@@ -220,11 +289,10 @@ $customerId = $userData['id'];
             <?php endif; ?>
         </div>
 
-        <!-- <== Testimoni Page Customer ==> -->
-
+        <!-- Testimoni Page Customer -->
         <?php if (isset($_GET['testimonial_success'])): ?>
             <script>
-                document.addEventListener("DOMContentLoaded", function() {
+                document.addEventListener("DOMContentLoaded", function () {
                     Swal.fire({
                         title: "Terima Kasih!",
                         text: "Telah menggunakan layanan kami dan mengirimkan testimoni 😊",
@@ -236,16 +304,13 @@ $customerId = $userData['id'];
             </script>
         <?php endif; ?>
 
-
         <div class="testimonial-section">
-
             <h2 class="testimonial-title">Berikan Testimoni Anda</h2>
 
             <form action="submit_testimonial.php" method="POST" class="testimonial-form">
                 <input type="hidden" name="customer_id" value="<?= $customerId ?>">
 
                 <label>Rating:</label>
-
                 <div class="star-rating">
                     <input type="hidden" name="rating" id="rating-value" required>
                     <span class="star" data-value="1">★</span>
@@ -256,11 +321,11 @@ $customerId = $userData['id'];
                 </div>
 
                 <label for="testimonial">Testimoni:</label>
-                <textarea name="testimonial" id="testimonial" rows="4" placeholder="Write Your Experience..." required></textarea>
+                <textarea name="testimonial" id="testimonial" rows="4" placeholder="Write Your Experience..."
+                    required></textarea>
 
                 <button type="submit" class="testi-btn">Kirim Testimoni</button>
             </form>
-
         </div>
 
         <form id="wa-form">
@@ -279,14 +344,15 @@ $customerId = $userData['id'];
 
         <script src="../js/customer/submit-whatsapp.js"></script>
 
-
         <div class="info-box">
             <h3>ℹ️ Informasi Login</h3>
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($userData['email']); ?></p>
-            <p><strong>Password:</strong> Gunakan Order Code Anda untuk login</p>
-            <p class="note">💡 Simpan Order Code Anda dengan baik untuk login di masa mendatang!</p>
+            <p><strong>Telepon:</strong> <?php echo htmlspecialchars($userData['phone']); ?></p>
+            <p><strong>Password:</strong> Gunakan password yang Anda daftarkan</p>
+            <p class="note">💡 Simpan nomor telepon dan password Anda dengan baik!</p>
         </div>
     </main>
+
+    <script src="../js/customer.js"></script>
 </body>
 
 </html>

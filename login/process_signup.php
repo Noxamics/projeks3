@@ -1,11 +1,36 @@
 <?php
 require_once '../db.php';
 
+// Validasi input
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: signup.php");
+    exit;
+}
+
 // Ambil data dari form signup
 $name = trim($_POST['name']);
 $phone = trim($_POST['phone']);
-$email = trim($_POST['email']);
+$email = !empty($_POST['email']) ? trim($_POST['email']) : null;
 $password = trim($_POST['password']);
+
+// Validasi field wajib
+if (empty($name) || empty($phone) || empty($password)) {
+    header("Location: signup.php?error=empty");
+    exit;
+}
+
+// Validasi format nomor HP (10-13 digit)
+if (!preg_match('/^[0-9]{10,13}$/', $phone)) {
+    header("Location: signup.php?error=invalid_phone");
+    exit;
+}
+
+// Validasi email jika diisi
+if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header("Location: signup.php?error=invalid_email");
+    exit;
+}
+
 $now = date('Y-m-d H:i:s');
 
 // Cek apakah nomor HP sudah terdaftar
@@ -15,15 +40,16 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    // Jika nomor sudah ada, cek apakah password sudah diisi sebelumnya
+    // Jika nomor sudah ada
     $existing = $result->fetch_assoc();
 
     if (!empty($existing['password'])) {
-        // Sudah pernah signup → tolak
+        // Sudah punya password = sudah terdaftar sepenuhnya
         header("Location: signup.php?error=exists");
         exit;
     } else {
-        // Belum punya password → update data customer
+        // Customer sudah ada tapi belum punya password (dibuat via kasir)
+        // Update data customer dengan password
         $update = $conn->prepare("UPDATE customers SET name=?, email=?, password=?, updated_at=? WHERE id_customer=?");
         $update->bind_param("ssssi", $name, $email, $password, $now, $existing['id_customer']);
 
@@ -48,3 +74,4 @@ if ($result->num_rows > 0) {
         exit;
     }
 }
+?>
