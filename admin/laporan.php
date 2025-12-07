@@ -2,30 +2,36 @@
 include_once('../partials/headerAdmin.php');
 include_once('../db.php');
 
-// 🔹 Query data laporan
+// 🔹 Query data laporan - UPDATED SESUAI STRUKTUR DB
 $query = "
 SELECT 
     d.id_drop,
     d.order_code AS kode_order,
-    MAX(c.name) AS customer_name,
-    MAX(d.brand) AS brand,
-    MAX(s.category) AS kategori,
-    MAX(s.service_name) AS layanan,
-    MAX(d.trans_date) AS tgl_transaksi,
-    MAX(d.est_finish_date) AS estimasi_selesai,
-    MAX(st.status_name) AS status_proses,
-    MAX(p.status) AS status_pembayaran,
-    MAX(a.full_name) AS karyawan,
-    SUM(di.price * di.quantity) AS total_harga
+    ANY_VALUE(c.name) AS customer_name,
+    ANY_VALUE(d.brand) AS brand,
+    ANY_VALUE(s.category) AS kategori,
+    ANY_VALUE(s.service_name) AS layanan,
+    ANY_VALUE(d.trans_date) AS tgl_transaksi,
+    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    ANY_VALUE(st.status_name) AS status_proses,
+    ANY_VALUE(p.status) AS status_pembayaran,
+    ANY_VALUE(e.name) AS karyawan,
+    COALESCE(SUM(di.price * di.quantity), 0) AS total_harga
 FROM drops d
 JOIN customers c ON d.customer_id = c.id_customer
-JOIN services s ON d.service_id = s.id_service
+LEFT JOIN services s ON d.service_id = s.id_service
 LEFT JOIN drop_items di ON d.id_drop = di.drop_id
 LEFT JOIN payments p ON d.id_drop = p.drop_id
-LEFT JOIN statuses st ON d.status_id = st.id_status
-LEFT JOIN admin a ON 1=1
+
+-- ✅ Ambil status dari tabel deadlines
+LEFT JOIN deadlines dl ON d.id_drop = dl.drop_id
+LEFT JOIN statuses st ON dl.status_id = st.id_status
+
+-- ✅ Ambil karyawan dari tabel employees
+LEFT JOIN employees e ON d.employee_id = e.id_employee
+
 GROUP BY d.id_drop
-ORDER BY MIN(d.trans_date) ASC
+ORDER BY d.trans_date ASC
 ";
 $result = mysqli_query($conn, $query);
 
@@ -72,7 +78,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
             <button id="exportPDF" class="btn-red">Export PDF</button>
         </div>
 
-        <!-- ✅ ALERT BOX -->
         <div id="alertBox" class="alert-box">
             <span id="alertText"></span>
             <div id="progressBar" class="progress-bar"></div>
@@ -103,14 +108,14 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                             <td><?= htmlspecialchars($row['brand']); ?></td>
                             <td><?= htmlspecialchars($row['kategori']); ?></td>
                             <td><?= htmlspecialchars($row['layanan']); ?></td>
-                            <td><?= date('d F Y', strtotime($row['tgl_transaksi'])); ?></td>
-                            <td><?= date('d F Y', strtotime($row['estimasi_selesai'])); ?></td>
-                            <td><?= htmlspecialchars($row['status_proses']); ?></td>
+                            <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
+                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?></td>
+                            <td><?= htmlspecialchars($row['status_proses'] ?? '-'); ?></td>
                             <td
                                 class="<?= strtolower($row['status_pembayaran']) == 'lunas' ? 'text-green' : 'text-red'; ?>">
-                                <?= htmlspecialchars($row['status_pembayaran']); ?>
+                                <?= htmlspecialchars($row['status_pembayaran'] ?? 'Belum Lunas'); ?>
                             </td>
-                            <td><?= htmlspecialchars($row['karyawan']); ?></td>
+                            <td><?= htmlspecialchars($row['karyawan'] ?? '-'); ?></td>
                             <td data-harga="<?= $row['total_harga'] ?>">Rp
                                 <?= number_format($row['total_harga'], 0, ',', '.'); ?>
                             </td>
@@ -131,7 +136,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
 </main>
 
 <script>
-    // ✅ Hitung total pendapatan
     function hitungTotalPendapatan() {
         const jenisTotal = document.getElementById("jenisTotal").value;
         let total = 0;
@@ -148,7 +152,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         document.getElementById("totalPendapatan").textContent = "Rp " + total.toLocaleString("id-ID");
     }
 
-    // ✅ Alert tanpa progress bar
     function showAlert(message, duration = 6000) {
         const alertBox = document.getElementById("alertBox");
         const alertText = document.getElementById("alertText");
@@ -164,7 +167,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         }, duration);
     }
 
-    // ✅ Alert dengan progress bar (khusus export)
     function showExportAlert(message, duration = 4000) {
         const alertBox = document.getElementById("alertBox");
         const alertText = document.getElementById("alertText");
@@ -186,7 +188,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         }, duration);
     }
 
-    // 🔍 Search
     document.getElementById("searchInput").addEventListener("keyup", function () {
         const value = this.value.toLowerCase();
         document.querySelectorAll("#laporanTable tbody tr").forEach(row => {
@@ -195,7 +196,6 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         hitungTotalPendapatan();
     });
 
-    // 🔽 Sort Filter
     document.getElementById("sortBy").addEventListener("change", function () {
         const value = this.value.toLowerCase();
         const rows = document.querySelectorAll("#laporanTable tbody tr");
@@ -247,26 +247,22 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         hitungTotalPendapatan();
     });
 
-    // 🔁 Jenis Total
     document.getElementById("jenisTotal").addEventListener("change", function () {
-        const jenisTotal = this.value;
         hitungTotalPendapatan();
-        if (jenisTotal === "lunas") {
-            showAlert("Menampilkan total pendapatan dari transaksi lunas saja");
-        } else {
-            showAlert("Menampilkan total pendapatan dari semua transaksi");
-        }
+        showAlert(this.value === "lunas" ? 
+            "Menampilkan total pendapatan dari transaksi lunas saja" : 
+            "Menampilkan total pendapatan dari semua transaksi"
+        );
     });
 
-    // ⬇️ Export Buttons (progress cepat, sukses lama)
     document.getElementById("exportExcel").addEventListener("click", () => {
-        showExportAlert("Sedang menyiapkan file Excel...", 4000); // proses cepat
+        showExportAlert("Sedang menyiapkan file Excel...", 4000);
         const filter = document.getElementById("sortBy").value;
         const search = document.getElementById("searchInput").value;
         const jenisTotal = document.getElementById("jenisTotal").value;
         setTimeout(() => {
             window.location.href = `report_excel.php?filter=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}&total=${encodeURIComponent(jenisTotal)}`;
-            showAlert("✅ File Excel berhasil diexport!", 12000); // tampil 12 detik
+            showAlert("✅ File Excel berhasil diexport!", 12000);
         }, 4000);
     });
 
@@ -284,4 +280,3 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
     window.onload = hitungTotalPendapatan;
 </script>
 
-<?php include_once "../partials/footer.php"; ?>

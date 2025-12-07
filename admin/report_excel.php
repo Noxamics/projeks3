@@ -1,5 +1,6 @@
 <?php
 include_once('../db.php');
+
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=laporan_transaksi_filtered.xls");
 
@@ -20,25 +21,43 @@ if (!empty($search)) {
     $where .= " AND (c.name LIKE '%$esc%' OR d.brand LIKE '%$esc%' OR s.service_name LIKE '%$esc%' OR s.category LIKE '%$esc%')";
 }
 
+// ✅ QUERY UPDATED
 $query = "
 SELECT 
-    d.id_drop, d.order_code AS kode_order,
-    MAX(c.name) AS customer_name, MAX(d.brand) AS brand,
-    MAX(s.category) AS kategori, MAX(s.service_name) AS layanan,
-    MAX(d.trans_date) AS tgl_transaksi, MAX(d.est_finish_date) AS estimasi_selesai,
-    MAX(st.status_name) AS status_proses, MAX(p.status) AS status_pembayaran,
-    MAX(a.full_name) AS karyawan, SUM(di.price * di.quantity) AS total_harga
+    d.id_drop, 
+    d.order_code AS kode_order,
+
+    ANY_VALUE(c.name) AS customer_name, 
+    ANY_VALUE(d.brand) AS brand,
+    ANY_VALUE(s.category) AS kategori, 
+    ANY_VALUE(s.service_name) AS layanan,
+    ANY_VALUE(d.trans_date) AS tgl_transaksi, 
+    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+
+    ANY_VALUE(st.status_name) AS status_proses, 
+    ANY_VALUE(p.status) AS status_pembayaran,
+
+    ANY_VALUE(e.name) AS karyawan, 
+    COALESCE(SUM(di.price * di.quantity),0) AS total_harga
+
 FROM drops d
 JOIN customers c ON d.customer_id = c.id_customer
-JOIN services s ON d.service_id = s.id_service
+LEFT JOIN services s ON d.service_id = s.id_service
 LEFT JOIN drop_items di ON d.id_drop = di.drop_id
 LEFT JOIN payments p ON d.id_drop = p.drop_id
-LEFT JOIN statuses st ON d.status_id = st.id_status
-LEFT JOIN admin a ON 1=1
+
+-- ✅ status dari deadlines
+LEFT JOIN deadlines dl ON d.id_drop = dl.drop_id
+LEFT JOIN statuses st ON dl.status_id = st.id_status
+
+-- ✅ karyawan
+LEFT JOIN employees e ON d.employee_id = e.id_employee
+
 WHERE $where
 GROUP BY d.id_drop
-ORDER BY MAX(d.trans_date) DESC
+ORDER BY d.trans_date DESC
 ";
+
 $result = mysqli_query($conn, $query);
 
 echo "<table border='1'>";
@@ -51,17 +70,25 @@ $no = 1;
 $totalPendapatan = 0;
 
 while ($row = mysqli_fetch_assoc($result)) {
-    $isLunas = strtolower($row['status_pembayaran']) === 'lunas';
+    $isLunas = strtolower($row['status_pembayaran'] ?? '') === 'lunas';
+
     if ($jenisTotal === 'semua' || ($jenisTotal === 'lunas' && $isLunas)) {
         $totalPendapatan += $row['total_harga'];
     }
 
     echo "<tr>
-        <td>{$no}</td><td>{$row['kode_order']}</td><td>{$row['customer_name']}</td>
-        <td>{$row['brand']}</td><td>{$row['kategori']}</td><td>{$row['layanan']}</td>
-        <td>{$row['tgl_transaksi']}</td><td>{$row['estimasi_selesai']}</td>
-        <td>{$row['status_proses']}</td><td>{$row['status_pembayaran']}</td>
-        <td>{$row['karyawan']}</td><td>Rp ".number_format($row['total_harga'],0,',','.')."</td>
+        <td>{$no}</td>
+        <td>{$row['kode_order']}</td>
+        <td>{$row['customer_name']}</td>
+        <td>{$row['brand']}</td>
+        <td>{$row['kategori']}</td>
+        <td>{$row['layanan']}</td>
+        <td>{$row['tgl_transaksi']}</td>
+        <td>{$row['estimasi_selesai']}</td>
+        <td>{$row['status_proses']}</td>
+        <td>{$row['status_pembayaran']}</td>
+        <td>{$row['karyawan']}</td>
+        <td>Rp ".number_format($row['total_harga'],0,',','.')."</td>
     </tr>";
     $no++;
 }
@@ -69,5 +96,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 $labelTotal = $jenisTotal === 'semua' ? 'Total Semua Transaksi' : 'Total Pendapatan (Lunas Saja)';
 echo "<tr style='background:#eef2ff;font-weight:bold;color:#0b3d91;'>
 <td colspan='11' align='right'>$labelTotal:</td>
-<td>Rp ".number_format($totalPendapatan,0,',','.')."</td></tr></table>";
+<td>Rp ".number_format($totalPendapatan,0,',','.')."</td>
+</tr></table>";
 ?>
