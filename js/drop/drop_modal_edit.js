@@ -1,7 +1,7 @@
 // =====================================================================
 // File: /js/drop/drop_modal_edit.js
-// Edit Modal Handler - FIXED: Save & Print Opens in New Window
-// Version: 3.1 - Fixed Print Behavior
+// Edit Modal Handler - FIXED for Timeline Page
+// Version: 3.2 - Fixed Template Loading
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -23,18 +23,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let editItemCounter = 1;
 
-  // ==================== TEMPLATE FUNCTIONS ====================
+  // ==================== TEMPLATE FUNCTIONS - FIXED ====================
 
   function getServicesOptionsHTML() {
-    const timelineTemplate = document.querySelector(
-      "#timeline_services_template"
+    // Try to get from hidden div (timeline page)
+    const timelineTemplate = document.getElementById(
+      "timeline_services_template"
     );
-    if (timelineTemplate) return timelineTemplate.innerHTML;
+    if (timelineTemplate) {
+      const select = timelineTemplate.querySelector("select");
+      if (select) {
+        console.log("✅ Services loaded from timeline template");
+        return select.innerHTML;
+      }
+    }
 
+    // Fallback: Get from first item in itemsContainer (drop page)
     const firstItem = document.querySelector("#itemsContainer .item-group");
     if (firstItem) {
       const serviceSelect = firstItem.querySelector(".item-service");
-      if (serviceSelect) return serviceSelect.innerHTML;
+      if (serviceSelect) {
+        console.log("✅ Services loaded from drop page");
+        return serviceSelect.innerHTML;
+      }
+    }
+
+    // Fallback: Get from edit modal if already loaded
+    const editFirstItem = document.querySelector(
+      "#editItemsContainer .item-group"
+    );
+    if (editFirstItem) {
+      const serviceSelect = editFirstItem.querySelector(".item-service");
+      if (serviceSelect) {
+        console.log("✅ Services loaded from existing edit item");
+        return serviceSelect.innerHTML;
+      }
     }
 
     console.error("❌ No services template found!");
@@ -42,15 +65,38 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getStatusesOptionsHTML() {
-    const timelineTemplate = document.querySelector(
-      "#timeline_statuses_template"
+    // Try to get from hidden div (timeline page)
+    const timelineTemplate = document.getElementById(
+      "timeline_statuses_template"
     );
-    if (timelineTemplate) return timelineTemplate.innerHTML;
+    if (timelineTemplate) {
+      const select = timelineTemplate.querySelector("select");
+      if (select) {
+        console.log("✅ Statuses loaded from timeline template");
+        return select.innerHTML;
+      }
+    }
 
+    // Fallback: Get from first item in itemsContainer (drop page)
     const firstItem = document.querySelector("#itemsContainer .item-group");
     if (firstItem) {
       const statusSelect = firstItem.querySelector(".item-status");
-      if (statusSelect) return statusSelect.innerHTML;
+      if (statusSelect) {
+        console.log("✅ Statuses loaded from drop page");
+        return statusSelect.innerHTML;
+      }
+    }
+
+    // Fallback: Get from edit modal if already loaded
+    const editFirstItem = document.querySelector(
+      "#editItemsContainer .item-group"
+    );
+    if (editFirstItem) {
+      const statusSelect = editFirstItem.querySelector(".item-status");
+      if (statusSelect) {
+        console.log("✅ Statuses loaded from existing edit item");
+        return statusSelect.innerHTML;
+      }
     }
 
     console.error("❌ No statuses template found!");
@@ -545,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Save & print - FIXED: Open in new window instead of redirect
+  // Save & print
   const editSaveAndPrintBtn = document.getElementById("editSaveAndPrintBtn");
   if (editSaveAndPrintBtn) {
     editSaveAndPrintBtn.addEventListener("click", async function (e) {
@@ -589,7 +635,6 @@ document.addEventListener("DOMContentLoaded", function () {
             "Pesanan berhasil diperbarui!\n\nMembuka halaman cetak..."
           );
 
-          // FIXED: Open in new window instead of redirect
           const protocol = window.location.protocol;
           const host = window.location.host;
           const cetak_url = `${protocol}//${host}/actions/drop/cetak_struk.php?id=${dropId}`;
@@ -614,7 +659,6 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
               console.log("✅ Print window opened successfully");
 
-              // Reload halaman utama setelah delay
               setTimeout(() => {
                 window.location.reload();
               }, 1000);
@@ -647,7 +691,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   console.log("✅ Edit modal event listeners initialized");
-  console.log("✅ FIXED: Save & Print now opens in NEW WINDOW");
+  console.log("✅ FIXED: Template loading from hidden divs");
   if (!isTimelinePage && isDropPage) {
     console.log("🖱️ Double-click row to edit full order");
     console.log("📝 Click note cell to edit order");

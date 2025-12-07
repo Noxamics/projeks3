@@ -229,7 +229,8 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
         <div class="right-sidebar">
             <div class="calendar-card">
                 <div class="calendar-header">
-                    <h3><?php echo date('F Y'); ?></h3>
+                    <h3><?php echo date('F Y'); ?>
+                    </h3>
                     <div class="calendar-nav">
                         <button onclick="changeMonth(-1)">‹</button>
                         <button onclick="changeMonth(1)">›</button>
@@ -281,16 +282,68 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
             </div>
         </div>
     </div>
+    <div id="timeline_services_template" style="display: none;">
+        <select>
+            <option value="">-- Pilih Layanan --</option>
+            <?php
+            $services_query = "SELECT id_service, category, service_name, price_min, duration 
+                          FROM services 
+                          ORDER BY category, service_name";
+            $services_result = mysqli_query($conn, $services_query);
 
+            while ($service = mysqli_fetch_assoc($services_result)) {
+                $service_label = ucfirst($service['category']) . ' - ' . ucfirst($service['service_name']);
+                $price = number_format($service['price_min'], 0, ',', '.');
+                echo "<option value='{$service['id_service']}' 
+                    data-price='{$service['price_min']}' 
+                    data-duration='{$service['duration']}'>
+                    {$service_label} (Rp {$price})
+                  </option>";
+            }
+            ?>
+        </select>
+    </div>
+
+    <div id="timeline_statuses_template" style="display: none;">
+        <select>
+            <option value="">-- Pilih Status --</option>
+            <?php
+            $statuses_query = "SELECT id_status, status_name FROM statuses ORDER BY id_status";
+            $statuses_result = mysqli_query($conn, $statuses_query);
+
+            while ($status = mysqli_fetch_assoc($statuses_result)) {
+                echo "<option value='{$status['id_status']}'>
+                    {$status['status_name']}
+                  </option>";
+            }
+            ?>
+        </select>
+    </div>
 </main>
 
 <!-- INCLUDE MODAL EDIT DARI FOLDER MODAL/DROP -->
 <?php include('../modal/drop/modal_edit_item.php'); ?>
 
 <script>
-    // Data deadlines dari PHP
     const deadlinesData = <?php echo json_encode($deadlines); ?>;
     console.log('✅ Deadlines loaded:', deadlinesData.length);
+
+    function getServicesDropdown() {
+        // Ambil dari modal yang sudah loaded
+        const modalServicesSelect = document.querySelector('#editModal select[name="service_id"]');
+        if (modalServicesSelect) {
+            return modalServicesSelect.cloneNode(true);
+        }
+        return null;
+    }
+
+    function getStatusesDropdown() {
+        const modalStatusSelect = document.querySelector('#editModal select[name="status_id"]');
+        if (modalStatusSelect) {
+            return modalStatusSelect.cloneNode(true);
+        }
+        return null;
+    }
 
     // Tutup modal detail
     function closeOrderDetail() {
@@ -333,8 +386,6 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 
     // Make it globally accessible
     window.openEditModal = openEditModal;
-
-    // File: Tambahkan script ini di timeline_pesanan.php SEBELUM closing </body>
 
     // ===== PREVENT ADD MODAL FROM OPENING =====
     (function () {
@@ -401,13 +452,9 @@ while ($deadline = mysqli_fetch_assoc($deadlines_result)) {
 </script>
 
 <!-- Load external JavaScript - URUTAN PENTING! -->
-<!-- 1. Drop helpers harus dimuat pertama -->
+<script src="../js/drop/modal_system.js"></script>
 <script src="../js/drop/drop_helpers.js"></script>
-
-<!-- 2. Timeline pesanan -->
 <script src="../js/timeline_pesanan.js"></script>
-
-
 <script src="../js/drop/drop_modal.js"></script>
 <script src="../js/drop/drop_modal_edit.js"></script>
 <script src="../js/drop/drop_main.js"></script>
