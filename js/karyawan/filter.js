@@ -22,21 +22,44 @@ function searchEmployee() {
 }
 
 /**
- * Filter by status
+ * Status Filter Synchronization
+ * Syncs between desktop buttons and mobile dropdown
+ * Add this to: js/karyawan/filter.js (or create new file)
  */
+
+// Update filterByStatus function to sync both UI elements
 function filterByStatus(status) {
   currentFilters.status = status;
 
-  // Update button active states
-  document.querySelectorAll(".filter-btn").forEach((btn) => {
+  // Update desktop buttons active state
+  document.querySelectorAll(".filter-btn[data-status]").forEach((btn) => {
     btn.classList.remove("active");
-    if (btn.dataset.status === status) {
+    if (btn.getAttribute("data-status") === status) {
       btn.classList.add("active");
     }
   });
 
+  // Update mobile dropdown
+  const statusSelect = document.getElementById("statusFilter");
+  if (statusSelect) {
+    statusSelect.value = status;
+  }
+
   applyFilters();
 }
+
+// Add event listener for mobile status dropdown
+document.addEventListener("DOMContentLoaded", function () {
+  const statusSelect = document.getElementById("statusFilter");
+  if (statusSelect) {
+    statusSelect.addEventListener("change", function () {
+      filterByStatus(this.value);
+    });
+  }
+});
+
+// Make sure the function is accessible globally
+window.filterByStatus = filterByStatus;
 
 /**
  * Filter by role

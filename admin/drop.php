@@ -438,6 +438,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     include('../modal/drop/modal_add.php');
     include('../modal/drop/modal_edit_item.php');
     include('../modal/drop/modal_confirm_delete.php');
+    include('../modal/drop/modal_system.php');
     ?>
     <?php include_once "../partials/footer.php"; ?>
 

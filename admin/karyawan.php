@@ -105,17 +105,8 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     <title>Manajemen Karyawan - Sengkuclean</title>
 
     <!-- CSS Files -->
-    <link rel="stylesheet" href="../css/karyawan/base.css">
-    <link rel="stylesheet" href="../css/karyawan/modal.css">
-    <link rel="stylesheet" href="../css/karyawan/modal-form.css">
-    <link rel="stylesheet" href="../css/karyawan/header.css">
-    <link rel="stylesheet" href="../css/karyawan/cards.css">
-    <link rel="stylesheet" href="../css/karyawan/table.css">
-    <link rel="stylesheet" href="../css/karyawan/responsive.css">
-    <link rel="stylesheet" href="../css/karyawan/card-interactions.css">
-    <link rel="stylesheet" href="../css/karyawan/notification.css">
-    <link rel="stylesheet" href="../css/karyawan/view-toogle.css">
-    <link rel="stylesheet" href="../css/karyawan/kasir-stat.css">
+    <link rel="stylesheet" href="../css/karyawan/karyawan.css">
+
 </head>
 
 <body>
@@ -131,6 +122,21 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                             <span class="title-sub">Sengkuclean</span>
                         </h1>
                         <p class="page-description">Kelola dan pantau data karyawan secara real-time</p>
+                        <!-- TAMBAHKAN BUTTON INI DI SINI (SEBELUM </div> left-section) -->
+                        <button class="btn-add-mobile" onclick="openAddModal(); return false;">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M20 8V14M17 11H23" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
                     </div>
 
                     <div class="quick-stats">
@@ -279,6 +285,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                     </div>
                 </div>
 
+
                 <div class="control-buttons">
                     <button class="btn btn-primary" onclick="openAddModal(); return false;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -329,34 +336,74 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                 </div>
             </div>
 
-            <!-- FILTER SECTION -->
+
+            <!-- FILTER SECTION - UPDATED -->
             <div class="filter-section">
+                <!-- Search Box -->
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Cari Nama, Kode, atau Nomor HP..."
                         class="search-input">
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Status:</label>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-status="all"
-                            onclick="filterByStatus('all')">Semua</button>
-                        <button class="filter-btn" data-status="Aktif" onclick="filterByStatus('Aktif')">Aktif</button>
-                        <button class="filter-btn" data-status="Cuti" onclick="filterByStatus('Cuti')">Cuti</button>
-                        <button class="filter-btn" data-status="Non-Aktif"
-                            onclick="filterByStatus('Non-Aktif')">Non-Aktif</button>
+                <!-- Filters Row - 2 Columns (Status | Role) -->
+                <div class="filters-row">
+                    <!-- Status Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Status:</label>
+                        <!-- Desktop: Buttons -->
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-status="all"
+                                onclick="filterByStatus('all')">Semua</button>
+                            <button class="filter-btn" data-status="Aktif"
+                                onclick="filterByStatus('Aktif')">Aktif</button>
+                            <button class="filter-btn" data-status="Cuti" onclick="filterByStatus('Cuti')">Cuti</button>
+                            <button class="filter-btn" data-status="Non-Aktif"
+                                onclick="filterByStatus('Non-Aktif')">Non-Aktif</button>
+                        </div>
+                        <!-- Mobile: Dropdown -->
+                        <select id="statusFilter" class="status-select" onchange="filterByStatus(this.value)">
+                            <option value="all">Semua Status</option>
+                            <option value="Aktif">Aktif</option>
+                            <option value="Cuti">Cuti</option>
+                            <option value="Non-Aktif">Non-Aktif</option>
+                        </select>
+                    </div>
+
+                    <!-- Role Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Role:</label>
+                        <select id="roleFilter" class="role-select">
+                            <option value="all">Semua Role</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="reglue">Reglue</option>
+                            <option value="repaint">Repaint</option>
+                            <option value="kasir">Kasir</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Role:</label>
-                    <select id="roleFilter" class="role-select">
-                        <option value="all">Semua Role</option>
-                        <option value="cleaning">Cleaning</option>
-                        <option value="reglue">Reglue</option>
-                        <option value="repaint">Repaint</option>
-                        <option value="kasir">Kasir</option>
-                    </select>
+                <!-- View Toggle - Moved Here for Mobile -->
+                <div class="view-toggle">
+                    <button class="toggle-btn active" data-view="card">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Card
+                    </button>
+                    <button class="toggle-btn" data-view="table">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Table
+                    </button>
                 </div>
             </div>
 

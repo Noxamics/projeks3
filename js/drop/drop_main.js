@@ -1,7 +1,7 @@
 // =====================================================================
 // File: /js/drop/drop_main.js
-// Main Drop Management - FIXED: All Print Opens in New Window
-// Version: 3.1 - Fixed Print Behavior
+// Main Drop Management - FIXED: Using ICONS from modal_system
+// Version: 3.2 - Icons Updated
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await customAlert(
           "Pilih setidaknya satu item untuk dicetak",
           "Tidak Ada Item Dipilih",
-          "⚠️"
+          ICONS.warning
         );
         return;
       }
@@ -95,14 +95,18 @@ document.addEventListener("DOMContentLoaded", function () {
       ];
 
       if (dropIds.length === 0) {
-        await customAlert("Tidak ada pesanan yang dipilih", "Peringatan", "⚠️");
+        await customAlert(
+          "Tidak ada pesanan yang dipilih",
+          "Peringatan",
+          ICONS.warning
+        );
         return;
       }
 
       const confirmed = await customConfirm(
         `Akan membuka <strong>${dropIds.length}</strong> halaman cetak.\n\nLanjutkan?`,
         "Cetak Struk Terpilih",
-        "🖨️"
+        ICONS.printer
       );
 
       if (!confirmed) return;
@@ -147,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 await customAlert(
                   `✅ Berhasil: ${successCount} halaman\n❌ Gagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
                   "Cetak Selesai",
-                  "📊"
+                  ICONS.info
                 );
               } else {
                 await customSuccess(
@@ -185,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await customAlert(
           "Tidak ada pesanan untuk dicetak",
           "Peringatan",
-          "⚠️"
+          ICONS.warning
         );
         return;
       }
@@ -193,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await customConfirm(
         `Akan membuka <strong>${dropIds.length}</strong> halaman cetak untuk customer ini.\n\nLanjutkan?`,
         "Cetak Semua Struk",
-        "🖨️"
+        ICONS.printer
       );
 
       if (!confirmed) return;
@@ -237,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 await customAlert(
                   `✅ Berhasil: ${successCount} halaman\n❌ Gagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
                   "Cetak Selesai",
-                  "📊"
+                  ICONS.info
                 );
               } else {
                 await customSuccess(
@@ -252,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Print single item - FIXED: Use window.open instead of window.location.href
+  // Print single item
   document.addEventListener("click", async function (e) {
     const printItemBtn = e.target.closest(".print-item-btn");
 
@@ -270,7 +274,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const baseUrl = getBaseUrl();
       const url = `${baseUrl}/actions/drop/cetak_struk.php?id=${dropId}`;
 
-      // FIXED: Open in new window instead of redirecting
       try {
         const printWindow = window.open(
           url,
@@ -312,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await customAlert(
           "Pilih setidaknya satu pesanan untuk dihapus",
           "Tidak Ada Item Dipilih",
-          "⚠️"
+          ICONS.warning
         );
         return;
       }
@@ -329,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await customConfirm(
         `Anda akan menghapus:\n\n📦 <strong>${totalOrders}</strong> Pesanan\n📋 <strong>${totalItems}</strong> Item\n\n<span style="color: #dc2626; font-weight: 600;">⚠️ Data yang dihapus tidak dapat dikembalikan!</span>`,
         "Konfirmasi Hapus",
-        "🗑️"
+        ICONS.trash
       );
 
       if (!confirmed) {
@@ -381,7 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await customConfirm(
         "Ubah status item ini?",
         "Konfirmasi Perubahan",
-        "⚠️"
+        ICONS.info
       );
 
       if (!confirmed) {
@@ -476,5 +479,5 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("  - Delete: Delete selected");
   console.log("🖱️ Double-click row to edit order");
   console.log("📝 Click note cell to edit note");
-  console.log("✅ FIXED: All print buttons now open in NEW WINDOW");
+  console.log("✅ FIXED: All icons using ICONS from modal_system");
 });

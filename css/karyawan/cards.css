@@ -262,6 +262,16 @@
   color: white;
 }
 
+/* Card Hint */
+.employee-page .card-hint {
+  text-align: center;
+  margin-top: 8px;
+  padding: 8px;
+  font-size: 11px;
+  color: var(--color-text-light);
+  opacity: 0.7;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .employee-page .cards-grid {
@@ -272,26 +282,130 @@
 
 @media (max-width: 768px) {
   .employee-page .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 12px;
   }
 
+  .employee-page .card-image-wrapper {
+    border-radius: 12px;
+    aspect-ratio: 3/4;
+  }
+
   .employee-page .card-action-buttons {
-    opacity: 1;
+    opacity: 1; /* Always visible on mobile */
   }
 
   .employee-page .card-name {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .employee-page .card-phone {
-    font-size: 12px;
+    font-size: 11px;
+  }
+
+  .employee-page .badge-code {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .employee-page .role-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 16px 12px 12px;
+  }
+
+  .employee-page .card-hint {
+    font-size: 9px;
+    padding: 6px;
+    margin-top: 6px;
+  }
+
+  /* Reduce hover effects on mobile */
+  .employee-page .employee-card:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Disable hover scale animation on touch devices */
+  @media (hover: none) {
+    .employee-page .employee-card:hover {
+      transform: none;
+    }
+
+    .employee-page .cards-grid:hover .employee-card:not(:hover) {
+      opacity: 1;
+    }
   }
 }
 
 @media (max-width: 480px) {
   .employee-page .cards-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .employee-page .card-image-wrapper {
+    border-radius: 10px;
+  }
+
+  .employee-page .card-name {
+    font-size: 13px;
+  }
+
+  .employee-page .card-phone {
+    font-size: 10px;
+  }
+
+  .employee-page .btn-card-mini {
+    width: 28px;
+    height: 28px;
+  }
+
+  .employee-page .btn-card-mini svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .employee-page .badge-code {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .employee-page .role-badge {
+    font-size: 8px;
+    padding: 2px 5px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 12px 10px 10px;
+  }
+
+  .employee-page .card-hint {
+    font-size: 8px;
+    padding: 5px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 12px 10px 8px;
+  }
+
+  .employee-page .card-name {
+    font-size: 12px;
+  }
+
+  .employee-page .card-phone {
+    font-size: 10px;
   }
 }

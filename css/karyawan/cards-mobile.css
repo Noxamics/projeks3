@@ -1,0 +1,295 @@
+/* ===========================
+   OPTIMIZED MOBILE CARD VIEW
+   Untuk menampilkan 4 kartu (2x2) dalam satu layar mobile
+=========================== */
+
+/* Cards Grid - Desktop */
+.employee-page .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Employee Card */
+.employee-page .employee-card {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+/* Hover Effects */
+.employee-page .employee-card:hover {
+  transform: translateY(-8px);
+  z-index: 10;
+}
+
+.employee-page .cards-grid:hover .employee-card:not(:hover) {
+  opacity: 0.85;
+}
+
+/* Card Image Wrapper */
+.employee-page .card-image-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 3/4;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+  transition: all 0.3s ease;
+  border: 2px solid rgba(0, 102, 204, 0.1);
+}
+
+/* ========================================
+   MOBILE OPTIMIZATION - 4 CARDS PER SCREEN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .employee-page .card-image-wrapper {
+    border-radius: 10px;
+    aspect-ratio: 2/3; /* Lebih pendek untuk muat 4 kartu */
+    border-width: 1px;
+  }
+
+  .employee-page .card-action-buttons {
+    opacity: 1; /* Always visible on mobile */
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+  }
+
+  .employee-page .btn-card-mini {
+    width: 28px;
+    height: 28px;
+  }
+
+  .employee-page .btn-card-mini svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .employee-page .card-badges {
+    top: 8px;
+    left: 8px;
+    gap: 4px;
+  }
+
+  .employee-page .badge-code {
+    font-size: 9px;
+    padding: 3px 7px;
+    border-radius: 12px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 10px 8px 6px;
+  }
+
+  .employee-page .card-name {
+    font-size: 12px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .employee-page .employee-card:hover .card-name {
+    font-size: 12px; /* Tidak membesar saat hover di mobile */
+  }
+
+  .employee-page .card-phone {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+
+  .employee-page .card-phone svg {
+    width: 12px;
+    height: 12px;
+    margin-right: 3px;
+  }
+
+  .employee-page .card-roles {
+    gap: 3px;
+    margin-bottom: 6px;
+  }
+
+  .employee-page .role-badge {
+    font-size: 7px;
+    padding: 2px 5px;
+    border-radius: 8px;
+  }
+
+  .employee-page .card-gradient .status-badge {
+    top: 8px;
+    right: 8px;
+    padding: 3px 7px;
+    font-size: 8px;
+  }
+
+  .employee-page .card-hint {
+    font-size: 7px;
+    padding: 3px;
+    margin-top: 3px;
+  }
+
+  /* Reduce hover effects on mobile */
+  .employee-page .employee-card:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Disable hover scale animation on touch devices */
+  @media (hover: none) {
+    .employee-page .employee-card:hover {
+      transform: none;
+    }
+
+    .employee-page .cards-grid:hover .employee-card:not(:hover) {
+      opacity: 1;
+    }
+  }
+}
+
+/* ========================================
+   EXTRA SMALL MOBILE (< 480px)
+   ======================================== */
+
+@media (max-width: 480px) {
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .employee-page .card-image-wrapper {
+    border-radius: 8px;
+    aspect-ratio: 2/3;
+  }
+
+  .employee-page .card-name {
+    font-size: 11px;
+  }
+
+  .employee-page .card-phone {
+    font-size: 8px;
+  }
+
+  .employee-page .btn-card-mini {
+    width: 26px;
+    height: 26px;
+  }
+
+  .employee-page .btn-card-mini svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .employee-page .badge-code {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .employee-page .role-badge {
+    font-size: 7px;
+    padding: 1px 4px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 8px 6px 5px;
+  }
+
+  .employee-page .card-hint {
+    font-size: 6px;
+    padding: 2px;
+  }
+}
+
+/* ========================================
+   LANDSCAPE MOBILE OPTIMIZATION
+   ======================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .employee-page .cards-grid {
+    grid-template-columns: repeat(4, 1fr); /* 4 kolom di landscape */
+    gap: 6px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 8px 6px 4px;
+  }
+
+  .employee-page .card-name {
+    font-size: 10px;
+  }
+
+  .employee-page .card-phone {
+    font-size: 8px;
+  }
+}
+
+/* ========================================
+   VERY SMALL SCREENS (iPhone SE, etc)
+   ======================================== */
+
+@media (max-width: 375px) {
+  .employee-page .cards-grid {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .employee-page .card-gradient {
+    padding: 6px 5px 4px;
+  }
+
+  .employee-page .card-name {
+    font-size: 10px;
+  }
+
+  .employee-page .card-phone {
+    font-size: 7px;
+  }
+
+  .employee-page .badge-code {
+    font-size: 7px;
+    padding: 2px 5px;
+  }
+}
+
+/* ========================================
+   HEADER CONTROLS MOBILE OPTIMIZATION
+   ======================================== */
+
+@media (max-width: 768px) {
+  .employee-page .header-controls {
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .employee-page .quick-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .employee-page .stat-card {
+    padding: 12px;
+  }
+
+  .employee-page .filter-section {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .employee-page .search-box {
+    margin-bottom: 8px;
+  }
+}

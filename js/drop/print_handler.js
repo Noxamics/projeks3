@@ -1,13 +1,13 @@
 // =====================================================================
 // File: /js/drop/print_handler.js
 // Print Handler with Fixed URL Path for New Database
-// Version: 2.0 - Fixed for mifmyho2_sengkuclean
+// Version: 2.1 - No Emoji, Bootstrap Icons Only
 // =====================================================================
 
-console.log("🔄 print_handler.js loading...");
+console.log("Print handler loading...");
 
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("✅ Print handler loaded - DOM ready");
+  console.log("Print handler loaded - DOM ready");
 
   // ==================== URL BUILDER FOR NEW DATABASE ====================
 
@@ -17,13 +17,13 @@ document.addEventListener("DOMContentLoaded", function () {
    * Host: sengkuclean.mif.myhost.id
    */
   function buildPrintUrl(dropId) {
-    const protocol = window.location.protocol; // http: or https:
-    const host = window.location.host; // sengkuclean.mif.myhost.id
+    const protocol = window.location.protocol;
+    const host = window.location.host;
 
     // Correct path for new database structure
     const printUrl = `${protocol}//${host}/actions/drop/cetak_struk.php?id=${dropId}`;
 
-    console.log("🔗 Built Print URL:", printUrl);
+    console.log("Built Print URL:", printUrl);
     return printUrl;
   }
 
@@ -33,21 +33,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const printBtn = e.target.closest(".print-item-btn");
 
     if (printBtn) {
-      console.log("🖨️ Print button clicked!");
+      console.log("Print button clicked!");
       e.preventDefault();
       e.stopPropagation();
 
       const dropId = printBtn.getAttribute("data-drop-id");
-      console.log("📦 Drop ID:", dropId);
+      console.log("Drop ID:", dropId);
 
       if (!dropId) {
-        console.error("❌ Drop ID not found");
+        console.error("Drop ID not found");
         await customError("ID pesanan tidak ditemukan");
         return;
       }
 
       const printUrl = buildPrintUrl(dropId);
-      console.log("📄 Opening print window:", printUrl);
+      console.log("Opening print window:", printUrl);
 
       try {
         // Open in new window
@@ -62,16 +62,16 @@ document.addEventListener("DOMContentLoaded", function () {
           printWindow.closed ||
           typeof printWindow.closed == "undefined"
         ) {
-          console.error("❌ Popup blocked");
+          console.error("Popup blocked");
           await customError(
             "Popup diblokir oleh browser!\n\nSilakan izinkan popup untuk situs ini dan coba lagi.",
             "Popup Diblokir"
           );
         } else {
-          console.log("✅ Print window opened successfully");
+          console.log("Print window opened successfully");
         }
       } catch (error) {
-        console.error("❌ Error opening window:", error);
+        console.error("Error opening window:", error);
         await customError(`Error membuka halaman cetak: ${error.message}`);
       }
     }
@@ -83,15 +83,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const printAllBtn = e.target.closest(".print-all-btn");
 
     if (printAllBtn) {
-      console.log("🖨️ Print All button clicked!");
+      console.log("Print All button clicked!");
       e.preventDefault();
       e.stopPropagation();
 
       const customerId = printAllBtn.getAttribute("data-customer-id");
-      console.log("👤 Customer ID:", customerId);
+      console.log("Customer ID:", customerId);
 
       if (!customerId) {
-        console.error("❌ Customer ID not found");
+        console.error("Customer ID not found");
         await customError("ID customer tidak ditemukan");
         return;
       }
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       if (!customerContainer) {
-        console.error("❌ Customer container not found");
+        console.error("Customer container not found");
         await customError("Data pesanan tidak ditemukan");
         return;
       }
@@ -117,13 +117,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      console.log("📦 Drop IDs found:", Array.from(dropIds));
+      console.log("Drop IDs found:", Array.from(dropIds));
 
       if (dropIds.size === 0) {
         await customAlert(
           "Tidak ada pesanan untuk dicetak",
           "Peringatan",
-          "⚠️"
+          "warning"
         );
         return;
       }
@@ -132,15 +132,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await customConfirm(
         `Akan membuka <strong>${dropIds.size}</strong> halaman cetak untuk customer ini.\n\nLanjutkan?`,
         "Cetak Semua Struk",
-        "🖨️"
+        "printer"
       );
 
       if (!confirmed) {
-        console.log("❌ User cancelled print all");
+        console.log("User cancelled print all");
         return;
       }
 
-      console.log(`📄 Opening ${dropIds.size} print windows...`);
+      console.log(`Opening ${dropIds.size} print windows...`);
 
       showLoading(`Membuka ${dropIds.size} halaman cetak...`);
 
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
       dropIds.forEach((dropId, index) => {
         setTimeout(() => {
           const printUrl = buildPrintUrl(dropId);
-          console.log(`📄 Opening [${index + 1}/${dropIds.size}]:`, printUrl);
+          console.log(`Opening [${index + 1}/${dropIds.size}]:`, printUrl);
 
           try {
             const printWindow = window.open(
@@ -165,19 +165,16 @@ document.addEventListener("DOMContentLoaded", function () {
               printWindow.closed ||
               typeof printWindow.closed == "undefined"
             ) {
-              console.error(`❌ Popup blocked for drop_id: ${dropId}`);
+              console.error(`Popup blocked for drop_id: ${dropId}`);
               failedCount++;
             } else {
               successCount++;
               console.log(
-                `✅ [${successCount}/${dropIds.size}] Opened print window for drop_id: ${dropId}`
+                `[${successCount}/${dropIds.size}] Opened print window for drop_id: ${dropId}`
               );
             }
           } catch (error) {
-            console.error(
-              `❌ Error opening window for drop_id ${dropId}:`,
-              error
-            );
+            console.error(`Error opening window for drop_id ${dropId}:`, error);
             failedCount++;
           }
 
@@ -188,9 +185,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
               if (failedCount > 0) {
                 await customAlert(
-                  `✅ Berhasil membuka ${successCount} halaman cetak\n❌ Gagal membuka ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
+                  `Berhasil membuka ${successCount} halaman cetak\nGagal membuka ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
                   "Cetak Selesai",
-                  "📊"
+                  "info"
                 );
               } else {
                 await customSuccess(
@@ -219,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await customAlert(
           "Pilih setidaknya satu item untuk dicetak",
           "Tidak Ada Item Dipilih",
-          "⚠️"
+          "warning"
         );
         return;
       }
@@ -232,18 +229,22 @@ document.addEventListener("DOMContentLoaded", function () {
       ];
 
       if (dropIds.length === 0) {
-        await customAlert("Tidak ada pesanan yang dipilih", "Peringatan", "⚠️");
+        await customAlert(
+          "Tidak ada pesanan yang dipilih",
+          "Peringatan",
+          "warning"
+        );
         return;
       }
 
       const confirmed = await customConfirm(
         `Akan membuka <strong>${dropIds.length}</strong> halaman cetak.\n\nLanjutkan?`,
         "Cetak Struk Terpilih",
-        "🖨️"
+        "printer"
       );
 
       if (!confirmed) {
-        console.log("❌ User cancelled print selected");
+        console.log("User cancelled print selected");
         return;
       }
 
@@ -256,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
       dropIds.forEach((dropId, index) => {
         setTimeout(() => {
           const printUrl = buildPrintUrl(dropId);
-          console.log(`📄 Opening [${index + 1}/${dropIds.length}]:`, printUrl);
+          console.log(`Opening [${index + 1}/${dropIds.length}]:`, printUrl);
 
           try {
             const printWindow = window.open(
@@ -270,16 +271,16 @@ document.addEventListener("DOMContentLoaded", function () {
               printWindow.closed ||
               typeof printWindow.closed == "undefined"
             ) {
-              console.error(`❌ Popup blocked for drop_id: ${dropId}`);
+              console.error(`Popup blocked for drop_id: ${dropId}`);
               failedCount++;
             } else {
               successCount++;
               console.log(
-                `✅ [${successCount}/${dropIds.length}] Opened successfully`
+                `[${successCount}/${dropIds.length}] Opened successfully`
               );
             }
           } catch (error) {
-            console.error(`❌ Error:`, error);
+            console.error(`Error:`, error);
             failedCount++;
           }
 
@@ -290,9 +291,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
               if (failedCount > 0) {
                 await customAlert(
-                  `✅ Berhasil: ${successCount} halaman\n❌ Gagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
+                  `Berhasil: ${successCount} halaman\nGagal: ${failedCount} halaman\n\nJika ada yang terblokir, izinkan popup untuk situs ini.`,
                   "Cetak Selesai",
-                  "📊"
+                  "info"
                 );
               } else {
                 await customSuccess(
@@ -341,9 +342,9 @@ document.addEventListener("DOMContentLoaded", function () {
   `;
   document.head.appendChild(style);
 
-  console.log("✅ Print handlers initialized");
-  console.log("📍 Database: mifmyho2_sengkuclean");
-  console.log("🌐 Host: sengkuclean.mif.myhost.id");
+  console.log("Print handlers initialized");
+  console.log("Database: mifmyho2_sengkuclean");
+  console.log("Host: sengkuclean.mif.myhost.id");
 });
 
-console.log("✅ print_handler.js loaded completely");
+console.log("print_handler.js loaded completely");

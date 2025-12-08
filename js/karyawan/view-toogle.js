@@ -2,15 +2,18 @@
 // VIEW TOGGLE FUNCTIONALITY
 // File: js/karyawan/view-toggle.js
 // Switch between Card and Table view
+// Fixed: Mobile toggle buttons working properly
 // ================================================
 
 /**
  * Initialize view toggle functionality
+ * Works for both desktop and mobile toggle buttons
  */
 function initializeViewToggle() {
   console.log("Initializing view toggle...");
 
-  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  // Get ALL toggle buttons (both desktop and mobile)
+  const allToggleButtons = document.querySelectorAll(".toggle-btn");
   const cardView = document.getElementById("cardView");
   const tableView = document.getElementById("tableView");
 
@@ -19,31 +22,39 @@ function initializeViewToggle() {
     return;
   }
 
-  if (toggleButtons.length === 0) {
+  if (allToggleButtons.length === 0) {
     console.error("Toggle buttons not found!");
     return;
   }
 
-  console.log(`Found ${toggleButtons.length} toggle buttons`);
+  console.log(
+    `Found ${allToggleButtons.length} toggle buttons (desktop + mobile)`
+  );
 
   // Get saved view preference from localStorage (optional)
   const savedView = localStorage.getItem("employeeViewPreference") || "card";
   console.log("Saved view preference:", savedView);
 
   // Set initial view
-  setActiveView(savedView, cardView, tableView, toggleButtons);
+  setActiveView(savedView, cardView, tableView, allToggleButtons);
 
-  // Add click handlers to toggle buttons
-  toggleButtons.forEach((button) => {
+  // Add click handlers to ALL toggle buttons (desktop + mobile)
+  allToggleButtons.forEach((button, index) => {
+    console.log(`Setting up button ${index + 1}:`, {
+      dataView: button.getAttribute("data-view"),
+      parent:
+        button.closest(".view-toggle")?.parentElement?.className || "unknown",
+    });
+
     button.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
 
       const viewType = this.getAttribute("data-view");
-      console.log("Toggle clicked:", viewType);
+      console.log(`Toggle clicked (Button ${index + 1}):`, viewType);
 
       // Switch view
-      switchView(viewType, cardView, tableView, toggleButtons);
+      switchView(viewType, cardView, tableView, allToggleButtons);
 
       // Save preference
       localStorage.setItem("employeeViewPreference", viewType);
@@ -59,24 +70,30 @@ function initializeViewToggle() {
 
 /**
  * Switch between views
+ * Updates ALL toggle buttons (desktop + mobile)
  * @param {string} viewType - 'card' or 'table'
  * @param {HTMLElement} cardView
  * @param {HTMLElement} tableView
- * @param {NodeList} toggleButtons
+ * @param {NodeList} allToggleButtons
  */
-function switchView(viewType, cardView, tableView, toggleButtons) {
+function switchView(viewType, cardView, tableView, allToggleButtons) {
   console.log("Switching to view:", viewType);
 
-  // Remove active class from all buttons
-  toggleButtons.forEach((btn) => btn.classList.remove("active"));
+  // Remove active class from ALL buttons (desktop + mobile)
+  allToggleButtons.forEach((btn) => {
+    btn.classList.remove("active");
+    console.log("Removed active from:", btn.getAttribute("data-view"));
+  });
 
-  // Add active class to clicked button
-  const activeButton = document.querySelector(
+  // Add active class to ALL buttons with matching viewType
+  const matchingButtons = document.querySelectorAll(
     `.toggle-btn[data-view="${viewType}"]`
   );
-  if (activeButton) {
-    activeButton.classList.add("active");
-  }
+
+  matchingButtons.forEach((btn) => {
+    btn.classList.add("active");
+    console.log("Added active to:", btn.getAttribute("data-view"));
+  });
 
   // Hide both views first
   cardView.classList.remove("active");
@@ -105,29 +122,37 @@ function switchView(viewType, cardView, tableView, toggleButtons) {
  * @param {string} viewType - 'card' or 'table'
  * @param {HTMLElement} cardView
  * @param {HTMLElement} tableView
- * @param {NodeList} toggleButtons
+ * @param {NodeList} allToggleButtons
  */
-function setActiveView(viewType, cardView, tableView, toggleButtons) {
-  // Remove active from all
-  toggleButtons.forEach((btn) => btn.classList.remove("active"));
+function setActiveView(viewType, cardView, tableView, allToggleButtons) {
+  console.log("Setting initial view:", viewType);
+
+  // Remove active from all buttons
+  allToggleButtons.forEach((btn) => btn.classList.remove("active"));
+
+  // Remove active from all views
   cardView.classList.remove("active");
   tableView.classList.remove("active");
 
-  // Set active
-  const activeButton = document.querySelector(
+  // Set active on ALL matching buttons (desktop + mobile)
+  const matchingButtons = document.querySelectorAll(
     `.toggle-btn[data-view="${viewType}"]`
   );
-  if (activeButton) {
-    activeButton.classList.add("active");
-  }
 
+  matchingButtons.forEach((btn) => {
+    btn.classList.add("active");
+  });
+
+  // Set active view
   if (viewType === "card") {
     cardView.classList.add("active");
   } else {
     tableView.classList.add("active");
   }
 
-  console.log("Initial view set to:", viewType);
+  console.log(
+    `Initial view set to: ${viewType} (${matchingButtons.length} buttons activated)`
+  );
 }
 
 /**
@@ -152,7 +177,7 @@ function getCurrentView() {
  * @param {string} viewType - 'card' or 'table'
  */
 function switchToView(viewType) {
-  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const allToggleButtons = document.querySelectorAll(".toggle-btn");
   const cardView = document.getElementById("cardView");
   const tableView = document.getElementById("tableView");
 
@@ -161,7 +186,8 @@ function switchToView(viewType) {
     return;
   }
 
-  switchView(viewType, cardView, tableView, toggleButtons);
+  switchView(viewType, cardView, tableView, allToggleButtons);
+  localStorage.setItem("employeeViewPreference", viewType);
 }
 
 /**
@@ -207,36 +233,102 @@ function setupViewChangeListeners() {
 }
 
 /**
+ * Detect if we're on mobile and log info
+ */
+function detectDeviceType() {
+  const isMobile = window.innerWidth <= 768;
+  const desktopToggle = document.querySelector(".header-controls .view-toggle");
+  const mobileToggle = document.querySelector(".filter-section .view-toggle");
+
+  console.log("Device Detection:", {
+    screenWidth: window.innerWidth,
+    isMobile: isMobile,
+    desktopToggleVisible: desktopToggle
+      ? window.getComputedStyle(desktopToggle).display !== "none"
+      : false,
+    mobileToggleVisible: mobileToggle
+      ? window.getComputedStyle(mobileToggle).display !== "none"
+      : false,
+  });
+}
+
+/**
  * Debug function to check view toggle status
  */
 function debugViewToggle() {
   console.log("🔍 Debugging view toggle...");
 
-  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const allToggleButtons = document.querySelectorAll(".toggle-btn");
   const cardView = document.getElementById("cardView");
   const tableView = document.getElementById("tableView");
+  const desktopToggle = document.querySelector(".header-controls .view-toggle");
+  const mobileToggle = document.querySelector(".filter-section .view-toggle");
 
-  console.log("Toggle buttons:", toggleButtons.length);
+  console.log("Toggle buttons:", allToggleButtons.length);
   console.log("Card view:", cardView ? "✅ Found" : "❌ Missing");
   console.log("Table view:", tableView ? "✅ Found" : "❌ Missing");
   console.log("Current view:", getCurrentView());
+  console.log(
+    "Desktop toggle container:",
+    desktopToggle ? "✅ Found" : "❌ Missing"
+  );
+  console.log(
+    "Mobile toggle container:",
+    mobileToggle ? "✅ Found" : "❌ Missing"
+  );
 
-  toggleButtons.forEach((btn, index) => {
+  if (desktopToggle) {
+    console.log(
+      "Desktop toggle display:",
+      window.getComputedStyle(desktopToggle).display
+    );
+  }
+
+  if (mobileToggle) {
+    console.log(
+      "Mobile toggle display:",
+      window.getComputedStyle(mobileToggle).display
+    );
+  }
+
+  allToggleButtons.forEach((btn, index) => {
     const viewType = btn.getAttribute("data-view");
     const isActive = btn.classList.contains("active");
     const computedStyle = window.getComputedStyle(btn);
+    const parentClass =
+      btn.closest(".view-toggle")?.parentElement?.className || "unknown";
 
-    console.log(`Button ${index + 1} (${viewType}):`, {
+    console.log(`Button ${index + 1} (${viewType}) in ${parentClass}:`, {
       active: isActive ? "✅ Yes" : "❌ No",
       dataView: viewType,
       pointerEvents: computedStyle.pointerEvents,
       cursor: computedStyle.cursor,
       display: computedStyle.display,
+      visibility: computedStyle.visibility,
     });
   });
 
   console.log("Card view classes:", cardView ? cardView.className : "N/A");
   console.log("Table view classes:", tableView ? tableView.className : "N/A");
+}
+
+/**
+ * Handle window resize to detect device changes
+ */
+function handleResize() {
+  detectDeviceType();
+
+  // Reinitialize to ensure proper button binding
+  setTimeout(() => {
+    const allToggleButtons = document.querySelectorAll(".toggle-btn");
+    const cardView = document.getElementById("cardView");
+    const tableView = document.getElementById("tableView");
+    const currentView = getCurrentView();
+
+    if (cardView && tableView && allToggleButtons.length > 0) {
+      setActiveView(currentView, cardView, tableView, allToggleButtons);
+    }
+  }, 100);
 }
 
 // ================================================
@@ -247,6 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("View Toggle: DOMContentLoaded");
 
   setTimeout(() => {
+    detectDeviceType();
     initializeViewToggle();
     addViewKeyboardShortcuts();
     setupViewChangeListeners();
@@ -255,10 +348,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 50);
 });
 
+// Handle window resize
+let resizeTimer;
+window.addEventListener("resize", function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(handleResize, 250);
+});
+
 // Expose functions to global scope
 window.initializeViewToggle = initializeViewToggle;
 window.switchToView = switchToView;
 window.getCurrentView = getCurrentView;
 window.debugViewToggle = debugViewToggle;
+window.detectDeviceType = detectDeviceType;
 
 console.log("✅ View toggle module loaded");

@@ -1,7 +1,7 @@
 // =====================================================================
 // File: /js/drop/drop_modal.js
-// Modal Handler - FIXED: Save & Print Opens in New Window
-// Version: 3.1 - Fixed Print Behavior
+// Modal Handler - FIXED: Using ICONS from modal_system
+// Version: 3.2 - Icons Updated
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -11,10 +11,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ==================== HELPER FUNCTIONS ====================
 
-  function buildApiUrl(endpoint) {
+  function getBaseUrl() {
     const protocol = window.location.protocol;
     const host = window.location.host;
-    return `${protocol}//${host}${endpoint}`;
+    return `${protocol}//${host}`;
   }
 
   function formatDateToDDMMYYYY(date) {
@@ -127,47 +127,47 @@ document.addEventListener("DOMContentLoaded", function () {
     return `
       <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
         <span class="item-badge">Item #${itemIndex}</span>
-        <button type="button" class="remove-item-btn" data-item="${itemIndex}">✕ Hapus</button>
+        <button type="button" class="remove-item-btn" data-item="${itemIndex}">${ICONS.x} Hapus</button>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
         <div>
-          <label>🏷️ Brand / Merk</label>
+          <label>${ICONS.infoCircle} Brand / Merk</label>
           <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required placeholder="Contoh: Nike, Adidas">
         </div>
         <div>
-          <label>🛠️ Layanan</label>
+          <label>Layanan</label>
           <select name="items[${itemIndex}][service_id]" class="item-service" required>
             ${servicesOptions}
           </select>
         </div>
         <div>
-          <label>💰 Harga</label>
+          <label>Harga</label>
           <input type="text" class="item-price-display" readonly value="Rp 0" style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
           <input type="hidden" name="items[${itemIndex}][price]" class="item-price" value="0">
         </div>
         <div>
-          <label>⏱️ Estimasi Selesai</label>
+          <label>Estimasi Selesai</label>
           <input type="text" class="item-estimate" readonly value="-" style="background: #f1f5f9; font-weight: 600;">
           <input type="hidden" name="items[${itemIndex}][duration]" class="item-duration" value="0">
         </div>
         <div>
-          <label>📅 Tgl. Transaksi</label>
+          <label>Tgl. Transaksi</label>
           <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date" value="${todayYYYYMMDD}">
         </div>
         <div>
-          <label>📆 Tanggal Estimasi Selesai</label>
+          <label>Tanggal Estimasi Selesai</label>
           <input type="text" class="item-est-date-display" readonly value="-" style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
           <input type="hidden" name="items[${itemIndex}][est_finish_date]" class="item-est-date-hidden" value="">
         </div>
         <div style="grid-column: 1 / -1;">
-          <label>📊 Status</label>
+          <label>Status</label>
           <select name="items[${itemIndex}][status_id]" class="item-status" required>
             ${statusOptions}
           </select>
         </div>
         <div style="grid-column: 1 / -1;">
-          <label>📝 Catatan Item</label>
+          <label>Catatan Item</label>
           <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2" placeholder="Catatan khusus untuk item ini..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;"></textarea>
         </div>
       </div>
@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const confirmed = await customConfirm(
               "Hapus item ini dari pesanan?",
               "Konfirmasi Hapus",
-              "🗑️"
+              ICONS.trash
             );
             if (confirmed) {
               newItem.remove();
@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
             await customAlert(
               "Minimal harus ada 1 item dalam pesanan!",
               "Peringatan",
-              "⚠️"
+              ICONS.warning
             );
           }
         });
@@ -342,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const confirmed = await customConfirm(
             "Hapus item ini dari pesanan?",
             "Konfirmasi Hapus",
-            "🗑️"
+            ICONS.trash
           );
           if (confirmed) {
             firstItem.remove();
@@ -353,7 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
           await customAlert(
             "Minimal harus ada 1 item dalam pesanan!",
             "Peringatan",
-            "⚠️"
+            ICONS.warning
           );
         }
       });
@@ -445,7 +445,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ==================== FORM SUBMISSION ====================
 
-  // SAVE & PRINT - FIXED: Open in new window instead of redirect
+  // SAVE & PRINT
   const saveAndPrintBtn = document.getElementById("saveAndPrintBtn");
   if (saveAndPrintBtn) {
     saveAndPrintBtn.addEventListener("click", async function (e) {
@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showLoading("Menyimpan pesanan...");
 
       const formData = new FormData(form);
-      const apiUrl = buildApiUrl("/actions/drop/drop_add.php");
+      const apiUrl = getBaseUrl() + "/actions/drop/drop_add.php";
 
       try {
         const response = await fetch(apiUrl, {
@@ -491,10 +491,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Pesanan berhasil disimpan!\n\nMembuka halaman cetak..."
           );
 
-          // FIXED: Open in new window instead of redirect
-          const printUrl = buildApiUrl(
-            `/actions/drop/cetak_struk.php?id=${data.drop_id}`
-          );
+          const printUrl = getBaseUrl() + `/actions/drop/cetak_struk.php?id=${data.drop_id}`;
 
           try {
             const printWindow = window.open(
@@ -515,8 +512,6 @@ document.addEventListener("DOMContentLoaded", function () {
               );
             } else {
               console.log("✅ Print window opened successfully");
-
-              // Reload halaman utama setelah delay
               setTimeout(() => {
                 window.location.reload();
               }, 1000);
@@ -535,8 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "Gagal Menyimpan"
         );
         saveAndPrintBtn.disabled = false;
-        saveAndPrintBtn.innerHTML =
-          '<i class="bi bi-printer"></i> Simpan & Cetak';
+        saveAndPrintBtn.innerHTML = `${ICONS.printer} Simpan & Cetak`;
       }
     });
   }
@@ -560,7 +554,7 @@ document.addEventListener("DOMContentLoaded", function () {
       showLoading("Menyimpan pesanan...");
 
       const formData = new FormData(form);
-      const apiUrl = buildApiUrl("/actions/drop/drop_add.php");
+      const apiUrl = getBaseUrl() + "/actions/drop/drop_add.php";
 
       try {
         const response = await fetch(apiUrl, {
@@ -601,14 +595,13 @@ document.addEventListener("DOMContentLoaded", function () {
           "Gagal Menyimpan"
         );
         saveOnlyBtn.disabled = false;
-        saveOnlyBtn.innerHTML = '<i class="bi bi-save"></i> Simpan';
+        saveOnlyBtn.innerHTML = "Simpan";
       }
     });
   }
 
   // ==================== SUCCESS MODAL ====================
 
-  // Check session storage for success message
   if (sessionStorage.getItem("drop_showSuccess") === "true") {
     const successMessage =
       sessionStorage.getItem("drop_successMessage") ||
@@ -625,5 +618,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   console.log("✅ Modal event listeners initialized");
-  console.log("✅ FIXED: Save & Print now opens in NEW WINDOW");
+  console.log("✅ FIXED: All icons using ICONS from modal_system");
 });

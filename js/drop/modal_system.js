@@ -1,606 +1,129 @@
-// =====================================================================
-// File: /js/drop/modal_system.js
-// Universal Modal System - Replace all browser alerts/confirms
-// Version: 2.0 - Bootstrap SVG Icons Support
-// =====================================================================
+/* ----------------------------------------------------
+   ICON SET (Bootstrap SVG Icons)
+   Dipakai oleh semua modal: alert, warning, confirm,
+   success, error, toast, dll.
+------------------------------------------------------ */
+const ICONS = {
+  info: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg>',
 
-/**
- * UNIVERSAL MODAL SYSTEM
- * Menggantikan semua alert(), confirm(), dan prompt() browser
- * dengan modal kustom yang modern dan konsisten
- *
- * UPDATED: Support Bootstrap SVG Icons
- */
+  warning:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
 
-(function () {
-  "use strict";
+  success:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>',
 
-  // ==================== MODAL CONTAINER CREATION ====================
+  error:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/></svg>',
 
-  function createModalContainer() {
-    if (document.getElementById("universalModalSystem")) {
-      return;
-    }
+  trash:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/></svg>',
 
-    const modalHTML = `
-      <!-- Universal Modal System Container -->
-      <div id="universalModalSystem">
-        
-        <!-- Alert Modal -->
-        <div id="customAlertModal" class="universal-modal-overlay" style="display: none;">
-          <div class="universal-modal alert-modal">
-            <div class="modal-icon-container">
-              <div class="modal-icon" id="alertIcon">ℹ️</div>
-            </div>
-            <h3 class="modal-title" id="alertTitle">Pemberitahuan</h3>
-            <p class="modal-message" id="alertMessage">Message here</p>
-            <div class="modal-actions">
-              <button class="modal-btn btn-primary" id="alertOkBtn">OK</button>
-            </div>
-          </div>
-        </div>
+  printer:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/></svg>',
 
-        <!-- Confirm Modal -->
-        <div id="customConfirmModal" class="universal-modal-overlay" style="display: none;">
-          <div class="universal-modal confirm-modal">
-            <div class="modal-icon-container">
-              <div class="modal-icon" id="confirmIcon">⚠️</div>
-            </div>
-            <h3 class="modal-title" id="confirmTitle">Konfirmasi</h3>
-            <p class="modal-message" id="confirmMessage">Are you sure?</p>
-            <div class="modal-actions">
-              <button class="modal-btn btn-secondary" id="confirmCancelBtn">Batal</button>
-              <button class="modal-btn btn-primary" id="confirmOkBtn">OK</button>
-            </div>
-          </div>
-        </div>
+  check:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>',
 
-        <!-- Success Modal -->
-        <div id="customSuccessModal" class="universal-modal-overlay" style="display: none;">
-          <div class="universal-modal success-modal">
-            <div class="modal-icon-container">
-              <div class="modal-icon success-icon">
-                <div class="success-checkmark">✓</div>
-              </div>
-            </div>
-            <h3 class="modal-title">Berhasil!</h3>
-            <p class="modal-message" id="successMessage">Operation successful</p>
-            <div class="modal-actions">
-              <button class="modal-btn btn-success" id="successOkBtn">OK, Mengerti</button>
-            </div>
-          </div>
-        </div>
+  x: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>',
 
-        <!-- Error Modal -->
-        <div id="customErrorModal" class="universal-modal-overlay" style="display: none;">
-          <div class="universal-modal error-modal">
-            <div class="modal-icon-container">
-              <div class="modal-icon error-icon">✕</div>
-            </div>
-            <h3 class="modal-title">Terjadi Kesalahan</h3>
-            <p class="modal-message" id="errorMessage">An error occurred</p>
-            <div class="modal-actions">
-              <button class="modal-btn btn-danger" id="errorOkBtn">OK</button>
-            </div>
-          </div>
-        </div>
+  search:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>',
 
-        <!-- Loading Modal -->
-        <div id="customLoadingModal" class="universal-modal-overlay" style="display: none;">
-          <div class="universal-modal loading-modal">
-            <div class="loader"></div>
-            <p class="modal-message" id="loadingMessage">Memproses...</p>
-          </div>
-        </div>
+  inboxEmpty:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-inbox" viewBox="0 0 16 16"><path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z"/></svg>',
 
-      </div>
-    `;
+  checkCircle:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>',
 
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
-    injectModalStyles();
-    attachModalEvents();
-  }
+  xCircle:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/></svg>',
 
-  // ==================== MODAL STYLES ====================
+  exclamationTriangle:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
 
-  function injectModalStyles() {
-    if (document.getElementById("universalModalStyles")) {
-      return;
-    }
+  infoCircle:
+    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg>',
+};
 
-    const styles = `
-      <style id="universalModalStyles">
-        .universal-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(8px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 99999;
-          animation: fadeIn 0.2s ease;
-        }
+// js/drop/modal_system.js
 
-        .universal-modal {
-          background: white;
-          border-radius: 20px;
-          padding: 32px;
-          max-width: 480px;
-          width: 90%;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          text-align: center;
-        }
+function showModal(id) {
+  document.getElementById(id).style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
 
-        .modal-icon-container {
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 80px;
-        }
+function hideModal(id) {
+  document.getElementById(id).style.display = "none";
+  document.body.style.overflow = "auto";
+}
 
-        .modal-icon {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 40px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+function attachEvents() {
+  document.getElementById("alertOkBtn").onclick = () =>
+    hideModal("customAlertModal");
 
-        /* CRITICAL: Support untuk Bootstrap SVG Icons */
-        .modal-icon svg {
-          display: block;
-          margin: 0 auto;
-          width: 48px;
-          height: 48px;
-        }
+  document.getElementById("successOkBtn").onclick = () =>
+    hideModal("customSuccessModal");
 
-        /* Jika icon adalah SVG, tidak perlu background circle */
-        .modal-icon:has(svg) {
-          background: transparent;
-          width: auto;
-          height: auto;
-          border-radius: 0;
-        }
+  document.getElementById("errorOkBtn").onclick = () =>
+    hideModal("customErrorModal");
+}
 
-        .success-icon {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
+window.ModalSystem = {
+  alert(title, message, icon = "") {
+    document.getElementById("alertTitle").innerHTML = title;
+    document.getElementById("alertMessage").innerHTML = message;
+    document.getElementById("alertIcon").innerHTML = icon;
+    showModal("customAlertModal");
+  },
 
-        .error-icon {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
+  confirm(title, message, icon = "") {
+    document.getElementById("confirmTitle").innerHTML = title;
+    document.getElementById("confirmMessage").innerHTML = message;
+    document.getElementById("confirmIcon").innerHTML = icon;
 
-        .success-checkmark {
-          font-size: 48px;
-          font-weight: bold;
-          animation: checkmarkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-        }
-
-        .modal-title {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1e293b;
-          margin: 0 0 16px 0;
-          letter-spacing: -0.02em;
-        }
-
-        .modal-message {
-          font-size: 16px;
-          color: #475569;
-          line-height: 1.6;
-          margin: 0 0 24px 0;
-          white-space: pre-wrap;
-        }
-
-        .modal-actions {
-          display: flex;
-          gap: 12px;
-          justify-content: center;
-        }
-
-        .modal-btn {
-          padding: 12px 32px;
-          border: none;
-          border-radius: 12px;
-          font-size: 15px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          min-width: 120px;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-          background: #e2e8f0;
-          color: #475569;
-        }
-
-        .btn-secondary:hover {
-          background: #cbd5e1;
-          transform: translateY(-2px);
-        }
-
-        .btn-success {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-success:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-danger {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-danger:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
-        }
-
-        .modal-btn:active {
-          transform: scale(0.96) !important;
-        }
-
-        .modal-btn:focus {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
-        }
-
-        /* Loading Modal */
-        .loading-modal {
-          padding: 40px;
-        }
-
-        .loader {
-          width: 60px;
-          height: 60px;
-          margin: 0 auto 20px;
-          border: 4px solid #f3f4f6;
-          border-top: 4px solid #667eea;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-          from {
-            transform: translateY(30px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes scaleIn {
-          from {
-            transform: scale(0);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        @keyframes checkmarkPop {
-          from {
-            transform: scale(0);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-          .universal-modal {
-            max-width: 90%;
-            padding: 24px;
-          }
-
-          .modal-title {
-            font-size: 20px;
-          }
-
-          .modal-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 30px;
-          }
-
-          .modal-icon svg {
-            width: 40px;
-            height: 40px;
-          }
-        }
-      </style>
-    `;
-
-    document.head.insertAdjacentHTML("beforeend", styles);
-  }
-
-  // ==================== EVENT HANDLERS ====================
-
-  function attachModalEvents() {
-    // ESC key to close modals
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeAllModals();
-      }
-    });
-
-    // Click overlay to close
-    document.querySelectorAll(".universal-modal-overlay").forEach((overlay) => {
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) {
-          closeAllModals();
-        }
-      });
-    });
-  }
-
-  function closeAllModals() {
-    document.querySelectorAll(".universal-modal-overlay").forEach((modal) => {
-      modal.style.display = "none";
-    });
-  }
-
-  // ==================== HELPER: SET ICON ====================
-
-  /**
-   * Set icon ke element (support SVG dan emoji)
-   * @param {HTMLElement} iconElement - Element icon
-   * @param {string} icon - Icon (SVG HTML atau emoji)
-   */
-  function setIcon(iconElement, icon) {
-    if (!iconElement) return;
-
-    // Cek apakah icon adalah SVG
-    const trimmedIcon = icon.trim();
-    if (trimmedIcon.startsWith("<svg")) {
-      // CRITICAL FIX: Use innerHTML for SVG
-      iconElement.innerHTML = icon;
-    } else {
-      // Use textContent for emoji/text
-      iconElement.textContent = icon;
-    }
-  }
-
-  // ==================== PUBLIC API ====================
-
-  /**
-   * Custom Alert
-   * @param {string} message - Message to display
-   * @param {string} title - Optional title
-   * @param {string} icon - Optional icon (emoji or SVG HTML)
-   */
-  window.customAlert = function (
-    message,
-    title = "Pemberitahuan",
-    icon = "ℹ️"
-  ) {
     return new Promise((resolve) => {
-      createModalContainer();
-
-      const modal = document.getElementById("customAlertModal");
-      const titleEl = document.getElementById("alertTitle");
-      const messageEl = document.getElementById("alertMessage");
-      const iconEl = document.getElementById("alertIcon");
-      const okBtn = document.getElementById("alertOkBtn");
-
-      titleEl.textContent = title;
-      messageEl.innerHTML = message;
-      setIcon(iconEl, icon); // Use helper function
-
-      modal.style.display = "flex";
-
-      const handleOk = () => {
-        modal.style.display = "none";
-        cleanup();
-        resolve(true);
-      };
-
-      const cleanup = () => {
-        okBtn.removeEventListener("click", handleOk);
-      };
-
-      okBtn.addEventListener("click", handleOk);
-      setTimeout(() => okBtn.focus(), 100);
-    });
-  };
-
-  /**
-   * Custom Confirm
-   * @param {string} message - Message to display
-   * @param {string} title - Optional title
-   * @param {string} icon - Optional icon (emoji or SVG HTML)
-   */
-  window.customConfirm = function (message, title = "Konfirmasi", icon = "⚠️") {
-    return new Promise((resolve) => {
-      createModalContainer();
-
-      const modal = document.getElementById("customConfirmModal");
-      const titleEl = document.getElementById("confirmTitle");
-      const messageEl = document.getElementById("confirmMessage");
-      const iconEl = document.getElementById("confirmIcon");
       const okBtn = document.getElementById("confirmOkBtn");
       const cancelBtn = document.getElementById("confirmCancelBtn");
 
-      titleEl.textContent = title;
-      messageEl.innerHTML = message;
-      setIcon(iconEl, icon); // Use helper function
-
-      modal.style.display = "flex";
-
-      const handleOk = () => {
-        modal.style.display = "none";
-        cleanup();
-        resolve(true);
+      const clear = () => {
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
       };
 
-      const handleCancel = () => {
-        modal.style.display = "none";
-        cleanup();
+      okBtn.onclick = () => {
+        clear();
+        hideModal("customConfirmModal");
+        resolve(true);
+      };
+      cancelBtn.onclick = () => {
+        clear();
+        hideModal("customConfirmModal");
         resolve(false);
       };
 
-      const cleanup = () => {
-        okBtn.removeEventListener("click", handleOk);
-        cancelBtn.removeEventListener("click", handleCancel);
-      };
-
-      okBtn.addEventListener("click", handleOk);
-      cancelBtn.addEventListener("click", handleCancel);
-
-      setTimeout(() => cancelBtn.focus(), 100);
+      showModal("customConfirmModal");
     });
-  };
+  },
 
-  /**
-   * Custom Success
-   * @param {string} message - Success message
-   * @param {string} title - Optional title
-   */
-  window.customSuccess = function (message, title = "Berhasil!") {
-    return new Promise((resolve) => {
-      createModalContainer();
+  success(message) {
+    document.getElementById("successMessage").innerHTML = message;
+    showModal("customSuccessModal");
+  },
 
-      const modal = document.getElementById("customSuccessModal");
-      const titleEl = modal.querySelector(".modal-title");
-      const messageEl = document.getElementById("successMessage");
-      const okBtn = document.getElementById("successOkBtn");
+  error(message) {
+    document.getElementById("errorMessage").innerHTML = message;
+    showModal("customErrorModal");
+  },
 
-      titleEl.textContent = title;
-      messageEl.innerHTML = message;
+  loading(message = "Memproses...") {
+    document.getElementById("loadingMessage").innerHTML = message;
+    showModal("customLoadingModal");
+  },
 
-      modal.style.display = "flex";
+  hideLoading() {
+    hideModal("customLoadingModal");
+  },
+};
 
-      const handleOk = () => {
-        modal.style.display = "none";
-        cleanup();
-        resolve(true);
-      };
-
-      const cleanup = () => {
-        okBtn.removeEventListener("click", handleOk);
-      };
-
-      okBtn.addEventListener("click", handleOk);
-      setTimeout(() => okBtn.focus(), 100);
-    });
-  };
-
-  /**
-   * Custom Error
-   * @param {string} message - Error message
-   * @param {string} title - Optional title
-   */
-  window.customError = function (message, title = "Terjadi Kesalahan") {
-    return new Promise((resolve) => {
-      createModalContainer();
-
-      const modal = document.getElementById("customErrorModal");
-      const titleEl = modal.querySelector(".modal-title");
-      const messageEl = document.getElementById("errorMessage");
-      const okBtn = document.getElementById("errorOkBtn");
-
-      titleEl.textContent = title;
-      messageEl.innerHTML = message;
-
-      modal.style.display = "flex";
-
-      const handleOk = () => {
-        modal.style.display = "none";
-        cleanup();
-        resolve(true);
-      };
-
-      const cleanup = () => {
-        okBtn.removeEventListener("click", handleOk);
-      };
-
-      okBtn.addEventListener("click", handleOk);
-      setTimeout(() => okBtn.focus(), 100);
-    });
-  };
-
-  /**
-   * Show Loading
-   * @param {string} message - Loading message
-   */
-  window.showLoading = function (message = "Memproses...") {
-    createModalContainer();
-
-    const modal = document.getElementById("customLoadingModal");
-    const messageEl = document.getElementById("loadingMessage");
-
-    messageEl.textContent = message;
-    modal.style.display = "flex";
-  };
-
-  /**
-   * Hide Loading
-   */
-  window.hideLoading = function () {
-    const modal = document.getElementById("customLoadingModal");
-    if (modal) {
-      modal.style.display = "none";
-    }
-  };
-
-  // ==================== INITIALIZATION ====================
-
-  // Auto initialize when DOM is ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", createModalContainer);
-  } else {
-    createModalContainer();
-  }
-
-  console.log("✅ Universal Modal System v2.0 loaded - SVG Support Enabled");
-})();
+// Inisialisasi setelah load
+document.addEventListener("DOMContentLoaded", attachEvents);

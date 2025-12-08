@@ -1,7 +1,7 @@
 // =====================================================================
 // File: /js/drop/drop_modal_edit.js
-// Edit Modal Handler - FIXED for Timeline Page
-// Version: 3.2 - Fixed Template Loading
+// Edit Modal Handler - FIXED: Using ICONS from modal_system
+// Version: 3.3 - Icons Updated
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let editItemCounter = 1;
 
-  // ==================== TEMPLATE FUNCTIONS - FIXED ====================
+  // ==================== TEMPLATE FUNCTIONS ====================
 
   function getServicesOptionsHTML() {
     // Try to get from hidden div (timeline page)
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
           <span class="item-badge">Item #${itemIndex}</span>
           <button type="button" class="remove-item-btn" data-item="${itemIndex}">
-            <i class="bi bi-x-lg"></i> Hapus
+            ${ICONS.x} Hapus
           </button>
         </div>
 
@@ -132,20 +132,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
           <div>
-            <label><i class="bi bi-tag"></i> Brand / Merk</label>
+            <label>${ICONS.infoCircle} Brand / Merk</label>
             <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required
               placeholder="Contoh: Nike, Adidas" value="${
                 itemData.brand || ""
               }">
           </div>
           <div>
-            <label><i class="bi bi-tools"></i> Layanan</label>
+            <label>Layanan</label>
             <select name="items[${itemIndex}][service_id]" class="item-service" required>
               ${servicesOptions}
             </select>
           </div>
           <div>
-            <label><i class="bi bi-cash-coin"></i> Harga</label>
+            <label>Harga</label>
             <input type="text" class="item-price-display" readonly value="Rp ${
               itemData.price
                 ? Number(itemData.price).toLocaleString("id-ID")
@@ -154,34 +154,34 @@ document.addEventListener("DOMContentLoaded", function () {
             <input type="hidden" name="items[${itemIndex}][price]" class="item-price" value="${itemData.price || "0"}">
           </div>
           <div>
-            <label><i class="bi bi-clock-history"></i> Estimasi Selesai</label>
+            <label>Estimasi Selesai</label>
             <input type="text" class="item-estimate" readonly value="${
               itemData.duration ? itemData.duration + " Hari" : "-"
             }" style="background: #f1f5f9; font-weight: 600;">
             <input type="hidden" name="items[${itemIndex}][duration]" class="item-duration" value="${itemData.duration || "0"}">
           </div>
           <div>
-            <label><i class="bi bi-calendar-event"></i> Tgl. Transaksi</label>
+            <label>Tgl. Transaksi</label>
             <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date"
               value="${
                 itemData.trans_date || new Date().toISOString().split("T")[0]
               }">
           </div>
           <div>
-            <label><i class="bi bi-calendar-check"></i> Tanggal Estimasi Selesai</label>
+            <label>Tanggal Estimasi Selesai</label>
             <input type="date" name="items[${itemIndex}][est_finish_date]" class="item-est-date" readonly
               style="background: #f1f5f9;" value="${
                 itemData.est_finish_date || ""
               }">
           </div>
           <div style="grid-column: 1 / -1;">
-            <label><i class="bi bi-bar-chart-steps"></i> Status</label>
+            <label>Status</label>
             <select name="items[${itemIndex}][status_id]" class="item-status" required>
               ${statusOptions}
             </select>
           </div>
           <div style="grid-column: 1 / -1;">
-            <label><i class="bi bi-pencil-square"></i> Catatan Item</label>
+            <label>Catatan Item</label>
             <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2"
               placeholder="Catatan khusus untuk item ini..."
               style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;">${
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const confirmed = await customConfirm(
             "Hapus item ini dari pesanan?",
             "Konfirmasi Hapus",
-            "🗑️"
+            ICONS.trash
           );
 
           if (confirmed) {
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
           await customAlert(
             "Minimal harus ada 1 item dalam pesanan!",
             "Peringatan",
-            "⚠️"
+            ICONS.warning
           );
         }
       });
@@ -580,13 +580,13 @@ document.addEventListener("DOMContentLoaded", function () {
             "Gagal Menyimpan"
           );
           this.disabled = false;
-          this.innerHTML = "<i class='bi bi-save'></i> Simpan";
+          this.innerHTML = "Simpan";
         }
       } catch (error) {
         hideLoading();
         await customError(`Terjadi kesalahan:\n\n${error.message}`, "Error");
         this.disabled = false;
-        this.innerHTML = "<i class='bi bi-save'></i> Simpan";
+        this.innerHTML = "Simpan";
       }
     });
   }
@@ -673,14 +673,14 @@ document.addEventListener("DOMContentLoaded", function () {
             "Gagal Menyimpan"
           );
           this.disabled = false;
-          this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
+          this.innerHTML = `${ICONS.printer} Simpan & Cetak`;
         }
       } catch (error) {
         hideLoading();
         console.error("❌ Error:", error);
         await customError(`Terjadi kesalahan:\n\n${error.message}`, "Error");
         this.disabled = false;
-        this.innerHTML = "<i class='bi bi-printer'></i> Simpan & Cetak";
+        this.innerHTML = `${ICONS.printer} Simpan & Cetak`;
       }
     });
   }
@@ -691,7 +691,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   console.log("✅ Edit modal event listeners initialized");
-  console.log("✅ FIXED: Template loading from hidden divs");
+  console.log("✅ FIXED: All icons using ICONS from modal_system");
   if (!isTimelinePage && isDropPage) {
     console.log("🖱️ Double-click row to edit full order");
     console.log("📝 Click note cell to edit order");

@@ -25,9 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Tampilkan konfirmasi dengan modal system
     const confirmed = await customConfirm(
       "Anda akan menghapus <strong>SEMUA pesanan</strong> dari customer ini.<br><br>" +
-        "<span style='color: #dc2626; font-weight: 600;'>⚠️ Semua data pesanan akan dihapus dan tidak dapat dikembalikan!</span>",
-      "Hapus Semua Pesanan?",
-      "🗑️"
+        "<span style='color: #dc2626; font-weight: 600;'>Semua data pesanan akan dihapus dan tidak dapat dikembalikan!</span>",
+      "Hapus Semua Pesanan?"
     );
 
     if (confirmed) {
@@ -54,9 +53,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Tampilkan konfirmasi dengan modal system
     const confirmed = await customConfirm(
       "Anda akan menghapus pesanan yang dipilih.<br><br>" +
-        "<span style='color: #dc2626; font-weight: 600;'>⚠️ Data yang dihapus tidak dapat dikembalikan!</span>",
-      "Hapus Item?",
-      "🗑️"
+        "<span style='color: #dc2626; font-weight: 600;'>Data yang dihapus tidak dapat dikembalikan!</span>",
+      "Hapus Item?"
     );
 
     if (confirmed) {

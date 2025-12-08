@@ -1,0 +1,718 @@
+/* ===========================
+   MOBILE RESPONSIVE - HEADER SECTION
+   File: css/karyawan/header-mobile.css
+   Fixed: Dropdown alignment & View toggle positioning
+=========================== */
+
+/* ========================================
+   BASE MOBILE STYLES (max-width: 768px)
+   ======================================== */
+@media (max-width: 768px) {
+  /* Page Container */
+  .employee-page {
+    padding: 12px;
+  }
+
+  .employee-page .container {
+    padding: 0 8px;
+  }
+
+  /* ========================================
+     HEADER CONTROLS LAYOUT
+     ======================================== */
+  .employee-page .header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .employee-page .header-controls::before {
+    display: none;
+  }
+
+  /* ========================================
+     LEFT SECTION - TITLE & STATS
+     ======================================== */
+  .employee-page .left-section {
+    width: 100%;
+    position: relative;
+    padding-right: 0;
+  }
+
+  /* Header Section - Space for mobile button */
+  .employee-page .header-section {
+    position: relative;
+    padding-right: 56px;
+    margin-bottom: 12px;
+  }
+
+  /* Page Title - Compact for Mobile */
+  .employee-page .title-main {
+    font-size: 24px;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+  }
+
+  .employee-page .title-sub {
+    font-size: 16px;
+    margin-left: 0;
+  }
+
+  .employee-page .page-description {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  /* ========================================
+     QUICK STATS - MOBILE LAYOUT (2 COLUMNS)
+     ======================================== */
+  .employee-page .quick-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    width: 100%;
+    padding: 0;
+  }
+
+  .employee-page .stat-card {
+    min-width: auto;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  /* Compact Stat Header - Center Aligned */
+  .employee-page .stat-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  /* Smaller Stat Icon */
+  .employee-page .stat-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .employee-page .stat-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Compact Stat Badge */
+  .employee-page .stat-badge {
+    font-size: 8px;
+    padding: 2px 6px;
+    letter-spacing: 0.2px;
+  }
+
+  /* Compact Stat Content - Center Aligned */
+  .employee-page .stat-content {
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  /* Compact Stat Numbers */
+  .employee-page .stat-number {
+    font-size: 20px;
+    margin-bottom: 2px;
+    font-weight: 800;
+  }
+
+  .employee-page .stat-label {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  /* Compact Stat Footer */
+  .employee-page .stat-footer {
+    padding-top: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .employee-page .stat-trend,
+  .employee-page .stat-info {
+    font-size: 9px;
+    gap: 3px;
+    justify-content: center;
+    line-height: 1.3;
+  }
+
+  .employee-page .stat-trend svg,
+  .employee-page .stat-info svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Reduce Hover Effects on Mobile */
+  .employee-page .stat-card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* ========================================
+     MOBILE ADD BUTTON (TOP RIGHT)
+     ======================================== */
+  /* Hide Desktop Button */
+  .employee-page .control-buttons .btn-primary {
+    display: none !important;
+  }
+
+  /* Show Mobile-Only Button */
+  .employee-page .btn-add-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.35);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+  }
+
+  .employee-page .btn-add-mobile svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+  }
+
+  .employee-page .btn-add-mobile:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.4);
+  }
+
+  /* ========================================
+     CONTROL BUTTONS - MOBILE LAYOUT
+     ======================================== */
+  .employee-page .control-buttons {
+    width: 100%;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .employee-page .btn {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 13px;
+    gap: 6px;
+    justify-content: center;
+    border-radius: 10px;
+  }
+
+  /* Hide Top View Toggle on Mobile */
+  .employee-page .header-controls .view-toggle {
+    display: none !important;
+  }
+
+  /* ========================================
+     FILTER SECTION - MOBILE LAYOUT
+     ======================================== */
+  .employee-page .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Search Box - Full Width */
+  .employee-page .search-box {
+    position: relative;
+    width: 100%;
+  }
+
+  .employee-page .search-box::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: none;
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  .employee-page .search-input {
+    padding: 10px 12px 10px 38px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  /* ========================================
+     FILTERS ROW - MOBILE DROPDOWNS
+     ======================================== */
+  .employee-page .filters-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    align-items: start;
+  }
+
+  /* Filter Groups - Equal Structure */
+  .employee-page .filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  /* Filter Labels - Fixed Height for Alignment */
+  .employee-page .filter-label {
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0;
+    padding: 0;
+    height: 16px;
+    line-height: 16px;
+    display: block;
+  }
+
+  /* Hide Filter Buttons on Mobile - Show Dropdowns Only */
+  .employee-page .filter-buttons {
+    display: none !important;
+  }
+
+  /* Status Select - Mobile Only (Show) */
+  .employee-page .status-select {
+    display: block !important;
+    width: 100%;
+    height: 44px;
+    padding: 0 36px 0 12px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 44px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background-color: white;
+    color: #334155;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    box-sizing: border-box;
+  }
+
+  /* Role Select - Perfect Alignment */
+  .employee-page .role-select {
+    width: 100%;
+    height: 44px;
+    padding: 0 36px 0 12px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 44px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background-color: white;
+    color: #334155;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    box-sizing: border-box;
+    display: block;
+  }
+
+  .employee-page .status-select:focus,
+  .employee-page .role-select:focus {
+    outline: none;
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+
+  /* Show Bottom View Toggle on Mobile */
+  .employee-page .filter-section .view-toggle {
+    display: flex !important;
+    width: 100%;
+    justify-content: stretch;
+    padding: 4px;
+    border-radius: 10px;
+    background: rgba(0, 102, 204, 0.05);
+    margin-top: 4px;
+  }
+
+  .employee-page .toggle-btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 12px;
+    gap: 4px;
+    justify-content: center;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .employee-page .toggle-btn.active {
+    background: white;
+    color: #0066cc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .employee-page .toggle-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ========================================
+     TABLE VIEW - MOBILE RESPONSIVE
+     ======================================== */
+  .employee-page .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .employee-page .employee-table {
+    min-width: 800px;
+    font-size: 12px;
+  }
+
+  .employee-page .employee-table th,
+  .employee-page .employee-table td {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  .employee-page .table-photo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .employee-page .status-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .employee-page .role-badge {
+    font-size: 8px;
+    padding: 2px 5px;
+  }
+
+  .employee-page .btn-table {
+    width: 30px;
+    height: 30px;
+  }
+
+  .employee-page .btn-table svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .employee-page .table-hint {
+    font-size: 11px;
+    padding: 8px 12px;
+    text-align: center;
+    color: var(--color-text-light);
+  }
+}
+
+/* ========================================
+   DESKTOP - HIDE MOBILE ELEMENTS
+   ======================================== */
+@media (min-width: 769px) {
+  /* Hide Mobile Button */
+  .employee-page .btn-add-mobile {
+    display: none !important;
+  }
+
+  /* Show Top View Toggle */
+  .employee-page .header-controls .view-toggle {
+    display: flex !important;
+  }
+
+  /* Hide Bottom View Toggle */
+  .employee-page .filter-section .view-toggle {
+    display: none !important;
+  }
+
+  /* Hide Mobile Status Dropdown - Show only Filter Buttons */
+  .employee-page .status-select {
+    display: none !important;
+  }
+
+  /* Show Desktop Filter Buttons */
+  .employee-page .filter-buttons {
+    display: flex !important;
+  }
+}
+
+/* ========================================
+   EXTRA SMALL MOBILE (max-width: 480px)
+   ======================================== */
+@media (max-width: 480px) {
+  .employee-page {
+    padding: 10px;
+  }
+
+  /* Smaller Mobile Button */
+  .employee-page .btn-add-mobile {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  .employee-page .btn-add-mobile svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .employee-page .header-section {
+    padding-right: 52px;
+  }
+
+  /* Compact Title */
+  .employee-page .title-main {
+    font-size: 20px;
+  }
+
+  .employee-page .title-sub {
+    font-size: 13px;
+  }
+
+  .employee-page .page-description {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  /* Compact Stats */
+  .employee-page .quick-stats {
+    gap: 6px;
+  }
+
+  .employee-page .stat-card {
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .employee-page .stat-icon {
+    font-size: 24px;
+  }
+
+  .employee-page .stat-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .employee-page .stat-badge {
+    font-size: 7px;
+    padding: 2px 5px;
+  }
+
+  .employee-page .stat-number {
+    font-size: 18px;
+  }
+
+  .employee-page .stat-label {
+    font-size: 9px;
+  }
+
+  .employee-page .stat-footer {
+    padding-top: 4px;
+  }
+
+  .employee-page .stat-trend,
+  .employee-page .stat-info {
+    font-size: 8px;
+  }
+
+  .employee-page .stat-trend svg,
+  .employee-page .stat-info svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Stack Buttons Vertically */
+  .employee-page .control-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .employee-page .btn {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 12px;
+  }
+
+  /* Table Mobile */
+  .employee-page .employee-table {
+    min-width: 700px;
+    font-size: 11px;
+  }
+
+  .employee-page .employee-table th,
+  .employee-page .employee-table td {
+    padding: 8px 6px;
+    font-size: 10px;
+  }
+
+  .employee-page .table-photo {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Reduce Animations */
+  .employee-page .stat-card:hover,
+  .employee-page .btn:hover {
+    transform: none;
+  }
+}
+
+/* ========================================
+   LANDSCAPE MOBILE
+   ======================================== */
+@media (max-width: 768px) and (max-height: 500px) and (orientation: landscape) {
+  .employee-page .btn-add-mobile {
+    width: 40px;
+    height: 40px;
+  }
+
+  .employee-page .btn-add-mobile svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .employee-page .header-section {
+    padding-right: 48px;
+    margin-bottom: 8px;
+  }
+
+  .employee-page .header-controls {
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .employee-page .quick-stats {
+    margin-top: 8px;
+    gap: 6px;
+  }
+
+  .employee-page .stat-card {
+    padding: 6px;
+  }
+
+  .employee-page .stat-icon {
+    font-size: 22px;
+  }
+
+  .employee-page .stat-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .employee-page .stat-number {
+    font-size: 16px;
+  }
+
+  .employee-page .stat-label {
+    font-size: 8px;
+  }
+
+  .employee-page .stat-badge {
+    font-size: 7px;
+  }
+
+  .employee-page .stat-footer {
+    display: none;
+  }
+
+  .employee-page .filter-section {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+}
+
+/* ========================================
+   TOUCH OPTIMIZATIONS
+   ======================================== */
+@media (max-width: 768px) {
+  .employee-page .btn,
+  .employee-page .toggle-btn,
+  .employee-page .filter-btn,
+  .employee-page .status-select,
+  .employee-page .role-select,
+  .employee-page .btn-add-mobile {
+    min-height: 44px;
+    -webkit-tap-highlight-color: rgba(0, 102, 204, 0.1);
+  }
+
+  .employee-page {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+@media (max-width: 768px) {
+  .employee-page .btn:focus-visible,
+  .employee-page .toggle-btn:focus-visible,
+  .employee-page .search-input:focus-visible,
+  .employee-page .status-select:focus-visible,
+  .employee-page .role-select:focus-visible,
+  .employee-page .btn-add-mobile:focus-visible {
+    outline: 3px solid #0066cc;
+    outline-offset: 2px;
+  }
+
+  /* Disable Hover on Touch Devices */
+  @media (hover: none) {
+    .employee-page .stat-card:hover,
+    .employee-page .btn:hover,
+    .employee-page .btn-add-mobile:hover {
+      transform: none;
+    }
+  }
+
+  /* Reduce Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    .employee-page .stat-card,
+    .employee-page .btn,
+    .employee-page .btn-add-mobile,
+    .employee-page .btn-add-mobile::before {
+      transition: none;
+      animation: none;
+    }
+  }
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+   ======================================== */
+@media (max-width: 768px) and (prefers-contrast: high) {
+  .employee-page .btn-add-mobile {
+    border: 2px solid white;
+  }
+}

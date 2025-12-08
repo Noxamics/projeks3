@@ -1,12 +1,23 @@
 // =====================================================================
 // File: /js/drop/drop_status_change.js
 // Item Status Change Handler with Custom Confirmation Modal
-// Version: 3.0 - Optimized & Clean
+// Version: 4.0 - Bootstrap Icons Only (No Emoji)
 // Database: mifmyho2_sengkuclean
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("🔄 Status Change Handler Initialized");
+
+  // ==================== GET ICONS FROM MODAL SYSTEM ====================
+  // Icons are now centralized in modal_system.js
+  // We access them via window.MODAL_ICONS if available
+  const ICONS = window.MODAL_ICONS || {
+    warning:
+      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
+    check:
+      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>',
+    x: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>',
+  };
 
   // ==================== PAGE DETECTION ====================
   const currentPath = window.location.pathname;
@@ -34,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <div id="statusConfirmModal" class="status-confirm-overlay" style="display: none;">
         <div class="status-confirm-modal">
           <div class="status-confirm-header">
-            <span class="status-confirm-icon">⚠️</span>
+            <span class="status-confirm-icon">${ICONS.warning}</span>
             <h3 class="status-confirm-title">Konfirmasi Perubahan Status</h3>
           </div>
           <div class="status-confirm-body">
@@ -42,10 +53,12 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <div class="status-confirm-footer">
             <button class="status-btn status-btn-cancel" id="statusConfirmCancel">
-              ✕ Batal
+              <span class="btn-icon">${ICONS.x}</span>
+              <span>Batal</span>
             </button>
             <button class="status-btn status-btn-confirm" id="statusConfirmOK">
-              ✓ Ubah Status
+              <span class="btn-icon">${ICONS.check}</span>
+              <span>Ubah Status</span>
             </button>
           </div>
         </div>
@@ -118,9 +131,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         .status-confirm-icon {
-          font-size: 32px;
-          line-height: 1;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-confirm-icon svg {
+          display: block;
+          width: 32px;
+          height: 32px;
         }
 
         @keyframes pulse {
@@ -171,6 +193,18 @@ document.addEventListener("DOMContentLoaded", function () {
           align-items: center;
           gap: 8px;
           letter-spacing: -0.01em;
+        }
+
+        .btn-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+        }
+
+        .btn-icon svg {
+          display: block;
         }
 
         .status-btn-cancel {
@@ -413,10 +447,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Show error notification
       if (typeof showNotification === "function") {
-        showNotification(`❌ ${error.message}`, "error");
+        showNotification(`${error.message}`, "error");
       } else {
         showFallbackNotification(
-          `❌ Gagal update status: ${error.message}`,
+          `Gagal update status: ${error.message}`,
           "error"
         );
       }
@@ -437,11 +471,11 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   function saveNotificationToSession(message) {
     if (isDropPage) {
-      sessionStorage.setItem("dropNotification", `✅ ${message}`);
+      sessionStorage.setItem("dropNotification", message);
       sessionStorage.setItem("dropNotificationType", "success");
       console.log("💾 Saved notification for Drop page");
     } else if (isTimelinePage) {
-      sessionStorage.setItem("timelineNotification", `✅ ${message}`);
+      sessionStorage.setItem("timelineNotification", message);
       sessionStorage.setItem("timelineNotificationType", "success");
       console.log("💾 Saved notification for Timeline page");
     }
