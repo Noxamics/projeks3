@@ -1,7 +1,7 @@
 // =====================================================================
 // File: /js/drop/drop_helpers.js
 // Helper Functions untuk Drop Management System
-// Version: 3.0 - Optimized & Clean
+// Version: 3.1 - Mobile Optimized with Expand/Collapse
 // Database: mifmyho2_sengkuclean
 // =====================================================================
 
@@ -460,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// ==================== CSS ANIMATIONS (OPTIONAL) ====================
+// ==================== CSS ANIMATIONS ====================
 
 // Tambahkan style untuk animasi jika belum ada
 if (!document.getElementById("drop-helpers-styles")) {
@@ -492,7 +492,416 @@ if (!document.getElementById("drop-helpers-styles")) {
   document.head.appendChild(style);
 }
 
+// =========================================================
+// MOBILE CARD VIEW SYSTEM
+// =========================================================
+
+/**
+ * Initialize mobile card view labels
+ * Menambahkan data-label attribute ke setiap cell untuk mobile view
+ */
+function initMobileCardView() {
+  // Define column labels in order (sesuaikan dengan struktur tabel Anda)
+  const columnLabels = [
+    "", // Checkbox column (kosong, akan di-hide)
+    "ID ORDER",
+    "BRAND",
+    "LAYANAN",
+    "HARGA",
+    "TGL",
+    "STATUS",
+    "BAYAR",
+    "KARYAWAN",
+    "AKSI",
+  ];
+
+  // Get all order item grids
+  const orderItemGrids = document.querySelectorAll(".order-item-grid");
+
+  orderItemGrids.forEach((grid) => {
+    const cells = grid.querySelectorAll(".order-item-cell");
+
+    cells.forEach((cell, index) => {
+      // Skip if already has data-label
+      if (cell.hasAttribute("data-label")) return;
+
+      // Add data-label based on column index
+      if (index < columnLabels.length && columnLabels[index]) {
+        cell.setAttribute("data-label", columnLabels[index]);
+      }
+    });
+  });
+
+  console.log(
+    `✅ Mobile card view labels initialized - ${orderItemGrids.length} grids processed`
+  );
+
+  // Debug: Log first grid to check structure
+  if (orderItemGrids.length > 0) {
+    const firstGrid = orderItemGrids[0];
+    const firstCells = firstGrid.querySelectorAll(".order-item-cell");
+    console.log(`📊 First grid has ${firstCells.length} cells`);
+    firstCells.forEach((cell, idx) => {
+      console.log(
+        `  Cell ${idx}: ${cell.getAttribute("data-label")} = ${cell.textContent
+          .trim()
+          .substring(0, 30)}...`
+      );
+    });
+  }
+}
+
+/**
+ * Add data-label to dynamically added items
+ * @param {HTMLElement} itemGrid - Order item grid element
+ */
+function addDataLabelsToNewItem(itemGrid) {
+  const columnLabels = [
+    "", // Checkbox
+    "ID ORDER",
+    "BRAND",
+    "LAYANAN",
+    "HARGA",
+    "TGL",
+    "STATUS",
+    "BAYAR",
+    "KARYAWAN",
+    "AKSI",
+  ];
+
+  const cells = itemGrid.querySelectorAll(".order-item-cell");
+
+  cells.forEach((cell, index) => {
+    if (index < columnLabels.length && columnLabels[index]) {
+      cell.setAttribute("data-label", columnLabels[index]);
+    }
+  });
+}
+
+// =========================================================
+// EXPAND/COLLAPSE FUNCTIONALITY
+// =========================================================
+
+/**
+ * Initialize expand/collapse functionality untuk customer headers
+ */
+function initExpandCollapse() {
+  // Only run on mobile
+  if (window.innerWidth > 768) {
+    console.log("⚠️ Not mobile view, skipping collapse init");
+    return;
+  }
+
+  const customerHeaders = document.querySelectorAll(".customer-group-header");
+  console.log(`🔍 Found ${customerHeaders.length} customer headers`);
+
+  customerHeaders.forEach((header, idx) => {
+    // Skip if already initialized
+    if (header.hasAttribute("data-collapse-initialized")) {
+      console.log(`  Header ${idx} already initialized`);
+      return;
+    }
+
+    // Mark as initialized
+    header.setAttribute("data-collapse-initialized", "true");
+
+    // Find the corresponding orders container
+    const ordersContainer = header.nextElementSibling;
+
+    if (
+      !ordersContainer ||
+      !ordersContainer.classList.contains("customer-orders-container")
+    ) {
+      console.warn(`  Header ${idx}: No matching orders container found`);
+      return;
+    }
+
+    console.log(`  Header ${idx}: Initialized with collapse functionality`);
+
+    // Add click event
+    header.addEventListener("click", function (e) {
+      // Don't trigger if clicking on action buttons
+      if (
+        e.target.closest(".customer-action-btn") ||
+        e.target.closest(".customer-checkbox")
+      ) {
+        console.log("  Click on button/checkbox ignored");
+        return;
+      }
+
+      // Toggle collapsed state
+      const isCollapsed = ordersContainer.classList.contains("collapsed");
+
+      if (isCollapsed) {
+        // Expand
+        ordersContainer.classList.remove("collapsed");
+        header.classList.remove("collapsed");
+        console.log(`  Customer ${header.dataset.customerId || idx}: EXPANDED`);
+
+        // Store state
+        localStorage.setItem(
+          `customer-${header.dataset.customerId || idx}-collapsed`,
+          "false"
+        );
+      } else {
+        // Collapse
+        ordersContainer.classList.add("collapsed");
+        header.classList.add("collapsed");
+        console.log(
+          `  Customer ${header.dataset.customerId || idx}: COLLAPSED`
+        );
+
+        // Store state
+        localStorage.setItem(
+          `customer-${header.dataset.customerId || idx}-collapsed`,
+          "true"
+        );
+      }
+    });
+
+    // Restore previous state from localStorage
+    const customerId = header.dataset.customerId || idx;
+    const wasCollapsed =
+      localStorage.getItem(`customer-${customerId}-collapsed`) === "true";
+    if (wasCollapsed) {
+      ordersContainer.classList.add("collapsed");
+      header.classList.add("collapsed");
+      console.log(`  Customer ${customerId}: Restored collapsed state`);
+    }
+  });
+
+  console.log("✅ Expand/Collapse initialized");
+}
+
+/**
+ * Add customer ID to headers (for state persistence)
+ */
+function addCustomerIds() {
+  const customerHeaders = document.querySelectorAll(".customer-group-header");
+
+  customerHeaders.forEach((header, index) => {
+    if (!header.hasAttribute("data-customer-id")) {
+      // Try to get customer name or use index
+      const nameElement = header.querySelector(".customer-name");
+      const customerId = nameElement
+        ? nameElement.textContent.trim().replace(/\s+/g, "-").toLowerCase()
+        : `customer-${index}`;
+
+      header.setAttribute("data-customer-id", customerId);
+    }
+  });
+}
+
+// =========================================================
+// UTILITY FUNCTIONS
+// =========================================================
+
+/**
+ * Expand all customers
+ */
+function expandAllCustomers() {
+  if (window.innerWidth > 768) return;
+
+  document
+    .querySelectorAll(".customer-orders-container")
+    .forEach((container) => {
+      container.classList.remove("collapsed");
+    });
+
+  document.querySelectorAll(".customer-group-header").forEach((header) => {
+    header.classList.remove("collapsed");
+  });
+
+  console.log("✅ All customers expanded");
+}
+
+/**
+ * Collapse all customers
+ */
+function collapseAllCustomers() {
+  if (window.innerWidth > 768) return;
+
+  document
+    .querySelectorAll(".customer-orders-container")
+    .forEach((container) => {
+      container.classList.add("collapsed");
+    });
+
+  document.querySelectorAll(".customer-group-header").forEach((header) => {
+    header.classList.add("collapsed");
+  });
+
+  console.log("✅ All customers collapsed");
+}
+
+// =========================================================
+// INITIALIZATION & EVENT LISTENERS
+// =========================================================
+
+// Initialize on page load
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 Initializing mobile features...");
+  console.log(`📱 Window width: ${window.innerWidth}px`);
+  console.log(`📱 Is mobile: ${window.innerWidth <= 768}`);
+
+  initMobileCardView();
+  addCustomerIds();
+  initExpandCollapse();
+
+  // Debug info
+  console.log("📊 Page statistics:");
+  console.log(
+    `  - Customer headers: ${
+      document.querySelectorAll(".customer-group-header").length
+    }`
+  );
+  console.log(
+    `  - Order grids: ${document.querySelectorAll(".order-item-grid").length}`
+  );
+  console.log(
+    `  - Order cells: ${document.querySelectorAll(".order-item-cell").length}`
+  );
+});
+
+// Re-initialize on window resize (when switching to/from mobile)
+let resizeTimer;
+window.addEventListener("resize", function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function () {
+    if (window.innerWidth <= 768) {
+      addCustomerIds();
+      initExpandCollapse();
+    }
+  }, 250);
+});
+
+// Re-initialize when content changes (for dynamic content)
+const observeContentChanges = () => {
+  const tableContainer = document.querySelector(".table-container");
+
+  if (!tableContainer) return;
+
+  const observer = new MutationObserver((mutations) => {
+    let shouldReinitialize = false;
+
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            // Check if it's an order item grid
+            if (node.classList && node.classList.contains("order-item-grid")) {
+              addDataLabelsToNewItem(node);
+            } else if (node.querySelectorAll) {
+              const newGrids = node.querySelectorAll(".order-item-grid");
+              newGrids.forEach((grid) => addDataLabelsToNewItem(grid));
+            }
+
+            // Check if customer headers were added
+            if (
+              (node.classList &&
+                node.classList.contains("customer-group-header")) ||
+              (node.querySelectorAll &&
+                node.querySelectorAll(".customer-group-header").length > 0)
+            ) {
+              shouldReinitialize = true;
+            }
+          }
+        });
+      }
+    });
+
+    // Reinitialize collapse functionality if new headers were added
+    if (shouldReinitialize && window.innerWidth <= 768) {
+      setTimeout(() => {
+        addCustomerIds();
+        initExpandCollapse();
+      }, 100);
+    }
+  });
+
+  observer.observe(tableContainer, {
+    childList: true,
+    subtree: true,
+  });
+};
+
+// Start observing after DOM is ready
+document.addEventListener("DOMContentLoaded", observeContentChanges);
+
+// =========================================================
+// EXPORT FUNCTIONS (Global API)
+// =========================================================
+
+/**
+ * Global API untuk mobile card view
+ * Bisa diakses via: window.mobileCardView.xxx()
+ */
+window.mobileCardView = {
+  init: initMobileCardView,
+  addLabelsToItem: addDataLabelsToNewItem,
+  initCollapse: initExpandCollapse,
+  expandAll: expandAllCustomers,
+  collapseAll: collapseAllCustomers,
+  debug: function () {
+    console.log("=== MOBILE VIEW DEBUG ===");
+    console.log(`Window width: ${window.innerWidth}px`);
+    console.log(`Is mobile: ${window.innerWidth <= 768}`);
+    console.log(
+      `Customer headers: ${
+        document.querySelectorAll(".customer-group-header").length
+      }`
+    );
+    console.log(
+      `Order grids: ${document.querySelectorAll(".order-item-grid").length}`
+    );
+    console.log(
+      `Order cells: ${document.querySelectorAll(".order-item-cell").length}`
+    );
+    console.log(
+      `Cells with data-label: ${
+        document.querySelectorAll(".order-item-cell[data-label]").length
+      }`
+    );
+
+    // Check first few cells
+    const cells = document.querySelectorAll(".order-item-cell");
+    console.log("\n=== First 5 cells ===");
+    for (let i = 0; i < Math.min(5, cells.length); i++) {
+      console.log(`Cell ${i}:`);
+      console.log(`  - data-label: ${cells[i].getAttribute("data-label")}`);
+      console.log(`  - text: ${cells[i].textContent.trim().substring(0, 50)}`);
+      console.log(`  - classes: ${cells[i].className}`);
+    }
+
+    // Check headers
+    const headers = document.querySelectorAll(".customer-group-header");
+    console.log(`\n=== Customer Headers (${headers.length}) ===`);
+    headers.forEach((h, idx) => {
+      console.log(`Header ${idx}:`);
+      console.log(`  - customerId: ${h.dataset.customerId}`);
+      console.log(
+        `  - initialized: ${h.hasAttribute("data-collapse-initialized")}`
+      );
+      console.log(
+        `  - has ::after: ${
+          window.getComputedStyle(h, "::after").content !== "none"
+        }`
+      );
+      console.log(`  - collapsed: ${h.classList.contains("collapsed")}`);
+    });
+  },
+  fixAll: function () {
+    console.log("🔧 Forcing re-initialization...");
+    initMobileCardView();
+    addCustomerIds();
+    initExpandCollapse();
+    console.log("✅ Done! Run mobileCardView.debug() to check");
+  },
+};
+
 // ==================== INITIALIZATION COMPLETE ====================
-console.log("✅ Drop Management Helpers v3.0 loaded successfully");
+console.log("✅ Drop Management Helpers v3.1 loaded successfully");
 console.log("📦 Database: mifmyho2_sengkuclean");
 console.log("🕐 Timezone: Asia/Jakarta");
+console.log("📱 Mobile Expand/Collapse: ENABLED");
+console.log("🔧 Debug API: window.mobileCardView.debug()");

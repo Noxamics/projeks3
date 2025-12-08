@@ -1,0 +1,1037 @@
+/* =========================================================
+   MOBILE RESPONSIVE OPTIMIZATION - DROP PAGE
+   Optimized for smaller, more efficient mobile display
+   Add this to your CSS files or create mobile_optimize.css
+========================================================= */
+
+/* =========================================================
+   BASE MOBILE ADJUSTMENTS (< 768px)
+========================================================= */
+@media (max-width: 768px) {
+  /* Reduce root spacing for mobile */
+  :root {
+    --spacing-xs: 3px;
+    --spacing-sm: 6px;
+    --spacing-md: 8px;
+    --spacing-lg: 10px;
+    --spacing-xl: 12px;
+    --spacing-xxl: 16px;
+    --radius-sm: 5px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+  }
+
+  /* Page Container - Compact */
+  .drop-page {
+    padding: 8px !important;
+    min-height: auto;
+  }
+
+  .drop-container {
+    padding: 0 6px !important;
+  }
+
+  /* ===== TITLE - SMALLER ===== */
+  .drop-page .title {
+    font-size: 18px !important;
+    margin-bottom: 8px !important;
+    gap: 6px !important;
+  }
+
+  .drop-page .title i {
+    font-size: 20px !important;
+  }
+
+  /* ===== TOP BAR - NEW LAYOUT (2 ROWS) ===== */
+  .top-bar {
+    padding: 10px !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+    flex-direction: column !important;
+    display: flex !important;
+  }
+
+  /* Row 1: Search + Add Button - FORCE ROW LAYOUT */
+  .left-bar {
+    width: 100% !important;
+    flex-direction: row !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Row 2: Filter + Cetak + Hapus - FORCE ROW LAYOUT */
+  .right-tools {
+    width: 100% !important;
+    flex-direction: row !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Search Box - 60% width di baris pertama */
+  .drop-page .search-box,
+  .left-bar .search-box,
+  .top-bar .search-box {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+    max-width: 60% !important;
+    min-width: 0 !important;
+    order: 1 !important;
+  }
+
+  .drop-page .search-box input {
+    padding: 10px 12px 10px 36px !important;
+    font-size: 12px !important;
+    width: 100%;
+  }
+
+  .drop-page .search-box::before {
+    left: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .search-btn {
+    padding: 10px !important;
+  }
+
+  .search-btn img {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Add Button - 40% width di baris pertama */
+  .drop-page .add-btn,
+  .left-bar .add-btn,
+  .top-bar .add-btn {
+    flex: 0 0 calc(40% - 8px) !important;
+    width: calc(40% - 8px) !important;
+    max-width: calc(40% - 8px) !important;
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+    justify-content: center;
+    white-space: nowrap;
+    order: 2 !important;
+  }
+
+  /* Filter Form - 60% width di baris kedua */
+  #filterForm,
+  .right-tools form,
+  form#filterForm {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+    max-width: 60% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    order: 1 !important;
+    display: block !important;
+  }
+
+  .filter-select,
+  #filterForm .filter-select,
+  .right-tools .filter-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10px 30px 10px 12px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+  }
+
+  /* Print Button - 20% width, ICON ONLY */
+  .print-btn,
+  .right-tools .print-btn,
+  button.print-btn {
+    flex: 0 0 calc(18% - 4px) !important;
+    width: calc(18% - 4px) !important;
+    max-width: calc(18% - 4px) !important;
+    padding: 10px 8px !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    order: 2 !important;
+    min-width: 0 !important;
+  }
+
+  .print-btn svg,
+  button.print-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+    display: block !important;
+    margin: 0 auto !important;
+  }
+
+  /* Delete Button - 20% width, ICON ONLY */
+  .delete-btn,
+  .right-tools .delete-btn,
+  button.delete-btn {
+    flex: 0 0 calc(18% - 4px) !important;
+    width: calc(18% - 4px) !important;
+    max-width: calc(18% - 4px) !important;
+    padding: 10px 8px !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    order: 3 !important;
+    min-width: 0 !important;
+  }
+
+  .delete-btn svg,
+  button.delete-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+    display: block !important;
+    margin: 0 auto !important;
+  }
+
+  .delete-icon {
+    display: none !important;
+  }
+
+  /* ===== STATS BAR - COMPACT ===== */
+  .stats-bar {
+    padding: 8px !important;
+    margin-bottom: 10px !important;
+    flex-direction: column;
+    gap: 8px !important;
+  }
+
+  .stats-badges {
+    width: 100%;
+    flex-direction: row !important;
+    gap: 8px !important;
+    display: flex !important;
+  }
+
+  .stat-badge {
+    flex: 1 !important;
+    width: auto !important;
+    padding: 8px 10px !important;
+    min-width: auto !important;
+    gap: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .stat-icon {
+    font-size: 20px !important;
+  }
+
+  .stat-number {
+    font-size: 16px !important;
+  }
+
+  .stat-label {
+    font-size: 9px !important;
+  }
+  /* ===== TOGGLE - COMPACT ===== */
+  .toggle-completed-container {
+    width: 100%;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    justify-content: space-between;
+  }
+
+  .toggle-label {
+    font-size: 11px !important;
+  }
+
+  .toggle-switch {
+    width: 42px !important;
+    height: 22px !important;
+  }
+
+  .toggle-slider:before {
+    height: 16px !important;
+    width: 16px !important;
+    left: 3px !important;
+    bottom: 3px !important;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px) !important;
+  }
+
+  /* ===== TABLE CONTAINER ===== */
+  .drop-page .table-container {
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* ===== CUSTOMER HEADER - COMPACT ===== */
+  .customer-group-header {
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    margin-top: 10px !important;
+    border-radius: 8px 8px 0 0 !important;
+    flex-direction: column;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  .customer-info-text {
+    flex-direction: column;
+    gap: 4px !important;
+    align-items: flex-start;
+  }
+
+  .customer-name {
+    font-size: 12px !important;
+  }
+
+  .customer-phone {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
+  }
+
+  .order-count-badge {
+    font-size: 10px !important;
+    padding: 3px 10px !important;
+  }
+
+  /* ===== CUSTOMER ACTIONS - FULL WIDTH ===== */
+  .customer-actions {
+    width: 100%;
+    justify-content: stretch;
+    gap: 4px !important;
+  }
+
+  .customer-action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+    gap: 3px !important;
+  }
+
+  .customer-action-btn svg,
+  .customer-action-btn img {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* ===== ORDERS CONTAINER - HORIZONTAL SCROLL ===== */
+  .customer-orders-container {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px !important;
+    border-radius: 0 0 8px 8px !important;
+  }
+
+  /* ===== GRID HEADERS - SMALLER ===== */
+  .orders-grid-header {
+    padding: 8px 12px !important;
+    font-size: 9px !important;
+    min-width: 1100px; /* Allow horizontal scroll */
+  }
+
+  .header-cell {
+    padding: 3px 6px !important;
+  }
+
+  /* ===== ORDER ITEMS - SMALLER ===== */
+  .order-item-grid {
+    padding: 10px 12px !important;
+    font-size: 10px !important;
+    min-width: 1100px; /* Match header */
+  }
+
+  .order-item-cell {
+    padding: 3px 6px !important;
+  }
+
+  /* ===== ITEM NUMBER BADGE - SMALLER ===== */
+  .item-number-badge {
+    padding: 3px 8px !important;
+    font-size: 9px !important;
+    border-radius: 6px !important;
+  }
+
+  /* ===== NOTES - SMALLER ===== */
+  .notes-preview,
+  .note-cell {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
+    max-width: 100px !important;
+  }
+
+  /* ===== STATUS DROPDOWN - COMPACT ===== */
+  .status-dropdown,
+  .item-status-select {
+    padding: 6px 24px 6px 8px !important;
+    font-size: 9px !important;
+    min-width: 110px !important;
+    border-radius: 6px !important;
+  }
+
+  /* ===== ACTION BUTTONS - SMALLER ===== */
+  .action-buttons-wrapper {
+    gap: 6px !important;
+  }
+
+  .print-item-btn,
+  .delete-item-btn,
+  button.delete-item-btn {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+  }
+
+  .print-item-btn svg,
+  .delete-item-btn svg,
+  button.delete-item-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* ===== COMPLETED BADGE - SMALLER & ALWAYS VISIBLE ===== */
+  .completed-badge-overlay {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    font-size: 8px !important;
+    padding: 3px 8px !important;
+    gap: 3px !important;
+    z-index: 100 !important;
+    border-radius: 12px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 9px !important;
+  }
+
+  /* ===== FIX OVERFLOW FOR BADGE ===== */
+  .order-item-row {
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  .order-item-row.item-completed {
+    overflow: visible !important;
+  }
+
+  .order-item-grid {
+    overflow: visible !important;
+  }
+
+  /* ===== TOTAL ROW - COMPACT ===== */
+  .customer-total-row {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .total-label {
+    font-size: 10px !important;
+  }
+
+  .total-amount {
+    font-size: 16px !important;
+  }
+
+  /* ===== CHECKBOX - SMALLER ===== */
+  .customer-checkbox,
+  .item-checkbox {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* ===== EMPTY STATE - COMPACT ===== */
+  .empty-state,
+  .no-results-message {
+    padding: 40px 12px !important;
+  }
+
+  .empty-state-icon,
+  .no-results-message .icon {
+    font-size: 40px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .empty-state h3 {
+    font-size: 16px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .empty-state-text,
+  .empty-state p,
+  .no-results-message > div {
+    font-size: 12px !important;
+  }
+
+  /* ===== SCROLL INDICATOR ===== */
+  .customer-orders-container::after {
+    content: "← Scroll →";
+    position: sticky;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05));
+    padding: 6px 10px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-align: right;
+    pointer-events: none;
+    display: block;
+  }
+}
+
+/* =========================================================
+   EXTRA SMALL MOBILE (< 480px)
+========================================================= */
+@media (max-width: 480px) {
+  .drop-page {
+    padding: 6px !important;
+  }
+
+  .drop-page .title {
+    font-size: 16px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .top-bar {
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+
+  /* Adjust for smaller screens - maintain proportions */
+  .drop-page .search-box {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+  }
+
+  .drop-page .add-btn {
+    flex: 0 0 calc(40% - 6px) !important;
+    width: calc(40% - 6px) !important;
+    padding: 9px 10px !important;
+    font-size: 11px !important;
+  }
+
+  #filterForm {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+  }
+
+  .filter-select {
+    padding: 9px 28px 9px 10px !important;
+    font-size: 10px !important;
+  }
+
+  .print-btn {
+    flex: 0 0 calc(20% - 3px) !important;
+    width: calc(20% - 3px) !important;
+    padding: 9px 6px !important;
+  }
+
+  .print-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .delete-btn {
+    flex: 0 0 calc(20% - 3px) !important;
+    width: calc(20% - 3px) !important;
+    padding: 9px 6px !important;
+  }
+
+  .delete-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .stat-icon {
+    font-size: 18px !important;
+  }
+
+  .stat-number {
+    font-size: 14px !important;
+  }
+
+  .stat-label {
+    font-size: 8px !important;
+  }
+
+  .customer-group-header {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+
+  .customer-name {
+    font-size: 11px !important;
+  }
+
+  .customer-phone {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  .order-count-badge {
+    font-size: 9px !important;
+    padding: 2px 8px !important;
+  }
+
+  .customer-action-btn {
+    padding: 5px 6px !important;
+    font-size: 9px !important;
+  }
+
+  .orders-grid-header {
+    padding: 6px 10px !important;
+    font-size: 8px !important;
+  }
+
+  .order-item-grid {
+    padding: 8px 10px !important;
+    font-size: 9px !important;
+  }
+
+  .item-number-badge {
+    padding: 2px 6px !important;
+    font-size: 8px !important;
+  }
+
+  .status-dropdown,
+  .item-status-select {
+    padding: 5px 22px 5px 7px !important;
+    font-size: 8px !important;
+    min-width: 100px !important;
+  }
+
+  .print-item-btn,
+  .delete-item-btn,
+  button.delete-item-btn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .print-item-btn svg,
+  .delete-item-btn svg,
+  button.delete-item-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .completed-badge-overlay {
+    top: 4px !important;
+    right: 4px !important;
+    font-size: 7px !important;
+    padding: 2px 6px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 8px !important;
+  }
+
+  .total-label {
+    font-size: 9px !important;
+  }
+
+  .total-amount {
+    font-size: 14px !important;
+  }
+
+  .toggle-label {
+    font-size: 10px !important;
+  }
+
+  .toggle-switch {
+    width: 38px !important;
+    height: 20px !important;
+  }
+
+  .toggle-slider:before {
+    height: 14px !important;
+    width: 14px !important;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px) !important;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE (< 360px)
+========================================================= */
+@media (max-width: 360px) {
+  .drop-page .title {
+    font-size: 15px !important;
+  }
+
+  /* Very small - adjust proportions */
+  .drop-page .search-box {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+  }
+
+  .drop-page .add-btn {
+    flex: 0 0 calc(40% - 4px) !important;
+    width: calc(40% - 4px) !important;
+  }
+
+  .right-tools {
+    flex-wrap: nowrap !important;
+  }
+
+  #filterForm {
+    flex: 0 0 60% !important;
+    width: 60% !important;
+  }
+
+  .filter-select {
+    font-size: 9px !important;
+  }
+
+  .print-btn {
+    flex: 0 0 calc(20% - 2px) !important;
+    width: calc(20% - 2px) !important;
+    padding: 8px 4px !important;
+  }
+
+  .print-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .delete-btn {
+    flex: 0 0 calc(20% - 2px) !important;
+    width: calc(20% - 2px) !important;
+    padding: 8px 4px !important;
+  }
+
+  .delete-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .stat-badge {
+    padding: 6px 8px !important;
+  }
+
+  .stat-icon {
+    font-size: 16px !important;
+  }
+
+  .stat-number {
+    font-size: 13px !important;
+  }
+
+  .stat-label {
+    font-size: 8px !important;
+  }
+
+  .customer-group-header {
+    padding: 5px 6px !important;
+  }
+
+  .customer-actions {
+    flex-direction: column;
+  }
+
+  .customer-action-btn {
+    width: 100%;
+    padding: 6px !important;
+  }
+
+  .toggle-switch {
+    width: 36px !important;
+    height: 18px !important;
+  }
+
+  .toggle-slider:before {
+    height: 12px !important;
+    width: 12px !important;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(16px) !important;
+  }
+}
+
+/* =========================================================
+   MODAL MOBILE OPTIMIZATION
+========================================================= */
+@media (max-width: 768px) {
+  .modal {
+    padding: 8px !important;
+    align-items: flex-start;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    margin: 10px 0 !important;
+    border-radius: 10px !important;
+  }
+
+  .modal-content.large {
+    width: 98% !important;
+  }
+
+  .modal-content h2 {
+    font-size: 16px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .modal-content h2 i {
+    font-size: 18px !important;
+  }
+
+  .close {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 18px !important;
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 14px !important;
+    margin-bottom: 12px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px !important;
+  }
+
+  .customer-info-section h3::before,
+  .payment-section h3::before,
+  .order-summary h3::before {
+    font-size: 18px !important;
+  }
+
+  .item-group {
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .item-badge {
+    font-size: 11px !important;
+    padding: 4px 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .grid-form {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .grid-form label {
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .grid-form input,
+  .grid-form select,
+  .grid-form textarea {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: 10px 16px !important;
+    font-size: 12px !important;
+  }
+
+  .remove-item-btn,
+  .delete-customer-btn {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+
+  .modal-content .button-container button {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 12px !important;
+  }
+
+  .modal-content h2 {
+    font-size: 15px !important;
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: 10px !important;
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 13px !important;
+  }
+
+  .item-group {
+    padding: 10px !important;
+  }
+
+  .grid-form input,
+  .grid-form select,
+  .grid-form textarea {
+    font-size: 11px !important;
+  }
+}
+
+/* =========================================================
+   TOUCH OPTIMIZATIONS
+========================================================= */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets for better UX */
+  .customer-checkbox,
+  .item-checkbox {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  .customer-action-btn {
+    min-height: 36px;
+  }
+
+  .print-item-btn,
+  .delete-item-btn,
+  button.delete-item-btn {
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .toggle-switch {
+    min-width: 44px;
+    min-height: 24px;
+  }
+
+  /* Remove hover effects on touch */
+  .order-item-row:hover {
+    background: transparent;
+    transform: none;
+  }
+
+  .order-item-row:hover::before {
+    transform: scaleY(0);
+  }
+
+  /* Active states for touch */
+  .order-item-row:active {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  }
+
+  button:active,
+  .customer-action-btn:active {
+    opacity: 0.7;
+  }
+}
+
+/* =========================================================
+   PREVENT iOS ZOOM ON INPUT FOCUS
+========================================================= */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+/* =========================================================
+   SAFE AREA FOR NOTCHED DEVICES
+========================================================= */
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    .drop-page {
+      padding-left: max(6px, env(safe-area-inset-left)) !important;
+      padding-right: max(6px, env(safe-area-inset-right)) !important;
+      padding-bottom: max(6px, env(safe-area-inset-bottom)) !important;
+    }
+
+    .modal-content {
+      padding-left: max(16px, env(safe-area-inset-left)) !important;
+      padding-right: max(16px, env(safe-area-inset-right)) !important;
+      padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+    }
+
+    .top-bar,
+    .stats-bar {
+      padding-left: max(8px, env(safe-area-inset-left)) !important;
+      padding-right: max(8px, env(safe-area-inset-right)) !important;
+    }
+  }
+}
+
+/* =========================================================
+   REDUCE MOTION (Accessibility)
+========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   PRINT OPTIMIZATION FOR MOBILE
+========================================================= */
+@media print {
+  .drop-page {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .top-bar,
+  .stats-bar,
+  .toggle-completed-container,
+  .customer-actions,
+  .action-buttons-wrapper,
+  button {
+    display: none !important;
+  }
+
+  .customer-orders-container {
+    overflow: visible !important;
+  }
+
+  .orders-grid-header,
+  .order-item-grid {
+    min-width: auto !important;
+    font-size: 8px !important;
+  }
+}

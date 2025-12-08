@@ -250,7 +250,6 @@
 }
 
 .toggle-switch input:checked + .toggle-slider::after {
-  content: "✓";
   position: absolute;
   left: 6px;
   top: 50%;
@@ -275,32 +274,6 @@
   opacity: 1;
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   transform: translateX(3px);
-}
-
-/* Completed Badge Overlay - COMPACT */
-.completed-badge-overlay {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
-  z-index: 5;
-  animation: badgePulse 2s ease-in-out infinite;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.completed-badge-overlay::before {
-  content: "✓";
-  font-size: 11px;
 }
 
 @keyframes badgePulse {

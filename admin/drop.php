@@ -332,6 +332,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <link rel="stylesheet" href="../css/drop/drop.css">
     <link rel="stylesheet" href="../css/drop/mobile.css">
     <link rel="stylesheet" href="../css/drop/badge.css">
+    <link rel="stylesheet" href="../css/drop/m_optimaze.css">
 </head>
 
 <body>
@@ -340,10 +341,10 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
         <div class="drop-container">
             <h1 class="title">Manajemen Drop</h1>
 
-            <!-- TOP BAR -->
+            <!-- TOP BAR - STRUKTUR YANG BENAR -->
             <div class="top-bar">
+                <!-- BARIS 1: Search (60%) + Tambah Pesanan (40%) -->
                 <div class="left-bar">
-                    <button class="add-btn" id="openAddModal">Tambah Pesanan</button>
                     <form method="GET" action="" class="search-box">
                         <input type="text" name="search" placeholder="Cari data..."
                             value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
@@ -351,8 +352,11 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                             <img src="../a/assets/Pencarian.png" alt="Cari" />
                         </button>
                     </form>
+
+                    <button class="add-btn" id="openAddModal">Tambah Pesanan</button>
                 </div>
 
+                <!-- BARIS 2: Filter (60%) + Print (20%) + Delete (20%) -->
                 <div class="right-tools">
                     <form method="GET" id="filterForm">
                         <?php if (!empty($search)): ?>
@@ -369,12 +373,22 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                     </form>
 
                     <button class="print-btn" id="printSelectedBtn" title="Cetak Struk Terpilih">
-                        Cetak Struk
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                            <path
+                                d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
+                        </svg>
                     </button>
 
                     <button class="delete-btn" id="deleteBtn" title="Hapus Data Terpilih">
-
-                        Hapus
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path
+                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                            <path
+                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                        </svg>
                     </button>
                 </div>
             </div>

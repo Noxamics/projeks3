@@ -70,7 +70,9 @@ $stmt_orders->close();
 <div class='customer-group-header'>
     <div class='customer-info-text'>
         <input type='checkbox' class='customer-checkbox' data-customer-id='<?= $customer_id ?>'>
-        <span class='customer-name'><?= $customer_name ?></span>
+        <span class='customer-name'>
+            <?= $customer_name ?>
+        </span>
         <span class='customer-phone'>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-phone"
                 viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
@@ -82,7 +84,9 @@ $stmt_orders->close();
         </span>
     </div>
     <div style='display: flex; gap: 12px; align-items: center;'>
-        <span class='order-count-badge'><?= $total_orders ?> Pesanan</span>
+        <span class='order-count-badge'>
+            <?= $total_orders ?> Pesanan
+        </span>
         <div class='customer-actions'>
             <button class='customer-action-btn print-all-btn' data-customer-id='<?= $customer_id ?>'
                 title='Cetak Semua Struk Customer Ini'>
@@ -153,7 +157,8 @@ $stmt_orders->close();
         ?>
 
         <div class='order-item-row <?= $completed_class ?>' data-drop-id='<?= $drop_id ?>' data-item-id='<?= $id_item ?>'
-            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='<?= $data_status ?>'>
+            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='
+        <?= $data_status ?>'>
             <div class='order-item-grid'>
 
                 <!-- 1. CHECKBOX -->
@@ -165,8 +170,12 @@ $stmt_orders->close();
                 <!-- 2. ID ORDER -->
                 <div class='order-item-cell'>
                     <div style='display: flex; flex-direction: column; gap: 2px;'>
-                        <span class='item-number-badge'>#<?= $item_number ?></span>
-                        <small style='color: #6366f1; font-weight: 600; font-size: 10px;'><?= $order_code ?></small>
+                        <span class='item-number-badge'>#
+                            <?= $item_number ?>
+                        </span>
+                        <small style='color: #6366f1; font-weight: 600; font-size: 10px;'>
+                            <?= $order_code ?>
+                        </small>
                     </div>
                 </div>
 
@@ -190,7 +199,8 @@ $stmt_orders->close();
                 <!-- 5. HARGA -->
                 <div class='order-item-cell center' style='font-weight: 700; color: #059669; font-size: 12px;'
                     data-price-display>
-                    Rp<?= $price ?>
+                    Rp
+                    <?= $price ?>
                 </div>
 
                 <!-- 6. TGL. MASUK -->
@@ -201,8 +211,11 @@ $stmt_orders->close();
                 <!-- 7. STATUS -->
                 <div class='order-item-cell center'>
                     <select class='item-status-select' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
-                        data-current-status='<?= $order['status_id'] ?>' data-old-status='<?= $order['status_id'] ?>'
-                        data-item-brand='<?= $brand ?>' <?= $is_completed ? 'disabled' : '' ?>>
+                        data-current-status='<?= $order['status_id'] ?>' data-old-status='
+                    <?= $order['status_id'] ?>'
+                        data-item-brand='
+                    <?= $brand ?>'
+                        <?= $is_completed ? 'disabled' : '' ?>>
                         <?php
                         $st2 = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
                         while ($s2 = $st2->fetch_assoc()) {
@@ -254,11 +267,6 @@ $stmt_orders->close();
             <?php if ($is_completed): ?>
                 <!-- FIXED: Completed Badge - Single Icon -->
                 <div class='completed-badge-overlay'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                        class="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg>
                     DIAMBIL
                 </div>
             <?php endif; ?>
@@ -269,6 +277,8 @@ $stmt_orders->close();
     <!-- TOTAL ROW -->
     <div class='customer-total-row'>
         <span class='total-label'>Total Harga:</span>
-        <span class='total-amount'>Rp<?= number_format($total_amount, 0, ',', '.') ?></span>
+        <span class='total-amount'>Rp
+            <?= number_format($total_amount, 0, ',', '.') ?>
+        </span>
     </div>
 </div>

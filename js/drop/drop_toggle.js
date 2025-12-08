@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!itemRow.querySelector(".completed-badge-overlay")) {
             const badge = document.createElement("div");
             badge.className = "completed-badge-overlay";
-            badge.textContent = "✓ DIAMBIL";
+
             itemRow.appendChild(badge);
           }
         } else {

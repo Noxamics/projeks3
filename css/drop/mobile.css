@@ -1,1073 +1,815 @@
 /* =========================================================
-   MOBILE RESPONSIVE CSS - COMPLETE OPTIMIZATION
-   Add this to your existing CSS or create separate mobile.css
+   MOBILE CARD VIEW - Transformasi Table ke Card Style
+   Version: 3.1 - Optimized dengan Expand/Collapse
    ========================================================= */
 
 /* =========================================================
-   TABLET LANDSCAPE (1024px - 1200px)
+   MOBILE VIEW - CARD STYLE (< 768px)
    ========================================================= */
-@media (max-width: 1200px) {
-  :root {
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 16px;
-    --spacing-xl: 20px;
-    --spacing-xxl: 24px;
+@media (max-width: 768px) {
+  /* Hide table grid headers on mobile */
+  .orders-grid-header {
+    display: none !important;
   }
 
-  .drop-page {
-    padding: var(--spacing-md) var(--spacing-lg);
+  /* Hide horizontal scroll indicator */
+  .customer-orders-container::after {
+    display: none !important;
   }
 
-  .drop-page .title {
-    font-size: 26px;
-  }
-
-  /* Top Bar - Stack on tablet */
-  .top-bar {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    padding: var(--spacing-lg);
-  }
-
-  .left-bar {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .right-tools {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .drop-page .search-box {
-    max-width: 100%;
-  }
-
-  /* Table - Allow horizontal scroll */
+  /* Orders Container - Collapsible */
   .customer-orders-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible !important;
+    border-radius: 0 0 12px 12px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px !important;
+    max-height: 10000px;
+    opacity: 1;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
   }
 
-  .orders-grid-header,
+  .customer-orders-container.collapsed {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Transform order items into cards */
+  .order-item-row {
+    display: block !important;
+    background: white !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .order-item-row:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .order-item-row::before {
+    display: none !important;
+  }
+
+  /* Completed items styling */
+  .order-item-row.item-completed {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+    border-color: var(--color-success) !important;
+    opacity: 1 !important;
+  }
+
+  /* Hide default grid */
   .order-item-grid {
-    min-width: 1200px;
+    display: block !important;
+    min-width: auto !important;
+    padding: 0 !important;
   }
 
-  /* Form Grid - 2 columns still works */
-  .grid-form {
-    gap: var(--spacing-md) var(--spacing-lg);
+  /* Hide checkbox on mobile */
+  .order-item-cell:first-child {
+    display: none !important;
   }
 
-  /* Stats Bar */
-  .stats-bar {
-    flex-direction: column;
-    gap: var(--spacing-md);
+  /* Reset all cells - VERTICAL LAYOUT */
+  .order-item-cell {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 12px 16px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    gap: 6px !important;
+    border-bottom: 1px solid #f1f5f9;
   }
 
-  .stats-badges {
+  .order-item-cell:last-child {
+    border-bottom: none;
+  }
+
+  /* Add labels using ::before */
+  .order-item-cell::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* Value wrapper - FULL WIDTH */
+  .order-item-cell > * {
     width: 100%;
-    justify-content: center;
-  }
-}
-
-/* =========================================================
-   TABLET PORTRAIT (768px - 1024px)
-   ========================================================= */
-@media (max-width: 1024px) {
-  .drop-page .title {
-    font-size: 24px;
-    gap: var(--spacing-sm);
+    text-align: left;
+    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
   }
 
-  .drop-page .title i {
-    font-size: 28px;
+  /* =====================================================
+     SPECIFIC CELL STYLING
+     ===================================================== */
+
+  /* Order ID - Header Card Style - DIPERBAIKI */
+  .order-item-cell[data-label="Order ID"],
+  .order-item-cell[data-label="ID ORDER"] {
+    color: white !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    border-bottom: none !important;
+    border-radius: 14px 14px 0 0 !important;
+    position: relative !important;
+    min-height: 70px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
   }
 
-  /* Buttons */
-  .drop-page .add-btn,
-  .print-btn,
-  .delete-btn {
-    padding: 10px 18px;
-    font-size: 13px;
+  .order-item-cell[data-label="Order ID"]::before,
+  .order-item-cell[data-label="ID ORDER"]::before {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 10px !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    position: static !important;
+    z-index: 1 !important;
   }
 
-  /* Form Sections */
-  .customer-info-section,
-  .payment-section,
-  .order-summary {
-    padding: var(--spacing-xl);
-    margin-bottom: var(--spacing-lg);
+  .order-item-cell[data-label="Order ID"] > *,
+  .order-item-cell[data-label="ID ORDER"] > * {
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    letter-spacing: 0.3px !important;
+    display: block !important;
+    word-break: break-all !important;
+    width: 100% !important;
+    margin-top: 0 !important;
   }
 
-  .customer-info-section h3,
-  .payment-section h3,
-  .order-summary h3 {
+  /* Brand - Prominent */
+  .order-item-cell[data-label="Brand"],
+  .order-item-cell[data-label="BRAND"] {
+    padding: 14px 16px !important;
+    background: #f8fafc;
+  }
+
+  .order-item-cell[data-label="Brand"]::before,
+  .order-item-cell[data-label="BRAND"]::before {
+    color: #334155;
+  }
+
+  .order-item-cell[data-label="Brand"] > *,
+  .order-item-cell[data-label="BRAND"] > * {
+    font-weight: 800;
     font-size: 18px;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  .item-group {
-    padding: var(--spacing-xl);
+  /* Service */
+  .order-item-cell[data-label="Layanan"],
+  .order-item-cell[data-label="LAYANAN"],
+  .order-item-cell[data-label="Service"] {
+    padding: 12px 16px !important;
   }
 
-  /* Modal */
-  .modal-content {
-    width: 90%;
-    max-width: 700px;
-    padding: 24px;
+  .order-item-cell[data-label="Layanan"] > *,
+  .order-item-cell[data-label="LAYANAN"] > *,
+  .order-item-cell[data-label="Service"] > * {
+    font-size: 14px;
+    color: #475569;
+    font-weight: 600;
   }
 
-  .modal-content.large {
-    width: 95%;
-    max-width: 800px;
+  /* Price - SUPER PROMINENT */
+  .order-item-cell[data-label="Harga"],
+  .order-item-cell[data-label="HARGA"],
+  .order-item-cell[data-label="Price"] {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    padding: 16px !important;
+    margin: 8px 12px !important;
+    border-radius: 12px;
+    border: 2px solid #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
   }
 
-  /* Customer Header */
+  .order-item-cell[data-label="Harga"]::before,
+  .order-item-cell[data-label="HARGA"]::before,
+  .order-item-cell[data-label="Price"]::before {
+    color: #065f46;
+    font-size: 10px;
+  }
+
+  .order-item-cell[data-label="Harga"] > *,
+  .order-item-cell[data-label="HARGA"] > *,
+  .order-item-cell[data-label="Price"] > * {
+    font-size: 24px;
+    font-weight: 800;
+    color: #10b981;
+    letter-spacing: -0.5px;
+  }
+
+  /* Date */
+  .order-item-cell[data-label="Tanggal"],
+  .order-item-cell[data-label="TANGGAL"],
+  .order-item-cell[data-label="TGL"],
+  .order-item-cell[data-label="Date"] {
+    padding: 10px 16px !important;
+  }
+
+  .order-item-cell[data-label="Tanggal"] > *,
+  .order-item-cell[data-label="TANGGAL"] > *,
+  .order-item-cell[data-label="TGL"] > *,
+  .order-item-cell[data-label="Date"] > * {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  /* Status */
+  .order-item-cell[data-label="Status"],
+  .order-item-cell[data-label="STATUS"] {
+    padding: 12px 16px !important;
+  }
+
+  .order-item-cell[data-label="Status"] .item-status-select,
+  .order-item-cell[data-label="STATUS"] .item-status-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 12px !important;
+    padding: 10px 32px 10px 14px !important;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+  }
+
+  /* Payment Status */
+  .order-item-cell[data-label="Status Bayar"],
+  .order-item-cell[data-label="BAYAR"],
+  .order-item-cell[data-label="Payment"] {
+    padding: 12px 16px !important;
+  }
+
+  .order-item-cell[data-label="Status Bayar"]::before,
+  .order-item-cell[data-label="BAYAR"]::before,
+  .order-item-cell[data-label="Payment"]::before {
+    margin-bottom: 8px;
+  }
+
+  .order-item-cell[data-label="Status Bayar"] span,
+  .order-item-cell[data-label="BAYAR"] span,
+  .order-item-cell[data-label="Payment"] span {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    width: auto;
+  }
+
+  /* Karyawan */
+  .order-item-cell[data-label="Karyawan"],
+  .order-item-cell[data-label="KARYAWAN"],
+  .order-item-cell[data-label="Employee"] {
+    padding: 12px 16px !important;
+  }
+
+  .order-item-cell[data-label="Karyawan"] span,
+  .order-item-cell[data-label="KARYAWAN"] span,
+  .order-item-cell[data-label="Employee"] span {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    color: #6b21a8;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: 1px solid #d8b4fe;
+    display: inline-block;
+    font-size: 13px;
+    width: auto;
+  }
+
+  /* Actions - Bottom Section */
+  .order-item-cell[data-label="Aksi"],
+  .order-item-cell[data-label="AKSI"],
+  .order-item-cell[data-label="Actions"] {
+    padding: 16px !important;
+    background: #f8fafc;
+    border-radius: 0 0 14px 14px;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+  }
+
+  .order-item-cell[data-label="Aksi"]::before,
+  .order-item-cell[data-label="AKSI"]::before,
+  .order-item-cell[data-label="Actions"]::before {
+    display: none;
+  }
+
+  /* Action buttons in card */
+  .action-buttons-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 12px !important;
+  }
+
+  .print-item-btn,
+  .delete-item-btn,
+  button.delete-item-btn {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    flex-shrink: 0;
+  }
+
+  .print-item-btn svg,
+  .delete-item-btn svg,
+  button.delete-item-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Completed Badge - Top Right */
+  .completed-badge-overlay {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+    font-size: 10px !important;
+    padding: 6px 12px !important;
+    z-index: 10 !important;
+    border-radius: 8px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 11px !important;
+  }
+
+  /* =====================================================
+     CUSTOMER HEADER - WITH EXPAND/COLLAPSE
+     ===================================================== */
+
+  /* Customer Header - Card Style with Expand/Collapse */
   .customer-group-header {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: stretch;
+    background: white !important;
+    border: 2px solid #0066cc !important;
+    border-radius: 12px !important;
+    padding: 16px 50px 16px 16px !important; /* Extra padding kanan untuk arrow */
+    margin-bottom: 12px !important;
+    box-shadow: 0 2px 8px rgba(0, 102, 204, 0.15) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    user-select: none !important; /* Prevent text selection saat klik */
+    -webkit-tap-highlight-color: transparent !important; /* Remove tap highlight di mobile */
+  }
+
+  .customer-group-header:active {
+    transform: scale(0.98);
+    background: #f0f9ff !important;
+  }
+
+  /* Arrow indicator - DIPERBAIKI dengan fallback */
+  .customer-group-header::after {
+    content: "▼" !important;
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 18px !important;
+    color: #0066cc !important;
+    transition: transform 0.3s ease !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #dbeafe !important;
+    border-radius: 6px !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .customer-group-header.collapsed::after {
+    transform: translateY(-50%) rotate(-90deg) !important;
+    background: #e0e7ff !important;
+    color: #7c3aed !important;
+  }
+
+  /* Fallback: Jika ::after tidak work, gunakan visual indicator lain */
+  .customer-group-header {
+    background-image: linear-gradient(
+      to right,
+      white 0%,
+      white calc(100% - 50px),
+      #f0f9ff calc(100% - 50px),
+      #f0f9ff 100%
+    ) !important;
   }
 
   .customer-info-text {
     flex-direction: column;
-    gap: var(--spacing-sm);
-    align-items: flex-start;
-  }
-
-  .customer-actions {
+    gap: 8px !important;
+    align-items: flex-start !important;
+    margin-bottom: 12px;
+    padding-right: 40px; /* Space untuk arrow */
     width: 100%;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-  }
-
-  /* Stat Badges */
-  .stat-badge {
-    min-width: 140px;
-    padding: var(--spacing-md);
-  }
-
-  .stat-number {
-    font-size: 22px;
-  }
-
-  .stat-icon {
-    font-size: 26px;
-  }
-}
-
-/* =========================================================
-   MOBILE LANDSCAPE & SMALL TABLET (600px - 768px)
-   ========================================================= */
-@media (max-width: 768px) {
-  .drop-page {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .drop-page .title {
-    font-size: 22px;
-    gap: var(--spacing-sm);
-  }
-
-  .drop-page .title i {
-    font-size: 24px;
-  }
-
-  /* Container */
-  .drop-page .container,
-  .drop-container {
-    padding: 0 var(--spacing-sm);
-  }
-
-  /* Top Bar - Full stack */
-  .top-bar {
-    padding: var(--spacing-md);
-    gap: var(--spacing-sm);
-  }
-
-  .left-bar,
-  .right-tools {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    width: 100%;
-  }
-
-  /* Buttons - Full width */
-  .drop-page .add-btn,
-  .print-btn,
-  .delete-btn,
-  .filter-select {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 16px;
-    font-size: 13px;
-  }
-
-  .drop-page .search-box {
-    min-width: 100%;
-    width: 100%;
-  }
-
-  /* Form - Single column */
-  .grid-form {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
-
-  .grid-form input,
-  .grid-form select,
-  .grid-form textarea {
-    font-size: 14px;
-    padding: 12px 16px;
-  }
-
-  /* Form Sections */
-  .customer-info-section,
-  .payment-section,
-  .order-summary {
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .customer-info-section h3,
-  .payment-section h3,
-  .order-summary h3 {
-    font-size: 16px;
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .item-group {
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .item-badge {
-    font-size: 13px;
-    padding: 6px 16px;
-  }
-
-  /* Button Container */
-  .button-container {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
-
-  .save-btn,
-  .remove-item-btn {
-    width: 100%;
-    padding: 14px 24px;
-    font-size: 14px;
-  }
-
-  /* Modal */
-  .modal {
-    padding: var(--spacing-sm);
-    align-items: flex-start;
-  }
-
-  .modal-content {
-    width: 95%;
-    max-width: 100%;
-    padding: 20px;
-    margin: var(--spacing-lg) 0;
-  }
-
-  .modal-content.large {
-    width: 98%;
-  }
-
-  .modal-content h2 {
-    font-size: 20px;
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .close {
-    width: 32px;
-    height: 32px;
-    font-size: 20px;
-    top: 15px;
-    right: 15px;
-  }
-
-  .modal-content .customer-info-section,
-  .modal-content .payment-section,
-  .modal-content .order-summary,
-  .modal-content .item-group {
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
-  }
-
-  /* Table - Horizontal scroll indicator */
-  .customer-orders-container {
-    position: relative;
-    overflow-x: auto !important; /* Only horizontal */
-    overflow-y: visible !important; /* Vertical visible */
-  }
-
-  .customer-orders-container::after {
-    content: "← Scroll →";
-    position: sticky;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05));
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-text-light);
-    text-align: right;
-    pointer-events: none;
-  }
-
-  /* Completed Badge - Mobile Adjustment */
-  .completed-badge-overlay {
-    top: 6px;
-    right: 6px;
-    font-size: 8px;
-    padding: 3px 8px;
-    z-index: 100 !important;
-  }
-
-  .completed-badge-overlay::before {
-    font-size: 10px;
-  }
-
-  /* Customer Header */
-  .customer-group-header {
-    padding: var(--spacing-md);
-    font-size: 13px;
   }
 
   .customer-name {
-    font-size: 14px;
+    font-size: 16px !important;
+    color: #0066cc !important;
   }
 
   .customer-phone {
-    font-size: 11px;
-    padding: 4px 10px;
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    border: 1px solid #93c5fd !important;
+    font-size: 12px !important;
+    padding: 4px 12px !important;
   }
 
   .order-count-badge {
-    padding: 4px 12px;
-    font-size: 11px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    color: white !important;
+    border: none !important;
+    font-size: 12px !important;
+    padding: 6px 14px !important;
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3) !important;
+  }
+
+  /* Customer Actions */
+  .customer-actions {
+    width: 100%;
+    gap: 8px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
   }
 
   .customer-action-btn {
-    padding: 6px 10px;
-    font-size: 10px;
-    gap: 4px;
+    flex: none !important;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 12px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3) !important;
   }
 
-  /* Grid Headers - Reduce size */
-  .orders-grid-header {
-    font-size: 10px;
-    padding: 10px 16px;
+  .customer-action-btn:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4) !important;
   }
 
-  .order-item-grid {
-    font-size: 11px;
-    padding: 12px 16px;
+  .delete-customer-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3) !important;
   }
 
-  /* Action Buttons */
-  .print-item-btn,
-  .delete-item-btn {
-    width: 32px;
-    height: 32px;
+  .delete-customer-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4) !important;
   }
 
-  .print-item-btn svg,
-  .delete-item-btn svg {
+  .customer-action-btn svg {
     width: 14px !important;
     height: 14px !important;
   }
 
-  /* Stats Bar */
-  .stats-bar {
-    padding: var(--spacing-md);
-  }
-
-  .stats-badges {
-    flex-direction: column;
-    width: 100%;
-    gap: var(--spacing-sm);
-  }
-
-  .stat-badge {
-    width: 100%;
-    justify-content: flex-start;
-    min-width: auto;
-    padding: var(--spacing-md);
-  }
-
-  .stat-number {
-    font-size: 20px;
-  }
-
-  .stat-icon {
-    font-size: 24px;
-  }
-
-  .stat-label {
-    font-size: 10px;
-  }
-
-  /* Toggle */
-  .toggle-completed-container {
-    width: 100%;
-    justify-content: space-between;
-    padding: var(--spacing-md);
-  }
-
-  .toggle-label {
-    font-size: 13px;
-  }
-
-  .toggle-switch {
-    width: 48px;
-    height: 26px;
-  }
-
-  .toggle-slider:before {
-    height: 20px;
-    width: 20px;
-  }
-
-  .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(22px);
-  }
-
-  /* Completed Badge Overlay */
-  .completed-badge-overlay {
-    font-size: 9px;
-    padding: 4px 10px;
-    top: 8px;
-    right: 8px;
-  }
-
-  /* Empty State */
-  .empty-state,
-  .no-results-message {
-    padding: 40px var(--spacing-md);
-  }
-
-  .empty-state-icon,
-  .no-results-message .icon {
-    font-size: 48px;
-  }
-
-  .empty-state-text,
-  .no-results-message > div {
-    font-size: 14px;
-  }
-
-  /* Total Row */
-  .customer-total-row {
-    padding: var(--spacing-md);
-    gap: var(--spacing-md);
-  }
-
-  .total-label {
+  /* Item Number Badge - Adjust position to not overlap */
+  .item-number-badge {
+    position: absolute;
+    top: 18px;
+    right: 60px; /* Space untuk completed badge */
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 800;
     font-size: 12px;
-  }
-
-  .total-amount {
-    font-size: 18px;
-  }
-}
-
-/* =========================================================
-   MOBILE PORTRAIT (480px - 600px)
-   ========================================================= */
-@media (max-width: 600px) {
-  .drop-page .title {
-    font-size: 20px;
-  }
-
-  /* Buttons */
-  .drop-page .add-btn,
-  .print-btn,
-  .delete-btn {
-    padding: 10px 14px;
-    font-size: 12px;
-  }
-
-  /* Modal Button Container */
-  .modal-content .button-container {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-
-  .modal-content .button-container button {
-    width: 100%;
-    max-width: 100%;
-    min-width: auto;
-  }
-
-  /* Customer Header - Compact */
-  .customer-info-text {
-    gap: 4px;
-  }
-
-  .customer-name {
-    font-size: 13px;
-  }
-
-  .customer-phone {
-    font-size: 10px;
-    padding: 3px 8px;
-  }
-
-  .order-count-badge {
-    font-size: 10px;
-    padding: 3px 10px;
-  }
-
-  /* Stat Badges - Extra compact */
-  .stat-badge {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .stat-icon {
-    font-size: 22px;
-  }
-
-  .stat-number {
-    font-size: 18px;
-  }
-
-  .stat-label {
-    font-size: 9px;
-  }
-}
-
-/* =========================================================
-   SMALL MOBILE (320px - 480px)
-   ========================================================= */
-@media (max-width: 480px) {
-  .drop-page {
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-
-  .drop-page .title {
-    font-size: 18px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
-  }
-
-  .drop-page .title i {
-    font-size: 20px;
-  }
-
-  /* Top Bar */
-  .top-bar {
-    padding: var(--spacing-sm);
-  }
-
-  /* Buttons - Extra compact */
-  .drop-page .add-btn,
-  .print-btn,
-  .delete-btn {
-    padding: 10px 12px;
-    font-size: 11px;
-    gap: 4px;
-  }
-
-  .delete-icon {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* Form Sections */
-  .customer-info-section,
-  .payment-section,
-  .order-summary {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .customer-info-section h3,
-  .payment-section h3,
-  .order-summary h3 {
-    font-size: 15px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .customer-info-section h3::before,
-  .payment-section h3::before,
-  .order-summary h3::before {
-    font-size: 20px;
-  }
-
-  .item-group {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .item-badge {
-    font-size: 12px;
-    padding: 5px 12px;
-    margin-bottom: var(--spacing-md);
-  }
-
-  /* Form Inputs */
-  .grid-form input,
-  .grid-form select,
-  .grid-form textarea {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  .grid-form label {
-    font-size: 12px;
-  }
-
-  /* Buttons */
-  .save-btn {
-    padding: 12px 20px;
-    font-size: 13px;
-  }
-
-  .remove-item-btn {
-    padding: 8px 14px;
-    font-size: 11px;
-  }
-
-  /* Modal */
-  .modal {
-    padding: 0;
-  }
-
-  .modal-content {
-    padding: 16px;
-    border-radius: var(--radius-lg);
-  }
-
-  .modal-content h2 {
-    font-size: 18px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
-    padding-bottom: var(--spacing-md);
-  }
-
-  .modal-content h2 i {
-    font-size: 22px;
-  }
-
-  .close {
-    width: 28px;
-    height: 28px;
-    font-size: 18px;
-    top: 12px;
-    right: 12px;
-  }
-
-  .modal-content .customer-info-section,
-  .modal-content .payment-section,
-  .modal-content .order-summary,
-  .modal-content .item-group {
-    padding: var(--spacing-md);
-  }
-
-  /* Customer Header */
-  .customer-group-header {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .customer-actions {
-    flex-direction: column;
-    width: 100%;
-    gap: var(--spacing-xs);
-  }
-
-  .customer-action-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 8px 12px;
-    font-size: 11px;
-  }
-
-  /* Stats */
-  .stats-bar {
-    padding: var(--spacing-sm);
-  }
-
-  .stat-badge {
-    padding: var(--spacing-sm);
-  }
-
-  .stat-icon {
-    font-size: 20px;
-  }
-
-  .stat-number {
-    font-size: 16px;
-  }
-
-  .stat-label {
-    font-size: 9px;
-  }
-
-  /* Toggle */
-  .toggle-completed-container {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .toggle-label {
-    font-size: 12px;
-  }
-
-  .toggle-switch {
-    width: 44px;
-    height: 24px;
-  }
-
-  .toggle-slider:before {
-    height: 18px;
-    width: 18px;
-  }
-
-  .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(20px);
-  }
-
-  /* Completed Badge */
-  .completed-badge-overlay {
-    font-size: 8px;
-    padding: 3px 8px;
-    gap: 2px;
-    top: 4px;
-    right: 4px;
-    z-index: 100 !important;
-    white-space: nowrap;
-  }
-
-  .completed-badge-overlay::before {
-    font-size: 9px;
-  }
-
-  /* Fix Order Item Row Overflow */
-  .order-item-row {
-    overflow: visible !important;
-    position: relative;
-  }
-
-  .order-item-grid {
-    position: relative;
-    overflow: visible !important;
-  }
-
-  /* Customer Total */
-  .customer-total-row {
-    padding: var(--spacing-sm) var(--spacing-md);
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--spacing-xs);
-  }
-
-  .total-label {
-    font-size: 11px;
-  }
-
-  .total-amount {
-    font-size: 16px;
-  }
-
-  /* Search Box */
-  .drop-page .search-box input {
-    font-size: 13px;
-    padding: 10px 14px 10px 36px;
-  }
-
-  .drop-page .search-box::before {
-    font-size: 14px;
-    left: 10px;
-  }
-
-  .search-btn {
-    padding: 8px 10px;
-  }
-
-  .search-btn img {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Filter Select */
-  .filter-select {
-    padding: 10px 32px 10px 12px;
-    font-size: 12px;
-  }
-
-  /* Status Dropdown */
-  .status-dropdown,
-  .item-status-select {
-    padding: 6px 28px 6px 10px;
-    font-size: 10px;
-    min-width: 120px;
-  }
-
-  /* Empty State */
-  .empty-state,
-  .no-results-message {
-    padding: 30px var(--spacing-sm);
-  }
-
-  .empty-state-icon,
-  .no-results-message .icon {
-    font-size: 40px;
-  }
-
-  .empty-state h3 {
-    font-size: 16px;
-  }
-
-  .empty-state-text,
-  .empty-state p,
-  .no-results-message > div {
-    font-size: 13px;
-  }
-}
-
-/* =========================================================
-   EXTRA SMALL MOBILE (< 360px)
-   ========================================================= */
-@media (max-width: 360px) {
-  .drop-page .title {
-    font-size: 16px;
-  }
-
-  .drop-page .add-btn,
-  .print-btn,
-  .delete-btn {
-    font-size: 10px;
-    padding: 8px 10px;
-  }
-
-  .customer-info-section h3,
-  .payment-section h3,
-  .order-summary h3 {
-    font-size: 14px;
-  }
-
-  .item-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-  }
-
-  .grid-form input,
-  .grid-form select,
-  .grid-form textarea {
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-
-  .save-btn {
-    font-size: 12px;
-    padding: 10px 16px;
-  }
-
-  .stat-number {
-    font-size: 14px;
-  }
-
-  .stat-icon {
-    font-size: 18px;
-  }
-
-  .toggle-switch {
-    width: 40px;
-    height: 22px;
-  }
-
-  .toggle-slider:before {
-    height: 16px;
-    width: 16px;
-  }
-
-  .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(18px);
-  }
-}
-
-/* =========================================================
-   LANDSCAPE ORIENTATION FIXES
-   ========================================================= */
-@media (max-height: 600px) and (orientation: landscape) {
-  .modal {
-    align-items: flex-start;
-    padding-top: var(--spacing-sm);
-  }
-
-  .modal-content {
-    max-height: 90vh;
-    margin: var(--spacing-sm) 0;
-  }
-
-  .stats-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .stats-badges {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .stat-badge {
-    width: auto;
-    min-width: 140px;
-  }
-}
-
-/* =========================================================
-   TOUCH OPTIMIZATIONS
-   ========================================================= */
-@media (hover: none) and (pointer: coarse) {
-  /* Increase touch targets */
-  .customer-checkbox,
-  .item-checkbox {
-    width: 22px;
-    height: 22px;
-  }
-
-  .customer-action-btn,
-  .print-item-btn,
-  .delete-item-btn {
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .toggle-switch {
-    min-width: 50px;
-    min-height: 30px;
-  }
-
-  /* Remove hover effects on touch devices */
-  .order-item-row:hover {
-    background: transparent;
-    transform: none;
-  }
-
-  .order-item-row:hover::before {
-    transform: scaleY(0);
-  }
-
-  /* Add active states instead */
-  .order-item-row:active {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
-
-  button:active,
-  .customer-action-btn:active {
-    opacity: 0.7;
-  }
-
-  /* Disable complex hover animations */
-  .drop-page .add-btn:hover::before,
-  .save-btn:hover::before,
-  .delete-customer-btn:hover::before,
-  .remove-item-btn:hover::before {
-    width: 0;
-    height: 0;
-  }
-}
-
-/* =========================================================
-   SAFE AREA INSETS (for notched devices)
-   ========================================================= */
-@supports (padding: max(0px)) {
-  .drop-page {
-    padding-left: max(var(--spacing-sm), env(safe-area-inset-left));
-    padding-right: max(var(--spacing-sm), env(safe-area-inset-right));
-    padding-bottom: max(var(--spacing-sm), env(safe-area-inset-bottom));
-  }
-
-  .modal-content {
-    padding-left: max(20px, env(safe-area-inset-left));
-    padding-right: max(20px, env(safe-area-inset-right));
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-  }
-}
-
-/* =========================================================
-   PREVENT ZOOM ON INPUT FOCUS (iOS Safari)
-   ========================================================= */
-@media screen and (max-width: 768px) {
-  input[type="text"],
-  input[type="tel"],
-  input[type="email"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 16px !important; /* Prevents zoom on iOS */
-  }
-}
-
-/* =========================================================
-   REDUCE MOTION (Accessibility)
-   ========================================================= */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .order-item-row::before,
-  .customer-group-header::before,
-  .item-group::before {
-    transition: none;
-  }
-
-  .drop-page::before {
-    animation: none;
-  }
-
-  .empty-state-icon,
-  .no-results-message .icon {
-    animation: none;
-  }
-}
-
-/* =========================================================
-   PRINT STYLES (Mobile Print)
-   ========================================================= */
-@media print {
-  .drop-page {
-    background: white;
-    padding: 0;
-  }
-
-  .top-bar,
-  .stats-bar,
-  .toggle-completed-container,
-  .customer-actions,
-  .action-buttons-wrapper,
-  .delete-item-btn,
-  .delete-customer-btn,
-  .print-item-btn,
-  .print-all-btn,
-  .close {
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.4);
+    z-index: 15;
+    letter-spacing: 0.3px;
+  }
+
+  /* Notes in Card */
+  .note-cell {
+    display: block !important;
+    background: #fef3c7 !important;
+    border: 1px solid #fbbf24 !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    margin: 0 12px 12px 12px !important;
+    font-size: 12px !important;
+    font-style: italic;
+    color: #92400e !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    line-height: 1.5;
+  }
+
+  .note-cell::before {
+    content: "📝 Catatan: ";
+    font-weight: 700;
+    font-style: normal;
+    display: block;
+    margin-bottom: 4px;
+    color: #78350f;
+  }
+
+  .note-cell.empty {
     display: none !important;
   }
 
-  .customer-orders-container {
-    box-shadow: none;
-    border: 1px solid #ccc;
+  /* Total Row - Card Style */
+  .customer-total-row {
+    background: white !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
   }
 
+  .total-label {
+    font-size: 13px !important;
+    color: #065f46 !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .total-amount {
+    font-size: 28px !important;
+    color: var(--color-success) !important;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* Empty State */
+  .empty-state,
+  .no-results-message {
+    border-radius: 16px !important;
+    padding: 50px 20px !important;
+    margin: 12px !important;
+  }
+
+  /* Animation for cards */
   .order-item-row {
-    page-break-inside: avoid;
+    animation: slideInCard 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideInCard {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* =========================================================
+   EXTRA SMALL MOBILE (< 480px)
+   ========================================================= */
+@media (max-width: 480px) {
+  .order-item-row {
+    padding: 0 !important;
+    margin-bottom: 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .order-item-cell {
+    padding: 10px 14px !important;
+  }
+
+  .order-item-cell::before {
+    font-size: 9px !important;
+  }
+
+  .order-item-cell > * {
+    font-size: 13px;
+  }
+
+  .order-item-cell[data-label="Order ID"],
+  .order-item-cell[data-label="ID ORDER"] {
+    padding: 14px !important;
+    min-height: 65px !important;
+  }
+
+  .order-item-cell[data-label="Order ID"] > *,
+  .order-item-cell[data-label="ID ORDER"] > * {
+    font-size: 14px !important;
+  }
+
+  .order-item-cell[data-label="Brand"],
+  .order-item-cell[data-label="BRAND"] {
+    padding: 12px 14px !important;
+  }
+
+  .order-item-cell[data-label="Brand"] > *,
+  .order-item-cell[data-label="BRAND"] > * {
+    font-size: 16px !important;
+  }
+
+  .order-item-cell[data-label="Harga"],
+  .order-item-cell[data-label="HARGA"],
+  .order-item-cell[data-label="Price"] {
+    padding: 14px !important;
+    margin: 8px 10px !important;
+  }
+
+  .order-item-cell[data-label="Harga"] > *,
+  .order-item-cell[data-label="HARGA"] > *,
+  .order-item-cell[data-label="Price"] > * {
+    font-size: 22px !important;
+  }
+
+  .order-item-cell[data-label="Status"] .item-status-select,
+  .order-item-cell[data-label="STATUS"] .item-status-select {
+    font-size: 11px !important;
+    padding: 9px 30px 9px 12px !important;
+  }
+
+  .order-item-cell[data-label="Status Bayar"] span,
+  .order-item-cell[data-label="BAYAR"] span,
+  .order-item-cell[data-label="Payment"] span {
+    padding: 7px 14px;
+    font-size: 11px;
+  }
+
+  .order-item-cell[data-label="Karyawan"] span,
+  .order-item-cell[data-label="KARYAWAN"] span,
+  .order-item-cell[data-label="Employee"] span {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .order-item-cell[data-label="Aksi"],
+  .order-item-cell[data-label="AKSI"],
+  .order-item-cell[data-label="Actions"] {
+    padding: 14px !important;
+  }
+
+  .print-item-btn,
+  .delete-item-btn,
+  button.delete-item-btn {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .print-item-btn svg,
+  .delete-item-btn svg,
+  button.delete-item-btn svg {
+    width: 18px !important;
+    height: 18px !important;
   }
 
   .customer-group-header {
-    page-break-after: avoid;
+    padding: 14px 45px 14px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .customer-group-header::after {
+    font-size: 16px !important;
+    width: 22px !important;
+    height: 22px !important;
+    right: 12px !important;
+  }
+
+  .customer-name {
+    font-size: 15px !important;
+  }
+
+  .order-count-badge {
+    font-size: 11px !important;
+    padding: 5px 12px !important;
+  }
+
+  .customer-actions {
+    gap: 6px !important;
+  }
+
+  .customer-action-btn {
+    padding: 9px 12px !important;
+    font-size: 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .total-label {
+    font-size: 12px !important;
+  }
+
+  .total-amount {
+    font-size: 24px !important;
+  }
+
+  .item-number-badge {
+    padding: 5px 10px;
+    font-size: 11px;
+    top: 12px;
+    left: 12px;
+  }
+
+  .completed-badge-overlay {
+    top: 12px !important;
+    right: 12px !important;
+    font-size: 9px !important;
+    padding: 5px 10px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 10px !important;
+  }
+
+  .note-cell {
+    margin: 0 10px 10px 10px !important;
+    padding: 9px 11px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE (< 360px)
+   ========================================================= */
+@media (max-width: 360px) {
+  .order-item-row {
+    padding: 0 !important;
+    margin-bottom: 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .order-item-cell[data-label="Order ID"],
+  .order-item-cell[data-label="ID ORDER"] {
+    min-height: 60px !important;
+    padding: 12px !important;
+  }
+
+  .order-item-cell[data-label="Harga"],
+  .order-item-cell[data-label="HARGA"],
+  .order-item-cell[data-label="Price"] > * {
+    font-size: 20px !important;
+  }
+
+  .customer-group-header {
+    padding: 12px 40px 12px 12px !important;
+  }
+
+  .customer-group-header::after {
+    font-size: 14px !important;
+    width: 20px !important;
+    height: 20px !important;
+    right: 10px !important;
+  }
+
+  .customer-name {
+    font-size: 14px !important;
+  }
+
+  .order-count-badge {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+    display: inline-block !important;
+    width: auto !important;
+    min-width: auto !important;
+    white-space: nowrap !important;
+  }
+
+  .customer-action-btn {
+    font-size: 9px !important;
+    padding: 8px 10px !important;
+  }
+
+  .total-amount {
+    font-size: 22px !important;
   }
 }
