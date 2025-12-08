@@ -1,0 +1,143 @@
+/* =========================================================
+   FIX BADGE "DIAMBIL" TERPOTONG
+   Tambahkan CSS ini dengan !important untuk override
+   ========================================================= */
+
+/* CRITICAL: Remove all overflow hidden */
+.drop-page .table-container {
+  overflow: visible !important;
+}
+
+.customer-orders-container {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.order-item-row {
+  overflow: visible !important;
+  position: relative;
+  contain: none !important; /* Disable CSS containment */
+}
+
+.order-item-row.item-completed {
+  overflow: visible !important;
+  position: relative;
+}
+
+.order-item-grid {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* Completed Badge - Maximum Priority */
+.completed-badge-overlay {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: white !important;
+  padding: 5px 12px !important;
+  border-radius: 16px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5) !important;
+  z-index: 9999 !important; /* Maximum z-index */
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  animation: badgePulse 2s ease-in-out infinite !important;
+}
+
+.completed-badge-overlay::before {
+  content: "✓" !important;
+  font-size: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .completed-badge-overlay {
+    top: 6px !important;
+    right: 6px !important;
+    font-size: 9px !important;
+    padding: 4px 10px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .completed-badge-overlay {
+    top: 4px !important;
+    right: 4px !important;
+    font-size: 8px !important;
+    padding: 3px 8px !important;
+  }
+
+  .completed-badge-overlay::before {
+    font-size: 10px !important;
+  }
+}
+
+/* ALTERNATIVE: Jika masih terpotong, gunakan fixed positioning */
+.completed-badge-overlay.force-visible {
+  position: fixed !important;
+  /* JavaScript will calculate the exact position */
+}
+
+/* Ensure parent containers don't clip */
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Remove transform that creates new stacking context */
+.order-item-row,
+.order-item-row.item-completed {
+  transform: none !important;
+}
+
+.order-item-row:hover {
+  transform: translateX(3px) !important;
+}
+
+.order-item-row.item-completed:hover {
+  transform: translateX(3px) !important;
+}
+
+/* Debugging - Temporary (remove after fix) */
+.completed-badge-overlay.debug {
+  outline: 2px solid red !important;
+  background: red !important;
+}
+
+.order-item-row.item-completed.debug {
+  outline: 2px solid blue !important;
+}
+
+/* Force Hardware Acceleration */
+.completed-badge-overlay {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}

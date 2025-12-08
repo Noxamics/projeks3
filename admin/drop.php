@@ -330,6 +330,8 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Drop</title>
     <link rel="stylesheet" href="../css/drop/drop.css">
+    <link rel="stylesheet" href="../css/drop/mobile.css">
+    <link rel="stylesheet" href="../css/drop/badge.css">
 </head>
 
 <body>
@@ -346,7 +348,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                         <input type="text" name="search" placeholder="Cari data..."
                             value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
                         <button type="submit" class="search-btn">
-                            <img src="../a/assets/pencarian.png" alt="Cari" />
+                            <img src="../a/assets/Pencarian.png" alt="Cari" />
                         </button>
                     </form>
                 </div>
@@ -435,6 +437,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <script src="../js/drop/drop_toggle.js"></script>
     <script src="../js/drop/drop_status_change.js"></script>
     <script src="../js/drop/print_handler.js"></script>
+    <script src="../js/drop/badge.js"></script>
 
 
 </body>

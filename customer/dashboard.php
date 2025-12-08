@@ -21,7 +21,7 @@ $customerId = $userData['id'];
 <body>
     <header class="header">
         <div class="header-logo">
-            <img src="../a/img/logo.png" alt="SengkuClean">
+            <img src="../a/img/Logo.png" alt="SengkuClean">
             <h2>Customer Portal</h2>
         </div>
         <nav class="header-nav">

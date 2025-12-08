@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar | SengkuClean</title>
     <link rel="icon" type="image/png" href="../a/img/Logo.png">
-    <link rel="stylesheet" href="/projeks3/css/login.css">
+    <link rel="stylesheet" href="../css/login.css">
 </head>
 
 <body>
