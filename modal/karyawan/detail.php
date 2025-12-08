@@ -2,7 +2,6 @@
      Detail Modal - FIXED VERSION (No Attendance Tab)
      File: modal/karyawan/detail.php
      ================================================ -->
-<link rel="stylesheet" href="../css/karyawan/notification.css">
 
 <div id="modalDetail" class="modal" role="dialog" aria-labelledby="detailModalTitle" aria-hidden="true">
     <div class="modal-box" style="max-width: 800px;">

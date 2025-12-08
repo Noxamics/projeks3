@@ -175,7 +175,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                             </div>
                         </div>
 
-                        <!-- HADIR HARI INI -->
+                        <!--  
                         <div class="stat-card stat-success">
                             <div class="stat-header">
                                 <div class="stat-icon">
@@ -208,7 +208,7 @@ function getEmployeePhotoPath($photoFile, $name, $index)
                                     <?php echo date('d M Y'); ?>
                                 </span>
                             </div>
-                        </div>
+                        </div>-->
 
                         <!-- KASIR AKTIF (UPDATED) -->
                         <div class="stat-card stat-warning">
@@ -611,7 +611,6 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     }
     ?>
 
-    <!-- JAVASCRIPT FILES -->
     <!-- Core utilities dulu -->
     <script src="../js/karyawan/notification.js"></script>
 
@@ -628,6 +627,8 @@ function getEmployeePhotoPath($photoFile, $name, $index)
     <!-- UI interactions -->
     <script src="../js/karyawan/filter.js"></script>
     <script src="../js/karyawan/view-toogle.js"></script>
+
+    <!-- ⚠️ PENTING: card-interactions.js harus ada dan di-load -->
     <script src="../js/karyawan/card-interactions.js"></script>
 
     <!-- Main initialization terakhir -->

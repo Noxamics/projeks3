@@ -3,8 +3,6 @@
         File: modal/karyawan/attendance.php
         ================================================ -->
 
-<link rel="stylesheet" href="../css/karyawan/notification.css">
-
 <div id="modalAttendance" class="modal">
     <div class="modal-box modal-attendance">
         <h3>
