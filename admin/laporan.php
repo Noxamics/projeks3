@@ -4,13 +4,13 @@
 require_once '../db.php';
 
 // 2. Baru require check_auth
-require_once 'check_auth.php';
+// require_once 'check_auth.php';
 
-// 3. Ambil data admin
-$adminData = getAdminData();
-$adminName = $adminData['name'];
-$adminEmail = $adminData['email'];
-$adminId = $adminData['id_admin'];
+// // 3. Ambil data admin
+// $adminData = getAdminData();
+// $adminName = $adminData['name'];
+// $adminEmail = $adminData['email'];
+// $adminId = $adminData['id_admin'];
 
 // 4. Baru include header (yang mungkin ada output HTML)
 include('../partials/headerAdmin.php');
@@ -139,7 +139,8 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                             </td>
                             <td><?= htmlspecialchars($row['karyawan'] ?? '-'); ?></td>
                             <td data-harga="<?= $row['total_harga'] ?>">Rp
-                                <?= number_format($row['total_harga'], 0, ',', '.'); ?></td>
+                                <?= number_format($row['total_harga'], 0, ',', '.'); ?>
+                            </td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>

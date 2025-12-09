@@ -3,14 +3,14 @@
 // 1. Require db.php dulu (ini akan start session)
 require_once '../db.php';
 
-// 2. Baru require check_auth
-require_once 'check_auth.php';
+// // 2. Baru require check_auth
+// require_once 'check_auth.php';
 
-// 3. Ambil data admin
-$adminData = getAdminData();
-$adminName = $adminData['name'];
-$adminEmail = $adminData['email'];
-$adminId = $adminData['id_admin'];
+// // 3. Ambil data admin
+// $adminData = getAdminData();
+// $adminName = $adminData['name'];
+// $adminEmail = $adminData['email'];
+// $adminId = $adminData['id_admin'];
 
 ?>
 
@@ -255,13 +255,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // ===== AUTENTIKASI ADMIN (HARUS DI PALING ATAS) =====
 require_once '../db.php';
-require_once 'check_auth.php';
+// require_once 'check_auth.php';
 
-// Ambil data admin yang sedang login
-$adminData = getAdminData();
-$adminName = $adminData['name'];
-$adminEmail = $adminData['email'];
-$adminId = $adminData['id_admin'];
+// // Ambil data admin yang sedang login
+// $adminData = getAdminData();
+// $adminName = $adminData['name'];
+// $adminEmail = $adminData['email'];
+// $adminId = $adminData['id_admin'];
 
 // ===== HEADER =====
 include('../partials/headerAdmin.php');

@@ -1,8 +1,10 @@
-/* ----------------------------------------------------
-   ICON SET (Bootstrap SVG Icons)
-   Dipakai oleh semua modal: alert, warning, confirm,
-   success, error, toast, dll.
------------------------------------------------------- */
+// =====================================================================
+// File: /js/drop/modal_system.js
+// Modal System - Complete Implementation with Loading Functions
+// Version: 1.0
+// =====================================================================
+
+// ==================== BOOTSTRAP ICONS SVG ====================
 const ICONS = {
   info: '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg>',
 
@@ -45,85 +47,130 @@ const ICONS = {
     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/></svg>',
 };
 
-// js/drop/modal_system.js
+// ==================== ALERT MODAL ====================
+function customAlert(message, title = "Informasi", icon = ICONS.info) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("customAlertModal");
+    const iconEl = document.getElementById("alertIcon");
+    const titleEl = document.getElementById("alertTitle");
+    const messageEl = document.getElementById("alertMessage");
+    const okBtn = document.getElementById("alertOkBtn");
 
-function showModal(id) {
-  document.getElementById(id).style.display = "flex";
-  document.body.style.overflow = "hidden";
+    iconEl.innerHTML = icon;
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    modal.style.display = "flex";
+
+    const handleClose = () => {
+      modal.style.display = "none";
+      okBtn.removeEventListener("click", handleClose);
+      resolve();
+    };
+
+    okBtn.addEventListener("click", handleClose);
+  });
 }
 
-function hideModal(id) {
-  document.getElementById(id).style.display = "none";
-  document.body.style.overflow = "auto";
+// ==================== CONFIRM MODAL ====================
+function customConfirm(message, title = "Konfirmasi", icon = ICONS.warning) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("customConfirmModal");
+    const iconEl = document.getElementById("confirmIcon");
+    const titleEl = document.getElementById("confirmTitle");
+    const messageEl = document.getElementById("confirmMessage");
+    const okBtn = document.getElementById("confirmOkBtn");
+    const cancelBtn = document.getElementById("confirmCancelBtn");
+
+    iconEl.innerHTML = icon;
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    modal.style.display = "flex";
+
+    const handleOk = () => {
+      modal.style.display = "none";
+      cleanup();
+      resolve(true);
+    };
+
+    const handleCancel = () => {
+      modal.style.display = "none";
+      cleanup();
+      resolve(false);
+    };
+
+    const cleanup = () => {
+      okBtn.removeEventListener("click", handleOk);
+      cancelBtn.removeEventListener("click", handleCancel);
+    };
+
+    okBtn.addEventListener("click", handleOk);
+    cancelBtn.addEventListener("click", handleCancel);
+  });
 }
 
-function attachEvents() {
-  document.getElementById("alertOkBtn").onclick = () =>
-    hideModal("customAlertModal");
+// ==================== SUCCESS MODAL ====================
+function customSuccess(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("customSuccessModal");
+    const messageEl = document.getElementById("successMessage");
+    const okBtn = document.getElementById("successOkBtn");
 
-  document.getElementById("successOkBtn").onclick = () =>
-    hideModal("customSuccessModal");
+    messageEl.textContent = message;
+    modal.style.display = "flex";
 
-  document.getElementById("errorOkBtn").onclick = () =>
-    hideModal("customErrorModal");
+    const handleClose = () => {
+      modal.style.display = "none";
+      okBtn.removeEventListener("click", handleClose);
+      resolve();
+    };
+
+    okBtn.addEventListener("click", handleClose);
+  });
 }
 
-window.ModalSystem = {
-  alert(title, message, icon = "") {
-    document.getElementById("alertTitle").innerHTML = title;
-    document.getElementById("alertMessage").innerHTML = message;
-    document.getElementById("alertIcon").innerHTML = icon;
-    showModal("customAlertModal");
-  },
+// ==================== ERROR MODAL ====================
+function customError(message, title = "Error") {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("customErrorModal");
+    const messageEl = document.getElementById("errorMessage");
+    const okBtn = document.getElementById("errorOkBtn");
 
-  confirm(title, message, icon = "") {
-    document.getElementById("confirmTitle").innerHTML = title;
-    document.getElementById("confirmMessage").innerHTML = message;
-    document.getElementById("confirmIcon").innerHTML = icon;
+    messageEl.textContent = `${title}\n\n${message}`;
+    modal.style.display = "flex";
 
-    return new Promise((resolve) => {
-      const okBtn = document.getElementById("confirmOkBtn");
-      const cancelBtn = document.getElementById("confirmCancelBtn");
+    const handleClose = () => {
+      modal.style.display = "none";
+      okBtn.removeEventListener("click", handleClose);
+      resolve();
+    };
 
-      const clear = () => {
-        okBtn.onclick = null;
-        cancelBtn.onclick = null;
-      };
+    okBtn.addEventListener("click", handleClose);
+  });
+}
 
-      okBtn.onclick = () => {
-        clear();
-        hideModal("customConfirmModal");
-        resolve(true);
-      };
-      cancelBtn.onclick = () => {
-        clear();
-        hideModal("customConfirmModal");
-        resolve(false);
-      };
+// ==================== LOADING MODAL ====================
+function showLoading(message = "Memproses...") {
+  const modal = document.getElementById("customLoadingModal");
+  const messageEl = document.getElementById("loadingMessage");
 
-      showModal("customConfirmModal");
-    });
-  },
+  messageEl.textContent = message;
+  modal.style.display = "flex";
+}
 
-  success(message) {
-    document.getElementById("successMessage").innerHTML = message;
-    showModal("customSuccessModal");
-  },
+function hideLoading() {
+  const modal = document.getElementById("customLoadingModal");
+  modal.style.display = "none";
+}
 
-  error(message) {
-    document.getElementById("errorMessage").innerHTML = message;
-    showModal("customErrorModal");
-  },
+// ==================== EXPORT FUNCTIONS ====================
+window.ICONS = ICONS;
+window.customAlert = customAlert;
+window.customConfirm = customConfirm;
+window.customSuccess = customSuccess;
+window.customError = customError;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
 
-  loading(message = "Memproses...") {
-    document.getElementById("loadingMessage").innerHTML = message;
-    showModal("customLoadingModal");
-  },
-
-  hideLoading() {
-    hideModal("customLoadingModal");
-  },
-};
-
-// Inisialisasi setelah load
-document.addEventListener("DOMContentLoaded", attachEvents);
+console.log("✅ Modal system loaded with loading functions");

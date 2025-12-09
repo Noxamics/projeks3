@@ -1,23 +1,12 @@
 // =====================================================================
 // File: /js/drop/drop_status_change.js
 // Item Status Change Handler with Custom Confirmation Modal
-// Version: 4.0 - Bootstrap Icons Only (No Emoji)
+// Version: 3.0 - Optimized & Clean
 // Database: mifmyho2_sengkuclean
 // =====================================================================
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("🔄 Status Change Handler Initialized");
-
-  // ==================== GET ICONS FROM MODAL SYSTEM ====================
-  // Icons are now centralized in modal_system.js
-  // We access them via window.MODAL_ICONS if available
-  const ICONS = window.MODAL_ICONS || {
-    warning:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/></svg>',
-    check:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>',
-    x: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>',
-  };
 
   // ==================== PAGE DETECTION ====================
   const currentPath = window.location.pathname;
@@ -25,12 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const isDropPage = currentPath.includes("drop.php");
 
   console.log(
-    `📍 Current page: ${
+    `🔍 Current page: ${
       isDropPage ? "Drop" : isTimelinePage ? "Timeline" : "Other"
     }`
   );
 
-  // ==================== CUSTOM CONFIRM MODAL ====================
+  // ==================== MODAL CREATION ====================
 
   /**
    * Create custom confirmation modal
@@ -45,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <div id="statusConfirmModal" class="status-confirm-overlay" style="display: none;">
         <div class="status-confirm-modal">
           <div class="status-confirm-header">
-            <span class="status-confirm-icon">${ICONS.warning}</span>
+            <span class="status-confirm-icon">⚠️</span>
             <h3 class="status-confirm-title">Konfirmasi Perubahan Status</h3>
           </div>
           <div class="status-confirm-body">
@@ -53,12 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <div class="status-confirm-footer">
             <button class="status-btn status-btn-cancel" id="statusConfirmCancel">
-              <span class="btn-icon">${ICONS.x}</span>
-              <span>Batal</span>
+              ✕ Batal
             </button>
             <button class="status-btn status-btn-confirm" id="statusConfirmOK">
-              <span class="btn-icon">${ICONS.check}</span>
-              <span>Ubah Status</span>
+              ✓ Ubah Status
             </button>
           </div>
         </div>
@@ -131,18 +118,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         .status-confirm-icon {
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          font-size: 32px;
+          line-height: 1;
           animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .status-confirm-icon svg {
-          display: block;
-          width: 32px;
-          height: 32px;
         }
 
         @keyframes pulse {
@@ -193,18 +171,6 @@ document.addEventListener("DOMContentLoaded", function () {
           align-items: center;
           gap: 8px;
           letter-spacing: -0.01em;
-        }
-
-        .btn-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 20px;
-          height: 20px;
-        }
-
-        .btn-icon svg {
-          display: block;
         }
 
         .status-btn-cancel {
@@ -258,13 +224,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const btnOK = document.getElementById("statusConfirmOK");
       const btnCancel = document.getElementById("statusConfirmCancel");
 
+      if (!modal || !messageEl || !btnOK || !btnCancel) {
+        console.error("❌ Modal elements not found");
+        resolve(false);
+        return;
+      }
+
       // Set message
       messageEl.innerHTML = message;
 
       // Show modal with animation
       modal.style.display = "flex";
 
-      // Event handlers
+      // Event handler functions
       const handleOK = () => {
         closeModal();
         resolve(true);
@@ -310,6 +282,181 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // ==================== STATUS UPDATE ====================
+
+  /**
+   * Update item status via API
+   * @param {HTMLSelectElement} selectElement - Select element
+   * @param {number} itemId - Item ID
+   * @param {number} newStatusId - New status ID
+   * @param {number} oldStatusId - Old status ID
+   * @param {string} itemBrand - Item brand/name
+   */
+  async function updateItemStatus(
+    selectElement,
+    itemId,
+    newStatusId,
+    oldStatusId,
+    itemBrand
+  ) {
+    // Save original styles
+    const originalStyles = {
+      bg: selectElement.style.backgroundColor,
+      color: selectElement.style.color,
+      opacity: selectElement.style.opacity,
+      cursor: selectElement.style.cursor,
+    };
+
+    // Set loading state
+    setLoadingState(selectElement, true);
+
+    const formData = new FormData();
+    formData.append("item_id", itemId);
+    formData.append("status_id", newStatusId);
+
+    console.log("📤 Sending status update request...");
+
+    try {
+      const response = await fetch(
+        "../actions/drop/drop_update_item_status.php",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const text = await response.text();
+      console.log("📥 Response received:", text.substring(0, 200));
+
+      const data = parseJsonResponse(text);
+
+      if (data.success) {
+        console.log("✅ Status updated successfully");
+
+        // Update dataset
+        selectElement.dataset.oldStatus = newStatusId;
+        selectElement.dataset.currentStatus = newStatusId;
+
+        // Visual feedback - green flash
+        showSuccessFeedback(selectElement);
+
+        // Save notification to session storage
+        saveNotificationToSession(data.message);
+
+        // Reload page after delay
+        setTimeout(() => {
+          console.log("🔄 Reloading page to refresh data...");
+          window.location.reload();
+        }, 700);
+      } else {
+        throw new Error(data.message || "Gagal update status");
+      }
+    } catch (error) {
+      console.error("❌ Error updating status:", error);
+      handleUpdateError(error, selectElement, oldStatusId, originalStyles);
+    }
+  }
+
+  /**
+   * Set loading state for select element
+   * @param {HTMLSelectElement} element - Select element
+   * @param {boolean} isLoading - Loading state
+   */
+  function setLoadingState(element, isLoading) {
+    element.disabled = isLoading;
+    element.style.opacity = isLoading ? "0.6" : "1";
+    element.style.cursor = isLoading ? "wait" : "";
+  }
+
+  /**
+   * Parse JSON response with error handling
+   * @param {string} text - Response text
+   * @returns {Object} - Parsed JSON object
+   */
+  function parseJsonResponse(text) {
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      console.error("❌ Invalid JSON response:", text);
+      throw new Error("Server mengembalikan response tidak valid");
+    }
+  }
+
+  /**
+   * Show success feedback animation
+   * @param {HTMLSelectElement} element - Select element
+   */
+  function showSuccessFeedback(element) {
+    element.style.backgroundColor = "#10b981";
+    element.style.color = "white";
+    element.style.transition = "all 0.3s ease";
+
+    setTimeout(() => {
+      element.style.backgroundColor = "";
+      element.style.color = "";
+      element.style.opacity = "1";
+      element.style.cursor = "";
+      element.disabled = false;
+    }, 300);
+  }
+
+  /**
+   * Handle update error
+   * @param {Error} error - Error object
+   * @param {HTMLSelectElement} element - Select element
+   * @param {number} oldStatusId - Old status ID to revert
+   * @param {Object} originalStyles - Original element styles
+   */
+  function handleUpdateError(error, element, oldStatusId, originalStyles) {
+    // Show error notification
+    const errorMessage = `❌ ${error.message}`;
+
+    if (typeof showNotification === "function") {
+      showNotification(errorMessage, "error");
+    } else if (typeof showFallbackNotification === "function") {
+      showFallbackNotification(errorMessage, "error");
+    } else {
+      alert(errorMessage);
+    }
+
+    // Revert changes
+    element.value = oldStatusId;
+    element.style.backgroundColor = originalStyles.bg;
+    element.style.color = originalStyles.color;
+    element.style.opacity = originalStyles.opacity;
+    element.style.cursor = originalStyles.cursor;
+    element.disabled = false;
+  }
+
+  /**
+   * Save notification to session storage based on current page
+   * @param {string} message - Notification message
+   */
+  function saveNotificationToSession(message) {
+    const notificationData = [
+      {
+        condition: isDropPage,
+        key: "dropNotification",
+        typeKey: "dropNotificationType",
+      },
+      {
+        condition: isTimelinePage,
+        key: "timelineNotification",
+        typeKey: "timelineNotificationType",
+      },
+    ];
+
+    const activeNotification = notificationData.find((n) => n.condition);
+
+    if (activeNotification) {
+      sessionStorage.setItem(activeNotification.key, `✅ ${message}`);
+      sessionStorage.setItem(activeNotification.typeKey, "success");
+      console.log(
+        `💾 Saved notification for ${isDropPage ? "Drop" : "Timeline"} page`
+      );
+    }
+  }
+
   // ==================== STATUS CHANGE HANDLER ====================
 
   /**
@@ -331,7 +478,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const newStatusId = this.value;
       const oldStatusId = this.dataset.currentStatus || this.dataset.oldStatus;
       const itemBrand = this.dataset.itemBrand || "Item";
-      const newStatusText = this.options[this.selectedIndex].text;
+      const newStatusText =
+        this.options[this.selectedIndex]?.text || "Status Baru";
 
       console.log(`📊 Status change request:`, {
         itemId,
@@ -358,127 +506,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Mark as attached
     select.dataset.listenerAttached = "true";
-  }
-
-  /**
-   * Update item status via API
-   * @param {HTMLSelectElement} selectElement - Select element
-   * @param {number} itemId - Item ID
-   * @param {number} newStatusId - New status ID
-   * @param {number} oldStatusId - Old status ID
-   * @param {string} itemBrand - Item brand/name
-   */
-  async function updateItemStatus(
-    selectElement,
-    itemId,
-    newStatusId,
-    oldStatusId,
-    itemBrand
-  ) {
-    // Save original styles
-    const originalBg = selectElement.style.backgroundColor;
-    const originalColor = selectElement.style.color;
-
-    // Set loading state
-    selectElement.disabled = true;
-    selectElement.style.opacity = "0.6";
-    selectElement.style.cursor = "wait";
-
-    const formData = new FormData();
-    formData.append("item_id", itemId);
-    formData.append("status_id", newStatusId);
-
-    console.log("📤 Sending status update request...");
-
-    try {
-      const response = await fetch(
-        "../actions/drop/drop_update_item_status.php",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const text = await response.text();
-      console.log("📥 Response received:", text.substring(0, 200));
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        console.error("❌ Invalid JSON response:", text);
-        throw new Error("Server mengembalikan response tidak valid");
-      }
-
-      if (data.success) {
-        console.log("✅ Status updated successfully");
-
-        // Update dataset
-        selectElement.dataset.oldStatus = newStatusId;
-        selectElement.dataset.currentStatus = newStatusId;
-
-        // Visual feedback - green flash
-        selectElement.style.backgroundColor = "#10b981";
-        selectElement.style.color = "white";
-        selectElement.style.transition = "all 0.3s ease";
-
-        // Save notification to session storage based on page
-        saveNotificationToSession(data.message);
-
-        // Restore styles and reload
-        setTimeout(() => {
-          selectElement.style.backgroundColor = originalBg;
-          selectElement.style.color = originalColor;
-          selectElement.style.opacity = "1";
-          selectElement.style.cursor = "";
-          selectElement.disabled = false;
-
-          // Reload page to refresh statistics
-          setTimeout(() => {
-            console.log("🔄 Reloading page to refresh data...");
-            window.location.reload();
-          }, 400);
-        }, 300);
-      } else {
-        throw new Error(data.message || "Gagal update status");
-      }
-    } catch (error) {
-      console.error("❌ Error updating status:", error);
-
-      // Show error notification
-      if (typeof showNotification === "function") {
-        showNotification(`${error.message}`, "error");
-      } else {
-        showFallbackNotification(
-          `Gagal update status: ${error.message}`,
-          "error"
-        );
-      }
-
-      // Revert changes
-      selectElement.value = oldStatusId;
-      selectElement.style.backgroundColor = originalBg;
-      selectElement.style.color = originalColor;
-      selectElement.style.opacity = "1";
-      selectElement.style.cursor = "";
-      selectElement.disabled = false;
-    }
-  }
-
-  /**
-   * Save notification to session storage based on current page
-   * @param {string} message - Notification message
-   */
-  function saveNotificationToSession(message) {
-    if (isDropPage) {
-      sessionStorage.setItem("dropNotification", message);
-      sessionStorage.setItem("dropNotificationType", "success");
-      console.log("💾 Saved notification for Drop page");
-    } else if (isTimelinePage) {
-      sessionStorage.setItem("timelineNotification", message);
-      sessionStorage.setItem("timelineNotificationType", "success");
-      console.log("💾 Saved notification for Timeline page");
-    }
   }
 
   // ==================== INITIALIZATION ====================
@@ -510,21 +537,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       mutation.addedNodes.forEach(function (node) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          // Check node itself
-          if (node.classList && node.classList.contains("item-status-select")) {
-            console.log("🆕 New status select detected, attaching listener");
-            attachStatusChangeListener(node);
-          }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
 
-          // Check children
-          const selects = node.querySelectorAll(".item-status-select");
-          if (selects.length > 0) {
-            console.log(`🆕 ${selects.length} new status select(s) detected`);
-            selects.forEach((select) => {
-              attachStatusChangeListener(select);
-            });
-          }
+        // Check node itself
+        if (node.classList?.contains("item-status-select")) {
+          console.log("🆕 New status select detected, attaching listener");
+          attachStatusChangeListener(node);
+        }
+
+        // Check children
+        const selects = node.querySelectorAll?.(".item-status-select");
+        if (selects?.length > 0) {
+          console.log(`🆕 ${selects.length} new status select(s) detected`);
+          selects.forEach((select) => {
+            attachStatusChangeListener(select);
+          });
         }
       });
     });
@@ -566,6 +593,13 @@ if (typeof showNotification === "undefined") {
       info: "#3b82f6",
     };
 
+    const icons = {
+      success: "✓",
+      error: "✕",
+      warning: "⚠",
+      info: "ℹ",
+    };
+
     const notification = document.createElement("div");
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
@@ -583,13 +617,6 @@ if (typeof showNotification === "undefined") {
       align-items: center;
       gap: 8px;
     `;
-
-    const icons = {
-      success: "✓",
-      error: "✕",
-      warning: "⚠",
-      info: "ℹ",
-    };
 
     notification.innerHTML = `
       <span style="font-size: 18px;">${icons[type] || icons.info}</span>
