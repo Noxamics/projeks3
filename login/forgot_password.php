@@ -10,14 +10,6 @@ if (isset($_SESSION['user_id'])) {
     }
     exit();
 }
-
-// Ambil kode dari session untuk ditampilkan (fallback jika email gagal)
-$display_code = '';
-$customer_email = '';
-if (isset($_GET['step']) && $_GET['step'] === '2' && isset($_SESSION['forgot_password']['code'])) {
-    $display_code = $_SESSION['forgot_password']['code'];
-    $customer_email = $_SESSION['forgot_password']['email'] ?? '';
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -80,6 +72,15 @@ if (isset($_GET['step']) && $_GET['step'] === '2' && isset($_SESSION['forgot_pas
             opacity: 0.9;
             font-size: 11px;
         }
+        .warning-banner {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            color: #e65100;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
     </style>
 </head>
 
@@ -133,9 +134,9 @@ if (isset($_GET['step']) && $_GET['step'] === '2' && isset($_SESSION['forgot_pas
                 </p>
             <?php endif; ?>
 
-            <?php if (isset($_GET['warning']) && $_GET['warning'] === 'email_failed'): ?>
-                <p style="color:#ff9800; text-align:center; margin-bottom:15px; background:#fff3e0; padding:10px; border-radius:6px;">
-                    ⚠️ Email gagal dikirim, tapi kode tetap ditampilkan di bawah
+            <?php if (isset($_GET['success']) && $_GET['success'] === 'otp_generated'): ?>
+                <p style="color:green; text-align:center; margin-bottom:15px;">
+                    ✅ Kode OTP telah digenerate! Lihat tombol di bawah.
                 </p>
             <?php endif; ?>
 
@@ -163,22 +164,27 @@ if (isset($_GET['step']) && $_GET['step'] === '2' && isset($_SESSION['forgot_pas
 
             <?php elseif ($_GET['step'] === '2'): ?>
                 
-                <!-- Notifikasi Email Terkirim -->
-                <?php if (!empty($customer_email)): ?>
-                <div class="email-notice">
-                    <h3>📧 CEK EMAIL ANDA</h3>
-                    <div class="email"><?php echo htmlspecialchars($customer_email); ?></div>
-                    <small>Kode verifikasi telah dikirim ke email di atas</small>
-                    <small style="margin-top:5px;">Periksa folder Inbox atau Spam</small>
+                <!-- Notifikasi OTP Generated -->
+                <?php if (!empty($_SESSION['forgot_password']['wa_link'])): ?>
+                <div class="email-notice" style="background: linear-gradient(135deg, #25D366, #1da851);">
+                    <h3>💬 KIRIM KODE KE WHATSAPP</h3>
+                    <p style="margin: 15px 0; font-size: 13px;">
+                        Klik tombol di bawah untuk mengirim kode OTP ke WhatsApp Anda
+                    </p>
+                    <a href="<?php echo htmlspecialchars($_SESSION['forgot_password']['wa_link']); ?>" 
+                       target="_blank" 
+                       style="display: inline-block; background: white; color: #25D366; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 10px;">
+                        📱 Kirim via WhatsApp
+                    </a>
                 </div>
                 <?php endif; ?>
 
-                <!-- Tampilkan Kode Verifikasi (Fallback jika email gagal) -->
-                <?php if (!empty($display_code)): ?>
+                <!-- Tampilkan Kode OTP Backup -->
+                <?php if (!empty($_SESSION['forgot_password']['code'])): ?>
                 <div class="code-display">
-                    <h3>🔐 KODE VERIFIKASI (BACKUP)</h3>
-                    <div class="code"><?php echo $display_code; ?></div>
-                    <small>Gunakan kode ini jika email belum diterima</small>
+                    <h3>🔐 KODE VERIFIKASI BACKUP</h3>
+                    <div class="code"><?php echo htmlspecialchars($_SESSION['forgot_password']['code']); ?></div>
+                    <small>Gunakan kode ini jika perlu</small>
                     <small style="margin-top:5px;">⏱️ Berlaku 15 menit</small>
                 </div>
                 <?php endif; ?>
