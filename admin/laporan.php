@@ -2,22 +2,46 @@
 include_once('../partials/headerAdmin.php');
 include_once('../db.php');
 
-// 📹 Query data laporan - UPDATED SESUAI STRUKTUR DB
+// 📹 Query data laporan - UPDATED SESUAI SCREENSHOT EXCEL
 $query = "
 SELECT 
     d.id_drop,
     d.order_code AS kode_order,
+    ANY_VALUE(d.trans_date) AS tgl_transaksi,
     ANY_VALUE(c.name) AS customer_name,
     ANY_VALUE(d.brand) AS brand,
-    ANY_VALUE(s.category) AS kategori,
-    ANY_VALUE(s.service_name) AS layanan,
-    ANY_VALUE(d.trans_date) AS tgl_transaksi,
-    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
-    ANY_VALUE(d.actual_finish_date) AS tanggal_selesai,
+    ANY_VALUE(CONCAT(s.category, ' - ', s.service_name)) AS treatment,
     ANY_VALUE(st.status_name) AS status_proses,
-    ANY_VALUE(p.status) AS status_pembayaran,
+    
+    -- Tanggal barang dikerjakan (saat status berubah jadi 'Sedang Dikerjakan')
+    ANY_VALUE((
+        SELECT sh.changed_at 
+        FROM status_history sh 
+        WHERE sh.drop_id = d.id_drop AND sh.status_id = 3
+        LIMIT 1
+    )) AS tgl_dikerjakan,
+    
+    -- Nama karyawan yang mengerjakan
     ANY_VALUE(e.name) AS karyawan,
-    COALESCE(SUM(di.price * di.quantity), 0) AS total_harga
+    
+    -- Tanggal estimasi selesai
+    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    
+    -- Tanggal diambil (actual_finish_date)
+    ANY_VALUE(d.actual_finish_date) AS tgl_diambil,
+    
+    COALESCE(SUM(di.price * di.quantity), 0) AS total_harga,
+    
+    -- Metode pembayaran atau status pembayaran
+    ANY_VALUE(
+        CASE 
+            WHEN p.status = 'Lunas' THEN p.payment_method
+            ELSE 'Belum Lunas'
+        END
+    ) AS metode_pembayaran,
+    
+    ANY_VALUE(p.status) AS status_pembayaran
+
 FROM drops d
 JOIN customers c ON d.customer_id = c.id_customer
 LEFT JOIN services s ON d.service_id = s.id_service
@@ -88,17 +112,17 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
             <table id="laporanTable">
                 <thead>
                     <tr>
-                        <th>Kode Order</th>
-                        <th>Customer</th>
+                        <th>Nomor Order</th>
+                        <th>Tgl. Barang Masuk</th>
+                        <th>Nama Customer</th>
                         <th>Brand</th>
-                        <th>Kategori</th>
-                        <th>Layanan</th>
-                        <th>Tgl Transaksi</th>
-                        <th>Estimasi Selesai</th>
-                        <th>Selesai</th>
-                        <th>Status Proses</th>
-                        <th>Pembayaran</th>
-                        <th>Karyawan</th>
+                        <th>Treatment</th>
+                        <th>Status</th>
+                        <th>Tgl. Barang Dikerjakan</th>
+                        <th>Nama Karyawan (Yang Mengerjakan)</th>
+                        <th>Tgl. Estimasi</th>
+                        <th>Tgl. Diambil</th>
+                        <th>Metode Pembayaran (Tunai/Tf/Qris)</th>
                         <th>Harga</th>
                     </tr>
                 </thead>
@@ -106,19 +130,20 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                     <?php while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr>
                             <td><?= htmlspecialchars($row['kode_order']); ?></td>
+                            <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
                             <td><?= htmlspecialchars($row['customer_name']); ?></td>
                             <td><?= htmlspecialchars($row['brand']); ?></td>
-                            <td><?= htmlspecialchars($row['kategori']); ?></td>
-                            <td><?= htmlspecialchars($row['layanan']); ?></td>
-                            <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
-                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?></td>
-                            <td><?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?></td>
+                            <td><?= htmlspecialchars($row['treatment']); ?></td>
                             <td><?= htmlspecialchars($row['status_proses'] ?? '-'); ?></td>
-                            <td
-                                class="<?= strtolower($row['status_pembayaran']) == 'lunas' ? 'text-green' : 'text-red'; ?>">
-                                <?= htmlspecialchars($row['status_pembayaran'] ?? 'Belum Lunas'); ?>
-                            </td>
+                            <td><?= $row['tgl_dikerjakan'] ? date('d F Y', strtotime($row['tgl_dikerjakan'])) : '-'; ?></td>
                             <td><?= htmlspecialchars($row['karyawan'] ?? '-'); ?></td>
+                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?></td>
+                            <td><?= $row['tgl_diambil'] ? date('d F Y', strtotime($row['tgl_diambil'])) : '-'; ?></td>
+                            <td
+                                class="<?= strtolower($row['status_pembayaran']) == 'lunas' ? 'text-green' : 'text-red'; ?>"
+                                data-status="<?= htmlspecialchars($row['status_pembayaran'] ?? 'Belum Lunas'); ?>">
+                                <?= htmlspecialchars($row['metode_pembayaran'] ?? 'Belum Lunas'); ?>
+                            </td>
                             <td data-harga="<?= $row['total_harga'] ?>">Rp
                                 <?= number_format($row['total_harga'], 0, ',', '.'); ?>
                             </td>
@@ -144,7 +169,7 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         let total = 0;
         document.querySelectorAll("#laporanTable tbody tr").forEach(row => {
             const visible = row.style.display !== "none";
-            const status = row.cells[9].textContent.trim().toLowerCase();
+            const status = row.cells[10].dataset.status.trim().toLowerCase();
             const harga = parseInt(row.cells[11].dataset.harga || 0);
             if (visible) {
                 if (jenisTotal === "semua" || (jenisTotal === "lunas" && status === "lunas")) {
@@ -206,9 +231,9 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
         let alertMsg = "";
 
         rows.forEach(row => {
-            const dateText = row.cells[5].textContent.trim();
-            const status = row.cells[9].textContent.toLowerCase().trim();
-            const kategori = row.cells[3].textContent.toLowerCase().trim();
+            const dateText = row.cells[1].textContent.trim();
+            const status = row.cells[10].dataset.status.toLowerCase().trim();
+            const kategori = row.cells[4].textContent.toLowerCase().trim();
             const transDate = new Date(dateText);
             let show = true;
 

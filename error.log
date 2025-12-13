@@ -1,0 +1,30 @@
+[13-Dec-2025 11:58:29 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
+[13-Dec-2025 11:59:49 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
+[13-Dec-2025 12:00:24 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
+[13-Dec-2025 12:00:28 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
+[13-Dec-2025 12:00:38 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
+[13-Dec-2025 12:01:02 Asia/Jakarta] PHP Fatal error:  Uncaught Error: mysqli_stmt object is already closed in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php:227
+Stack trace:
+#0 C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php(227): mysqli_stmt->close()
+#1 {main}
+  thrown in C:\laragon\www\projeks3\actions\drop\drop_update_item_status.php on line 227
