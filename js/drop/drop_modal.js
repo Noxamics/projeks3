@@ -225,47 +225,47 @@ document.addEventListener("DOMContentLoaded", function () {
     return `
       <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 10px;">
         <span class="item-badge">Item #${itemIndex}</span>
-        <button type="button" class="remove-item-btn" data-item="${itemIndex}">✕ Hapus</button>
+        <button type="button" class="remove-item-btn" data-item="${itemIndex}">Hapus</button>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 40px;">
         <div>
-          <label>🏷️ Brand / Merk</label>
+          <label>Brand / Merk</label>
           <input type="text" name="items[${itemIndex}][brand]" class="item-brand" required placeholder="Contoh: Nike, Adidas">
         </div>
         <div>
-          <label>🛠️ Layanan</label>
+          <label>Layanan</label>
           <select name="items[${itemIndex}][service_id]" class="item-service" required>
             ${servicesOptions}
           </select>
         </div>
         <div>
-          <label>💰 Harga</label>
+          <label>Harga</label>
           <input type="text" class="item-price-display" readonly value="Rp 0" style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
           <input type="hidden" name="items[${itemIndex}][price]" class="item-price" value="0">
         </div>
         <div>
-          <label>⏱️ Estimasi Selesai</label>
+          <label>Estimasi Selesai</label>
           <input type="text" class="item-estimate" readonly value="-" style="background: #f1f5f9; font-weight: 600;">
           <input type="hidden" name="items[${itemIndex}][duration]" class="item-duration" value="0">
         </div>
         <div>
-          <label>📅 Tgl. Transaksi</label>
+          <label>Tgl. Transaksi</label>
           <input type="date" name="items[${itemIndex}][trans_date]" class="item-trans-date" value="${todayYYYYMMDD}" required>
         </div>
         <div>
-          <label>📆 Tanggal Estimasi Selesai</label>
+          <label>Tanggal Estimasi Selesai</label>
           <input type="text" class="item-est-date-display" readonly value="-" style="background: #f1f5f9; font-weight: 600; color: #0369a1;">
           <input type="hidden" name="items[${itemIndex}][est_finish_date]" class="item-est-date-hidden" value="">
         </div>
         <div style="grid-column: 1 / -1;">
-          <label>📊 Status</label>
+          <label>Status</label>
           <select name="items[${itemIndex}][status_id]" class="item-status" required>
             ${statusOptions}
           </select>
         </div>
         <div style="grid-column: 1 / -1;">
-          <label>📝 Catatan Item</label>
+          <label>Catatan Item</label>
           <textarea name="items[${itemIndex}][notes]" class="item-notes" rows="2" placeholder="Catatan khusus untuk item ini..." style="width:100%; padding:10px; border-radius:6px; border:1px solid #d6dee9; resize: vertical;"></textarea>
         </div>
       </div>

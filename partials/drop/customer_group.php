@@ -1,10 +1,28 @@
 <?php
 // File: /partials/drop/customer_group.php
-// Display customer group dengan semua items - FIXED VERSION
+// Display customer group dengan semua items - FIXED VERSION FOR DATE GROUPING
 
 $customer_id = $customer['id_customer'];
 $customer_name = htmlspecialchars($customer['name']);
 $customer_phone = htmlspecialchars($customer['phone']);
+
+// Filter berdasarkan tanggal jika ada
+$filter_date = isset($customer['filter_date']) ? $customer['filter_date'] : null;
+
+// PENTING: Pastikan format tanggal adalah YYYY-MM-DD untuk database
+if ($filter_date) {
+    // Jika format tanggal bukan YYYY-MM-DD, konversi dulu
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $filter_date)) {
+        // Coba parse tanggal dengan berbagai format
+        $date_obj = date_create($filter_date);
+        if ($date_obj) {
+            $filter_date = date_format($date_obj, 'Y-m-d');
+        } else {
+            error_log("ERROR: Invalid date format for customer {$customer_name}: {$filter_date}");
+            $filter_date = null;
+        }
+    }
+}
 
 // Query untuk mendapatkan semua orders dari customer ini
 $sql_orders = "
@@ -26,18 +44,13 @@ $sql_orders = "
     WHERE d.customer_id = ?
 ";
 
-// Tambahkan sorting
-$sort = isset($_GET['sort']) ? $_GET['sort'] : '';
-switch ($sort) {
-    case 'tanggal_asc':
-        $sql_orders .= " ORDER BY d.trans_date ASC, di.item_order ASC";
-        break;
-    case 'tanggal_desc':
-        $sql_orders .= " ORDER BY d.trans_date DESC, di.item_order ASC";
-        break;
-    default:
-        $sql_orders .= " ORDER BY d.trans_date DESC, di.item_order ASC";
+// Tambahkan filter tanggal jika tersedia
+if ($filter_date) {
+    $sql_orders .= " AND DATE(d.trans_date) = ?";
 }
+
+// Tambahkan sorting
+$sql_orders .= " ORDER BY d.trans_date DESC, di.item_order ASC";
 
 $stmt_orders = $conn->prepare($sql_orders);
 if (!$stmt_orders) {
@@ -45,14 +58,28 @@ if (!$stmt_orders) {
     return;
 }
 
-$stmt_orders->bind_param("i", $customer_id);
+// Bind parameter sesuai dengan ada/tidaknya filter tanggal
+if ($filter_date) {
+    $stmt_orders->bind_param("is", $customer_id, $filter_date);
+} else {
+    $stmt_orders->bind_param("i", $customer_id);
+}
+
 $stmt_orders->execute();
 $result_orders = $stmt_orders->get_result();
 
+// DEBUG: Log untuk diagnosa
+$rows_found = $result_orders->num_rows;
+error_log("Customer ID {$customer_id} ({$customer_name}) - Date: {$filter_date} - Orders found: {$rows_found}");
+
+// Jika tidak ada orders, skip customer ini (jangan tampilkan)
 if ($result_orders->num_rows === 0) {
     $stmt_orders->close();
+    error_log("SKIPPING customer {$customer_id} - No orders found");
     return;
 }
+
+error_log("DISPLAYING customer {$customer_id} with {$rows_found} orders");
 
 $total_orders = $result_orders->num_rows;
 $total_amount = 0;
@@ -99,6 +126,21 @@ $stmt_orders->close();
                 </svg>
                 Cetak Semua
             </button>
+
+            <!-- NEW: Cetak Thermal -->
+            <button class='customer-action-btn thermal-all-btn' data-customer-id='<?= $customer_id ?>'
+                title='Cetak Thermal Semua Struk Customer Ini'
+                style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                    class="bi bi-printer-fill" viewBox="0 0 16 16">
+                    <path
+                        d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" />
+                    <path
+                        d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                </svg>
+                Thermal
+            </button>
+
             <button class='customer-action-btn delete-customer-btn' data-customer-id='<?= $customer_id ?>'
                 title='Hapus Semua Pesanan Customer Ini'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -157,8 +199,7 @@ $stmt_orders->close();
         ?>
 
         <div class='order-item-row <?= $completed_class ?>' data-drop-id='<?= $drop_id ?>' data-item-id='<?= $id_item ?>'
-            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='
-        <?= $data_status ?>'>
+            data-customer-id='<?= $customer_id ?>' data-price='<?= $order['price'] ?>' data-status='<?= $data_status ?>'>
             <div class='order-item-grid'>
 
                 <!-- 1. CHECKBOX -->
@@ -170,9 +211,7 @@ $stmt_orders->close();
                 <!-- 2. ID ORDER -->
                 <div class='order-item-cell'>
                     <div style='display: flex; flex-direction: column; gap: 2px;'>
-                        <span class='item-number-badge'>#
-                            <?= $item_number ?>
-                        </span>
+                        <span class='item-number-badge'>#<?= $item_number ?></span>
                         <small style='color: #6366f1; font-weight: 600; font-size: 10px;'>
                             <?= $order_code ?>
                         </small>
@@ -199,8 +238,7 @@ $stmt_orders->close();
                 <!-- 5. HARGA -->
                 <div class='order-item-cell center' style='font-weight: 700; color: #059669; font-size: 12px;'
                     data-price-display>
-                    Rp
-                    <?= $price ?>
+                    Rp <?= $price ?>
                 </div>
 
                 <!-- 6. TGL. MASUK -->
@@ -211,11 +249,8 @@ $stmt_orders->close();
                 <!-- 7. STATUS -->
                 <div class='order-item-cell center'>
                     <select class='item-status-select' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
-                        data-current-status='<?= $order['status_id'] ?>' data-old-status='
-                    <?= $order['status_id'] ?>'
-                        data-item-brand='
-                    <?= $brand ?>'
-                        <?= $is_completed ? 'disabled' : '' ?>>
+                        data-current-status='<?= $order['status_id'] ?>' data-old-status='<?= $order['status_id'] ?>'
+                        data-item-brand='<?= $brand ?>' <?= $is_completed ? 'disabled' : '' ?>>
                         <?php
                         $st2 = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
                         while ($s2 = $st2->fetch_assoc()) {
@@ -250,7 +285,20 @@ $stmt_orders->close();
                             </svg>
                         </button>
 
-                        <!-- Tombol Hapus - FIXED: Icon SVG -->
+                        <!-- NEW: Tombol Cetak Thermal -->
+                        <button class='thermal-print-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Thermal' style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
+                   border: none; color: white; padding: 6px 10px; border-radius: 6px; 
+                   cursor: pointer; transition: all 0.3s ease;'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-printer-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" />
+                                <path
+                                    d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                            </svg>
+                        </button>
+
+                        <!-- Tombol Hapus -->
                         <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
                             data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' <?= $is_completed ? 'disabled' : '' ?>>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -265,7 +313,7 @@ $stmt_orders->close();
             </div>
 
             <?php if ($is_completed): ?>
-                <!-- FIXED: Completed Badge - Single Icon -->
+                <!-- Completed Badge -->
                 <div class='completed-badge-overlay'>
                     DIAMBIL
                 </div>
@@ -277,8 +325,6 @@ $stmt_orders->close();
     <!-- TOTAL ROW -->
     <div class='customer-total-row'>
         <span class='total-label'>Total Harga:</span>
-        <span class='total-amount'>Rp
-            <?= number_format($total_amount, 0, ',', '.') ?>
-        </span>
+        <span class='total-amount'>Rp <?= number_format($total_amount, 0, ',', '.') ?></span>
     </div>
 </div>

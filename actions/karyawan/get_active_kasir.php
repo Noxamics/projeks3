@@ -3,7 +3,8 @@
  * =============================================
  * FILE: actions/karyawan/get_active_kasir.php
  * DESKRIPSI: Get first active employee who checked in today
- * FIXED: Show only the first employee who checked in today with status Aktif
+ * FIXED: Show employee who checked in today with status Aktif (regardless of role_type in employee_roles)
+ * LOGIC: Employee becomes kasir by checking in first, not by having permanent kasir role
  * ============================================= */
 
 // Clean output buffer
@@ -33,8 +34,9 @@ try {
 
     $today = date('Y-m-d');
 
-    // Get the FIRST employee who checked in today AND is still Aktif
-    // Order by check_in time to get the earliest one
+    // FIXED: Get the FIRST employee who checked in today AND is still Aktif
+    // We don't check employee_roles table because kasir role is added dynamically on first check-in
+    // The role_today in attendance table shows what role they're working as today
     $stmt = $conn->prepare("
         SELECT 
             e.id_employee,
@@ -65,8 +67,28 @@ try {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Found active employee
+        // Found active employee who checked in first today
         $kasir = $result->fetch_assoc();
+
+        // Check if this employee has kasir role (either permanent or temporary)
+        $roleCheckStmt = $conn->prepare("
+            SELECT COUNT(*) as has_kasir_role 
+            FROM employee_roles 
+            WHERE employee_id = ? 
+            AND role_type = 'kasir'
+        ");
+
+        if ($roleCheckStmt) {
+            $roleCheckStmt->bind_param("i", $kasir['id_employee']);
+            $roleCheckStmt->execute();
+            $roleResult = $roleCheckStmt->get_result();
+            $roleData = $roleResult->fetch_assoc();
+            $roleCheckStmt->close();
+
+            $has_kasir_role = ($roleData['has_kasir_role'] > 0);
+        } else {
+            $has_kasir_role = false;
+        }
 
         $response['success'] = true;
         $response['has_active_kasir'] = true;
@@ -76,20 +98,27 @@ try {
             'name' => $kasir['name'],
             'role' => ucfirst($kasir['role_today']),
             'check_in_time' => $kasir['check_in_time'],
-            'status' => $kasir['status']
+            'status' => $kasir['status'],
+            'has_kasir_role' => $has_kasir_role
         ];
-        $response['message'] = 'Active kasir found';
+        $response['message'] = 'Active kasir found (first check-in today)';
+
+        // Log for debugging
+        error_log("ACTIVE KASIR: {$kasir['name']} (ID: {$kasir['id_employee']}) - Has kasir role: " . ($has_kasir_role ? 'YES' : 'NO'));
     } else {
         // No active employee found
         $response['success'] = true;
         $response['has_active_kasir'] = false;
         $response['kasir_data'] = null;
         $response['message'] = 'No active kasir today';
+
+        error_log("NO ACTIVE KASIR: No employee checked in today or all have checked out");
     }
 
     $stmt->close();
 
 } catch (Exception $e) {
+    error_log("GET_ACTIVE_KASIR ERROR: " . $e->getMessage());
     $response = [
         'success' => false,
         'has_active_kasir' => false,

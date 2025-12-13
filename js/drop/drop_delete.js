@@ -15,29 +15,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const MESSAGES = {
     deleteCustomer: {
-      confirm: "Anda akan menghapus <strong>SEMUA pesanan</strong> dari customer ini.<br><br>" +
-               "<span style='color: #dc2626; font-weight: 600;'>⚠️ Semua data pesanan akan dihapus dan tidak dapat dikembalikan!</span>",
+      confirm:
+        "Anda akan menghapus <strong>SEMUA pesanan</strong> dari customer ini.<br><br>" +
+        "<span style='color: #dc2626; font-weight: 600;'>⚠️ Semua data pesanan akan dihapus dan tidak dapat dikembalikan!</span>",
       title: "Hapus Semua Pesanan?",
       icon: "🗑️",
       loading: "Menghapus semua pesanan...",
       success: "Semua pesanan berhasil dihapus!",
-      error: "Gagal menghapus pesanan"
+      error: "Gagal menghapus pesanan",
     },
     deleteItem: {
-      confirm: "Anda akan menghapus pesanan yang dipilih.<br><br>" +
-               "<span style='color: #dc2626; font-weight: 600;'>⚠️ Data yang dihapus tidak dapat dikembalikan!</span>",
+      confirm:
+        "Anda akan menghapus pesanan yang dipilih.<br><br>" +
+        "<span style='color: #dc2626; font-weight: 600;'>⚠️ Data yang dihapus tidak dapat dikembalikan!</span>",
       title: "Hapus Item?",
       icon: "🗑️",
       loading: "Menghapus item...",
       success: "Item berhasil dihapus!",
       successLast: "Item terakhir dihapus — pesanan juga dihapus.",
-      error: "Gagal menghapus item"
+      error: "Gagal menghapus item",
     },
     errors: {
       nonJson: "Response bukan JSON. Cek server error log.",
       network: "Terjadi kesalahan jaringan",
-      unknown: "Terjadi kesalahan yang tidak diketahui"
-    }
+      unknown: "Terjadi kesalahan yang tidak diketahui",
+    },
   };
 
   // ==================== EVENT DELEGATION ====================
@@ -87,7 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const customerId = btn.dataset.customerId;
 
     if (!itemId || !dropId || !customerId) {
-      console.error("❌ Missing required IDs in button", { itemId, dropId, customerId });
+      console.error("❌ Missing required IDs in button", {
+        itemId,
+        dropId,
+        customerId,
+      });
       await customError("Data tidak lengkap", "Error");
       return;
     }
@@ -159,7 +165,9 @@ document.addEventListener("DOMContentLoaded", function () {
    * @returns {Promise<void>}
    */
   async function deleteSingleItem(itemId, dropId, customerId) {
-    console.log(`🗑️ Deleting item ${itemId} in drop ${dropId} (customer ${customerId})`);
+    console.log(
+      `🗑️ Deleting item ${itemId} in drop ${dropId} (customer ${customerId})`
+    );
     showLoading(MESSAGES.deleteItem.loading);
 
     const formData = new FormData();
@@ -183,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function () {
             data.message || MESSAGES.deleteItem.successLast,
             "Berhasil Dihapus!"
           );
-          
+
           setTimeout(() => {
             location.reload();
           }, RELOAD_DELAY);
@@ -240,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
     row.style.transition = `opacity ${ANIMATION_DURATION}ms ease`;
 
     // Wait for animation to complete
-    await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATION));
+    await new Promise((resolve) => setTimeout(resolve, ANIMATION_DURATION));
 
     // Remove from DOM
     row.remove();
@@ -268,14 +276,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!header) return;
 
-    const container = header.closest(".customer-group-header")?.nextElementSibling;
+    const container = header.closest(
+      ".customer-group-header"
+    )?.nextElementSibling;
     if (!container) return;
 
     const remainingItems = container.querySelectorAll(".order-item-row");
 
     if (remainingItems.length === 0) {
       console.log("🗑️ No more items for customer, removing section");
-      
+
       // Remove both header and container
       const headerElement = header.closest(".customer-group-header");
       if (headerElement) headerElement.remove();
@@ -290,8 +300,10 @@ document.addEventListener("DOMContentLoaded", function () {
    * Check if page has no more orders and show message
    */
   function checkIfPageEmpty() {
-    const allCustomerHeaders = document.querySelectorAll(".customer-group-header");
-    
+    const allCustomerHeaders = document.querySelectorAll(
+      ".customer-group-header"
+    );
+
     if (allCustomerHeaders.length === 0) {
       console.log("📭 No more orders on page");
       setTimeout(() => location.reload(), RELOAD_DELAY);
@@ -331,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (badge) {
       const count = allItems.length;
       badge.textContent = `${count} Pesanan`;
-      
+
       // Update badge color if needed
       if (count === 0) {
         badge.style.background = "#ef4444";
@@ -383,7 +395,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const container = header.closest(".customer-group-header")?.nextElementSibling;
+      const container = header.closest(
+        ".customer-group-header"
+      )?.nextElementSibling;
       if (!container) {
         console.warn("⚠️ Container not found for total update");
         return;
@@ -393,11 +407,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (totalEl) {
         const formattedTotal = Number(newTotal).toLocaleString("id-ID");
         totalEl.textContent = `Rp ${formattedTotal}`;
-        
+
         // Add update animation
         totalEl.style.transition = "color 0.3s ease";
         totalEl.style.color = "#059669";
-        
+
         setTimeout(() => {
           totalEl.style.color = "";
         }, 1000);
@@ -426,7 +440,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!response.ok) {
       const data = await response.json();
-      throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(
+        data.message || `HTTP ${response.status}: ${response.statusText}`
+      );
     }
 
     return response.json();
@@ -452,8 +468,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        throw new Error('Request timeout - silakan coba lagi');
+      if (error.name === "AbortError") {
+        throw new Error("Request timeout - silakan coba lagi");
       }
       throw error;
     }
@@ -497,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {Object} data - Operation data
    */
   function logDeleteOperation(operation, data) {
-    if (typeof console.groupCollapsed === 'function') {
+    if (typeof console.groupCollapsed === "function") {
       console.groupCollapsed(`🗑️ Delete: ${operation}`);
       console.table(data);
       console.groupEnd();
@@ -509,8 +525,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==================== INITIALIZATION ====================
 
   // Add global error handler for unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
-    console.error('❌ Unhandled promise rejection in delete module:', event.reason);
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error(
+      "❌ Unhandled promise rejection in delete module:",
+      event.reason
+    );
     event.preventDefault();
   });
 

@@ -1,27 +1,18 @@
-<!-- File: /modal/drop/modal_add.php - MODERN VERSION WITH SUCCESS POPUP -->
+<!-- File: /modal/drop/modal_add.php - WITH AUTO STATUS "Barang Baru Masuk" -->
 
 <!-- Success Modal (Modern Design) -->
 <div class="modal-overlay" id="successModal" style="display: none;">
     <div class="modal-container">
-        <!-- Close Button -->
         <button class="modal-close" onclick="hideSuccessModal()"></button>
-
-        <!-- Success Icon with Checkmark -->
         <div class="success-icon">
             <div class="success-circle">
                 <div class="success-checkmark"></div>
             </div>
         </div>
-
-        <!-- Content -->
-        <h2 class="modal-title">Berhasil! 🎉</h2>
+        <h2 class="modal-title">Berhasil!</h2>
         <p class="modal-message" id="successMessage">Pesanan berhasil ditambahkan</p>
         <p class="modal-order-code" id="successOrderCode"></p>
-
-        <!-- Action Button -->
-        <button class="modal-btn" onclick="hideSuccessModal()">
-            OK, Mengerti
-        </button>
+        <button class="modal-btn" onclick="hideSuccessModal()">OK, Mengerti</button>
     </div>
 </div>
 
@@ -29,13 +20,13 @@
 <div class="modal" id="addModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="addModal">&times;</span>
-        <h2><i class="bi bi-plus-circle"></i> Tambah Pesanan Baru</h2>
+        <h2><i class="bi bi-plus-circle"></i>Tambah Pesanan Baru</h2>
 
         <form method="POST" action="../actions/drop/drop_add.php" class="grid-form" id="addForm">
             <!-- Customer Info Section -->
             <div class="customer-info-section" style="grid-column: 1 / -1;">
                 <h3 style="margin: 0 0 16px 0; color: #b45309; font-size: 16px; font-weight: 700;">
-                    <i class="bi bi-person-circle"></i> Informasi Pelanggan
+                    Informasi Pelanggan
                 </h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div>
@@ -118,7 +109,9 @@
                                 <?php
                                 $st = $conn->query("SELECT * FROM statuses ORDER BY id_status ASC");
                                 while ($s = $st->fetch_assoc()) {
-                                    echo "<option value='{$s['id_status']}'>{$s['status_name']}</option>";
+                                    // Auto-select "Barang Baru Masuk"
+                                    $selected = ($s['status_name'] == 'Barang Baru Masuk') ? 'selected' : '';
+                                    echo "<option value='{$s['id_status']}' {$selected}>{$s['status_name']}</option>";
                                 }
                                 ?>
                             </select>
@@ -145,7 +138,7 @@
             <!-- Order Summary Section -->
             <div class="order-summary" style="grid-column: 1 / -1;">
                 <h3 style="margin: 0 0 16px 0; color: #0369a1; font-size: 16px; font-weight: 700;">
-                    <i class="bi bi-clipboard-check"></i> Ringkasan Pesanan
+                    Ringkasan Pesanan
                 </h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                     <div>
@@ -176,7 +169,7 @@
             <!-- Payment & Employee Section -->
             <div class="payment-section" style="grid-column: 1 / -1;">
                 <h3 style="margin: 0 0 16px 0; color: #7c3aed; font-size: 16px; font-weight: 700;">
-                    <i class="bi bi-credit-card"></i> Informasi Pembayaran
+                    Informasi Pembayaran
                 </h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                     <div>
@@ -201,8 +194,6 @@
                             <option value="Tunai"><i class="bi bi-cash"></i> Tunai</option>
                             <option value="Transfer"><i class="bi bi-bank"></i> Transfer</option>
                             <option value="QRIS"><i class="bi bi-qr-code"></i> QRIS</option>
-                            <option value="Debit"><i class="bi bi-credit-card"></i> Debit</option>
-                            <option value="Credit"><i class="bi bi-credit-card-2-front"></i> Credit</option>
                         </select>
                     </div>
 
@@ -212,62 +203,17 @@
                         <input type="hidden" name="amount_paid" id="amount_paid">
                     </div>
 
-                    <!-- KARYAWAN SECTION - AUTO KASIR ONLY -->
+                    <!-- KARYAWAN SECTION -->
                     <div style="grid-column: 1 / -1;">
-                        <label><i class="bi bi-person-badge"></i> Karyawan (Kasir)</label>
-                        <?php
-                        // Query untuk mendapatkan karyawan dengan role kasir yang aktif
-                        $kasirQuery = "
-                            SELECT DISTINCT e.id_employee, e.name, e.employee_code 
-                            FROM employees e
-                            INNER JOIN employee_roles er ON e.id_employee = er.employee_id
-                            WHERE e.status = 'Aktif' 
-                            AND er.role_type = 'kasir'
-                            ORDER BY e.name ASC
-                        ";
-
-                        $kasirEmployees = $conn->query($kasirQuery);
-                        $kasirCount = $kasirEmployees->num_rows;
-
-                        if ($kasirCount === 0) {
-                            // Tidak ada kasir aktif
-                            echo "<div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
-                                    <i class='bi bi-exclamation-triangle'></i> <strong>Tidak ada kasir aktif.</strong><br>
-                                    <span style='font-size: 13px;'>Pastikan ada karyawan yang sudah check-in hari ini.</span>
-                                  </div>";
-                            echo "<input type='hidden' name='employee_id' value=''>";
-
-                        } elseif ($kasirCount === 1) {
-                            // Hanya 1 kasir - auto select
-                            $kasir = $kasirEmployees->fetch_assoc();
-                            echo "<input type='hidden' name='employee_id' value='{$kasir['id_employee']}'>
-                                  <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
-                                    <div style='display: flex; align-items: center; gap: 10px;'>
-                                        <i class='bi bi-person-circle' style='font-size: 24px; color: #15803d;'></i>
-                                        <div>
-                                            <div style='font-weight: 600; color: #15803d; font-size: 15px;'>{$kasir['name']}</div>
-                                            <div style='font-size: 12px; color: #16a34a;'>Kode: {$kasir['employee_code']} | Role: Kasir</div>
-                                        </div>
-                                        <div style='margin-left: auto; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;'>
-                                            AKTIF
-                                        </div>
-                                    </div>
-                                  </div>";
-
-                        } else {
-                            // Multiple kasir - show dropdown
-                            echo "<select name='employee_id' required style='padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px;'>
-                                    <option value=''>-- Pilih Kasir --</option>";
-                            $kasirEmployees->data_seek(0); // Reset pointer
-                            while ($kasir = $kasirEmployees->fetch_assoc()) {
-                                echo "<option value='{$kasir['id_employee']}'>{$kasir['name']} ({$kasir['employee_code']})</option>";
-                            }
-                            echo "</select>";
-                            echo "<p style='margin: 8px 0 0 0; font-size: 12px; color: #64748b;'>
-                                    <i class='bi bi-info-circle'></i> Menampilkan karyawan dengan role kasir yang sedang aktif
-                                  </p>";
-                        }
-                        ?>
+                        <label><i class="bi bi-person-badge"></i> Karyawan (Kasir Aktif Hari Ini)</label>
+                        <div id="kasirContainer">
+                            <div
+                                style='text-align: center; padding: 20px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px;'>
+                                <i class='bi bi-hourglass-split' style='font-size: 24px; color: #64748b;'></i>
+                                <div style='font-size: 13px; color: #64748b; margin-top: 8px;'>Memuat data kasir
+                                    aktif...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -292,3 +238,120 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Load active kasir when modal opens
+    document.addEventListener('DOMContentLoaded', function () {
+        const addModal = document.getElementById('addModal');
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'style') {
+                    const display = window.getComputedStyle(addModal).display;
+                    if (display !== 'none') {
+                        loadActiveKasir();
+                        autoSelectBarangBaruMasuk(); // Auto-select status
+                    }
+                }
+            });
+        });
+
+        observer.observe(addModal, { attributes: true });
+
+        if (window.getComputedStyle(addModal).display !== 'none') {
+            loadActiveKasir();
+            autoSelectBarangBaruMasuk();
+        }
+    });
+
+    // Auto-select "Barang Baru Masuk" for all items
+    function autoSelectBarangBaruMasuk() {
+        const allStatusSelects = document.querySelectorAll('.item-status');
+        allStatusSelects.forEach(select => {
+            // Find option with "Barang Baru Masuk"
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].text === 'Barang Baru Masuk') {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        });
+    }
+
+    function loadActiveKasir() {
+        const kasirContainer = document.getElementById('kasirContainer');
+
+        kasirContainer.innerHTML = `
+            <div style='text-align: center; padding: 20px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px;'>
+                <i class='bi bi-hourglass-split' style='font-size: 24px; color: #64748b; animation: spin 2s linear infinite;'></i>
+                <div style='font-size: 13px; color: #64748b; margin-top: 8px;'>Memuat data kasir aktif...</div>
+            </div>
+        `;
+
+        fetch('../actions/karyawan/get_active_kasir.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success || !data.has_active_kasir) {
+                    kasirContainer.innerHTML = `
+                        <div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
+                            <i class='bi bi-exclamation-triangle'></i> <strong>Tidak ada kasir aktif.</strong><br>
+                            <span style='font-size: 13px;'>Karyawan pertama yang check-in hari ini akan menjadi kasir. ${data.message || ''}</span>
+                        </div>
+                        <input type='hidden' name='employee_id' value='' id='employeeIdInput'>
+                    `;
+                } else {
+                    const kasir = data.kasir_data;
+                    const roleDisplay = kasir.role || 'N/A';
+                    const hasKasirRoleBadge = kasir.has_kasir_role
+                        ? '<span style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 8px; font-size: 10px; margin-left: 8px;">ROLE PERMANEN</span>'
+                        : '<span style="background: #f59e0b; color: white; padding: 2px 8px; border-radius: 8px; font-size: 10px; margin-left: 8px;">KASIR SEMENTARA</span>';
+
+                    kasirContainer.innerHTML = `
+                        <input type='hidden' name='employee_id' value='${kasir.id}' id='employeeIdInput'>
+                        <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
+                            <div style='display: flex; align-items: center; gap: 10px;'>
+                                <i class='bi bi-person-circle' style='font-size: 32px; color: #15803d;'></i>
+                                <div style='flex: 1;'>
+                                    <div style='font-weight: 700; color: #15803d; font-size: 16px;'>
+                                        ${kasir.name}
+                                        ${hasKasirRoleBadge}
+                                    </div>
+                                    <div style='font-size: 12px; color: #16a34a; margin-top: 4px;'>
+                                        <strong>Kode:</strong> ${kasir.code} | 
+                                        <strong>Role Hari Ini:</strong> ${roleDisplay} | 
+                                        <strong>Check-in:</strong> ${kasir.check_in_time}
+                                    </div>
+                                </div>
+                                <div style='background: #22c55e; color: white; padding: 6px 16px; border-radius: 12px; font-size: 11px; font-weight: 700; box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);'>
+                                    ✓ KASIR AKTIF
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading kasir:', error);
+                kasirContainer.innerHTML = `
+                    <div style='padding: 12px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; color: #991b1b;'>
+                        <i class='bi bi-x-circle'></i> <strong>Error memuat data kasir</strong><br>
+                        <span style='font-size: 12px;'>Silakan refresh halaman atau hubungi administrator.</span>
+                    </div>
+                    <input type='hidden' name='employee_id' value='' id='employeeIdInput'>
+                `;
+            });
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>

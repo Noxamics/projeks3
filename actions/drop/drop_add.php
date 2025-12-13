@@ -316,6 +316,38 @@ try {
         }
     }
 
+    // ========== TAMBAHKAN KODE INI (TRACKING KASIR) ==========
+// Update tracking: Kasir yang menerima order
+    if ($drop_id > 0 && $employee_id > 0) {
+        try {
+            // Cek apakah kolom tracking sudah ada
+            $check_column = $conn->query("SHOW COLUMNS FROM drops LIKE 'received_by'");
+
+            if ($check_column && $check_column->num_rows > 0) {
+                // Kolom ada, lakukan update tracking
+                $stmt_track = $conn->prepare("UPDATE drops SET received_by = ?, received_at = NOW() WHERE id_drop = ?");
+
+                if ($stmt_track) {
+                    $stmt_track->bind_param("ii", $employee_id, $drop_id);
+
+                    if ($stmt_track->execute()) {
+                        error_log("TRACKING SUCCESS - Drop ID: {$drop_id}, Received by Employee: {$employee_id}");
+                    } else {
+                        error_log("TRACKING WARNING - Failed to update: " . $stmt_track->error);
+                    }
+
+                    $stmt_track->close();
+                }
+            } else {
+                error_log("TRACKING WARNING - Column 'received_by' not found in drops table. Run ALTER TABLE first.");
+            }
+
+        } catch (Exception $track_error) {
+            // Jangan throw error, hanya log agar tidak mengganggu flow utama
+            error_log("TRACKING ERROR - " . $track_error->getMessage());
+        }
+    }
+
     // === 4. INSERT ITEMS ===
     $item_order = 1;
 

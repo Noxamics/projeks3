@@ -95,17 +95,14 @@
 }
 
 .customer-info-section h3::before {
-  content: "👤";
   font-size: 24px;
 }
 
 .payment-section h3::before {
-  content: "💳";
   font-size: 24px;
 }
 
 .order-summary h3::before {
-  content: "📋";
   font-size: 24px;
 }
 
@@ -526,6 +523,337 @@
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+/* =========================================================
+   MODERN EMPLOYEE SECTION STYLING
+   Tambahkan CSS ini ke drop_form.css atau file CSS Anda
+   ========================================================= */
+
+/* ===== EMPLOYEE CONTAINER - MODERN DESIGN ===== */
+#editKaryawanContainer {
+  margin-top: 8px;
+}
+
+/* ===== WARNING CARD - No Active Employee ===== */
+#editKaryawanContainer .warning-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#editKaryawanContainer .warning-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+}
+
+#editKaryawanContainer .warning-card i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+#editKaryawanContainer .warning-card strong {
+  font-weight: 700;
+  color: #78350f;
+}
+
+#editKaryawanContainer .warning-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #a16207;
+}
+
+/* ===== ACTIVE EMPLOYEE CARD - Modern Green Theme ===== */
+#editKaryawanContainer .active-employee-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+#editKaryawanContainer .active-employee-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#editKaryawanContainer .active-employee-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+  border-color: #16a34a;
+}
+
+#editKaryawanContainer .active-employee-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Card Inner Layout */
+#editKaryawanContainer .employee-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Employee Icon */
+#editKaryawanContainer .employee-icon {
+  font-size: 36px;
+  color: #15803d;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Employee Info */
+#editKaryawanContainer .employee-info {
+  flex: 1;
+  min-width: 0;
+}
+
+#editKaryawanContainer .employee-name {
+  font-weight: 700;
+  color: #15803d;
+  font-size: 17px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#editKaryawanContainer .employee-details {
+  font-size: 12px;
+  color: #16a34a;
+  line-height: 1.5;
+}
+
+#editKaryawanContainer .employee-details strong {
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* Employee Badge */
+#editKaryawanContainer .employee-badge {
+  background: #22c55e;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+#editKaryawanContainer .active-employee-card:hover .employee-badge {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.5);
+}
+
+/* ===== EMPLOYEE DROPDOWN - Modern Select ===== */
+#editKaryawanContainer select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  background: white;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5 7l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 48px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#editKaryawanContainer select:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#editKaryawanContainer select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+#editKaryawanContainer select option {
+  padding: 12px;
+  font-weight: 500;
+}
+
+/* Info Text Below Dropdown */
+#editKaryawanContainer .info-text {
+  margin: 10px 0 0 0;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+#editKaryawanContainer .info-text i {
+  font-size: 14px;
+  color: #3b82f6;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  #editKaryawanContainer .employee-card-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  #editKaryawanContainer .employee-icon {
+    font-size: 32px;
+  }
+
+  #editKaryawanContainer .employee-name {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  #editKaryawanContainer .employee-badge {
+    align-self: flex-start;
+  }
+
+  #editKaryawanContainer select {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  #editKaryawanContainer .active-employee-card,
+  #editKaryawanContainer .warning-card {
+    padding: 12px 14px;
+  }
+
+  #editKaryawanContainer .employee-icon {
+    font-size: 28px;
+  }
+
+  #editKaryawanContainer .employee-name {
+    font-size: 15px;
+  }
+
+  #editKaryawanContainer .employee-details {
+    font-size: 11px;
+  }
+
+  #editKaryawanContainer .employee-badge {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+
+  #editKaryawanContainer select {
+    padding: 11px 14px;
+    font-size: 13px;
+    padding-right: 42px;
+  }
+}
+
+/* ===== LOADING STATE ===== */
+#editKaryawanContainer .loading-state {
+  text-align: center;
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+#editKaryawanContainer .loading-state i {
+  font-size: 28px;
+  color: #64748b;
+  animation: spin 2s linear infinite;
+  display: block;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#editKaryawanContainer .loading-state .loading-text {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+/* ===== ERROR STATE ===== */
+#editKaryawanContainer .error-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  color: #991b1b;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+#editKaryawanContainer .error-card i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+#editKaryawanContainer .error-card strong {
+  font-weight: 700;
+}
+
+#editKaryawanContainer .error-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
 }
 
 /* =========================================================

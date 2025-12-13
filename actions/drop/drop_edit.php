@@ -234,6 +234,79 @@ try {
     $stmt6->close();
     $stmt6 = null;
 
+    // ========== TRACKING: UPDATE BERDASARKAN STATUS ITEMS ==========
+    // Cek status dari semua items untuk tracking
+    $tracking_updates = [];
+
+    foreach ($items as $item) {
+        $item_status_id = intval($item['status_id'] ?? 1);
+
+        // Mapping status ke tracking field
+        switch ($item_status_id) {
+            case 1: // Barang Baru Masuk
+                if (!isset($tracking_updates['received_by'])) {
+                    $tracking_updates['received_by'] = 'received_at';
+                }
+                break;
+
+            case 3: // Sedang Dikerjakan
+                if (!isset($tracking_updates['processed_by'])) {
+                    $tracking_updates['processed_by'] = 'processed_at';
+                }
+                break;
+
+            case 5: // Barang Siap Diambil
+                if (!isset($tracking_updates['packed_by'])) {
+                    $tracking_updates['packed_by'] = 'packed_at';
+                }
+                break;
+
+            case 6: // Barang Telah Diambil
+                if (!isset($tracking_updates['released_by'])) {
+                    $tracking_updates['released_by'] = 'released_at';
+                }
+                break;
+        }
+    }
+
+    // Update tracking fields jika ada
+    if (!empty($tracking_updates) && $employee_id > 0) {
+        try {
+            foreach ($tracking_updates as $field => $time_field) {
+                // Cek apakah kolom sudah ada
+                $check = $conn->query("SHOW COLUMNS FROM drops LIKE '{$field}'");
+
+                if ($check && $check->num_rows > 0) {
+                    // Cek apakah sudah terisi (jangan overwrite jika sudah ada)
+                    $check_value = $conn->prepare("SELECT {$field} FROM drops WHERE id_drop = ?");
+                    $check_value->bind_param("i", $drop_id);
+                    $check_value->execute();
+                    $result_check = $check_value->get_result();
+                    $row_check = $result_check->fetch_assoc();
+                    $check_value->close();
+
+                    // Hanya update jika masih NULL
+                    if (empty($row_check[$field])) {
+                        $sql_track = "UPDATE drops SET {$field} = ?, {$time_field} = NOW() WHERE id_drop = ?";
+                        $stmt_track = $conn->prepare($sql_track);
+
+                        if ($stmt_track) {
+                            $stmt_track->bind_param("ii", $employee_id, $drop_id);
+
+                            if ($stmt_track->execute()) {
+                                error_log("✓ TRACKING EDIT - Drop: {$drop_id} | Field: {$field} | Employee: {$employee_id}");
+                            }
+
+                            $stmt_track->close();
+                        }
+                    }
+                }
+            }
+        } catch (Exception $track_error) {
+            error_log("⚠ TRACKING EDIT WARNING - " . $track_error->getMessage());
+        }
+    }
+
     // === 6. DELETE OLD ITEMS ===
     $stmt7 = $conn->prepare("DELETE FROM drop_items WHERE drop_id = ?");
     $stmt7->bind_param("i", $drop_id);

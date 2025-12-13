@@ -245,14 +245,13 @@
    ========================================================= */
 .order-item-grid {
   display: grid;
-  grid-template-columns: 40px 110px 130px 140px 100px 110px 150px 110px 150px 100px;
+  grid-template-columns: 40px 110px 130px 140px 100px 110px 150px 110px 150px 140px;
   gap: 8px;
   align-items: center;
   padding: 14px 20px;
   font-size: 12px;
   font-weight: 500;
 }
-
 .order-item-cell {
   padding: 4px 8px;
   overflow: hidden;
@@ -353,19 +352,22 @@
 }
 
 /* =========================================================
-   ACTION BUTTONS - MODERN & SIMPLE ICONS
+   ACTION BUTTONS - ENSURE THEY FIT PROPERLY
    ========================================================= */
 .action-buttons-wrapper {
   display: flex;
-  gap: 8px;
-  justify-content: center; /* TENGAH - sesuai dengan header AKSI */
+  gap: 6px; /* Reduced gap slightly */
+  justify-content: center;
   align-items: center;
+  width: 100%;
+  min-width: 200px; /* Ensure minimum width */
 }
 
 .print-item-btn,
+.thermal-print-btn,
 .delete-item-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px; /* Slightly smaller */
+  height: 34px;
   padding: 0;
   border: none;
   border-radius: 8px;
@@ -376,7 +378,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
 /* Print Button - Modern Purple */
@@ -391,19 +393,19 @@
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
 }
 
-.print-item-btn svg,
-.print-item-btn svg path {
-  width: 16px !important;
-  height: 16px !important;
-  fill: white !important;
-  transition: transform 0.3s ease;
+/* Thermal Print Button - Purple Gradient */
+.thermal-print-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
 }
 
-.print-item-btn:hover svg {
-  transform: scale(1.1);
+.thermal-print-btn:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
 }
 
-/* Delete Button - Modern Red - SUPER SPECIFIC */
+/* Delete Button - Modern Red */
 button.delete-item-btn {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
   box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
@@ -413,6 +415,55 @@ button.delete-item-btn:hover {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+}
+
+/* SVG Icons - All buttons */
+.print-item-btn svg,
+.thermal-print-btn svg,
+button.delete-item-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  fill: white !important;
+  transition: transform 0.3s ease;
+}
+
+.print-item-btn:hover svg,
+.thermal-print-btn:hover svg,
+button.delete-item-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* =========================================================
+   RESPONSIVE - ADJUST FOR SMALLER SCREENS
+   ========================================================= */
+@media (max-width: 1400px) {
+  .orders-grid-header,
+  .order-item-grid {
+    grid-template-columns: 35px 100px 120px 130px 95px 100px 140px 100px 140px 130px;
+    font-size: 10px;
+  }
+
+  .action-buttons-wrapper {
+    gap: 4px;
+  }
+
+  .print-item-btn,
+  .thermal-print-btn,
+  .delete-item-btn {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .customer-orders-container {
+    overflow-x: auto;
+  }
+
+  .orders-grid-header,
+  .order-item-grid {
+    min-width: 1350px; /* Increased to accommodate wider action column */
+  }
 }
 
 /* CRITICAL FIX: Force SVG to show with maximum specificity */

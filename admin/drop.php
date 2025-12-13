@@ -1,23 +1,7 @@
-<?php // <-- TIDAK ADA SPASI SEBELUM INI
-
-// 1. Require db.php dulu (ini akan start session)
-require_once '../db.php';
-
-// // 2. Baru require check_auth
-// require_once 'check_auth.php';
-
-// // 3. Ambil data admin
-// $adminData = getAdminData();
-// $adminName = $adminData['name'];
-// $adminEmail = $adminData['email'];
-// $adminId = $adminData['id_admin'];
-
-?>
-
 <?php
-// File: admin/drop.php - COMPLETE VERSION
-// Handle AJAX requests untuk delete operations
+// File: admin/drop.php - GROUPED BY DATE VERSION
 
+// ===== HANDLE AJAX REQUESTS (tetap sama) =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json; charset=utf-8');
     include('../db.php');
@@ -26,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     $action = $_POST['action'];
 
-    // ===== DELETE SINGLE ITEM =====
+    // DELETE SINGLE ITEM
     if ($action === 'delete_single_item') {
         $item_id = isset($_POST['item_id']) ? intval($_POST['item_id']) : 0;
         $drop_id = isset($_POST['drop_id']) ? intval($_POST['drop_id']) : 0;
@@ -39,14 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         try {
             $conn->begin_transaction();
 
-            // Hitung SEMUA item di drop ini
             $stmt_count = $conn->prepare("SELECT COUNT(*) as item_count FROM drop_items WHERE drop_id = ?");
             $stmt_count->bind_param("i", $drop_id);
             $stmt_count->execute();
             $item_count = intval($stmt_count->get_result()->fetch_assoc()['item_count'] ?? 0);
             $stmt_count->close();
 
-            // Jika item terakhir -> hapus seluruh drop
             if ($item_count <= 1) {
                 $stmt_p = $conn->prepare("DELETE FROM payments WHERE drop_id = ?");
                 $stmt_p->bind_param("i", $drop_id);
@@ -79,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 exit;
             }
 
-            // Hapus item saja
             $stmt_del = $conn->prepare("DELETE FROM drop_items WHERE id_item = ? AND drop_id = ?");
             $stmt_del->bind_param("ii", $item_id, $drop_id);
             $stmt_del->execute();
@@ -90,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 throw new Exception("Item tidak ditemukan atau sudah dihapus");
             }
 
-            // Reindex item_order
             $stmt_re = $conn->prepare("SELECT id_item FROM drop_items WHERE drop_id = ? ORDER BY item_order ASC");
             $stmt_re->bind_param("i", $drop_id);
             $stmt_re->execute();
@@ -105,14 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt_re->close();
             $stmt_update_order->close();
 
-            // Recalculate total
             $stmt_total = $conn->prepare("SELECT SUM(price) as total FROM drop_items WHERE drop_id = ?");
             $stmt_total->bind_param("i", $drop_id);
             $stmt_total->execute();
             $new_total = floatval($stmt_total->get_result()->fetch_assoc()['total'] ?? 0);
             $stmt_total->close();
 
-            // Recalculate estimate
             $stmt_est = $conn->prepare("
                 SELECT MAX(s.duration) as max_duration, d.trans_date
                 FROM drop_items di
@@ -136,13 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             $stmt_est->close();
 
-            // Update drops
             $stmt_up = $conn->prepare("UPDATE drops SET total_amount = ?, est_finish_date = ? WHERE id_drop = ?");
             $stmt_up->bind_param("dsi", $new_total, $new_est_date, $drop_id);
             $stmt_up->execute();
             $stmt_up->close();
 
-            // Update deadlines
             if ($new_est_date !== null) {
                 $stmt_dead = $conn->prepare("UPDATE deadlines SET deadline_date = ? WHERE drop_id = ?");
                 $stmt_dead->bind_param("si", $new_est_date, $drop_id);
@@ -170,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ===== DELETE ALL CUSTOMER ORDERS =====
+    // DELETE ALL CUSTOMER ORDERS
     if ($action === 'delete_all_customer') {
         $customer_id = isset($_POST['customer_id']) ? intval($_POST['customer_id']) : 0;
         if ($customer_id <= 0) {
@@ -252,59 +228,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-
-// ===== AUTENTIKASI ADMIN (HARUS DI PALING ATAS) =====
+// ===== AUTENTIKASI =====
 require_once '../db.php';
-// require_once 'check_auth.php';
-
-// // Ambil data admin yang sedang login
-// $adminData = getAdminData();
-// $adminName = $adminData['name'];
-// $adminEmail = $adminData['email'];
-// $adminId = $adminData['id_admin'];
 
 // ===== HEADER =====
 include('../partials/headerAdmin.php');
 
-
-// ===== QUERY DATA - INCLUDE SEMUA STATUS =====
+// ===== QUERY DATA - GROUPED BY DATE =====
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
-$sort = isset($_GET['sort']) ? $_GET['sort'] : '';
 
-$sql_customers = "
-    SELECT DISTINCT c.id_customer, c.name, c.phone
-    FROM customers c
-    INNER JOIN drops d ON c.id_customer = d.customer_id
+// Query untuk mendapatkan semua tanggal transaksi yang unik
+$sql_dates = "
+    SELECT DISTINCT DATE(d.trans_date) as trans_date
+    FROM drops d
     INNER JOIN drop_items di ON d.id_drop = di.drop_id
 ";
 
-// WHERE clause untuk search
-$where_added = false;
 if (!empty($search)) {
     $esc = $conn->real_escape_string($search);
-    $sql_customers .= " WHERE (c.name LIKE '%$esc%' OR c.phone LIKE '%$esc%')";
-    $where_added = true;
+    $sql_dates .= " INNER JOIN customers c ON d.customer_id = c.id_customer
+                    WHERE (c.name LIKE '%$esc%' OR c.phone LIKE '%$esc%')";
 }
 
-// Sorting
-switch ($sort) {
-    case 'nama_asc':
-        $sql_customers .= " ORDER BY c.name ASC";
-        break;
-    case 'nama_desc':
-        $sql_customers .= " ORDER BY c.name DESC";
-        break;
-    case 'tanggal_asc':
-        $sql_customers .= " ORDER BY (SELECT MIN(d2.trans_date) FROM drops d2 WHERE d2.customer_id = c.id_customer) ASC";
-        break;
-    case 'tanggal_desc':
-        $sql_customers .= " ORDER BY (SELECT MAX(d2.trans_date) FROM drops d2 WHERE d2.customer_id = c.id_customer) DESC";
-        break;
-    default:
-        $sql_customers .= " ORDER BY c.name ASC";
-}
+$sql_dates .= " ORDER BY d.trans_date DESC";
 
-$result_customers = $conn->query($sql_customers);
+$result_dates = $conn->query($sql_dates);
 
 // ===== HITUNG STATISTIK =====
 $stats_query = "
@@ -317,9 +265,36 @@ $stats_query = "
 $stats_result = $conn->query($stats_query);
 $stats = $stats_result->fetch_assoc();
 
-// Set default values jika query gagal
 $active_count = isset($stats['active_count']) ? intval($stats['active_count']) : 0;
 $completed_count = isset($stats['completed_count']) ? intval($stats['completed_count']) : 0;
+
+// ===== FUNGSI HELPER UNTUK FORMAT TANGGAL =====
+function formatIndonesianDate($date)
+{
+    $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    $months = [
+        1 => 'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    ];
+
+    $timestamp = strtotime($date);
+    $day_name = $days[date('w', $timestamp)];
+    $day = date('d', $timestamp);
+    $month = $months[(int) date('m', $timestamp)];
+    $year = date('Y', $timestamp);
+
+    return "$day_name, $day $month $year";
+}
 ?>
 
 <!DOCTYPE html>
@@ -328,11 +303,65 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Drop</title>
+    <title>Manajemen Drop - Grouped by Date</title>
     <link rel="stylesheet" href="../css/drop/drop.css">
     <link rel="stylesheet" href="../css/drop/mobile.css">
     <link rel="stylesheet" href="../css/drop/badge.css">
     <link rel="stylesheet" href="../css/drop/m_optimaze.css">
+    <style>
+        /* Additional styles for date grouping */
+        .date-group-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            margin: 24px 0 16px 0;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .date-group-header svg {
+            flex-shrink: 0;
+        }
+
+        .date-group-container {
+            margin-bottom: 32px;
+        }
+
+        .date-group-stats {
+            font-size: 14px;
+            opacity: 0.95;
+            margin-left: auto;
+            display: flex;
+            gap: 16px;
+        }
+
+        .date-group-stats span {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .date-group-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+
+            .date-group-stats {
+                margin-left: 0;
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -341,9 +370,8 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
         <div class="drop-container">
             <h1 class="title">Manajemen Drop</h1>
 
-            <!-- TOP BAR - STRUKTUR YANG BENAR -->
+            <!-- TOP BAR -->
             <div class="top-bar">
-                <!-- BARIS 1: Search (60%) + Tambah Pesanan (40%) -->
                 <div class="left-bar">
                     <form method="GET" action="" class="search-box">
                         <input type="text" name="search" placeholder="Cari data..."
@@ -356,22 +384,8 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                     <button class="add-btn" id="openAddModal">Tambah Pesanan</button>
                 </div>
 
-                <!-- BARIS 2: Filter (60%) + Print (20%) + Delete (20%) -->
                 <div class="right-tools">
-                    <form method="GET" id="filterForm">
-                        <?php if (!empty($search)): ?>
-                            <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
-                        <?php endif; ?>
-                        <select id="sort" name="sort" class="filter-select"
-                            onchange="document.getElementById('filterForm').submit()">
-                            <option value="" disabled selected hidden>Filter Data</option>
-                            <option value="nama_asc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_asc') ? 'selected' : '' ?>>Nama (A-Z)</option>
-                            <option value="nama_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'nama_desc') ? 'selected' : '' ?>>Nama (Z-A)</option>
-                            <option value="tanggal_desc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'tanggal_desc') ? 'selected' : '' ?>>Tanggal Terbaru</option>
-                            <option value="tanggal_asc" <?= (isset($_GET['sort']) && $_GET['sort'] == 'tanggal_asc') ? 'selected' : '' ?>>Tanggal Terlama</option>
-                        </select>
-                    </form>
-
+                    <button onclick="testQZ()">TEST QZ</button>
                     <button class="print-btn" id="printSelectedBtn" title="Cetak Struk Terpilih">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                             viewBox="0 0 16 16">
@@ -380,6 +394,19 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                                 d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1" />
                         </svg>
                     </button>
+
+                    <button class="print-btn" id="printSelectedThermalBtn"
+                        style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"
+                        title="Cetak Thermal Terpilih">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path
+                                d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" />
+                            <path
+                                d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
+                        </svg>
+                    </button>
+
 
                     <button class="delete-btn" id="deleteBtn" title="Hapus Data Terpilih">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -393,7 +420,7 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                 </div>
             </div>
 
-            <!-- TOGGLE & STATISTICS BAR -->
+            <!-- STATISTICS BAR -->
             <div class="stats-bar">
                 <div class="stats-badges">
                     <div class="stat-badge stat-active">
@@ -406,7 +433,6 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                     </div>
                 </div>
 
-                <!-- TOGGLE COMPLETED ITEMS -->
                 <div class="toggle-completed-container">
                     <label class="toggle-switch">
                         <input type="checkbox" id="toggleCompleted" checked>
@@ -416,17 +442,101 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
                 </div>
             </div>
 
-            <!-- TABLE CONTAINER -->
+            <!-- TABLE CONTAINER - GROUPED BY DATE -->
             <div class="table-container">
                 <?php
-                if ($result_customers->num_rows === 0) {
-                    echo '<div class="empty-state">
-                    <div class="empty-state-icon">🔭</div>
-                    <div class="empty-state-text">Belum ada pesanan</div>
-                </div>';
+                if ($result_dates->num_rows === 0) {
+                    echo '<div class="empty-state">                        
+                        <div class="empty-state-text">Belum ada pesanan</div>
+                    </div>';
                 } else {
-                    while ($customer = $result_customers->fetch_assoc()) {
-                        include('../partials/drop/customer_group.php');
+                    // Loop setiap tanggal
+                    while ($date_row = $result_dates->fetch_assoc()) {
+                        // CRITICAL: Simpan tanggal asli dari database dalam format YYYY-MM-DD
+                        $trans_date_original = $date_row['trans_date'];
+
+                        // Buat versi formatted HANYA untuk display
+                        $trans_date_display = formatIndonesianDate($trans_date_original);
+
+                        // Query untuk mendapatkan ALL customers yang punya pesanan di tanggal ini
+                        // Menggunakan INNER JOIN untuk memastikan dapat semua customer
+                        $sql_customers_by_date = "
+                            SELECT DISTINCT
+                                c.id_customer, 
+                                c.name, 
+                                c.phone
+                            FROM drops d
+                            INNER JOIN customers c ON d.customer_id = c.id_customer
+                            WHERE DATE(d.trans_date) = ?
+                        ";
+
+                        if (!empty($search)) {
+                            $esc = $conn->real_escape_string($search);
+                            $sql_customers_by_date .= " AND (c.name LIKE '%$esc%' OR c.phone LIKE '%$esc%')";
+                        }
+
+                        $sql_customers_by_date .= " ORDER BY c.name ASC";
+
+                        $stmt_customers = $conn->prepare($sql_customers_by_date);
+                        if (!$stmt_customers) {
+                            error_log("ERROR preparing customer query: " . $conn->error);
+                            continue;
+                        }
+
+                        // GUNAKAN $trans_date_original yang masih format YYYY-MM-DD
+                        $stmt_customers->bind_param("s", $trans_date_original);
+                        $stmt_customers->execute();
+                        $result_customers = $stmt_customers->get_result();
+
+                        $customer_count = $result_customers->num_rows;
+
+                        if ($customer_count > 0) {
+                            // Hitung stats untuk tanggal ini - GUNAKAN QUERY YANG SAMA PERSIS
+                            $stmt_stats = $conn->prepare("
+                                SELECT 
+                                    COUNT(DISTINCT d.customer_id) as customer_count,
+                                    COUNT(DISTINCT d.id_drop) as order_count,
+                                    COUNT(di.id_item) as item_count
+                                FROM drops d
+                                INNER JOIN drop_items di ON d.id_drop = di.drop_id
+                                WHERE DATE(d.trans_date) = ?
+                            ");
+                            $stmt_stats->bind_param("s", $trans_date_original);
+                            $stmt_stats->execute();
+                            $date_stats = $stmt_stats->get_result()->fetch_assoc();
+                            $stmt_stats->close();
+
+                            // Gunakan customer_count dari result query, bukan dari stats
+                            $actual_customer_count = $customer_count;
+
+                            echo '<div class="date-group-container">';
+                            echo '<div class="date-group-header">';
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+                                  </svg>';
+                            echo '<span>' . $trans_date_display . '</span>';
+                            echo '<div class="date-group-stats">';
+                            echo '<span>' . $date_stats['customer_count'] . ' Customer</span>';
+                            echo '<span>' . $date_stats['item_count'] . ' Item</span>';
+                            echo '</div>';
+                            echo '</div>';
+
+                            // Tampilkan SEMUA customers di tanggal ini
+                            while ($customer = $result_customers->fetch_assoc()) {
+                                // CRITICAL: Kirim tanggal ORIGINAL yang masih format YYYY-MM-DD
+                                $customer['filter_date'] = $trans_date_original;
+
+                                // DEBUG: Log untuk memastikan format tanggal benar
+                                error_log("Sending to customer_group.php - Customer: {$customer['name']} (ID: {$customer['id_customer']}), filter_date: {$trans_date_original}");
+
+                                // Include customer group - akan menampilkan semua orders customer ini di tanggal ini
+                                include('../partials/drop/customer_group.php');
+                            }
+
+                            echo '</div>'; // close date-group-container
+                        }
+
+                        $stmt_customers->close();
                     }
                 }
                 ?>
@@ -452,9 +562,21 @@ $completed_count = isset($stats['completed_count']) ? intval($stats['completed_c
     <script src="../js/drop/drop_toggle.js"></script>
     <script src="../js/drop/drop_status_change.js"></script>
     <script src="../js/drop/print_handler.js"></script>
+    <script src="../js/drop/thermal_print_handler.js"></script>
     <script src="../js/drop/badge.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.5/qz-tray.js"></script>
+    <script>
+        async function testQZ() {
+            try {
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect();
+                }
+                alert("QZ Tray TERHUBUNG");
+            } catch (err) {
+                alert("GAGAL: " + err);
+            }
+        }
+    </script>
 </body>
 
 </html>

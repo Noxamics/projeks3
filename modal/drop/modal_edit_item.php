@@ -1,4 +1,4 @@
-<!-- File: /modal/drop/modal_edit_item.php - Bootstrap Icons VERSION -->
+<!-- File: /modal/drop/modal_edit_item.php - MODERN EMPLOYEE SECTION -->
 <div class="modal" id="editModal" style="display:none;">
     <div class="modal-content large">
         <span class="close" data-target="editModal">&times;</span>
@@ -103,8 +103,6 @@
                             <option value="Tunai">Tunai</option>
                             <option value="Transfer">Transfer</option>
                             <option value="QRIS">QRIS</option>
-                            <option value="Debit">Debit</option>
-                            <option value="Credit">Credit</option>
                         </select>
                     </div>
 
@@ -114,63 +112,86 @@
                         <input type="hidden" name="amount_paid" id="edit_amount_paid">
                     </div>
 
-                    <!-- KARYAWAN SECTION - ACTIVE EMPLOYEES DROPDOWN -->
+                    <!-- KARYAWAN SECTION - MODERN STATIC VERSION -->
                     <div style="grid-column: 1 / -1;">
                         <label><i class="bi bi-person-badge"></i> Karyawan yang Menangani</label>
-                        <?php
-                        // Query untuk mendapatkan SEMUA karyawan yang aktif (tidak hanya kasir)
-                        $activeEmployeesQuery = "
-                            SELECT id_employee, name, employee_code, status
-                            FROM employees 
-                            WHERE status = 'Aktif'
-                            ORDER BY name ASC
-                        ";
+                        <div id="editKaryawanContainer">
+                            <?php
+                            // Query untuk mendapatkan SEMUA karyawan yang aktif (tidak hanya kasir)
+                            $activeEmployeesQuery = "
+                                SELECT id_employee, name, employee_code, status
+                                FROM employees 
+                                WHERE status = 'Aktif'
+                                ORDER BY name ASC
+                            ";
 
-                        $activeEmployees = $conn->query($activeEmployeesQuery);
-                        $activeEmployeeCount = $activeEmployees->num_rows;
+                            $activeEmployees = $conn->query($activeEmployeesQuery);
+                            $activeEmployeeCount = $activeEmployees->num_rows;
 
-                        if ($activeEmployeeCount === 0) {
-                            // Tidak ada karyawan aktif
-                            echo "<div style='padding: 12px; background: #fef3c7; border: 2px solid #fbbf24; border-radius: 8px; color: #92400e;'>
-                                    <i class='bi bi-exclamation-triangle'></i> <strong>Tidak ada karyawan aktif.</strong><br>
-                                    <span style='font-size: 13px;'>Tidak dapat mengubah karyawan saat tidak ada yang aktif.</span>
-                                  </div>";
-                            echo "<input type='hidden' name='employee_id' id='edit_employee_id' value=''>";
+                            if ($activeEmployeeCount === 0) {
+                                // Tidak ada karyawan aktif - Modern Warning Card
+                                echo "<div class='warning-card'>
+                                    <i class='bi bi-exclamation-triangle'></i> 
+                                    <strong>Tidak ada karyawan aktif.</strong>
+                                    <span>Tidak dapat mengubah karyawan saat tidak ada yang aktif.</span>
+                                </div>";
+                                echo "<input type='hidden' name='employee_id' id='edit_employee_id' value=''>";
 
-                        } elseif ($activeEmployeeCount === 1) {
-                            // Hanya 1 karyawan aktif - auto select
-                            $emp = $activeEmployees->fetch_assoc();
-                            echo "<input type='hidden' name='employee_id' id='edit_employee_id' value='{$emp['id_employee']}'>
-                                  <div style='padding: 12px; background: #dcfce7; border: 2px solid #22c55e; border-radius: 8px;'>
-                                    <div style='display: flex; align-items: center; gap: 10px;'>
-                                        <i class='bi bi-person-circle' style='font-size: 24px; color: #15803d;'></i>
-                                        <div>
-                                            <div style='font-weight: 600; color: #15803d; font-size: 15px;'>{$emp['name']}</div>
-                                            <div style='font-size: 12px; color: #16a34a;'>Kode: {$emp['employee_code']}</div>
+                            } elseif ($activeEmployeeCount === 1) {
+                                // Hanya 1 karyawan aktif - Modern Active Card
+                                $emp = $activeEmployees->fetch_assoc();
+                                echo "<input type='hidden' name='employee_id' id='edit_employee_id' value='{$emp['id_employee']}'>
+                                <div class='edit-employee-card'>
+                                    <div class='employee-card-content'>
+                                        <i class='bi bi-person-circle employee-icon'></i>
+                                        <div class='employee-info'>
+                                            <div class='employee-name'>
+                                                {$emp['name']}
+                                                <span class='role-badge active'>KARYAWAN AKTIF</span>
+                                            </div>
+                                            <div class='employee-details'>
+                                                <strong>Kode:</strong> {$emp['employee_code']}
+                                            </div>
                                         </div>
-                                        <div style='margin-left: auto; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;'>
-                                            AKTIF
+                                        <div class='employee-badge'>
+                                            ✓ AKTIF
                                         </div>
                                     </div>
-                                  </div>";
+                                </div>";
 
-                        } else {
-                            // Multiple karyawan aktif - show dropdown
-                            echo "<select name='employee_id' id='edit_employee_id' required 
-                                    style='padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;'>
-                                    <option value=''>-- Pilih Karyawan --</option>";
+                            } else {
+                                // Multiple karyawan aktif - Modern Dropdown with Header Info
+                                echo "<div class='multiple-employees-section'>
+                                    <div class='employees-header'>
+                                        <i class='bi bi-people-fill'></i>
+                                        <div class='header-text'>
+                                            <strong>{$activeEmployeeCount} Karyawan Aktif</strong>
+                                            <span>Pilih karyawan yang menangani pesanan ini</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class='modern-select-wrapper'>
+                                        <i class='bi bi-person-badge select-icon'></i>
+                                        <select name='employee_id' id='edit_employee_id' required class='modern-select'>
+                                            <option value='' disabled selected>Pilih Karyawan...</option>";
 
-                            $activeEmployees->data_seek(0); // Reset pointer
-                            while ($emp = $activeEmployees->fetch_assoc()) {
-                                echo "<option value='{$emp['id_employee']}'>{$emp['name']} ({$emp['employee_code']})</option>";
+                                $activeEmployees->data_seek(0); // Reset pointer
+                                while ($emp = $activeEmployees->fetch_assoc()) {
+                                    echo "<option value='{$emp['id_employee']}'>{$emp['name']} • {$emp['employee_code']}</option>";
+                                }
+
+                                echo "</select>
+                                        <i class='bi bi-chevron-down select-arrow'></i>
+                                    </div>
+                                    
+                                    <p class='info-text'>
+                                        <i class='bi bi-info-circle'></i> 
+                                        Menampilkan semua karyawan yang sedang aktif (sudah check-in)
+                                    </p>
+                                </div>";
                             }
-
-                            echo "</select>";
-                            echo "<p style='margin: 8px 0 0 0; font-size: 12px; color: #64748b;'>
-                                    <i class='bi bi-info-circle'></i> Menampilkan semua karyawan yang sedang aktif (sudah check-in)
-                                  </p>";
-                        }
-                        ?>
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,3 +216,283 @@
         </form>
     </div>
 </div>
+
+<style>
+    /* Modern Employee Card Styles */
+    .edit-employee-card {
+        padding: 14px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 2px solid #3b82f6;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .edit-employee-card:hover {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .employee-card-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .employee-icon {
+        font-size: 36px;
+        color: #1e40af;
+        flex-shrink: 0;
+    }
+
+    .employee-info {
+        flex: 1;
+    }
+
+    .employee-name {
+        font-weight: 700;
+        color: #1e40af;
+        font-size: 17px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .role-badge.active {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .employee-details {
+        font-size: 13px;
+        color: #2563eb;
+        line-height: 1.6;
+    }
+
+    .employee-badge {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 18px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+        white-space: nowrap;
+    }
+
+    .warning-card {
+        padding: 14px;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #fbbf24;
+        border-radius: 12px;
+        color: #92400e;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+    }
+
+    .warning-card i {
+        font-size: 20px;
+        margin-bottom: 4px;
+        color: #f59e0b;
+    }
+
+    .warning-card strong {
+        font-size: 14px;
+    }
+
+    .warning-card span {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    /* Multiple Employees Section */
+    .multiple-employees-section {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .employees-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 2px solid #38bdf8;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
+    }
+
+    .employees-header i {
+        font-size: 32px;
+        color: #0284c7;
+        flex-shrink: 0;
+    }
+
+    .header-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .header-text strong {
+        font-size: 16px;
+        color: #0c4a6e;
+        font-weight: 700;
+    }
+
+    .header-text span {
+        font-size: 13px;
+        color: #0369a1;
+    }
+
+    /* Modern Select Dropdown Styling */
+    .modern-select-wrapper {
+        position: relative;
+        display: block;
+    }
+
+    .select-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 20px;
+        pointer-events: none;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .modern-select-wrapper:hover .select-icon {
+        color: #3b82f6;
+    }
+
+    .modern-select {
+        width: 100%;
+        padding: 14px 50px 14px 48px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e293b;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 2px solid #cbd5e1;
+        border-radius: 12px;
+        appearance: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .modern-select:hover {
+        border-color: #3b82f6;
+        background: linear-gradient(135deg, #ffffff 0%, #dbeafe 100%);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .modern-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(59, 130, 246, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .modern-select option {
+        padding: 12px;
+        font-weight: 500;
+        color: #1e293b;
+        background: white;
+    }
+
+    .modern-select option:first-child {
+        color: #64748b;
+        font-style: italic;
+    }
+
+    .modern-select option:not(:first-child) {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .modern-select option:hover,
+    .modern-select option:checked {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 18px;
+        font-weight: 700;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .modern-select-wrapper:hover .select-arrow {
+        color: #3b82f6;
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    .modern-select:focus~.select-arrow {
+        color: #3b82f6;
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    .info-text {
+        margin: 10px 0 0 0;
+        font-size: 12px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .info-text i {
+        font-size: 14px;
+        color: #3b82f6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .employee-card-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .employee-badge {
+            width: 100%;
+        }
+
+        .employee-name {
+            justify-content: center;
+        }
+
+        .modern-select {
+            font-size: 14px;
+            padding: 10px 36px 10px 12px;
+        }
+    }
+</style>
