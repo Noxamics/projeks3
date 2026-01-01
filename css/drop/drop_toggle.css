@@ -1,17 +1,13 @@
 /* ============================================
-   DROP TOGGLE & COMPLETED ITEMS (COMPACT VERSION)
-   Optimized for smaller, efficient display
+   DROP TOGGLE & COMPLETED ITEMS - IMPROVED COLOR SCHEME
+   Warna konsisten dengan sistem global
    ============================================ */
 
-/* ===== STATS BAR - COMPACT ===== */
+/* ===== STATS BAR ===== */
 .stats-bar {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.85) 100%
-  );
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-xl);
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
@@ -31,7 +27,11 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, #00d4ff 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -48,7 +48,7 @@
   flex-wrap: wrap;
 }
 
-/* ===== MODERN STAT CARDS - COMPACT ===== */
+/* ===== MODERN STAT CARDS - CONSISTENT THEME ===== */
 .stat-badge {
   position: relative;
   display: flex;
@@ -56,7 +56,7 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: var(--transition-base);
   font-weight: 700;
   min-width: 150px;
@@ -77,29 +77,39 @@
 
 .stat-badge:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-badge:hover::before {
   transform: scaleX(1);
 }
 
+/* Active Badge - Warning Theme */
 .stat-badge.stat-active {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #fbbf24;
+  background: linear-gradient(135deg, var(--color-warning-bg) 0%, #fde68a 100%);
+  border: 2px solid var(--color-warning-light);
 }
 
 .stat-badge.stat-active::before {
-  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-warning) 0%,
+    var(--color-warning-dark) 100%
+  );
 }
 
+/* Completed Badge - Success Theme */
 .stat-badge.stat-completed {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border: 2px solid var(--color-success);
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, #a7f3d0 100%);
+  border: 2px solid var(--color-success-light);
 }
 
 .stat-badge.stat-completed::before {
-  background: linear-gradient(90deg, var(--color-success) 0%, #059669 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  );
 }
 
 .stat-icon {
@@ -159,7 +169,7 @@
 }
 
 /* =========================================================
-   TOGGLE SWITCH CONTAINER - COMPACT
+   TOGGLE SWITCH CONTAINER
    ========================================================= */
 .toggle-completed-container {
   display: flex;
@@ -169,13 +179,13 @@
   backdrop-filter: blur(10px);
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border-light);
   transition: var(--transition-base);
 }
 
 .toggle-completed-container:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
@@ -189,7 +199,7 @@
   letter-spacing: 0.2px;
 }
 
-/* ===== MODERN IOS-STYLE TOGGLE SWITCH - COMPACT ===== */
+/* ===== MODERN IOS-STYLE TOGGLE SWITCH ===== */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -231,8 +241,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Checked State - Success Theme */
 .toggle-switch input:checked + .toggle-slider {
-  background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  );
   box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
 }
 
@@ -249,18 +264,8 @@
   opacity: 0.95;
 }
 
-.toggle-switch input:checked + .toggle-slider::after {
-  position: absolute;
-  left: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  color: white;
-  font-weight: 700;
-}
-
 /* =========================================================
-   COMPLETED ITEM STYLING - COMPACT
+   COMPLETED ITEM STYLING
    ========================================================= */
 .order-item-row.item-completed {
   position: relative;
@@ -274,18 +279,6 @@
   opacity: 1;
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   transform: translateX(3px);
-}
-
-@keyframes badgePulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 3px 8px rgba(16, 185, 129, 0.5);
-  }
 }
 
 /* Lighten text in completed items */
@@ -307,10 +300,10 @@
 /* Disabled state styling */
 .order-item-row.item-completed .item-status-select[disabled],
 .order-item-row.item-completed .status-dropdown[disabled] {
-  background: #f1f5f9;
+  background: var(--color-bg-dark);
   cursor: not-allowed;
   opacity: 0.6;
-  border-color: #e2e8f0;
+  border-color: var(--color-border);
 }
 
 .order-item-row.item-completed .delete-item-btn[disabled] {
@@ -330,15 +323,19 @@
 }
 
 /* =========================================================
-   NO RESULTS MESSAGE - COMPACT
+   NO RESULTS MESSAGE
    ========================================================= */
 .no-results-message {
   text-align: center;
   padding: 60px 20px;
   color: var(--color-text-light);
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg) 0%,
+    var(--color-bg-gray) 100%
+  );
   border-radius: var(--radius-xl);
-  border: 2px dashed #e2e8f0;
+  border: 2px dashed var(--color-border);
   margin: var(--spacing-lg) 0;
   box-shadow: var(--shadow-sm);
 }
@@ -348,6 +345,7 @@
   margin-bottom: var(--spacing-md);
   opacity: 0.4;
   animation: bounce 2s ease-in-out infinite;
+  color: var(--color-primary-light);
 }
 
 .no-results-message > div {
@@ -376,10 +374,10 @@
 }
 
 /* =========================================================
-   COMPLETED BADGE IN CUSTOMER HEADER - COMPACT
+   COMPLETED BADGE IN CUSTOMER HEADER
    ========================================================= */
 .completed-badge {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, #a7f3d0 100%);
   color: #065f46;
   padding: 4px 12px;
   border-radius: 16px;
@@ -392,7 +390,7 @@
 }
 
 /* =========================================================
-   RESPONSIVE DESIGN - COMPACT
+   RESPONSIVE DESIGN
    ========================================================= */
 @media (max-width: 1200px) {
   .stats-bar {

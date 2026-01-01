@@ -1,6 +1,6 @@
 <?php
 // File: /actions/drop/drop_edit.php
-// UPDATED VERSION - With actual_finish_date support
+// FIXED VERSION - With actual_finish_date support and missing function
 
 // ===== SETUP =====
 error_reporting(E_ALL);
@@ -10,6 +10,49 @@ ini_set('error_log', __DIR__ . '/../../error.log');
 
 session_start();
 header('Content-Type: application/json; charset=utf-8');
+
+// ===== HELPER FUNCTION: Get Employee Data =====
+function getEmployeeData($conn, $employee_id)
+{
+    $stmt = $conn->prepare("
+        SELECT id_employee, name, employee_code 
+        FROM employees 
+        WHERE id_employee = ?
+    ");
+
+    if (!$stmt) {
+        throw new Exception("Database error: " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $employee_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        return null;
+    }
+
+    $employee = $result->fetch_assoc();
+    $stmt->close();
+
+    return $employee;
+}
+
+// ===== HELPER FUNCTION: Validate Date Format =====
+function validateDateFormat($date_string)
+{
+    if (empty($date_string)) {
+        return null;
+    }
+
+    $d = DateTime::createFromFormat('Y-m-d', $date_string);
+    if ($d && $d->format('Y-m-d') === $date_string) {
+        return $date_string;
+    }
+
+    return null;
+}
 
 // ===== INCLUDE DB CONNECTION =====
 $db_path = __DIR__ . '/../../db.php';
@@ -42,6 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
+    error_log("=== DROP_EDIT: Request received ===");
+
     // ===== VALIDATE REQUIRED FIELDS =====
     if (empty($_POST['drop_id']) || intval($_POST['drop_id']) <= 0) {
         throw new Exception('ID Drop tidak valid');
@@ -57,9 +102,11 @@ try {
 
     // Start transaction
     $conn->begin_transaction();
+    error_log("✓ Transaction started");
 
     // === 1. GET DROP ID & CURRENT DATA ===
     $drop_id = intval($_POST['drop_id']);
+    error_log("Processing drop_id: {$drop_id}");
 
     $stmt = $conn->prepare("
         SELECT d.*, c.name as customer_name, c.phone as customer_phone, c.id_customer
@@ -82,7 +129,7 @@ try {
 
     $existing_drop = $result->fetch_assoc();
     $stmt->close();
-    $stmt = null;
+    error_log("✓ Existing drop found");
 
     // === 2. PROCESS CUSTOMER DATA ===
     $customer_name = !empty($_POST['customer_name']) ? trim($_POST['customer_name']) : $existing_drop['customer_name'];
@@ -107,28 +154,26 @@ try {
             $customer = $result2->fetch_assoc();
             $customer_id = $customer['id_customer'];
             $stmt2->close();
-            $stmt2 = null;
 
             // Update name if different
             $stmt3 = $conn->prepare("UPDATE customers SET name = ? WHERE id_customer = ?");
             $stmt3->bind_param("si", $customer_name, $customer_id);
             $stmt3->execute();
             $stmt3->close();
-            $stmt3 = null;
+            error_log("✓ Customer updated (existing)");
         } else {
             $stmt2->close();
-            $stmt2 = null;
 
             $stmt4 = $conn->prepare("INSERT INTO customers (name, phone) VALUES (?, ?)");
             $stmt4->bind_param("ss", $customer_name, $phone_number);
             $stmt4->execute();
             $customer_id = $conn->insert_id;
             $stmt4->close();
-            $stmt4 = null;
 
             if (!$customer_id) {
                 throw new Exception("Gagal membuat customer baru");
             }
+            error_log("✓ New customer created: {$customer_id}");
         }
     } else {
         $customer_id = $existing_drop['id_customer'];
@@ -138,23 +183,35 @@ try {
             $stmt5->bind_param("si", $customer_name, $customer_id);
             $stmt5->execute();
             $stmt5->close();
-            $stmt5 = null;
+            error_log("✓ Customer name updated");
         }
     }
 
     // === 3. GET FORM DATA ===
     $employee_id = intval($_POST['employee_id']);
     $total_amount = floatval($_POST['total_amount'] ?? 0);
-    $payment_status = $_POST['payment_status'] ?? 'Belum Lunas';
-    $payment_method = $_POST['payment_method'] ?? 'Tunai';
+    $payment_status = isset($_POST['payment_status']) ? trim($_POST['payment_status']) : 'Belum Lunas';
+    $payment_method = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : 'Tunai';
     $amount_paid = floatval($_POST['amount_paid'] ?? 0);
-    $payment_date = !empty($_POST['payment_date']) ? $_POST['payment_date'] : NULL;
-    $note = trim($_POST['note'] ?? '');
+
+    // Validate payment date
+    $payment_date = NULL;
+    if (!empty($_POST['payment_date'])) {
+        $payment_date = validateDateFormat($_POST['payment_date']);
+    }
+
+    $note = isset($_POST['note']) ? trim($_POST['note']) : '';
     $items = $_POST['items'];
+
+    error_log("Items count: " . count($items));
+    error_log("Employee ID: {$employee_id}");
+    error_log("Payment status: {$payment_status}");
 
     // Get first item data
     $first_item = reset($items);
-    $trans_date = $first_item['trans_date'] ?? date('Y-m-d');
+    $trans_date = isset($first_item['trans_date']) ? $first_item['trans_date'] : date('Y-m-d');
+    $trans_date = validateDateFormat($trans_date) ?: date('Y-m-d');
+
     $first_service_id = intval($first_item['service_id'] ?? 0);
     $first_brand = trim($first_item['brand'] ?? '');
 
@@ -170,9 +227,14 @@ try {
     // Calculate est_finish_date
     $est_finish_date = NULL;
     if ($max_duration > 0) {
-        $date = new DateTime($trans_date);
-        $date->modify("+{$max_duration} days");
-        $est_finish_date = $date->format('Y-m-d');
+        try {
+            $date = new DateTime($trans_date);
+            $date->modify("+{$max_duration} days");
+            $est_finish_date = $date->format('Y-m-d');
+            error_log("Estimated finish date: {$est_finish_date}");
+        } catch (Exception $e) {
+            error_log("Error calculating est_finish_date: " . $e->getMessage());
+        }
     }
 
     // === 4. CHECK IF ALL ITEMS ARE "DIAMBIL" (status_id = 6) ===
@@ -188,6 +250,7 @@ try {
     $actual_finish_date = NULL;
     if ($all_items_taken) {
         $actual_finish_date = date('Y-m-d');
+        error_log("✓ All items taken - Setting actual_finish_date: {$actual_finish_date}");
     }
 
     // === 5. UPDATE DROP ORDER ===
@@ -232,7 +295,7 @@ try {
     }
 
     $stmt6->close();
-    $stmt6 = null;
+    error_log("✓ Drop updated");
 
     // ========== TRACKING: UPDATE BERDASARKAN STATUS ITEMS ==========
     // Cek status dari semua items untuk tracking
@@ -271,36 +334,49 @@ try {
 
     // Update tracking fields jika ada
     if (!empty($tracking_updates) && $employee_id > 0) {
+        error_log("Updating tracking fields: " . implode(', ', array_keys($tracking_updates)));
+
         try {
-            foreach ($tracking_updates as $field => $time_field) {
-                // Cek apakah kolom sudah ada
-                $check = $conn->query("SHOW COLUMNS FROM drops LIKE '{$field}'");
+            $emp_data = getEmployeeData($conn, $employee_id);
 
-                if ($check && $check->num_rows > 0) {
-                    // Cek apakah sudah terisi (jangan overwrite jika sudah ada)
-                    $check_value = $conn->prepare("SELECT {$field} FROM drops WHERE id_drop = ?");
-                    $check_value->bind_param("i", $drop_id);
-                    $check_value->execute();
-                    $result_check = $check_value->get_result();
-                    $row_check = $result_check->fetch_assoc();
-                    $check_value->close();
+            if ($emp_data) {
+                foreach ($tracking_updates as $field => $time_field) {
+                    // Update ID + NAMA + KODE
+                    $name_field = $field . '_name';
+                    $code_field = $field . '_code';
 
-                    // Hanya update jika masih NULL
-                    if (empty($row_check[$field])) {
-                        $sql_track = "UPDATE drops SET {$field} = ?, {$time_field} = NOW() WHERE id_drop = ?";
-                        $stmt_track = $conn->prepare($sql_track);
+                    $sql_track = "UPDATE drops 
+                        SET {$field} = ?, 
+                            {$name_field} = ?,
+                            {$code_field} = ?,
+                            {$time_field} = NOW() 
+                        WHERE id_drop = ?";
 
-                        if ($stmt_track) {
-                            $stmt_track->bind_param("ii", $employee_id, $drop_id);
+                    $stmt_track = $conn->prepare($sql_track);
 
-                            if ($stmt_track->execute()) {
-                                error_log("✓ TRACKING EDIT - Drop: {$drop_id} | Field: {$field} | Employee: {$employee_id}");
-                            }
-
-                            $stmt_track->close();
-                        }
+                    if (!$stmt_track) {
+                        error_log("⚠ Failed to prepare tracking update for {$field}");
+                        continue;
                     }
+
+                    $stmt_track->bind_param(
+                        "issi",
+                        $employee_id,
+                        $emp_data['name'],
+                        $emp_data['employee_code'],
+                        $drop_id
+                    );
+
+                    if ($stmt_track->execute()) {
+                        error_log("✓ Tracking updated: {$field}");
+                    } else {
+                        error_log("⚠ Failed to execute tracking update for {$field}: " . $stmt_track->error);
+                    }
+
+                    $stmt_track->close();
                 }
+            } else {
+                error_log("⚠ Employee data not found for ID: {$employee_id}");
             }
         } catch (Exception $track_error) {
             error_log("⚠ TRACKING EDIT WARNING - " . $track_error->getMessage());
@@ -309,20 +385,33 @@ try {
 
     // === 6. DELETE OLD ITEMS ===
     $stmt7 = $conn->prepare("DELETE FROM drop_items WHERE drop_id = ?");
+    if (!$stmt7) {
+        throw new Exception("Prepare DELETE drop_items failed: " . $conn->error);
+    }
     $stmt7->bind_param("i", $drop_id);
     $stmt7->execute();
+    $deleted_count = $stmt7->affected_rows;
     $stmt7->close();
-    $stmt7 = null;
+    error_log("✓ Deleted {$deleted_count} old items");
 
     // === 7. INSERT NEW ITEMS ===
     $item_order = 1;
 
-    foreach ($items as $item) {
-        $brand = trim($item['brand']);
-        $service_id = intval($item['service_id']);
+    foreach ($items as $index => $item) {
+        $brand = isset($item['brand']) ? trim($item['brand']) : '';
+        $service_id = intval($item['service_id'] ?? 0);
         $price = floatval($item['price'] ?? 0);
-        $item_notes = trim($item['notes'] ?? '');
+        $item_notes = isset($item['notes']) ? trim($item['notes']) : '';
         $status_id = intval($item['status_id'] ?? 1);
+
+        // Validate required fields
+        if (empty($brand)) {
+            throw new Exception("Item #{$item_order}: Brand tidak boleh kosong");
+        }
+
+        if ($service_id <= 0) {
+            throw new Exception("Item #{$item_order}: Service ID tidak valid");
+        }
 
         $stmt8 = $conn->prepare("
             INSERT INTO drop_items (
@@ -332,8 +421,9 @@ try {
                 price,
                 status_id,
                 notes,
-                item_order
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                item_order,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
         if (!$stmt8) {
@@ -356,19 +446,22 @@ try {
         }
 
         $stmt8->close();
-        $stmt8 = null;
+        error_log("✓ Item #{$item_order} inserted");
         $item_order++;
     }
 
     // === 8. UPDATE PAYMENT ===
     $stmt9 = $conn->prepare("SELECT id_payment FROM payments WHERE drop_id = ?");
+    if (!$stmt9) {
+        throw new Exception("Prepare SELECT payments failed: " . $conn->error);
+    }
+
     $stmt9->bind_param("i", $drop_id);
     $stmt9->execute();
     $result9 = $stmt9->get_result();
 
     if ($result9->num_rows > 0) {
         $stmt9->close();
-        $stmt9 = null;
 
         $stmt10 = $conn->prepare("
             UPDATE payments SET
@@ -378,13 +471,17 @@ try {
                 status = ?
             WHERE drop_id = ?
         ");
+
+        if (!$stmt10) {
+            throw new Exception("Prepare UPDATE payments failed: " . $conn->error);
+        }
+
         $stmt10->bind_param("dsssi", $amount_paid, $payment_method, $payment_date, $payment_status, $drop_id);
         $stmt10->execute();
         $stmt10->close();
-        $stmt10 = null;
+        error_log("✓ Payment updated");
     } else {
         $stmt9->close();
-        $stmt9 = null;
 
         $stmt11 = $conn->prepare("
             INSERT INTO payments (
@@ -392,13 +489,19 @@ try {
                 amount_paid,
                 payment_method,
                 payment_date,
-                status
-            ) VALUES (?, ?, ?, ?, ?)
+                status,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, NOW())
         ");
+
+        if (!$stmt11) {
+            throw new Exception("Prepare INSERT payments failed: " . $conn->error);
+        }
+
         $stmt11->bind_param("idsss", $drop_id, $amount_paid, $payment_method, $payment_date, $payment_status);
         $stmt11->execute();
         $stmt11->close();
-        $stmt11 = null;
+        error_log("✓ Payment inserted");
     }
 
     // === 9. UPDATE DEADLINE ===
@@ -406,13 +509,16 @@ try {
         $first_status_id = intval($first_item['status_id'] ?? 1);
 
         $stmt12 = $conn->prepare("SELECT id_deadline FROM deadlines WHERE drop_id = ?");
+        if (!$stmt12) {
+            throw new Exception("Prepare SELECT deadlines failed: " . $conn->error);
+        }
+
         $stmt12->bind_param("i", $drop_id);
         $stmt12->execute();
         $result12 = $stmt12->get_result();
 
         if ($result12->num_rows > 0) {
             $stmt12->close();
-            $stmt12 = null;
 
             $stmt13 = $conn->prepare("
                 UPDATE deadlines SET
@@ -420,30 +526,41 @@ try {
                     status_id = ?
                 WHERE drop_id = ?
             ");
+
+            if (!$stmt13) {
+                throw new Exception("Prepare UPDATE deadlines failed: " . $conn->error);
+            }
+
             $stmt13->bind_param("sii", $est_finish_date, $first_status_id, $drop_id);
             $stmt13->execute();
             $stmt13->close();
-            $stmt13 = null;
+            error_log("✓ Deadline updated");
         } else {
             $stmt12->close();
-            $stmt12 = null;
 
             $stmt14 = $conn->prepare("
                 INSERT INTO deadlines (
                     drop_id,
                     deadline_date,
-                    status_id
-                ) VALUES (?, ?, ?)
+                    status_id,
+                    created_at
+                ) VALUES (?, ?, ?, NOW())
             ");
+
+            if (!$stmt14) {
+                throw new Exception("Prepare INSERT deadlines failed: " . $conn->error);
+            }
+
             $stmt14->bind_param("isi", $drop_id, $est_finish_date, $first_status_id);
             $stmt14->execute();
             $stmt14->close();
-            $stmt14 = null;
+            error_log("✓ Deadline inserted");
         }
     }
 
     // === 10. COMMIT TRANSACTION ===
     $conn->commit();
+    error_log("✓ Transaction committed successfully");
 
     // === 11. SUCCESS RESPONSE ===
     $response = [
@@ -459,15 +576,17 @@ try {
         $response['actual_finish_date'] = $actual_finish_date;
     }
 
-    echo json_encode($response);
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
     // Rollback on error
     if (isset($conn)) {
         $conn->rollback();
+        error_log("✗ Transaction rolled back");
     }
 
     error_log("DROP_EDIT ERROR: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
 
     echo json_encode([
         'success' => false,
@@ -475,7 +594,7 @@ try {
     ]);
 
 } finally {
-    // Close connection only (all stmts already closed per section)
+    // Close connection
     if (isset($conn) && $conn instanceof mysqli) {
         $conn->close();
     }

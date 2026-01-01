@@ -1,19 +1,15 @@
 <?php
 // File: /partials/drop/customer_group.php
-// Display customer group dengan semua items - FIXED VERSION FOR DATE GROUPING
+// IMPROVED COLOR SCHEME VERSION - Konsisten dengan sistem CSS baru
 
 $customer_id = $customer['id_customer'];
 $customer_name = htmlspecialchars($customer['name']);
 $customer_phone = htmlspecialchars($customer['phone']);
 
-// Filter berdasarkan tanggal jika ada
 $filter_date = isset($customer['filter_date']) ? $customer['filter_date'] : null;
 
-// PENTING: Pastikan format tanggal adalah YYYY-MM-DD untuk database
 if ($filter_date) {
-    // Jika format tanggal bukan YYYY-MM-DD, konversi dulu
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $filter_date)) {
-        // Coba parse tanggal dengan berbagai format
         $date_obj = date_create($filter_date);
         if ($date_obj) {
             $filter_date = date_format($date_obj, 'Y-m-d');
@@ -24,7 +20,6 @@ if ($filter_date) {
     }
 }
 
-// Query untuk mendapatkan semua orders dari customer ini
 $sql_orders = "
     SELECT 
         di.id_item, di.drop_id, d.order_code, di.brand, di.price,
@@ -44,12 +39,10 @@ $sql_orders = "
     WHERE d.customer_id = ?
 ";
 
-// Tambahkan filter tanggal jika tersedia
 if ($filter_date) {
     $sql_orders .= " AND DATE(d.trans_date) = ?";
 }
 
-// Tambahkan sorting
 $sql_orders .= " ORDER BY d.trans_date DESC, di.item_order ASC";
 
 $stmt_orders = $conn->prepare($sql_orders);
@@ -58,7 +51,6 @@ if (!$stmt_orders) {
     return;
 }
 
-// Bind parameter sesuai dengan ada/tidaknya filter tanggal
 if ($filter_date) {
     $stmt_orders->bind_param("is", $customer_id, $filter_date);
 } else {
@@ -68,11 +60,8 @@ if ($filter_date) {
 $stmt_orders->execute();
 $result_orders = $stmt_orders->get_result();
 
-// DEBUG: Log untuk diagnosa
 $rows_found = $result_orders->num_rows;
-error_log("Customer ID {$customer_id} ({$customer_name}) - Date: {$filter_date} - Orders found: {$rows_found}");
 
-// Jika tidak ada orders, skip customer ini (jangan tampilkan)
 if ($result_orders->num_rows === 0) {
     $stmt_orders->close();
     error_log("SKIPPING customer {$customer_id} - No orders found");
@@ -93,7 +82,7 @@ while ($order = $result_orders->fetch_assoc()) {
 $stmt_orders->close();
 ?>
 
-<!-- CUSTOMER GROUP HEADER -->
+<!-- CUSTOMER GROUP HEADER - IMPROVED COLORS -->
 <div class='customer-group-header'>
     <div class='customer-info-text'>
         <input type='checkbox' class='customer-checkbox' data-customer-id='<?= $customer_id ?>'>
@@ -115,6 +104,7 @@ $stmt_orders->close();
             <?= $total_orders ?> Pesanan
         </span>
         <div class='customer-actions'>
+            <!-- Print All Button - Purple Theme -->
             <button class='customer-action-btn print-all-btn' data-customer-id='<?= $customer_id ?>'
                 title='Cetak Semua Struk Customer Ini'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -127,10 +117,9 @@ $stmt_orders->close();
                 Cetak Semua
             </button>
 
-            <!-- NEW: Cetak Thermal -->
+            <!-- Thermal Print Button - Purple Theme -->
             <button class='customer-action-btn thermal-all-btn' data-customer-id='<?= $customer_id ?>'
-                title='Cetak Thermal Semua Struk Customer Ini'
-                style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);'>
+                title='Cetak Thermal Semua Struk Customer Ini'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                     class="bi bi-printer-fill" viewBox="0 0 16 16">
                     <path
@@ -141,6 +130,7 @@ $stmt_orders->close();
                 Thermal
             </button>
 
+            <!-- Delete Button - Danger Theme -->
             <button class='customer-action-btn delete-customer-btn' data-customer-id='<?= $customer_id ?>'
                 title='Hapus Semua Pesanan Customer Ini'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
@@ -191,10 +181,11 @@ $stmt_orders->close();
         $completed_class = $is_completed ? 'item-completed' : '';
         $data_status = $is_completed ? 'completed' : 'active';
 
+        // IMPROVED: Payment status colors konsisten
         $paymentColor = match ($payment_status) {
-            'Lunas' => 'color: #059669; font-weight: 600;',
-            'Pending' => 'color: #f59e0b; font-weight: 600;',
-            default => 'color: #dc2626; font-weight: 600;'
+            'Lunas' => 'color: #10b981; font-weight: 600;',     // Success green
+            'Pending' => 'color: #f59e0b; font-weight: 600;',    // Warning amber
+            default => 'color: #ef4444; font-weight: 600;'       // Danger red
         };
         ?>
 
@@ -235,8 +226,8 @@ $stmt_orders->close();
                     </div>
                 </div>
 
-                <!-- 5. HARGA -->
-                <div class='order-item-cell center' style='font-weight: 700; color: #059669; font-size: 12px;'
+                <!-- 5. HARGA - Success Green Color -->
+                <div class='order-item-cell center' style='font-weight: 700; color: #10b981; font-size: 12px;'
                     data-price-display>
                     Rp <?= $price ?>
                 </div>
@@ -261,20 +252,20 @@ $stmt_orders->close();
                     </select>
                 </div>
 
-                <!-- 8. PEMBAYARAN -->
+                <!-- 8. PEMBAYARAN - Color-coded -->
                 <div class='order-item-cell center' style='<?= $paymentColor ?> font-size: 11px;'>
                     <?= $payment_status ?>
                 </div>
 
-                <!-- 9. KARYAWAN -->
-                <div class='order-item-cell center' style='font-size: 11px;'>
+                <!-- 9. KARYAWAN - Info Color -->
+                <div class='order-item-cell center' style='font-size: 11px; color: #3b82f6;'>
                     <?= $employee_name ?>
                 </div>
 
                 <!-- 10. AKSI - ICON BUTTONS -->
                 <div class='order-item-cell center'>
                     <div class='action-buttons-wrapper'>
-                        <!-- Tombol Cetak -->
+                        <!-- Print Button - Purple Theme -->
                         <button class='print-item-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Struk Pesanan Ini'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-printer-fill" viewBox="0 0 16 16">
@@ -285,10 +276,8 @@ $stmt_orders->close();
                             </svg>
                         </button>
 
-                        <!-- NEW: Tombol Cetak Thermal -->
-                        <button class='thermal-print-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Thermal' style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
-                   border: none; color: white; padding: 6px 10px; border-radius: 6px; 
-                   cursor: pointer; transition: all 0.3s ease;'>
+                        <!-- Thermal Print Button - Purple Theme -->
+                        <button class='thermal-print-btn' data-drop-id='<?= $drop_id ?>' title='Cetak Thermal'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-printer-fill" viewBox="0 0 16 16">
                                 <path
@@ -298,7 +287,7 @@ $stmt_orders->close();
                             </svg>
                         </button>
 
-                        <!-- Tombol Hapus -->
+                        <!-- Delete Button - Danger Theme -->
                         <button class='delete-item-btn' data-item-id='<?= $id_item ?>' data-drop-id='<?= $drop_id ?>'
                             data-customer-id='<?= $customer_id ?>' title='Hapus Item Ini' <?= $is_completed ? 'disabled' : '' ?>>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -313,7 +302,7 @@ $stmt_orders->close();
             </div>
 
             <?php if ($is_completed): ?>
-                <!-- Completed Badge -->
+                <!-- Completed Badge - Success Green Theme -->
                 <div class='completed-badge-overlay'>
                     DIAMBIL
                 </div>
@@ -322,7 +311,7 @@ $stmt_orders->close();
 
     <?php endforeach; ?>
 
-    <!-- TOTAL ROW -->
+    <!-- TOTAL ROW - Info Blue Theme -->
     <div class='customer-total-row'>
         <span class='total-label'>Total Harga:</span>
         <span class='total-amount'>Rp <?= number_format($total_amount, 0, ',', '.') ?></span>

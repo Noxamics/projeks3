@@ -5,7 +5,8 @@
 
 @import url("drop_main.css");
 @import url("drop_table.css");
-@import url("drop_form.css");
+@import url("form_customer.css");
+@import url("form_employee.css");
 @import url("drop_modal.css");
 @import url("drop_toggle.css");
 @import url("modal_system.css");

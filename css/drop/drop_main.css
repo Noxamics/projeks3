@@ -1,23 +1,61 @@
 /* =========================================================
-   drop_main.css - Modern Base & Layout (COMPACT VERSION)
-   Optimized for smaller, more efficient display
+   drop_main.css - IMPROVED COLOR SCHEME
+   Konsisten, profesional, dan ramah mata
    ========================================================= */
 
 /* Font Import */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
-/* CSS Variables - COMPACT */
+/* =========================================================
+   CSS VARIABLES - UNIFIED COLOR SYSTEM
+   ========================================================= */
 :root {
+  /* Primary Colors - Blue Theme (Consistent) */
   --color-primary: #0066cc;
-  --color-primary-dark: #0056b3;
+  --color-primary-dark: #0052a3;
+  --color-primary-light: #338fe6;
+  --color-primary-lighter: #e6f2ff;
+  --color-primary-bg: #f0f7ff;
+
+  /* Secondary Colors - Purple Accent */
   --color-secondary: #6366f1;
+  --color-secondary-dark: #4f46e5;
+  --color-secondary-light: #818cf8;
+  --color-secondary-bg: #eef2ff;
+
+  /* Status Colors - Clear & Consistent */
   --color-success: #10b981;
+  --color-success-dark: #059669;
+  --color-success-light: #34d399;
+  --color-success-bg: #d1fae5;
+
   --color-warning: #f59e0b;
+  --color-warning-dark: #d97706;
+  --color-warning-light: #fbbf24;
+  --color-warning-bg: #fef3c7;
+
   --color-danger: #ef4444;
+  --color-danger-dark: #dc2626;
+  --color-danger-light: #f87171;
+  --color-danger-bg: #fee2e2;
+
+  --color-info: #3b82f6;
+  --color-info-dark: #2563eb;
+  --color-info-light: #60a5fa;
+  --color-info-bg: #dbeafe;
+
+  /* Neutral Colors - Refined */
   --color-text: #1e293b;
   --color-text-light: #64748b;
-  --color-bg: #f8fbfd;
-  --color-white: #ffffff;
+  --color-text-lighter: #94a3b8;
+
+  --color-bg: #ffffff;
+  --color-bg-gray: #f8fafc;
+  --color-bg-dark: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+
+  /* Spacing & Radius (unchanged) */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
@@ -28,23 +66,32 @@
   --spacing-lg: 12px;
   --spacing-xl: 16px;
   --spacing-xxl: 20px;
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* Shadows - Softer */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+
   --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Base Page Styling - COMPACT */
+/* =========================================================
+   BASE PAGE STYLING
+   ========================================================= */
 .drop-page {
   font-family: "Inter", sans-serif;
-  background: linear-gradient(135deg, #f8fbfd 0%, #e8f4f8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gray) 0%,
+    var(--color-primary-lighter) 100%
+  );
   color: var(--color-text);
   padding: var(--spacing-lg) var(--spacing-xl);
   min-height: 100vh;
   position: relative;
 }
 
-/* Gradient Background Effect - SMALLER */
+/* Gradient Background Effect */
 .drop-page::before {
   content: "";
   position: absolute;
@@ -54,7 +101,7 @@
   height: 300px;
   background: radial-gradient(
     circle,
-    rgba(0, 102, 204, 0.08) 0%,
+    rgba(0, 102, 204, 0.06) 0%,
     transparent 70%
   );
   border-radius: 50%;
@@ -72,7 +119,7 @@
   }
 }
 
-/* Container - COMPACT */
+/* Container */
 .drop-container {
   max-width: 1600px;
   margin: 0 auto;
@@ -81,13 +128,17 @@
 }
 
 /* =========================================================
-   PAGE HEADER - COMPACT
+   PAGE HEADER
    ========================================================= */
 .drop-page .title {
   font-size: 32px;
   font-weight: 800;
   line-height: 1.1;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #0056b3 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -99,7 +150,7 @@
 }
 
 /* =========================================================
-   TOP BAR - COMPACT
+   TOP BAR
    ========================================================= */
 .top-bar {
   display: flex;
@@ -108,15 +159,11 @@
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   padding: var(--spacing-lg);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.85) 100%
-  );
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border-light);
   flex-wrap: wrap;
 }
 
@@ -136,10 +183,14 @@
 }
 
 /* =========================================================
-   ADD BUTTON - COMPACT
+   ADD BUTTON - Primary Action
    ========================================================= */
 .drop-page .add-btn {
-  background: linear-gradient(135deg, var(--color-primary) 0%, #0056b3 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -148,7 +199,7 @@
   font-size: 13px;
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -165,7 +216,7 @@
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
 }
@@ -177,7 +228,12 @@
 
 .drop-page .add-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 102, 204, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.35);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
 }
 
 .drop-page .add-btn:active {
@@ -185,13 +241,13 @@
 }
 
 /* =========================================================
-   SEARCH BOX - COMPACT
+   SEARCH BOX
    ========================================================= */
 .drop-page .search-box {
   display: flex;
   align-items: center;
-  background-color: var(--color-white);
-  border: 2px solid rgba(0, 102, 204, 0.2);
+  background-color: var(--color-bg);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   min-width: 280px;
@@ -201,19 +257,9 @@
   position: relative;
 }
 
-.drop-page .search-box::before {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px;
-  pointer-events: none;
-  z-index: 1;
-}
-
 .drop-page .search-box:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
   transform: translateY(-1px);
 }
 
@@ -244,14 +290,14 @@
 }
 
 .search-btn:hover {
-  background: rgba(0, 102, 204, 0.1);
+  background: var(--color-primary-bg);
 }
 
 .search-btn img {
   width: 18px;
   height: 18px;
   object-fit: contain;
-  opacity: 0.7;
+  opacity: 0.6;
   transition: var(--transition-base);
 }
 
@@ -261,7 +307,7 @@
 }
 
 /* =========================================================
-   FILTER SELECT - COMPACT
+   FILTER SELECT
    ========================================================= */
 .filter-select {
   min-width: 180px;
@@ -269,9 +315,9 @@
   font-size: 13px;
   font-weight: 600;
   font-family: "Inter", sans-serif;
-  border: 2px solid rgba(0, 102, 204, 0.2);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background-color: var(--color-white);
+  background-color: var(--color-bg);
   color: var(--color-text-light);
   cursor: pointer;
   transition: var(--transition-base);
@@ -285,31 +331,32 @@
 .filter-select:not([value=""]) {
   color: var(--color-text);
   font-weight: 700;
+  border-color: var(--color-primary-light);
+  background-color: var(--color-primary-bg);
 }
 
 .filter-select:hover {
   border-color: var(--color-primary);
-  background-color: rgba(0, 102, 204, 0.05);
+  background-color: var(--color-primary-bg);
 }
 
 .filter-select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
   transform: translateY(-1px);
 }
 
-.filter-select option {
-  padding: 10px;
-  color: var(--color-text);
-  font-weight: 600;
-}
-
 /* =========================================================
-   ACTION BUTTONS - COMPACT
+   ACTION BUTTONS
    ========================================================= */
+/* Print Button - Success Theme */
 .print-btn {
-  background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  );
   color: white;
   border: none;
   padding: 10px 20px;
@@ -318,7 +365,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -326,13 +373,22 @@
 }
 
 .print-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-success-light) 0%,
+    var(--color-success) 100%
+  );
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
+/* Delete Button - Danger Theme */
 .delete-btn {
-  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger) 0%,
+    var(--color-danger-dark) 100%
+  );
   color: white;
   border: none;
   padding: 10px 20px;
@@ -341,7 +397,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -349,24 +405,26 @@
 }
 
 .delete-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger-light) 0%,
+    var(--color-danger) 100%
+  );
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-}
-
-.delete-icon {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
 }
 
 /* =========================================================
-   SAVE BUTTON - COMPACT
+   SAVE BUTTON
    ========================================================= */
 .save-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #0056b3 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -374,20 +432,28 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
 }
 
 .save-btn:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #004080 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.35);
 }
 
 /* =========================================================
-   REMOVE ITEM BUTTON - COMPACT
+   REMOVE ITEM BUTTON
    ========================================================= */
 .remove-item-btn {
-  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger) 0%,
+    var(--color-danger-dark) 100%
+  );
   color: white;
   border: none;
   padding: 6px 12px;
@@ -396,33 +462,39 @@
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
 }
 
 .remove-item-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger-light) 0%,
+    var(--color-danger) 100%
+  );
   transform: scale(1.05);
-  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.35);
 }
 
 /* =========================================================
-   EMPTY STATE - COMPACT
+   EMPTY STATE
    ========================================================= */
 .empty-state {
   padding: 60px 20px;
   text-align: center;
   color: var(--color-text-light);
-  background: white;
+  background: var(--color-bg);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   margin: var(--spacing-lg) 0;
+  border: 2px dashed var(--color-border);
 }
 
 .empty-state-icon {
   font-size: 56px;
   margin-bottom: var(--spacing-lg);
-  opacity: 0.5;
+  opacity: 0.4;
   animation: bounce 2s ease-in-out infinite;
+  color: var(--color-primary-light);
 }
 
 @keyframes bounce {
@@ -442,7 +514,7 @@
 }
 
 /* =========================================================
-   RESPONSIVE DESIGN - COMPACT
+   RESPONSIVE DESIGN
    ========================================================= */
 @media (max-width: 1400px) {
   .drop-page .title {

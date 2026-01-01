@@ -130,39 +130,42 @@ try {
 
             // Update tracking jika ada mapping
             if ($tracking_field && $time_field) {
-                // Cek apakah kolom ada
-                $check_column = $conn->query("SHOW COLUMNS FROM drops LIKE '{$tracking_field}'");
+                // Ambil data karyawan
+                $stmt_emp = $conn->prepare("SELECT name, employee_code FROM employees WHERE id_employee = ?");
+                $stmt_emp->bind_param("i", $employee_id);
+                $stmt_emp->execute();
+                $result_emp = $stmt_emp->get_result();
 
-                if ($check_column && $check_column->num_rows > 0) {
-                    // Cek apakah field sudah terisi (jangan overwrite)
-                    $check_value = $conn->prepare("SELECT {$tracking_field} FROM drops WHERE id_drop = ?");
-                    $check_value->bind_param("i", $drop_id);
-                    $check_value->execute();
-                    $result_check = $check_value->get_result();
-                    $row_check = $result_check->fetch_assoc();
-                    $check_value->close();
+                if ($result_emp->num_rows > 0) {
+                    $emp_data = $result_emp->fetch_assoc();
+                    $stmt_emp->close();
 
-                    // Hanya update jika masih NULL
-                    if (empty($row_check[$tracking_field])) {
-                        $sql_track = "UPDATE drops SET {$tracking_field} = ?, {$time_field} = NOW() WHERE id_drop = ?";
-                        $stmt_track = $conn->prepare($sql_track);
+                    $name_field = $tracking_field . '_name';
+                    $code_field = $tracking_field . '_code';
 
-                        if ($stmt_track) {
-                            $stmt_track->bind_param("ii", $employee_id, $drop_id);
+                    $sql_track = "UPDATE drops 
+                      SET {$tracking_field} = ?, 
+                          {$name_field} = ?,
+                          {$code_field} = ?,
+                          {$time_field} = NOW() 
+                      WHERE id_drop = ?";
 
-                            if ($stmt_track->execute()) {
-                                error_log("✓ TRACKING SUCCESS - Drop: {$drop_id} | Action: {$action_name} | Employee: {$employee_id}");
-                            } else {
-                                error_log("⚠ TRACKING WARNING - Update failed: " . $stmt_track->error);
-                            }
+                    $stmt_track = $conn->prepare($sql_track);
+                    $stmt_track->bind_param(
+                        "issi",
+                        $employee_id,
+                        $emp_data['name'],
+                        $emp_data['employee_code'],
+                        $drop_id
+                    );
 
-                            $stmt_track->close();
-                        }
-                    } else {
-                        error_log("ℹ TRACKING SKIPPED - {$tracking_field} already set for drop {$drop_id}");
+                    if ($stmt_track->execute()) {
+                        error_log("✓ TRACKING WITH NAME - {$tracking_field}: {$emp_data['name']} ({$emp_data['employee_code']})");
                     }
+
+                    $stmt_track->close();
                 } else {
-                    error_log("⚠ TRACKING WARNING - Column '{$tracking_field}' not found");
+                    $stmt_emp->close();
                 }
             }
 

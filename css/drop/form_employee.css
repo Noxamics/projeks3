@@ -1,0 +1,546 @@
+/* =========================================================
+   drop_form.css - IMPROVED COLOR SCHEME (PART 2/2)
+   Employee section dan responsive
+   ========================================================= */
+
+/* =========================================================
+   EMPLOYEE SECTION - INFO THEME
+   ========================================================= */
+#editKaryawanContainer {
+  margin-top: 8px;
+}
+
+/* Warning Card - No Active Employee */
+#editKaryawanContainer .warning-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--color-warning-bg) 0%, #fde68a 100%);
+  border: 2px solid var(--color-warning-light);
+  border-radius: 12px;
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#editKaryawanContainer .warning-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
+}
+
+#editKaryawanContainer .warning-card i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+#editKaryawanContainer .warning-card strong {
+  font-weight: 700;
+  color: #78350f;
+}
+
+#editKaryawanContainer .warning-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #a16207;
+}
+
+/* Active Employee Card - Success Theme */
+#editKaryawanContainer .active-employee-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, #bbf7d0 100%);
+  border: 2px solid var(--color-success);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+#editKaryawanContainer .active-employee-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#editKaryawanContainer .active-employee-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+  border-color: var(--color-success-dark);
+}
+
+#editKaryawanContainer .active-employee-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Card Inner Layout */
+#editKaryawanContainer .employee-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Employee Icon */
+#editKaryawanContainer .employee-icon {
+  font-size: 36px;
+  color: #15803d;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Employee Info */
+#editKaryawanContainer .employee-info {
+  flex: 1;
+  min-width: 0;
+}
+
+#editKaryawanContainer .employee-name {
+  font-weight: 700;
+  color: #15803d;
+  font-size: 17px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#editKaryawanContainer .employee-details {
+  font-size: 12px;
+  color: #16a34a;
+  line-height: 1.5;
+}
+
+#editKaryawanContainer .employee-details strong {
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* Employee Badge */
+#editKaryawanContainer .employee-badge {
+  background: var(--color-success);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+#editKaryawanContainer .active-employee-card:hover .employee-badge {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+/* Employee Dropdown */
+#editKaryawanContainer select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5 7l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 48px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#editKaryawanContainer select:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-bg-gray);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#editKaryawanContainer select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-bg);
+  transform: translateY(-2px);
+}
+
+#editKaryawanContainer select option {
+  padding: 12px;
+  font-weight: 500;
+}
+
+/* Info Text Below Dropdown */
+#editKaryawanContainer .info-text {
+  margin: 10px 0 0 0;
+  font-size: 12px;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+#editKaryawanContainer .info-text i {
+  font-size: 14px;
+  color: var(--color-info);
+}
+
+/* Loading State */
+#editKaryawanContainer .loading-state {
+  text-align: center;
+  padding: 24px 20px;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gray) 0%,
+    var(--color-bg-dark) 100%
+  );
+  border: 2px dashed var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text-light);
+}
+
+#editKaryawanContainer .loading-state i {
+  font-size: 28px;
+  color: var(--color-text-light);
+  animation: spin 2s linear infinite;
+  display: block;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#editKaryawanContainer .loading-state .loading-text {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+/* Error State */
+#editKaryawanContainer .error-card {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--color-danger-bg) 0%, #fecaca 100%);
+  border: 2px solid var(--color-danger);
+  border-radius: 12px;
+  color: #991b1b;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+#editKaryawanContainer .error-card i {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+#editKaryawanContainer .error-card strong {
+  font-weight: 700;
+}
+
+#editKaryawanContainer .error-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+/* =========================================================
+   BUTTON CONTAINER
+   ========================================================= */
+.button-container {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  margin-top: var(--spacing-xxl);
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   PRIMARY SAVE BUTTON
+   ========================================================= */
+.save-btn {
+  width: 100%;
+  padding: 16px 32px;
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.save-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.save-btn:hover::before {
+  width: 500px;
+  height: 500px;
+}
+
+.save-btn:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light) 0%,
+    var(--color-primary) 100%
+  );
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 102, 204, 0.35);
+}
+
+.save-btn:active {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   REMOVE ITEM BUTTON
+   ========================================================= */
+.remove-item-btn {
+  background: linear-gradient(
+    135deg,
+    var(--color-danger) 0%,
+    var(--color-danger-dark) 100%
+  );
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.remove-item-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.remove-item-btn:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.remove-item-btn:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-danger-light) 0%,
+    var(--color-danger) 100%
+  );
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+@media (max-width: 1024px) {
+  .grid-form {
+    gap: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-form {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-lg);
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 18px;
+  }
+
+  .item-group {
+    padding: var(--spacing-lg);
+  }
+
+  .button-container {
+    flex-direction: column;
+  }
+
+  .save-btn {
+    width: 100%;
+  }
+
+  .delete-customer-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #editKaryawanContainer .employee-card-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  #editKaryawanContainer .employee-icon {
+    font-size: 32px;
+  }
+
+  #editKaryawanContainer .employee-name {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  #editKaryawanContainer .employee-badge {
+    align-self: flex-start;
+  }
+
+  #editKaryawanContainer select {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-info-section,
+  .payment-section,
+  .order-summary {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .customer-info-section h3,
+  .payment-section h3,
+  .order-summary h3 {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .item-badge {
+    font-size: 12px;
+    padding: 6px 16px;
+  }
+
+  .grid-form input,
+  .grid-form select,
+  .grid-form textarea {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .save-btn {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+
+  .remove-item-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  #editKaryawanContainer .active-employee-card,
+  #editKaryawanContainer .warning-card {
+    padding: 12px 14px;
+  }
+
+  #editKaryawanContainer .employee-icon {
+    font-size: 28px;
+  }
+
+  #editKaryawanContainer .employee-name {
+    font-size: 15px;
+  }
+
+  #editKaryawanContainer .employee-details {
+    font-size: 11px;
+  }
+
+  #editKaryawanContainer .employee-badge {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+
+  #editKaryawanContainer select {
+    padding: 11px 14px;
+    font-size: 13px;
+    padding-right: 42px;
+  }
+}

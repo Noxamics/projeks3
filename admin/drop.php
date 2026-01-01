@@ -1,7 +1,8 @@
 <?php
-// File: admin/drop.php - GROUPED BY DATE VERSION
+// File: admin/drop.php - IMPROVED COLOR SCHEME VERSION
+// Warna konsisten dengan sistem CSS Variables baru
 
-// ===== HANDLE AJAX REQUESTS (tetap sama) =====
+// ===== HANDLE AJAX REQUESTS (tidak berubah) =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json; charset=utf-8');
     include('../db.php');
@@ -237,7 +238,6 @@ include('../partials/headerAdmin.php');
 // ===== QUERY DATA - GROUPED BY DATE =====
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 
-// Query untuk mendapatkan semua tanggal transaksi yang unik
 $sql_dates = "
     SELECT DISTINCT DATE(d.trans_date) as trans_date
     FROM drops d
@@ -309,27 +309,50 @@ function formatIndonesianDate($date)
     <link rel="stylesheet" href="../css/drop/badge.css">
     <link rel="stylesheet" href="../css/drop/m_optimaze.css">
     <style>
-        /* Additional styles for date grouping */
+        /* ===== DATE GROUP HEADER - IMPROVED COLORS ===== */
         .date-group-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Updated: Primary blue gradient yang konsisten */
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
             color: white;
             padding: 16px 24px;
             margin: 24px 0 16px 0;
             border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            /* Updated: Shadow dengan primary color */
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .date-group-header:hover {
+            /* Updated: Hover effect konsisten */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 102, 204, 0.35);
         }
 
         .date-group-header svg {
             flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
         .date-group-container {
             margin-bottom: 32px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .date-group-stats {
@@ -341,12 +364,23 @@ function formatIndonesianDate($date)
         }
 
         .date-group-stats span {
+            /* Updated: Subtle white background */
             background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
             padding: 4px 12px;
             border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.3s ease;
         }
 
-        /* Responsive adjustments */
+        .date-group-stats span:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* ===== RESPONSIVE - MOBILE ===== */
         @media (max-width: 768px) {
             .date-group-header {
                 flex-direction: column;
@@ -359,6 +393,11 @@ function formatIndonesianDate($date)
                 margin-left: 0;
                 width: 100%;
                 justify-content: space-between;
+            }
+
+            .date-group-stats span {
+                font-size: 12px;
+                padding: 3px 10px;
             }
         }
     </style>
@@ -396,7 +435,7 @@ function formatIndonesianDate($date)
                     </button>
 
                     <button class="print-btn" id="printSelectedThermalBtn"
-                        style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"
+                        style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);"
                         title="Cetak Thermal Terpilih">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                             viewBox="0 0 16 16">
@@ -406,7 +445,6 @@ function formatIndonesianDate($date)
                                 d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" />
                         </svg>
                     </button>
-
 
                     <button class="delete-btn" id="deleteBtn" title="Hapus Data Terpilih">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
@@ -450,21 +488,16 @@ function formatIndonesianDate($date)
                         <div class="empty-state-text">Belum ada pesanan</div>
                     </div>';
                 } else {
-                    // Loop setiap tanggal
                     while ($date_row = $result_dates->fetch_assoc()) {
-                        // CRITICAL: Simpan tanggal asli dari database dalam format YYYY-MM-DD
                         $trans_date_original = $date_row['trans_date'];
-
-                        // Buat versi formatted HANYA untuk display
                         $trans_date_display = formatIndonesianDate($trans_date_original);
 
-                        // Query untuk mendapatkan ALL customers yang punya pesanan di tanggal ini
-                        // Menggunakan INNER JOIN untuk memastikan dapat semua customer
                         $sql_customers_by_date = "
                             SELECT DISTINCT
                                 c.id_customer, 
                                 c.name, 
-                                c.phone
+                                c.phone,
+                                MAX(d.id_drop) as latest_drop_id
                             FROM drops d
                             INNER JOIN customers c ON d.customer_id = c.id_customer
                             WHERE DATE(d.trans_date) = ?
@@ -475,15 +508,16 @@ function formatIndonesianDate($date)
                             $sql_customers_by_date .= " AND (c.name LIKE '%$esc%' OR c.phone LIKE '%$esc%')";
                         }
 
-                        $sql_customers_by_date .= " ORDER BY c.name ASC";
-
+                        // ✅ PERUBAHAN UTAMA: GROUP BY dan ORDER BY id_drop terbesar
+                        $sql_customers_by_date .= " GROUP BY c.id_customer, c.name, c.phone";
+                        $sql_customers_by_date .= " ORDER BY latest_drop_id DESC"; // Terbaru di atas
+                
                         $stmt_customers = $conn->prepare($sql_customers_by_date);
                         if (!$stmt_customers) {
                             error_log("ERROR preparing customer query: " . $conn->error);
                             continue;
                         }
 
-                        // GUNAKAN $trans_date_original yang masih format YYYY-MM-DD
                         $stmt_customers->bind_param("s", $trans_date_original);
                         $stmt_customers->execute();
                         $result_customers = $stmt_customers->get_result();
@@ -491,7 +525,6 @@ function formatIndonesianDate($date)
                         $customer_count = $result_customers->num_rows;
 
                         if ($customer_count > 0) {
-                            // Hitung stats untuk tanggal ini - GUNAKAN QUERY YANG SAMA PERSIS
                             $stmt_stats = $conn->prepare("
                                 SELECT 
                                     COUNT(DISTINCT d.customer_id) as customer_count,
@@ -506,9 +539,6 @@ function formatIndonesianDate($date)
                             $date_stats = $stmt_stats->get_result()->fetch_assoc();
                             $stmt_stats->close();
 
-                            // Gunakan customer_count dari result query, bukan dari stats
-                            $actual_customer_count = $customer_count;
-
                             echo '<div class="date-group-container">';
                             echo '<div class="date-group-header">';
                             echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
@@ -521,19 +551,12 @@ function formatIndonesianDate($date)
                             echo '</div>';
                             echo '</div>';
 
-                            // Tampilkan SEMUA customers di tanggal ini
                             while ($customer = $result_customers->fetch_assoc()) {
-                                // CRITICAL: Kirim tanggal ORIGINAL yang masih format YYYY-MM-DD
                                 $customer['filter_date'] = $trans_date_original;
-
-                                // DEBUG: Log untuk memastikan format tanggal benar
-                                error_log("Sending to customer_group.php - Customer: {$customer['name']} (ID: {$customer['id_customer']}), filter_date: {$trans_date_original}");
-
-                                // Include customer group - akan menampilkan semua orders customer ini di tanggal ini
                                 include('../partials/drop/customer_group.php');
                             }
 
-                            echo '</div>'; // close date-group-container
+                            echo '</div>';
                         }
 
                         $stmt_customers->close();

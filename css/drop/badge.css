@@ -1,6 +1,6 @@
 /* =========================================================
-   FIX BADGE "DIAMBIL" TERPOTONG
-   Tambahkan CSS ini dengan !important untuk override
+   BADGE FIX - IMPROVED COLOR SCHEME
+   Success theme with consistent colors
    ========================================================= */
 
 /* CRITICAL: Remove all overflow hidden */
@@ -17,7 +17,7 @@
 .order-item-row {
   overflow: visible !important;
   position: relative;
-  contain: none !important; /* Disable CSS containment */
+  contain: none !important;
 }
 
 .order-item-row.item-completed {
@@ -30,12 +30,18 @@
   position: relative;
 }
 
-/* Completed Badge - Maximum Priority */
+/* =========================================================
+   COMPLETED BADGE OVERLAY - SUCCESS THEME
+   ========================================================= */
 .completed-badge-overlay {
   position: absolute !important;
   top: 8px !important;
   right: 8px !important;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  ) !important;
   color: white !important;
   padding: 5px 12px !important;
   border-radius: 16px !important;
@@ -43,8 +49,8 @@
   font-weight: 800 !important;
   letter-spacing: 0.3px !important;
   text-transform: uppercase !important;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5) !important;
-  z-index: 9999 !important; /* Maximum z-index */
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4) !important;
+  z-index: 9999 !important;
   display: flex !important;
   align-items: center !important;
   gap: 4px !important;
@@ -57,17 +63,18 @@
   content: "✓" !important;
   font-size: 12px !important;
   flex-shrink: 0 !important;
+  font-weight: 900 !important;
 }
 
 @keyframes badgePulse {
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.6);
+    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.5);
   }
 }
 
@@ -98,12 +105,6 @@
   }
 }
 
-/* ALTERNATIVE: Jika masih terpotong, gunakan fixed positioning */
-.completed-badge-overlay.force-visible {
-  position: fixed !important;
-  /* JavaScript will calculate the exact position */
-}
-
 /* Ensure parent containers don't clip */
 body {
   overflow-x: hidden;
@@ -122,16 +123,6 @@ body {
 
 .order-item-row.item-completed:hover {
   transform: translateX(3px) !important;
-}
-
-/* Debugging - Temporary (remove after fix) */
-.completed-badge-overlay.debug {
-  outline: 2px solid red !important;
-  background: red !important;
-}
-
-.order-item-row.item-completed.debug {
-  outline: 2px solid blue !important;
 }
 
 /* Force Hardware Acceleration */

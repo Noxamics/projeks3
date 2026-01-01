@@ -1,6 +1,7 @@
 <?php
 // File: /actions/drop/drop_add.php
-// Handle adding new drop order with multiple items - FIXED VERSION
+// Handle adding new drop order with multiple items
+// ✅ FIXED: Error handling, type validation, and date processing
 
 // ===== CRITICAL: NO OUTPUT BEFORE THIS =====
 ob_start();
@@ -23,6 +24,80 @@ function sendJsonResponse($data)
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+// ===== FUNCTION: Generate Unique Order Code =====
+function generateUniqueOrderCode($conn, $max_attempts = 10)
+{
+    $date_code = date('ym');
+
+    for ($attempt = 0; $attempt < $max_attempts; $attempt++) {
+        $random_digits = mt_rand(1000, 9999);
+        $order_code = "ORD{$date_code}-{$random_digits}";
+
+        $stmt = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
+        if (!$stmt) {
+            throw new Exception("Database error: " . $conn->error);
+        }
+
+        $stmt->bind_param("s", $order_code);
+        $stmt->execute();
+        $check_result = $stmt->get_result();
+        $stmt->close();
+
+        if ($check_result->num_rows === 0) {
+            return $order_code;
+        }
+    }
+
+    // Fallback jika semua random gagal
+    $timestamp = time();
+    $fallback_num = ($timestamp % 9000) + 1000;
+    return "ORD{$date_code}-{$fallback_num}";
+}
+
+// ===== FUNCTION: Get Employee Data =====
+function getEmployeeData($conn, $employee_id)
+{
+    $stmt = $conn->prepare("
+        SELECT id_employee, name, employee_code 
+        FROM employees 
+        WHERE id_employee = ?
+    ");
+
+    if (!$stmt) {
+        throw new Exception("Database error: " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $employee_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        return null;
+    }
+
+    $employee = $result->fetch_assoc();
+    $stmt->close();
+
+    return $employee;
+}
+
+// ===== FUNCTION: Validate Date Format =====
+function validateDateFormat($date_string)
+{
+    if (empty($date_string)) {
+        return null;
+    }
+
+    // Check if date is in YYYY-MM-DD format
+    $d = DateTime::createFromFormat('Y-m-d', $date_string);
+    if ($d && $d->format('Y-m-d') === $date_string) {
+        return $date_string;
+    }
+
+    return null;
 }
 
 // ===== VALIDATE REQUEST METHOD =====
@@ -73,6 +148,10 @@ if ($conn->connect_error) {
 
 // ===== MAIN PROCESS =====
 try {
+    // ===== LOG RECEIVED DATA FOR DEBUGGING =====
+    error_log("=== DROP_ADD: Request received ===");
+    error_log("POST Data: " . print_r($_POST, true));
+
     // ===== VALIDATE REQUIRED FIELDS =====
     if (empty($_POST['customer_name'])) {
         throw new Exception('Nama pelanggan wajib diisi');
@@ -92,8 +171,22 @@ try {
 
     // Start transaction
     $conn->begin_transaction();
+    error_log("✓ Transaction started");
 
-    // === 1. CHECK OR CREATE CUSTOMER ===
+    // === 1. GET EMPLOYEE DATA (KASIR) ===
+    $employee_id = intval($_POST['employee_id']);
+    $employee_data = getEmployeeData($conn, $employee_id);
+
+    if (!$employee_data) {
+        throw new Exception('Karyawan tidak ditemukan dengan ID: ' . $employee_id);
+    }
+
+    $employee_name = $employee_data['name'];
+    $employee_code = $employee_data['employee_code'];
+
+    error_log("✓ Employee found - ID: {$employee_id}, Name: {$employee_name}, Code: {$employee_code}");
+
+    // === 2. CHECK OR CREATE CUSTOMER ===
     $customer_name = trim($_POST['customer_name']);
     $phone_number = trim($_POST['phone_number']);
 
@@ -127,6 +220,7 @@ try {
             throw new Exception("Gagal update customer: " . $stmt2->error);
         }
         $stmt2->close();
+        error_log("✓ Customer updated - ID: {$customer_id}");
     } else {
         $stmt->close();
 
@@ -149,15 +243,9 @@ try {
         }
 
         $customer_id = $stmt3->insert_id;
-        $affected_rows = $stmt3->affected_rows;
-
-        error_log("Customer insert - insert_id: {$customer_id}, affected_rows: {$affected_rows}");
-
         $stmt3->close();
 
         if (!$customer_id || $customer_id <= 0) {
-            error_log("insert_id failed, trying manual query for phone: {$phone_number}");
-
             $stmt4 = $conn->prepare("SELECT id_customer FROM customers WHERE phone = ? ORDER BY id_customer DESC LIMIT 1");
             if (!$stmt4) {
                 throw new Exception("Failed to retrieve customer ID: " . $conn->error);
@@ -170,195 +258,172 @@ try {
             if ($result4->num_rows > 0) {
                 $row4 = $result4->fetch_assoc();
                 $customer_id = $row4['id_customer'];
-                error_log("Manual query found customer_id: {$customer_id}");
             }
             $stmt4->close();
 
             if (!$customer_id || $customer_id <= 0) {
-                throw new Exception("Gagal mendapatkan ID customer baru. insert_id={$customer_id}, affected_rows={$affected_rows}");
+                throw new Exception("Gagal mendapatkan ID customer baru");
             }
         }
+        error_log("✓ Customer created - ID: {$customer_id}");
     }
 
-    // === 2. GET DATA FROM FORM ===
-    $employee_id = intval($_POST['employee_id']);
-    $total_amount = floatval($_POST['total_amount'] ?? 0);
-    $payment_status = $_POST['payment_status'] ?? 'Belum Lunas';
-    $payment_method = $_POST['payment_method'] ?? 'Tunai';
-    $amount_paid = floatval($_POST['amount_paid'] ?? 0);
-    $payment_date = !empty($_POST['payment_date']) ? $_POST['payment_date'] : NULL;
-    $note = trim($_POST['note'] ?? '');
+    // === 3. GET DATA FROM FORM ===
+    $payment_status = isset($_POST['payment_status']) ? trim($_POST['payment_status']) : 'Belum Lunas';
+    $payment_method = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : 'Tunai';
+    $note = isset($_POST['note']) ? trim($_POST['note']) : '';
     $items = $_POST['items'];
 
-    $first_item = reset($items);
-    $trans_date = $first_item['trans_date'] ?? date('Y-m-d');
-    $first_service_id = intval($first_item['service_id'] ?? 0);
-    $first_brand = trim($first_item['brand'] ?? '');
+    error_log("Payment Status: {$payment_status}, Method: {$payment_method}");
 
-    $max_duration = 0;
+    // Array untuk menyimpan order codes yang berhasil dibuat
+    $created_order_codes = [];
+    $total_amount_all = 0;
+    $first_drop_id = null;
+
+    // === 4. LOOP SETIAP ITEM - BUAT DROP TERPISAH ===
+    $item_number = 1;
+
     foreach ($items as $item) {
-        $duration = intval($item['duration'] ?? 0);
-        if ($duration > $max_duration) {
-            $max_duration = $duration;
-        }
-    }
+        error_log("--- Processing Item #{$item_number} ---");
 
-    $est_finish_date = NULL;
-    if ($max_duration > 0) {
-        $date = new DateTime($trans_date);
-        $date->modify("+{$max_duration} days");
-        $est_finish_date = $date->format('Y-m-d');
-    }
+        // Generate UNIQUE order code untuk setiap item
+        $order_code = generateUniqueOrderCode($conn);
+        error_log("Generated order code: {$order_code}");
 
-    // === GENERATE ORDER CODE ===
-    $date_code = date('ym');
-    $max_attempts = 10;
-    $order_code = null;
-
-    for ($attempt = 0; $attempt < $max_attempts; $attempt++) {
-        $random_digits = mt_rand(1000, 9999);
-        $temp_order_code = "ORD{$date_code}-{$random_digits}";
-
-        $stmt5 = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ?");
-        if (!$stmt5) {
-            throw new Exception("Database error: " . $conn->error);
+        // Validate and sanitize item data
+        $brand = isset($item['brand']) ? trim($item['brand']) : '';
+        if (empty($brand)) {
+            throw new Exception("Item #{$item_number}: Brand tidak boleh kosong");
         }
 
-        $stmt5->bind_param("s", $temp_order_code);
-        $stmt5->execute();
-        $check_result = $stmt5->get_result();
-        $stmt5->close();
-
-        if ($check_result->num_rows === 0) {
-            $order_code = $temp_order_code;
-            break;
-        }
-    }
-
-    if ($order_code === null) {
-        $timestamp = time();
-        $fallback_num = ($timestamp % 9000) + 1000;
-        $order_code = "ORD{$date_code}-{$fallback_num}";
-    }
-
-    // === 3. INSERT DROP ORDER ===
-    $total_items = count($items);
-
-    $stmt6 = $conn->prepare("
-        INSERT INTO drops (
-            order_code,
-            customer_id, 
-            employee_id,
-            service_id,
-            brand,
-            trans_date,
-            est_finish_date,
-            total_amount,
-            total_items,
-            note,
-            created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-    ");
-
-    if (!$stmt6) {
-        throw new Exception("Database prepare error for drops: " . $conn->error);
-    }
-
-    $stmt6->bind_param(
-        "siiissssis",
-        $order_code,
-        $customer_id,
-        $employee_id,
-        $first_service_id,
-        $first_brand,
-        $trans_date,
-        $est_finish_date,
-        $total_amount,
-        $total_items,
-        $note
-    );
-
-    if (!$stmt6->execute()) {
-        $drop_error = $stmt6->error;
-        $stmt6->close();
-        throw new Exception("Gagal menyimpan pesanan: " . $drop_error);
-    }
-
-    $drop_id = $stmt6->insert_id;
-    $drop_affected = $stmt6->affected_rows;
-
-    error_log("Drop insert - insert_id: {$drop_id}, affected_rows: {$drop_affected}, order_code: {$order_code}");
-
-    $stmt6->close();
-
-    // FIX: Manual query if insert_id fails
-    if (!$drop_id || $drop_id <= 0) {
-        error_log("Drop insert_id failed, trying manual query for order_code: {$order_code}");
-
-        $stmt_manual = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ? ORDER BY id_drop DESC LIMIT 1");
-        if (!$stmt_manual) {
-            throw new Exception("Failed to retrieve drop ID: " . $conn->error);
+        $service_id = isset($item['service_id']) ? intval($item['service_id']) : 0;
+        if ($service_id <= 0) {
+            throw new Exception("Item #{$item_number}: Service ID tidak valid");
         }
 
-        $stmt_manual->bind_param("s", $order_code);
-        $stmt_manual->execute();
-        $result_manual = $stmt_manual->get_result();
-
-        if ($result_manual->num_rows > 0) {
-            $row_manual = $result_manual->fetch_assoc();
-            $drop_id = $row_manual['id_drop'];
-            error_log("Manual query found drop_id: {$drop_id}");
+        $price = isset($item['price']) ? floatval($item['price']) : 0;
+        if ($price < 0) {
+            throw new Exception("Item #{$item_number}: Harga tidak valid");
         }
-        $stmt_manual->close();
 
+        $status_id = isset($item['status_id']) ? intval($item['status_id']) : 0;
+        if ($status_id <= 0) {
+            throw new Exception("Item #{$item_number}: Status ID tidak valid");
+        }
+
+        $item_notes = isset($item['notes']) ? trim($item['notes']) : '';
+
+        // Validate transaction date
+        $trans_date = isset($item['trans_date']) ? $item['trans_date'] : date('Y-m-d');
+        $trans_date = validateDateFormat($trans_date);
+        if (!$trans_date) {
+            $trans_date = date('Y-m-d');
+            error_log("Item #{$item_number}: Invalid trans_date, using today");
+        }
+
+        $duration = isset($item['duration']) ? intval($item['duration']) : 0;
+
+        // Hitung estimasi selesai
+        $est_finish_date = NULL;
+        if ($duration > 0) {
+            try {
+                $date = new DateTime($trans_date);
+                $date->modify("+{$duration} days");
+                $est_finish_date = $date->format('Y-m-d');
+                error_log("Item #{$item_number}: Estimated finish: {$est_finish_date}");
+            } catch (Exception $e) {
+                error_log("Item #{$item_number}: Error calculating est_finish_date: " . $e->getMessage());
+                $est_finish_date = NULL;
+            }
+        }
+
+        // === INSERT DROP ===
+        $stmt_drop = $conn->prepare("
+            INSERT INTO drops (
+                order_code,
+                customer_id, 
+                employee_id,
+                service_id,
+                brand,
+                trans_date,
+                est_finish_date,
+                total_amount,
+                total_items,
+                note,
+                received_by,
+                received_by_name,
+                received_by_code,
+                received_at,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, NOW(), NOW())
+        ");
+
+        if (!$stmt_drop) {
+            throw new Exception("Database prepare error for drops: " . $conn->error);
+        }
+
+        // Bind parameters: s=string, i=integer, d=double
+        $stmt_drop->bind_param(
+            "siiisssdsiss",
+            $order_code,        // s - string
+            $customer_id,       // i - integer
+            $employee_id,       // i - integer
+            $service_id,        // i - integer
+            $brand,             // s - string
+            $trans_date,        // s - string (date)
+            $est_finish_date,   // s - string (date, nullable)
+            $price,             // d - double
+            $note,              // s - string
+            $employee_id,       // i - integer (received_by)
+            $employee_name,     // s - string (received_by_name)
+            $employee_code      // s - string (received_by_code)
+        );
+
+        if (!$stmt_drop->execute()) {
+            $drop_error = $stmt_drop->error;
+            $stmt_drop->close();
+            throw new Exception("Gagal menyimpan pesanan item #{$item_number}: " . $drop_error);
+        }
+
+        $drop_id = $stmt_drop->insert_id;
+        $stmt_drop->close();
+
+        error_log("✓ Drop inserted - Item #{$item_number}, ID: {$drop_id}, Code: {$order_code}");
+
+        // Store first drop_id for printing
+        if ($first_drop_id === null) {
+            $first_drop_id = $drop_id;
+        }
+
+        // Fallback to get drop_id if insert_id fails
         if (!$drop_id || $drop_id <= 0) {
-            throw new Exception("Gagal mendapatkan ID pesanan. insert_id={$drop_id}, affected_rows={$drop_affected}");
-        }
-    }
-
-    // ========== TAMBAHKAN KODE INI (TRACKING KASIR) ==========
-// Update tracking: Kasir yang menerima order
-    if ($drop_id > 0 && $employee_id > 0) {
-        try {
-            // Cek apakah kolom tracking sudah ada
-            $check_column = $conn->query("SHOW COLUMNS FROM drops LIKE 'received_by'");
-
-            if ($check_column && $check_column->num_rows > 0) {
-                // Kolom ada, lakukan update tracking
-                $stmt_track = $conn->prepare("UPDATE drops SET received_by = ?, received_at = NOW() WHERE id_drop = ?");
-
-                if ($stmt_track) {
-                    $stmt_track->bind_param("ii", $employee_id, $drop_id);
-
-                    if ($stmt_track->execute()) {
-                        error_log("TRACKING SUCCESS - Drop ID: {$drop_id}, Received by Employee: {$employee_id}");
-                    } else {
-                        error_log("TRACKING WARNING - Failed to update: " . $stmt_track->error);
-                    }
-
-                    $stmt_track->close();
-                }
-            } else {
-                error_log("TRACKING WARNING - Column 'received_by' not found in drops table. Run ALTER TABLE first.");
+            $stmt_manual = $conn->prepare("SELECT id_drop FROM drops WHERE order_code = ? ORDER BY id_drop DESC LIMIT 1");
+            if (!$stmt_manual) {
+                throw new Exception("Failed to retrieve drop ID: " . $conn->error);
             }
 
-        } catch (Exception $track_error) {
-            // Jangan throw error, hanya log agar tidak mengganggu flow utama
-            error_log("TRACKING ERROR - " . $track_error->getMessage());
+            $stmt_manual->bind_param("s", $order_code);
+            $stmt_manual->execute();
+            $result_manual = $stmt_manual->get_result();
+
+            if ($result_manual->num_rows > 0) {
+                $row_manual = $result_manual->fetch_assoc();
+                $drop_id = $row_manual['id_drop'];
+
+                if ($first_drop_id === null) {
+                    $first_drop_id = $drop_id;
+                }
+            }
+            $stmt_manual->close();
+
+            if (!$drop_id || $drop_id <= 0) {
+                throw new Exception("Gagal mendapatkan ID pesanan item #{$item_number}");
+            }
         }
-    }
 
-    // === 4. INSERT ITEMS ===
-    $item_order = 1;
-
-    foreach ($items as $item) {
-        $brand = trim($item['brand']);
-        $service_id = intval($item['service_id']);
-        $price = floatval($item['price'] ?? 0);
-        $status_id = intval($item['status_id']);
-        $item_notes = trim($item['notes'] ?? '');
-
-        $stmt7 = $conn->prepare("
+        // === INSERT DROP ITEM ===
+        $stmt_item = $conn->prepare("
             INSERT INTO drop_items (
                 drop_id,
                 brand,
@@ -368,101 +433,124 @@ try {
                 notes,
                 item_order,
                 created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, 1, NOW())
         ");
 
-        if (!$stmt7) {
+        if (!$stmt_item) {
             throw new Exception("Database error: " . $conn->error);
         }
 
-        $stmt7->bind_param(
-            "isidisi",
+        $stmt_item->bind_param(
+            "isidis",
             $drop_id,
             $brand,
             $service_id,
             $price,
             $status_id,
-            $item_notes,
-            $item_order
+            $item_notes
         );
 
-        if (!$stmt7->execute()) {
-            throw new Exception("Gagal menyimpan item: " . $stmt7->error);
+        if (!$stmt_item->execute()) {
+            throw new Exception("Gagal menyimpan detail item #{$item_number}: " . $stmt_item->error);
         }
 
-        $stmt7->close();
-        $item_order++;
-    }
+        $stmt_item->close();
+        error_log("✓ Drop item inserted for Item #{$item_number}");
 
-    // === 5. INSERT PAYMENT ===
-    $stmt8 = $conn->prepare("
-        INSERT INTO payments (
-            drop_id,
-            amount_paid,
-            payment_method,
-            payment_date,
-            status,
-            created_at
-        ) VALUES (?, ?, ?, ?, ?, NOW())
-    ");
+        // === INSERT PAYMENT (PER ITEM) ===
+        $amount_paid_item = ($payment_status === 'Lunas') ? $price : 0;
 
-    if (!$stmt8) {
-        throw new Exception("Database error: " . $conn->error);
-    }
+        // Validate payment date
+        $payment_date = NULL;
+        if ($payment_status === 'Lunas' && isset($_POST['payment_date'])) {
+            $payment_date = validateDateFormat($_POST['payment_date']);
+        }
 
-    $stmt8->bind_param(
-        "idsss",
-        $drop_id,
-        $amount_paid,
-        $payment_method,
-        $payment_date,
-        $payment_status
-    );
-
-    $stmt8->execute();
-    $stmt8->close();
-
-    // === 6. INSERT DEADLINE ===
-    if ($est_finish_date) {
-        $first_status_id = intval($first_item['status_id']);
-
-        $stmt9 = $conn->prepare("
-            INSERT INTO deadlines (
+        $stmt_payment = $conn->prepare("
+            INSERT INTO payments (
                 drop_id,
-                deadline_date,
-                status_id,
+                amount_paid,
+                payment_method,
+                payment_date,
+                status,
                 created_at
-            ) VALUES (?, ?, ?, NOW())
+            ) VALUES (?, ?, ?, ?, ?, NOW())
         ");
 
-        if (!$stmt9) {
+        if (!$stmt_payment) {
             throw new Exception("Database error: " . $conn->error);
         }
 
-        $stmt9->bind_param("isi", $drop_id, $est_finish_date, $first_status_id);
-        $stmt9->execute();
-        $stmt9->close();
+        $stmt_payment->bind_param(
+            "idsss",
+            $drop_id,
+            $amount_paid_item,
+            $payment_method,
+            $payment_date,
+            $payment_status
+        );
+
+        $stmt_payment->execute();
+        $stmt_payment->close();
+        error_log("✓ Payment record inserted for Item #{$item_number}");
+
+        // === INSERT DEADLINE ===
+        if ($est_finish_date) {
+            $stmt_deadline = $conn->prepare("
+                INSERT INTO deadlines (
+                    drop_id,
+                    deadline_date,
+                    status_id,
+                    created_at
+                ) VALUES (?, ?, ?, NOW())
+            ");
+
+            if (!$stmt_deadline) {
+                throw new Exception("Database error: " . $conn->error);
+            }
+
+            $stmt_deadline->bind_param("isi", $drop_id, $est_finish_date, $status_id);
+            $stmt_deadline->execute();
+            $stmt_deadline->close();
+            error_log("✓ Deadline inserted for Item #{$item_number}");
+        }
+
+        // Simpan order code yang berhasil
+        $created_order_codes[] = $order_code;
+        $total_amount_all += $price;
+        $item_number++;
     }
 
-    // === 7. COMMIT TRANSACTION ===
+    // === COMMIT TRANSACTION ===
     $conn->commit();
+    error_log("✓ Transaction committed successfully");
+    error_log("✓ Total items created: " . count($created_order_codes));
 
-    // === 8. SUCCESS RESPONSE ===
+    // === SUCCESS RESPONSE ===
     sendJsonResponse([
         'success' => true,
-        'message' => "Pesanan berhasil ditambahkan",
-        'drop_id' => $drop_id,
-        'order_code' => $order_code,
+        'message' => "Berhasil menambahkan " . count($items) . " pesanan oleh {$employee_name}",
         'customer_id' => $customer_id,
-        'item_count' => count($items)
+        'drop_id' => $first_drop_id, // For printing
+        'order_codes' => $created_order_codes,
+        'total_items' => count($items),
+        'total_amount' => $total_amount_all,
+        'first_order_code' => $created_order_codes[0] ?? null,
+        'received_by' => [
+            'id' => $employee_id,
+            'name' => $employee_name,
+            'code' => $employee_code
+        ]
     ]);
 
 } catch (Exception $e) {
     if (isset($conn) && $conn instanceof mysqli) {
         $conn->rollback();
+        error_log("✗ Transaction rolled back");
     }
 
     error_log("DROP_ADD ERROR: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
 
     sendJsonResponse([
         'success' => false,

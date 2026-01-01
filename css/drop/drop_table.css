@@ -1,16 +1,13 @@
 /* =========================================================
-   drop_table.css - Modern Table & Grid (COMPLETE FIXED)
+   drop_table.css - IMPROVED COLOR SCHEME
+   Konsistensi warna, kontras lebih baik, hierarki jelas
    ========================================================= */
 
 /* =========================================================
    TABLE CONTAINER
    ========================================================= */
 .drop-page .table-container {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -18,14 +15,18 @@
   position: relative;
   max-width: 100%;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border-light);
 }
 
 /* =========================================================
-   CUSTOMER GROUP HEADER - GRADIENT WITH #0066cc
+   CUSTOMER GROUP HEADER - PRIMARY BLUE THEME
    ========================================================= */
 .customer-group-header {
-  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 100%
+  );
   color: white;
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
@@ -38,7 +39,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
   transition: var(--transition-base);
 }
 
@@ -47,7 +48,7 @@
 }
 
 .customer-group-header:hover {
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.35);
   transform: translateY(-1px);
 }
 
@@ -68,29 +69,29 @@
   font-size: 12px;
   font-weight: 600;
   opacity: 0.95;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   padding: 4px 12px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .order-count-badge {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
   padding: 5px 14px;
   border-radius: 16px;
   font-size: 12px;
   font-weight: 800;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   letter-spacing: 0.2px;
   text-transform: none;
 }
 
 /* =========================================================
-   CUSTOMER ACTIONS - FIXED TEXT TRANSFORM
+   CUSTOMER ACTIONS
    ========================================================= */
 .customer-actions {
   display: flex;
@@ -100,7 +101,7 @@
 .customer-action-btn {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: white;
   padding: 6px 12px;
   border-radius: var(--radius-md);
@@ -116,50 +117,52 @@
   text-transform: none;
 }
 
-.customer-action-btn::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.4s, height 0.4s;
-}
-
-.customer-action-btn:hover::before {
-  width: 150px;
-  height: 150px;
-}
-
 .customer-action-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.35);
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.print-all-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+/* Print All Button - Purple Theme */
+.print-all-btn,
+.thermal-all-btn {
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    var(--color-secondary-dark) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.print-all-btn:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+.print-all-btn:hover,
+.thermal-all-btn:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary-light) 0%,
+    var(--color-secondary) 100%
+  );
 }
 
+/* Delete Customer Button - Danger Theme */
 .delete-customer-btn {
-  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger) 0%,
+    var(--color-danger-dark) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .delete-customer-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger-light) 0%,
+    var(--color-danger) 100%
+  );
 }
 
 /* =========================================================
-   CUSTOMER CHECKBOX
+   CHECKBOXES
    ========================================================= */
 .customer-checkbox,
 .item-checkbox {
@@ -174,39 +177,43 @@
 .customer-checkbox:hover,
 .item-checkbox:hover {
   transform: scale(1.1);
+  filter: drop-shadow(0 2px 4px rgba(0, 102, 204, 0.3));
 }
 
 /* =========================================================
    ORDER ITEMS CONTAINER
    ========================================================= */
 .customer-orders-container {
-  background: white;
-  border: 2px solid #e2e8f0;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
   overflow: hidden;
   margin-bottom: var(--spacing-lg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transition: var(--transition-base);
 }
 
 .customer-orders-container:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* =========================================================
-   GRID HEADERS - 10 COLUMNS (EXTENDED WIDTHS)
-   Kolom: # | ID ORDER | BRAND | LAYANAN | HARGA | TGL | STATUS | BAYAR | KARYAWAN | AKSI
+   GRID HEADERS
    ========================================================= */
 .orders-grid-header {
   display: grid;
   grid-template-columns: 40px 110px 130px 140px 100px 110px 150px 110px 150px 100px;
   gap: 8px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gray) 0%,
+    var(--color-bg-dark) 100%
+  );
   padding: 12px 20px;
   font-weight: 800;
   font-size: 11px;
   color: var(--color-text);
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 90;
@@ -229,7 +236,6 @@
   color: var(--color-primary);
 }
 
-/* ALIGNMENT RULES */
 .header-cell.center {
   justify-content: center;
   text-align: center;
@@ -241,7 +247,7 @@
 }
 
 /* =========================================================
-   ORDER ITEM GRID - 10 COLUMNS (EXTENDED WIDTHS)
+   ORDER ITEM GRID
    ========================================================= */
 .order-item-grid {
   display: grid;
@@ -252,6 +258,7 @@
   font-size: 12px;
   font-weight: 500;
 }
+
 .order-item-cell {
   padding: 4px 8px;
   overflow: hidden;
@@ -262,7 +269,6 @@
   align-items: center;
 }
 
-/* ALIGNMENT RULES FOR DATA CELLS */
 .order-item-cell.center {
   justify-content: center;
   text-align: center;
@@ -274,10 +280,10 @@
 }
 
 /* =========================================================
-   ORDER ITEM ROW - MODERN & SIMPLE
+   ORDER ITEM ROW
    ========================================================= */
 .order-item-row {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border-light);
   transition: var(--transition-base);
   cursor: pointer;
   position: relative;
@@ -294,13 +300,21 @@
   top: 0;
   height: 100%;
   width: 3px;
-  background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
   transform: scaleY(0);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .order-item-row:hover {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-gray) 0%,
+    var(--color-bg-dark) 100%
+  );
   transform: translateX(3px);
 }
 
@@ -309,10 +323,14 @@
 }
 
 /* =========================================================
-   ITEM NUMBER BADGE
+   ITEM NUMBER BADGE - WARNING THEME
    ========================================================= */
 .item-number-badge {
-  background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-warning) 0%,
+    var(--color-warning-dark) 100%
+  );
   color: white;
   padding: 4px 10px;
   border-radius: var(--radius-md);
@@ -343,30 +361,30 @@
 .notes-preview:hover,
 .note-cell:hover {
   color: var(--color-text);
-  background: rgba(0, 102, 204, 0.05);
+  background: var(--color-primary-bg);
 }
 
 .note-cell.empty {
-  color: #94a3b8;
+  color: var(--color-text-lighter);
   font-style: italic;
 }
 
 /* =========================================================
-   ACTION BUTTONS - ENSURE THEY FIT PROPERLY
+   ACTION BUTTONS
    ========================================================= */
 .action-buttons-wrapper {
   display: flex;
-  gap: 6px; /* Reduced gap slightly */
+  gap: 6px;
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-width: 200px; /* Ensure minimum width */
+  min-width: 200px;
 }
 
 .print-item-btn,
 .thermal-print-btn,
 .delete-item-btn {
-  width: 34px; /* Slightly smaller */
+  width: 34px;
   height: 34px;
   padding: 0;
   border: none;
@@ -381,43 +399,67 @@
   flex-shrink: 0;
 }
 
-/* Print Button - Modern Purple */
+/* Print Button - Purple Theme */
 .print-item-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    var(--color-secondary-dark) 100%
+  );
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
 }
 
 .print-item-btn:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary-light) 0%,
+    var(--color-secondary) 100%
+  );
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
-/* Thermal Print Button - Purple Gradient */
+/* Thermal Print Button - Purple Theme */
 .thermal-print-btn {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary) 0%,
+    var(--color-secondary-dark) 100%
+  );
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
 }
 
 .thermal-print-btn:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary-light) 0%,
+    var(--color-secondary) 100%
+  );
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
-/* Delete Button - Modern Red */
+/* Delete Button - Danger Theme */
 button.delete-item-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  background: linear-gradient(
+    135deg,
+    var(--color-danger) 0%,
+    var(--color-danger-dark) 100%
+  ) !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
 }
 
 button.delete-item-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--color-danger-light) 0%,
+    var(--color-danger) 100%
+  ) !important;
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
 }
 
-/* SVG Icons - All buttons */
+/* SVG Icons */
 .print-item-btn svg,
 .thermal-print-btn svg,
 button.delete-item-btn svg {
@@ -433,79 +475,6 @@ button.delete-item-btn:hover svg {
   transform: scale(1.1);
 }
 
-/* =========================================================
-   RESPONSIVE - ADJUST FOR SMALLER SCREENS
-   ========================================================= */
-@media (max-width: 1400px) {
-  .orders-grid-header,
-  .order-item-grid {
-    grid-template-columns: 35px 100px 120px 130px 95px 100px 140px 100px 140px 130px;
-    font-size: 10px;
-  }
-
-  .action-buttons-wrapper {
-    gap: 4px;
-  }
-
-  .print-item-btn,
-  .thermal-print-btn,
-  .delete-item-btn {
-    width: 32px;
-    height: 32px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .customer-orders-container {
-    overflow-x: auto;
-  }
-
-  .orders-grid-header,
-  .order-item-grid {
-    min-width: 1350px; /* Increased to accommodate wider action column */
-  }
-}
-
-/* CRITICAL FIX: Force SVG to show with maximum specificity */
-button.delete-item-btn svg,
-button.delete-item-btn svg.bi-trash-fill,
-.delete-item-btn > svg {
-  width: 16px !important;
-  height: 16px !important;
-  min-width: 16px !important;
-  min-height: 16px !important;
-  max-width: 16px !important;
-  max-height: 16px !important;
-  fill: white !important;
-  color: white !important;
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transition: transform 0.3s ease;
-  pointer-events: none;
-}
-
-button.delete-item-btn svg path,
-.delete-item-btn > svg path {
-  fill: white !important;
-  color: white !important;
-}
-
-button.delete-item-btn:hover svg,
-.delete-item-btn:hover > svg {
-  transform: scale(1.1) rotate(5deg);
-}
-
-/* Fallback untuk img tag */
-button.delete-item-btn img,
-.delete-item-btn > img {
-  width: 16px !important;
-  height: 16px !important;
-  filter: brightness(0) invert(1) !important;
-  display: block !important;
-  opacity: 1 !important;
-}
-
 /* Disabled State */
 .delete-item-btn:disabled,
 .print-item-btn:disabled {
@@ -513,46 +482,20 @@ button.delete-item-btn img,
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-}
-
-.delete-item-btn:disabled:hover,
-.print-item-btn:disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-/* Ripple Effect */
-.print-item-btn::after,
-.delete-item-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: translate(-50%, -50%);
-  transition: width 0.5s, height 0.5s;
-}
-
-.print-item-btn:active::after,
-.delete-item-btn:active::after {
-  width: 100px;
-  height: 100px;
+  filter: grayscale(100%);
 }
 
 /* =========================================================
-   STATUS DROPDOWN - EXTENDED WIDTH & FULL TEXT VISIBLE
+   STATUS DROPDOWN - COLOR-CODED
    ========================================================= */
 .status-dropdown,
 .item-status-select {
   padding: 8px 12px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 11px;
   font-weight: 600;
-  background: white;
+  background: var(--color-bg);
   color: var(--color-text);
   cursor: pointer;
   transition: var(--transition-base);
@@ -567,44 +510,44 @@ button.delete-item-btn img,
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 30px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  white-space: normal; /* FIXED: Biarkan text wrap jika perlu */
-  overflow: visible; /* FIXED: Tampilkan semua text */
-  text-overflow: clip; /* FIXED: Jangan potong text */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .status-dropdown:hover,
 .item-status-select:hover {
   border-color: var(--color-primary);
-  background-color: rgba(0, 102, 204, 0.05);
+  background-color: var(--color-primary-bg);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .status-dropdown:focus,
 .item-status-select:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-  background-color: white;
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  background-color: var(--color-bg);
 }
 
 .status-dropdown:disabled,
 .item-status-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: #f1f5f9;
+  background-color: var(--color-bg-dark);
 }
 
-/* Status colors */
+/* Status Colors - More Consistent */
 .item-status-select[data-current-status="1"] {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: linear-gradient(135deg, var(--color-warning-bg) 0%, #fde68a 100%);
   border-color: var(--color-warning);
-  color: #92400e;
+  color: #78350f;
 }
 
 .item-status-select[data-current-status="2"] {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border-color: #3b82f6;
+  background: linear-gradient(135deg, var(--color-info-bg) 0%, #bfdbfe 100%);
+  border-color: var(--color-info);
   color: #1e40af;
 }
 
@@ -615,30 +558,34 @@ button.delete-item-btn img,
 }
 
 .item-status-select[data-current-status="4"] {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, #a7f3d0 100%);
   border-color: var(--color-success);
   color: #065f46;
 }
 
 .item-status-select[data-current-status="5"] {
-  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-  border-color: #6366f1;
+  background: linear-gradient(
+    135deg,
+    var(--color-secondary-bg) 0%,
+    #c7d2fe 100%
+  );
+  border-color: var(--color-secondary);
   color: #3730a3;
 }
 
 .item-status-select[data-current-status="6"] {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, #a7f3d0 100%);
   border-color: var(--color-success);
   color: #065f46;
   font-weight: 800;
 }
 
 /* =========================================================
-   TOTAL AMOUNT SUMMARY
+   TOTAL AMOUNT SUMMARY - INFO THEME
    ========================================================= */
 .customer-total-row {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-top: 2px solid #bae6fd;
+  background: linear-gradient(135deg, var(--color-info-bg) 0%, #bfdbfe 100%);
+  border-top: 2px solid #93c5fd;
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
   justify-content: flex-end;
@@ -649,7 +596,7 @@ button.delete-item-btn img,
 }
 
 .total-label {
-  color: #0369a1;
+  color: #1e40af;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -663,39 +610,18 @@ button.delete-item-btn img,
 }
 
 /* =========================================================
-   EMPTY STATE
-   ========================================================= */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--color-text-light);
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: var(--radius-xl);
-  margin: var(--spacing-lg);
-  border: 2px dashed #e2e8f0;
-}
-
-.empty-state-icon {
-  font-size: 60px;
-  margin-bottom: var(--spacing-md);
-  animation: bounce 2s ease-in-out infinite;
-}
-
-.empty-state-text {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-/* =========================================================
-   COMPLETED BADGE OVERLAY - FIXED DOUBLE ICON
+   COMPLETED BADGE OVERLAY - SUCCESS THEME
    ========================================================= */
 .completed-badge-overlay {
   position: absolute;
   top: 50%;
   right: 20px;
   transform: translateY(-50%);
-  background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-success) 0%,
+    var(--color-success-dark) 100%
+  );
   color: white;
   padding: 6px 14px;
   border-radius: 20px;
@@ -707,6 +633,19 @@ button.delete-item-btn img,
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
   z-index: 10;
   letter-spacing: 0.3px;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 3px 12px rgba(16, 185, 129, 0.4);
+  }
 }
 
 .completed-badge-overlay svg {
@@ -716,54 +655,7 @@ button.delete-item-btn img,
 }
 
 /* =========================================================
-   BUTTON HAPUS SEMUA - CUSTOMIZABLE STYLING
-   Lokasi: Di dalam customer-group-header (atas tabel)
-   ========================================================= */
-.delete-customer-btn {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: white;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  transition: var(--transition-base);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  position: relative;
-  overflow: hidden;
-  text-transform: none;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
-}
-
-.delete-customer-btn svg {
-  width: 14px;
-  height: 14px;
-  fill: white;
-  filter: brightness(0) invert(1);
-}
-
-.delete-customer-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
-}
-
-/* Jika ingin ukuran lebih besar */
-.delete-customer-btn.large {
-  padding: 8px 16px;
-  font-size: 12px;
-}
-
-/* Jika ingin warna berbeda */
-.delete-customer-btn.dark {
-  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
-}
-
-/* =========================================================
-   LOADING STATE
+   LOADING & SUCCESS STATES
    ========================================================= */
 .item-status-select.loading {
   opacity: 0.6;
@@ -791,17 +683,18 @@ button.delete-item-btn img,
   }
 }
 
-/* =========================================================
-   SUCCESS FLASH ANIMATION
-   ========================================================= */
 @keyframes successFlash {
   0% {
-    background: linear-gradient(135deg, var(--color-success) 0%, #059669 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-success) 0%,
+      var(--color-success-dark) 100%
+    );
     color: white;
     transform: scale(1.03);
   }
   100% {
-    background: white;
+    background: var(--color-bg);
     color: var(--color-text);
     transform: scale(1);
   }
@@ -809,6 +702,37 @@ button.delete-item-btn img,
 
 .item-status-select.success {
   animation: successFlash 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-light);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg) 0%,
+    var(--color-bg-gray) 100%
+  );
+  border-radius: var(--radius-xl);
+  margin: var(--spacing-lg);
+  border: 2px dashed var(--color-border);
+}
+
+.empty-state-icon {
+  font-size: 60px;
+  margin-bottom: var(--spacing-md);
+  animation: bounce 2s ease-in-out infinite;
+  color: var(--color-primary-light);
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 /* =========================================================
@@ -829,7 +753,7 @@ button.delete-item-btn img,
 
   .orders-grid-header,
   .order-item-grid {
-    min-width: 1300px;
+    min-width: 1350px;
   }
 }
 
