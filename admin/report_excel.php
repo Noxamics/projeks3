@@ -21,37 +21,50 @@ if (!empty($search)) {
     $where .= " AND (c.name LIKE '%$esc%' OR d.brand LIKE '%$esc%' OR s.service_name LIKE '%$esc%' OR s.category LIKE '%$esc%')";
 }
 
-// ✅ QUERY UPDATED
+// ✅ QUERY UPDATED SESUAI SCREENSHOT
 $query = "
 SELECT 
     d.id_drop, 
     d.order_code AS kode_order,
-
+    ANY_VALUE(d.trans_date) AS tgl_transaksi,
     ANY_VALUE(c.name) AS customer_name, 
     ANY_VALUE(d.brand) AS brand,
-    ANY_VALUE(s.category) AS kategori, 
-    ANY_VALUE(s.service_name) AS layanan,
-    ANY_VALUE(d.trans_date) AS tgl_transaksi, 
-    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
-    ANY_VALUE(d.actual_finish_date) AS tanggal_selesai,
-
-    ANY_VALUE(st.status_name) AS status_proses, 
-    ANY_VALUE(p.status) AS status_pembayaran,
-
+    ANY_VALUE(CONCAT(s.category, ' - ', s.service_name)) AS treatment,
+    ANY_VALUE(st.status_name) AS status_proses,
+    
+    -- Tanggal barang dikerjakan
+    ANY_VALUE((
+        SELECT sh.changed_at 
+        FROM status_history sh 
+        WHERE sh.drop_id = d.id_drop AND sh.status_id = 3
+        LIMIT 1
+    )) AS tgl_dikerjakan,
+    
+    -- Nama karyawan
     ANY_VALUE(e.name) AS karyawan, 
-    COALESCE(SUM(di.price * di.quantity),0) AS total_harga
+    
+    ANY_VALUE(d.est_finish_date) AS estimasi_selesai,
+    ANY_VALUE(d.actual_finish_date) AS tgl_diambil,
+    
+    COALESCE(SUM(di.price * di.quantity),0) AS total_harga,
+    
+    -- Metode pembayaran atau status
+    ANY_VALUE(
+        CASE 
+            WHEN p.status = 'Lunas' THEN p.payment_method
+            ELSE 'Belum Lunas'
+        END
+    ) AS metode_pembayaran,
+    
+    ANY_VALUE(p.status) AS status_pembayaran
 
 FROM drops d
 JOIN customers c ON d.customer_id = c.id_customer
 LEFT JOIN services s ON d.service_id = s.id_service
 LEFT JOIN drop_items di ON d.id_drop = di.drop_id
 LEFT JOIN payments p ON d.id_drop = p.drop_id
-
--- ✅ status dari deadlines
 LEFT JOIN deadlines dl ON d.id_drop = dl.drop_id
 LEFT JOIN statuses st ON dl.status_id = st.id_status
-
--- ✅ karyawan
 LEFT JOIN employees e ON d.employee_id = e.id_employee
 
 WHERE $where
@@ -63,15 +76,29 @@ $result = mysqli_query($conn, $query);
 
 echo "<table border='1'>";
 echo "<tr style='background:#0b3d91;color:white;'>
-<th>No</th><th>Kode Order</th><th>Customer</th><th>Brand</th><th>Kategori</th>
-<th>Layanan</th><th>Tgl Transaksi</th><th>Estimasi</th><th>Selesai</th>
-<th>Status Proses</th><th>Status Pembayaran</th><th>Karyawan</th><th>Harga</th></tr>";
+<th>No</th>
+<th>Nomor Order</th>
+<th>Tgl. Barang Masuk</th>
+<th>Nama Customer</th>
+<th>Brand</th>
+<th>Treatment</th>
+<th>Status</th>
+<th>Tgl. Barang Dikerjakan</th>
+<th>Nama Karyawan (Yang Mengerjakan)</th>
+<th>Tgl. Estimasi</th>
+<th>Tgl. Diambil</th>
+<th>Metode Pembayaran (Tunai/Tf/Qris)</th>
+<th>Harga</th>
+</tr>";
 
 $no = 1;
 $totalPendapatan = 0;
 
 while ($row = mysqli_fetch_assoc($result)) {
     $isLunas = strtolower($row['status_pembayaran'] ?? '') === 'lunas';
+    
+    // Tentukan warna untuk metode pembayaran
+    $paymentColor = $isLunas ? '#16a34a' : '#dc2626';
 
     if ($jenisTotal === 'semua' || ($jenisTotal === 'lunas' && $isLunas)) {
         $totalPendapatan += $row['total_harga'];
@@ -80,16 +107,16 @@ while ($row = mysqli_fetch_assoc($result)) {
     echo "<tr>
         <td>{$no}</td>
         <td>{$row['kode_order']}</td>
+        <td>{$row['tgl_transaksi']}</td>
         <td>{$row['customer_name']}</td>
         <td>{$row['brand']}</td>
-        <td>{$row['kategori']}</td>
-        <td>{$row['layanan']}</td>
-        <td>{$row['tgl_transaksi']}</td>
-        <td>{$row['estimasi_selesai']}</td>
-        <td>".($row['tanggal_selesai'] ?? '-')."</td>
+        <td>{$row['treatment']}</td>
         <td>{$row['status_proses']}</td>
-        <td>{$row['status_pembayaran']}</td>
+        <td>".($row['tgl_dikerjakan'] ? date('Y-m-d H:i:s', strtotime($row['tgl_dikerjakan'])) : '-')."</td>
         <td>{$row['karyawan']}</td>
+        <td>{$row['estimasi_selesai']}</td>
+        <td>".($row['tgl_diambil'] ?? '-')."</td>
+        <td style='color:{$paymentColor};font-weight:bold;'>{$row['metode_pembayaran']}</td>
         <td>Rp ".number_format($row['total_harga'],0,',','.')."</td>
     </tr>";
     $no++;

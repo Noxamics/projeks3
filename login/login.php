@@ -66,6 +66,8 @@ if (isset($_SESSION['user_id'])) {
                         echo "Logout berhasil!";
                     } elseif ($_GET['success'] === 'registered') {
                         echo "Pendaftaran berhasil! Silakan login.";
+                    } elseif ($_GET['success'] === 'password_reset') {
+                        echo "Password berhasil diubah! Silakan login dengan password baru.";
                     }
                     ?>
                 </p>
@@ -97,6 +99,11 @@ if (isset($_SESSION['user_id'])) {
                         </span>
                     </div>
                 </div>
+
+                <!-- Link Lupa Password -->
+                <p style="text-align:right; margin-top:-5px; margin-bottom:15px; font-size:12px;">
+                    <a href="forgot_password.php" style="color:#4CAF50; text-decoration:none;">Lupa Password?</a>
+                </p>
 
                 <button type="submit" class="btn-login">MASUK</button>
 

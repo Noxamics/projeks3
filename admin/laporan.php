@@ -122,22 +122,40 @@ $kategoriResult = mysqli_query($conn, $kategoriQuery);
                 <tbody>
                     <?php while ($row = mysqli_fetch_assoc($result)): ?>
                         <tr>
-                            <td><?= htmlspecialchars($row['kode_order']); ?></td>
-                            <td><?= htmlspecialchars($row['customer_name']); ?></td>
-                            <td><?= htmlspecialchars($row['brand']); ?></td>
-                            <td><?= htmlspecialchars($row['kategori'] ?? '-'); ?></td>
-                            <td><?= htmlspecialchars($row['layanan'] ?? '-'); ?></td>
-                            <td><?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?></td>
-                            <td><?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?>
+                            <td>
+                                <?= htmlspecialchars($row['kode_order']); ?>
                             </td>
-                            <td><?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?>
+                            <td>
+                                <?= htmlspecialchars($row['customer_name']); ?>
                             </td>
-                            <td><?= htmlspecialchars($row['status_proses'] ?? '-'); ?></td>
+                            <td>
+                                <?= htmlspecialchars($row['brand']); ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['kategori'] ?? '-'); ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['layanan'] ?? '-'); ?>
+                            </td>
+                            <td>
+                                <?= $row['tgl_transaksi'] ? date('d F Y', strtotime($row['tgl_transaksi'])) : '-'; ?>
+                            </td>
+                            <td>
+                                <?= $row['estimasi_selesai'] ? date('d F Y', strtotime($row['estimasi_selesai'])) : '-'; ?>
+                            </td>
+                            <td>
+                                <?= $row['tanggal_selesai'] ? date('d F Y', strtotime($row['tanggal_selesai'])) : '-'; ?>
+                            </td>
+                            <td>
+                                <?= htmlspecialchars($row['status_proses'] ?? '-'); ?>
+                            </td>
                             <td
                                 class="<?= strtolower($row['status_pembayaran'] ?? 'belum') == 'lunas' ? 'text-green' : 'text-red'; ?>">
                                 <?= htmlspecialchars($row['status_pembayaran'] ?? 'Belum Lunas'); ?>
                             </td>
-                            <td><?= htmlspecialchars($row['karyawan'] ?? '-'); ?></td>
+                            <td>
+                                <?= htmlspecialchars($row['karyawan'] ?? '-'); ?>
+                            </td>
                             <td data-harga="<?= $row['total_harga'] ?>">Rp
                                 <?= number_format($row['total_harga'], 0, ',', '.'); ?>
                             </td>
